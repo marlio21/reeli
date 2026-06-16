@@ -226,7 +226,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     const style: React.CSSProperties = {
       position: 'absolute',
       inset: 0,
-      zIndex: 2, // covers standard background and background video (z-1) but sits below interaction layers
+      zIndex: 9, // covers scene/video softly at the end but sits below text/buttons/replay
       transition: 'opacity 0.6s ease-in-out',
     };
 
@@ -255,7 +255,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       <React.Fragment>
         {/* The elegant Endcard Background cover */}
         <div 
-          className="absolute inset-0 z-2 pointer-events-none animate-fadeIn"
+          className="absolute inset-0 z-[9] pointer-events-none animate-fadeIn"
           style={getEndCardStyle()}
         />
 
@@ -1075,17 +1075,25 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
 
     const buttonsVisible = showButtons && filteredLayeredButtons.length > 0;
     const isHero = activeSceneVideoResult.placement === 'hero' && scene.mode === 'video';
-    const heroOffset = isHero ? (activeSceneVideoResult.heroSize === 'compact' ? 'top-[28%]' : 'top-[33%]') : (buttonsVisible ? 'top-[12%]' : 'top-1/2 -translate-y-1/2');
-    const maxHeight = buttonsVisible ? 'max-h-[58%]' : 'max-h-[82%]';
+    const heroTop = isHero ? (activeSceneVideoResult.heroSize === 'compact' ? '29%' : '33.5%') : (buttonsVisible ? '9%' : '14%');
+    const safeBottom = buttonsVisible ? (filteredLayeredButtons.length > 6 ? '44%' : '38%') : '7%';
     const widthClass = layeredFrameType === 'badge' ? 'max-w-[78%]' : 'max-w-[84%]';
-    const titleSize = Math.max(15, Math.min(buttonsVisible ? 28 : 38, Number((card as any).heroTitleSize || 30) * (buttonsVisible ? 0.72 : 0.9)));
-    const subtitleSize = Math.max(8, Math.min(buttonsVisible ? 13 : 18, Number((card as any).heroSubtitleSize || 12) * (buttonsVisible ? 0.78 : 0.95)));
-    const descriptionSize = Math.max(8, Math.min(buttonsVisible ? 11 : 15, Number((card as any).heroDescriptionSize || 11) * (buttonsVisible ? 0.82 : 1)));
+    const compactRatio = buttonsVisible ? (isHero ? 0.62 : 0.72) : 0.92;
+    const titleSize = Math.max(13, Math.min(buttonsVisible ? 24 : 38, Number((card as any).heroTitleSize || 30) * compactRatio));
+    const subtitleSize = Math.max(7, Math.min(buttonsVisible ? 12 : 18, Number((card as any).heroSubtitleSize || 12) * (buttonsVisible ? 0.72 : 0.95)));
+    const descriptionSize = Math.max(7, Math.min(buttonsVisible ? 10 : 15, Number((card as any).heroDescriptionSize || 11) * (buttonsVisible ? 0.74 : 1)));
     const boxStyle = layeredTextBoxStyle();
+    const textZoneStyle: React.CSSProperties = {
+      top: heroTop,
+      bottom: safeBottom,
+      display: 'flex',
+      alignItems: buttonsVisible ? 'center' : 'center',
+      justifyContent: 'center',
+    };
 
     return (
-      <div className={`absolute left-1/2 -translate-x-1/2 ${heroOffset} ${widthClass} ${maxHeight} z-[12] overflow-hidden pointer-events-none transition-all duration-500`}>
-        <div className={`relative w-full rounded-3xl border px-5 py-5 text-center shadow-2xl shadow-black/20 ureel-ad-anim-${layeredTemplate.animation || 'fade'}`} style={{ ...boxStyle, animationDuration: `${Number((card as any).adAnimationDuration || 1.2)}s` }}>
+      <div className={`absolute left-1/2 -translate-x-1/2 ${widthClass} z-[12] overflow-hidden pointer-events-none transition-all duration-500`} style={textZoneStyle}>
+        <div className={`relative w-full max-h-full overflow-hidden rounded-3xl border ${buttonsVisible ? 'px-4 py-3' : 'px-5 py-5'} text-center shadow-2xl shadow-black/20 ureel-ad-anim-${layeredTemplate.animation || 'fade'}`} style={{ ...boxStyle, animationDuration: `${Number((card as any).adAnimationDuration || 1.2)}s` }}>
           {layeredFrameType === 'corner' && <><span className="absolute left-2 top-2 w-5 h-5 border-l-2 border-t-2" style={{ borderColor: layeredAccent }} /><span className="absolute right-2 top-2 w-5 h-5 border-r-2 border-t-2" style={{ borderColor: layeredAccent }} /><span className="absolute left-2 bottom-2 w-5 h-5 border-l-2 border-b-2" style={{ borderColor: layeredAccent }} /><span className="absolute right-2 bottom-2 w-5 h-5 border-r-2 border-b-2" style={{ borderColor: layeredAccent }} /></>}
           {layeredFrameType === 'thin' && <span className="absolute inset-2 rounded-2xl border border-dashed pointer-events-none" style={{ borderColor: `${layeredAccent}77` }} />}
           {layeredFrameType === 'side_line' && <span className="absolute left-3 top-5 bottom-5 w-1 rounded-full" style={{ background: layeredAccent }} />}

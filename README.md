@@ -1,12 +1,12 @@
-# ureel.me – Scene Layer Layout v23
+# ureel.me Studio – v24 Textzone & Endkarte
 
-Diese Version führt die saubere Karten-Ebenenlogik ein:
+Diese Version fokussiert den Szene-/Vorschau-Bereich:
 
-1. Hintergrund immer 100% Smartphone-Fläche: Video, Bild, Farbe oder Verlauf.
-2. Werbetexte und Vorlagen bleiben erhalten und liegen als eigene Ebene darüber.
-3. Werbetexte werden automatisch kompakter, sobald Buttons eingeblendet werden.
-4. Buttons liegen als eigene Aktions-Ebene unten; mehr als 6 Buttons scrollen im Buttonbereich.
-5. 16:9 Video kann oben angezeigt werden, ohne dass darunter schwarze leere Fläche entsteht.
-6. Szene / Endkarte / Vorschau bleiben auf die fertige Karte ausgerichtet.
+- Werbetext/Vorlagen laufen nicht mehr in die Button-Ebene.
+- Bei sichtbaren Buttons wird die Werbetext-Zone automatisch kompakter und endet oberhalb des Button-Docks.
+- Bei 16:9-Video oben bleibt der Textbereich zwischen Video und Buttons geschützt.
+- Endkarte bleibt im Szene-Modul und erhält einen Bild-Upload.
+- Endkartenbild blendet als Abschluss weich über die Szene.
+- Wenn keine Endkarte aktiv ist, bleibt die aktuelle Szene als Abschluss stehen.
 
 Build geprüft mit `npm run build`.

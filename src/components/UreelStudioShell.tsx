@@ -91,6 +91,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [buttonFileUploading, setButtonFileUploading] = useState(false);
   const [sceneImageUploadProgress, setSceneImageUploadProgress] = useState<number | null>(null);
   const [sceneImageUploading, setSceneImageUploading] = useState(false);
+  const [endCardImageUploadProgress, setEndCardImageUploadProgress] = useState<number | null>(null);
+  const [endCardImageUploading, setEndCardImageUploading] = useState(false);
   
   // Timeline/Video playback simulation states for Vorschau column
   const [timelineSec, setTimelineSec] = useState<number>(0);
@@ -793,6 +795,54 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const visibleButtonsAt = Number(timeline.buttonsAt || 0.6);
   const buttonsCurrentlyVisible = timelineSec >= visibleButtonsAt || !isPlaying;
 
+
+
+  const handleEndCardImageUpload = async (file: File) => {
+    if (!activeCard || !user) {
+      triggerToast(lang === 'de' ? 'Bitte einloggen, bevor du ein Endkartenbild hochlädst.' : 'Please log in before uploading an end card image.', 'error');
+      return;
+    }
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      triggerToast(lang === 'de' ? 'Bitte eine Bilddatei auswählen.' : 'Please choose an image file.', 'error');
+      return;
+    }
+    const maxMb = 10;
+    if (file.size > maxMb * 1024 * 1024) {
+      triggerToast(lang === 'de' ? `Endkartenbild ist zu groß. Maximal ${maxMb} MB.` : `End card image is too large. Max ${maxMb} MB.`, 'error');
+      return;
+    }
+    const cleanName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '')}`;
+    const cardStorageId = activeCard.cardId || (activeCard as any).id || activeCard.slug || 'draft';
+    const storagePath = `users/${user.uid}/cards/${cardStorageId}/endcard-images/${cleanName}`;
+    try {
+      setEndCardImageUploading(true);
+      setEndCardImageUploadProgress(0);
+      const storageRef = ref(storage, storagePath);
+      const downloadUrl = await new Promise<string>((resolve, reject) => {
+        const task = uploadBytesResumable(storageRef, file, { contentType: file.type || 'image/jpeg' });
+        task.on('state_changed',
+          (snap) => setEndCardImageUploadProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
+          reject,
+          async () => resolve(await getDownloadURL(task.snapshot.ref))
+        );
+      });
+      await setEndCard({
+        enabled: true,
+        source: 'image',
+        imageUrl: downloadUrl,
+      });
+      triggerToast(lang === 'de' ? 'Endkartenbild hochgeladen.' : 'End card image uploaded.', 'success');
+    } catch (error: any) {
+      console.error('End card upload failed', error);
+      triggerToast(error?.code === 'storage/unauthorized'
+        ? (lang === 'de' ? 'Upload nicht erlaubt. Bitte Firebase Storage-Regeln prüfen.' : 'Upload not allowed. Please check Firebase Storage rules.')
+        : (lang === 'de' ? 'Endkartenbild konnte nicht hochgeladen werden.' : 'End card image could not be uploaded.'), 'error');
+    } finally {
+      setEndCardImageUploading(false);
+      setEndCardImageUploadProgress(null);
+    }
+  };
 
   const handleSceneImageUpload = async (file: File) => {
     if (!activeCard || !user) {
@@ -2565,7 +2615,22 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <div className="space-y-4">
               <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-4">
                 <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Dauerhafte Endkarte (CTA Banner)</span>
-                <p className="text-[9.5px] text-stone-400">Blenden Sie ein horizontales Aktions-Kombibanner am unteren Bildschirmrand ein, damit Endkunden immer auf Ihre ureel reagieren können.</p>
+                <p className="text-[9.5px] text-stone-400">Blenden Sie am Ende des Videos eine ruhige Endkarte ein. Wenn keine Endkarte aktiv ist, bleibt die aktuelle Szene als Abschluss stehen.</p>
+
+                <div className="rounded-xl border border-[#E8DCC2]/15 bg-stone-900/55 p-3 space-y-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <span className="block text-[10px] uppercase font-black tracking-wider text-[#F5F2EA]">Endkartenbild</span>
+                      <span className="block text-[8.5px] text-stone-400 mt-0.5">Optionales Abschlussbild hochladen. Es blendet weich über die Szene.</span>
+                    </div>
+                    <label className="shrink-0 px-3 py-2 rounded-lg bg-[#F5F2EA] text-stone-950 text-[9px] uppercase font-black cursor-pointer hover:bg-white transition-colors">
+                      Bild hochladen
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleEndCardImageUpload(file); e.currentTarget.value = ''; }} />
+                    </label>
+                  </div>
+                  {endCardImageUploading && <div className="h-1.5 rounded-full bg-stone-800 overflow-hidden"><div className="h-full bg-[#E8DCC2]" style={{ width: `${endCardImageUploadProgress || 0}%` }} /></div>}
+                  {endCard.imageUrl && <div className="h-24 rounded-xl overflow-hidden border border-stone-800 bg-stone-950"><img src={endCard.imageUrl} alt="Endkarte" className="w-full h-full object-cover" /></div>}
+                </div>
 
                 <div className="space-y-3 pt-2">
                   <div className="flex items-center justify-between p-2.5 bg-stone-900 rounded-lg">
