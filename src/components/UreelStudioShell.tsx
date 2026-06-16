@@ -79,6 +79,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [teamPanelOpen, setTeamPanelOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [buttonPreviewMode, setButtonPreviewMode] = useState<'card' | 'button' | 'grid'>('button');
+  const [textPreviewMode, setTextPreviewMode] = useState<'card' | 'text' | 'fit'>('text');
   const [activeSubSection, setActiveSubSection] = useState<string>('scene-core');
   
   // Local state for actively selected button being edited
@@ -683,6 +684,105 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       hyphens: 'auto',
     };
   };
+
+
+  const clampTextSize = (value: any, fallback: number, min: number, max: number) => {
+    const parsed = typeof value === 'number' ? value : parseFloat(String(value || ''));
+    if (!Number.isFinite(parsed)) return fallback;
+    return Math.max(min, Math.min(max, parsed));
+  };
+
+  const adTextSizePreset = () => {
+    const title = clampTextSize(activeCard.heroTitleSize, 28, 16, 52);
+    if (title <= 22) return 'compact';
+    if (title >= 38) return 'poster';
+    return 'balanced';
+  };
+
+  const applyAdTextSizePreset = async (preset: 'compact' | 'balanced' | 'poster') => {
+    const sizes = {
+      compact: { heroTitleSize: 22, heroSubtitleSize: 10.5, heroDescriptionSize: 9.5 },
+      balanced: { heroTitleSize: 30, heroSubtitleSize: 12, heroDescriptionSize: 11 },
+      poster: { heroTitleSize: 40, heroSubtitleSize: 14, heroDescriptionSize: 12.5 },
+    }[preset];
+    await syncCardUpdate(sizes as any);
+    triggerToast(preset === 'compact' ? 'Kompakte Textgröße angewendet.' : preset === 'balanced' ? 'Ausgewogene Textgröße angewendet.' : 'Poster-Textgröße angewendet.', 'success');
+  };
+
+  const renderAdTextWithHighlight = (text: string, className: string, style: React.CSSProperties) => {
+    const mode = currentTextTemplate.emphasis?.mode || 'none';
+    const word = currentTextTemplate.emphasis?.word || '';
+    const color = currentTextTemplate.emphasis?.color || currentTextTemplate.frame?.color || '#E8DCC2';
+    const clean = text || '';
+    if (!clean || mode === 'none') return <span className={className} style={style}>{clean}</span>;
+    let target = '';
+    if (mode === 'last_word') {
+      const parts = clean.trim().split(/\s+/);
+      target = parts.length > 1 ? parts[parts.length - 1] : clean;
+    } else if (mode === 'custom_word') {
+      target = word;
+    }
+    if (!target) return <span className={className} style={style}>{clean}</span>;
+    const idx = clean.toLowerCase().lastIndexOf(target.toLowerCase());
+    if (idx < 0) return <span className={className} style={style}>{clean}</span>;
+    return (
+      <span className={className} style={style}>
+        {clean.slice(0, idx)}<span style={{ color }}>{clean.slice(idx, idx + target.length)}</span>{clean.slice(idx + target.length)}
+      </span>
+    );
+  };
+
+  const renderWerbeTextMonitor = (compact = false) => {
+    const frameType = currentTextTemplate.frame?.type || 'none';
+    const boxType = currentTextTemplate.box?.type || 'none';
+    const accent = currentTextTemplate.frame?.color || currentTextTemplate.emphasis?.color || '#E8DCC2';
+    const title = activeCard.title || 'Deine Headline';
+    const subtitle = activeCard.subtitle || 'Dein Slogan';
+    const description = activeCard.description || 'Dein Nutzen und nächster Schritt.';
+    const baseTitle = clampTextSize(activeCard.heroTitleSize, 30, 16, 52) * (compact ? 0.62 : 0.82);
+    const baseSubtitle = clampTextSize(activeCard.heroSubtitleSize, 12, 8, 24) * (compact ? 0.72 : 0.9);
+    const baseDescription = clampTextSize(activeCard.heroDescriptionSize, 11, 8, 22) * (compact ? 0.78 : 0.95);
+    const fontFamily = currentTextTemplate.fontStyle === 'tech' ? 'ui-monospace, SFMono-Regular, Menlo, monospace' : currentTextTemplate.fontStyle === 'serif' ? 'Georgia, serif' : 'Inter, ui-sans-serif, system-ui, sans-serif';
+    const letterSpacing = currentTextTemplate.fontStyle === 'elegant' ? '0.14em' : currentTextTemplate.fontStyle === 'condensed' ? '-0.04em' : currentTextTemplate.fontStyle === 'tech' ? '-0.02em' : '-0.03em';
+    const boxStyles: React.CSSProperties = boxType === 'light'
+      ? { background: '#F5F2EA', color: '#111111', borderColor: '#E8DCC2' }
+      : boxType === 'glass'
+        ? { background: 'rgba(245,242,234,0.08)', backdropFilter: 'blur(10px)', borderColor: 'rgba(232,220,194,0.28)' }
+        : boxType === 'dark'
+          ? { background: 'rgba(7,7,7,0.86)', borderColor: 'rgba(232,220,194,0.22)' }
+          : boxType === 'transparent'
+            ? { background: 'rgba(0,0,0,0.24)', borderColor: 'rgba(232,220,194,0.12)' }
+            : { background: 'transparent', borderColor: 'transparent' };
+    return (
+      <div className="w-full max-w-[280px] mx-auto rounded-[28px] border border-[#3A3732] bg-[#101010] p-3 shadow-2xl shadow-black/40">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[8px] uppercase tracking-widest font-black text-[#E8DCC2]">Werbeschrift</span>
+          <span className="text-[7px] uppercase tracking-wider text-stone-500">immer sichtbar</span>
+        </div>
+        <div className="relative min-h-[330px] rounded-[24px] overflow-hidden border border-[#3A3732] bg-gradient-to-br from-[#181818] via-[#0F0F0F] to-black flex items-center justify-center p-5">
+          <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #F5F2EA 1px, transparent 0)', backgroundSize: '18px 18px' }} />
+          <div className="relative w-full rounded-3xl border p-5 text-center" style={{ ...boxStyles }}>
+            {frameType === 'corner' && <><span className="absolute left-2 top-2 w-5 h-5 border-l-2 border-t-2" style={{ borderColor: accent }} /><span className="absolute right-2 top-2 w-5 h-5 border-r-2 border-t-2" style={{ borderColor: accent }} /><span className="absolute left-2 bottom-2 w-5 h-5 border-l-2 border-b-2" style={{ borderColor: accent }} /><span className="absolute right-2 bottom-2 w-5 h-5 border-r-2 border-b-2" style={{ borderColor: accent }} /></>}
+            {frameType === 'thin' && <span className="absolute inset-2 rounded-2xl border border-dashed pointer-events-none" style={{ borderColor: `${accent}66` }} />}
+            {frameType === 'side_line' && <span className="absolute left-3 top-5 bottom-5 w-1 rounded-full" style={{ background: accent }} />}
+            {frameType === 'badge' && <div className="inline-flex mb-3 px-3 py-1 rounded-full border text-[8px] font-black uppercase tracking-widest" style={{ borderColor: `${accent}66`, color: accent }}>{subtitle}</div>}
+            <div className={frameType === 'side_line' ? 'pl-4' : ''}>
+              {renderAdTextWithHighlight(title, "block font-black uppercase leading-[0.92] break-words", { fontSize: baseTitle, fontFamily, letterSpacing, color: boxType === 'light' ? '#111111' : '#F5F2EA' })}
+              {frameType !== 'badge' && <span className="block mt-3 font-black uppercase leading-tight break-words" style={{ fontSize: baseSubtitle, fontFamily, letterSpacing: '0.08em', color: boxType === 'light' ? '#3A3732' : accent }}>{subtitle}</span>}
+              <span className="block mt-3 font-semibold leading-snug break-words" style={{ fontSize: baseDescription, fontFamily, color: boxType === 'light' ? '#3A3732' : '#D8D2C5' }}>{description}</span>
+              {frameType === 'underline' && <span className="block mt-4 h-1 rounded-full mx-auto w-2/3" style={{ background: accent }} />}
+            </div>
+          </div>
+        </div>
+        <p className="mt-2 text-[8.5px] leading-snug text-stone-500 text-center">Rahmen, Box, Schrift, Highlight und Textgrößen werden hier sofort gezeigt.</p>
+      </div>
+    );
+  };
+
+  const getPreviewCardForTimeline = () => ({
+    ...activeCard,
+    ureelTimeline: { ...(activeCard.ureelTimeline || {}), titleAt: 0, subtitleAt: 0, descriptionAt: 0, buttonsAt: 999, endCardAt: activeCard.videoBackgroundConfig?.durationSeconds || 12 },
+  } as Card);
 
   const renderButtonPreviewTile = (button: CardButton, compact = false) => {
     const Icon = getButtonActionIcon(button.actionType);
@@ -1423,6 +1523,35 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   </div>
                 </div>
 
+                <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <span className="block text-[9.5px] uppercase font-black tracking-wider text-[#E8DCC2]">Vorlagen-Größe</span>
+                      <p className="text-[9px] text-stone-500 mt-0.5">Die Werbeschrift muss komplett in der Vorschau sichtbar bleiben.</p>
+                    </div>
+                    <span className="text-[8px] uppercase font-mono text-stone-500">{adTextSizePreset()}</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(['compact','balanced','poster'] as const).map((preset) => (
+                      <button key={preset} type="button" onClick={() => applyAdTextSizePreset(preset)} className={`h-10 rounded-xl border text-[10px] font-black uppercase transition ${adTextSizePreset() === preset ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#111111] text-[#F5F2EA] border-[#3A3732] hover:border-[#E8DCC2]/70'}`}>
+                        {preset === 'compact' ? 'Kompakt' : preset === 'balanced' ? 'Balance' : 'Poster'}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {[
+                      { key: 'heroTitleSize', label: 'Headline', min: 16, max: 52, fallback: 30 },
+                      { key: 'heroSubtitleSize', label: 'Slogan', min: 8, max: 24, fallback: 12 },
+                      { key: 'heroDescriptionSize', label: 'Beschreibung', min: 8, max: 22, fallback: 11 },
+                    ].map((item) => (
+                      <div key={item.key}>
+                        <div className="flex justify-between text-[9px] uppercase font-bold text-stone-400 mb-1"><span>{item.label}</span><span>{clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max).toFixed(0)}px</span></div>
+                        <input type="range" min={item.min} max={item.max} step="1" value={clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max)} onChange={(e) => syncCardUpdate({ [item.key]: Number(e.target.value) } as any)} className="w-full accent-[#E8DCC2]" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div>
                     <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-2">Akzentfarbe</label>
@@ -1922,7 +2051,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="w-1.5 h-1.5 rounded-full bg-[#E8DCC2] animate-pulse" />
             <span className="text-[10px] font-mono font-black text-stone-300 uppercase tracking-widest truncate">
-              {activeTab === 'buttons' ? 'Button-Monitor' : 'ureel live'}
+              {activeTab === 'buttons' ? 'Button-Monitor' : activeTab === 'timeline' ? 'Werbe-Monitor' : 'ureel live'}
             </span>
           </div>
 
@@ -1936,6 +2065,19 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   className={`h-7 rounded-lg px-2 transition ${buttonPreviewMode === mode ? 'bg-[#F5F2EA] text-[#101010]' : 'text-stone-400 hover:text-[#F5F2EA]'}`}
                 >
                   {mode === 'card' ? 'Karte' : mode === 'button' ? 'Button' : 'Raster'}
+                </button>
+              ))}
+            </div>
+          ) : activeTab === 'timeline' ? (
+            <div className="grid grid-cols-3 gap-0.5 rounded-xl border border-[#3A3732] bg-[#0F0F0F] p-0.5 text-[8px] font-black uppercase shrink-0">
+              {(['text','card','fit'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => setTextPreviewMode(mode)}
+                  className={`h-7 rounded-lg px-2 transition ${textPreviewMode === mode ? 'bg-[#F5F2EA] text-[#101010]' : 'text-stone-400 hover:text-[#F5F2EA]'}`}
+                >
+                  {mode === 'text' ? 'Text' : mode === 'card' ? 'Karte' : 'Fit'}
                 </button>
               ))}
             </div>
@@ -1999,6 +2141,27 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   <LucideIcons.MousePointerClick className="mx-auto mb-2 text-[#E8DCC2]" size={30} />
                   <p className="font-black text-sm">Button auswählen</p>
                   <p className="text-[10px] text-stone-500 mt-1">Wähle links einen Button aus der Liste.</p>
+                </div>
+              )}
+            </div>
+          ) : activeTab === 'timeline' ? (
+            <div className="w-full h-full min-h-[360px] md:min-h-0 flex items-center justify-center">
+              {textPreviewMode === 'text' && renderWerbeTextMonitor(false)}
+              {textPreviewMode === 'fit' && (
+                <div className="w-full max-w-[280px] rounded-[28px] border border-[#3A3732] bg-[#111111] p-3 shadow-2xl shadow-black/40">
+                  <div className="flex items-center justify-between mb-2"><span className="text-[8px] uppercase tracking-widest font-black text-[#E8DCC2]">Fit-Vorschau</span><span className="text-[7px] text-stone-500">kleine Karte</span></div>
+                  <div className="h-[390px] rounded-[26px] overflow-hidden border-[7px] border-[#F5F2EA]/85 bg-black">
+                    <KonuCardCore card={getPreviewCardForTimeline()} lang={lang} isDesktopPreview={false} isPreview={true} />
+                  </div>
+                  <p className="mt-2 text-[8.5px] leading-snug text-stone-500 text-center">Alle Texte werden unabhängig vom Timing eingeblendet, damit Größe und Rahmen prüfbar sind.</p>
+                </div>
+              )}
+              {textPreviewMode === 'card' && (
+                <div className="relative mx-auto w-[150px] h-[308px] sm:w-[180px] sm:h-[370px] md:w-[230px] md:h-[472px] bg-black rounded-[30px] md:rounded-[36px] border-[8px] border-[#F5F2EA]/80 shadow-2xl overflow-hidden flex flex-col justify-between ring-4 ring-[#E8DCC2]/10">
+                  <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-black rounded-b-xl z-25" />
+                  <div className="w-full h-full overflow-y-auto select-none bg-[#09090B] text-stone-200 scrollbar-none flex flex-col justify-between relative pt-5">
+                    <KonuCardCore card={getPreviewCardForTimeline()} lang={lang} isDesktopPreview={false} isPreview={true} />
+                  </div>
                 </div>
               )}
             </div>
