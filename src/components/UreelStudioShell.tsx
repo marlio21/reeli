@@ -4,6 +4,7 @@ import * as LucideIcons from 'lucide-react';
 import { Card, CardButton, UreelScene, UreelTimeline, UreelEndCard, UreelTextTemplate, getPublicCardUrl } from '../types';
 import { KonuCardCore } from './KonuCardCore';
 import { createDefaultButton, sanitizeButtonForFirestore } from '../utils/buttonUtils';
+import { UREEL_TEXT_TEMPLATES, normalizeUreelTextTemplate } from '../utils/textTemplates';
 import { storage } from '../firebase';
 
 interface UreelStudioShellProps {
@@ -127,6 +128,88 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
   // Helper: Get active button object being edited
   const editingButton = activeCard?.buttons?.find(b => b.id === editingBtnId) || null;
+
+  const currentTextTemplate = normalizeUreelTextTemplate(activeCard?.ureelTextTemplate);
+  const selectedTextTemplatePreset = currentTextTemplate.style && UREEL_TEXT_TEMPLATES[currentTextTemplate.style]
+    ? UREEL_TEXT_TEMPLATES[currentTextTemplate.style]
+    : null;
+
+  const updateTextTemplate = async (fields: any) => {
+    const current = normalizeUreelTextTemplate(activeCard?.ureelTextTemplate);
+    await syncCardUpdate({
+      ureelTextTemplate: {
+        ...current,
+        ...fields,
+      } as any,
+    });
+  };
+
+  const applyTextTemplatePreset = async (styleId: string) => {
+    if (styleId === 'none') {
+      await syncCardUpdate({ ureelTextTemplate: { id: '', style: 'none', animation: 'fade' } as any });
+      return;
+    }
+    const preset = UREEL_TEXT_TEMPLATES[styleId];
+    if (!preset) return;
+    await syncCardUpdate({
+      ureelTextTemplate: {
+        id: preset.id,
+        style: preset.id,
+        animation: preset.defaultAnimation,
+        emphasis: { ...preset.defaultEmphasis, word: currentTextTemplate.emphasis?.word || '' },
+        frame: { type: preset.defaultFrame, color: currentTextTemplate.frame?.color || '#E8DCC2', opacity: 100 },
+        box: { type: preset.defaultBox, opacity: currentTextTemplate.box?.opacity || 85 },
+        fontStyle: preset.defaultFontStyle,
+      } as any,
+    });
+  };
+
+  const applyCopyPreset = async (kind: 'product' | 'offer' | 'event' | 'contact') => {
+    const base = (activeCard.title || activeCard.companyName || activeCard.heroCompany || 'Dein Angebot').trim();
+    const presets = {
+      product: {
+        title: base,
+        subtitle: 'Das Angebot, das sofort verstanden wird.',
+        description: 'Zeige Nutzen, Qualität und nächsten Schritt in einer klickbaren Werbekarte.',
+        template: 'premium_product',
+      },
+      offer: {
+        title: 'Jetzt Angebot sichern',
+        subtitle: base,
+        description: 'Kurz ansehen, direkt reagieren und mit einem Klick anfragen.',
+        template: 'offer_action',
+      },
+      event: {
+        title: base,
+        subtitle: 'Vor Ort sichtbar. Online sofort klickbar.',
+        description: 'Perfekt für Messe, Bühne, Event und Produktpräsentation.',
+        template: 'event_messe',
+      },
+      contact: {
+        title: base,
+        subtitle: 'Kontakt aufnehmen, speichern oder direkt anfragen.',
+        description: 'Alle wichtigen Aktionen kompakt auf einer interaktiven Karte.',
+        template: 'contact_premium',
+      },
+    }[kind];
+    const preset = UREEL_TEXT_TEMPLATES[presets.template];
+    await syncCardUpdate({
+      title: presets.title,
+      subtitle: presets.subtitle,
+      description: presets.description,
+      ureelTextTemplate: preset ? {
+        id: preset.id,
+        style: preset.id,
+        animation: preset.defaultAnimation,
+        emphasis: { ...preset.defaultEmphasis },
+        frame: { type: preset.defaultFrame, color: '#E8DCC2', opacity: 100 },
+        box: { type: preset.defaultBox, opacity: 85 },
+        fontStyle: preset.defaultFontStyle,
+      } as any : activeCard.ureelTextTemplate,
+    });
+    triggerToast(lang === 'de' ? 'Werbetext-Vorlage angewendet.' : 'Ad copy preset applied.', 'success');
+  };
+
 
   // Sync update single button helper
   const handleUpdateSingleButton = async (btnId: string, updates: Partial<CardButton>) => {
@@ -670,16 +753,16 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             onClick={() => setAccountMenuOpen((open) => !open)}
             title={lang === 'de' ? 'Menü öffnen' : 'Open menu'}
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#262626] to-[#3A3732] p-0.5 flex items-center justify-center shadow-lg shadow-purple-950/40">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#262626] to-[#3A3732] p-0.5 flex items-center justify-center shadow-lg shadow-black/40">
               <LucideIcons.Tv className="text-white w-5 h-5 stroke-[2.2]" />
             </div>
             <span className="font-black text-[9px] tracking-widest text-[#E8DCC2] uppercase select-none">ureel</span>
           </button>
           {accountMenuOpen && (
-            <div className="absolute left-0 md:left-[66px] top-12 md:top-0 z-50 w-[280px] rounded-2xl border border-purple-900/40 bg-[#121216] shadow-2xl shadow-black/60 p-3 text-stone-200">
+            <div className="absolute left-0 md:left-[66px] top-12 md:top-0 z-50 w-[280px] rounded-2xl border border-[#E8DCC2]/25 bg-[#121216] shadow-2xl shadow-black/60 p-3 text-stone-200">
               <div className="border-b border-stone-800 pb-3 mb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-9 h-9 rounded-xl bg-purple-950/50 border border-purple-700/50 flex items-center justify-center text-purple-200 font-black">
+                  <div className="w-9 h-9 rounded-xl bg-[#F5F2EA]/10 border border-purple-700/50 flex items-center justify-center text-[#F5F2EA] font-black">
                     {(profile?.displayName || user?.email || 'U').slice(0,1).toUpperCase()}
                   </div>
                   <div className="min-w-0">
@@ -687,17 +770,17 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <p className="text-[9px] text-stone-400 truncate">{user?.email || 'Angemeldet'}</p>
                   </div>
                 </div>
-                <p className="mt-2 text-[9px] text-purple-300 font-bold uppercase tracking-wider">Plan: {effectivePlanId || 'free'}</p>
+                <p className="mt-2 text-[9px] text-[#E8DCC2] font-bold uppercase tracking-wider">Plan: {effectivePlanId || 'free'}</p>
               </div>
               <div className="space-y-1">
-                <button onClick={() => { setAccountMenuOpen(false); handleCreateNewUreel(); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-purple-950/25 text-[11px] font-bold flex items-center gap-2">
-                  <LucideIcons.Plus size={14} className="text-purple-400" /> Neue ureel erstellen
+                <button onClick={() => { setAccountMenuOpen(false); handleCreateNewUreel(); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#F5F2EA]/10 text-[11px] font-bold flex items-center gap-2">
+                  <LucideIcons.Plus size={14} className="text-[#E8DCC2]" /> Neue ureel erstellen
                 </button>
                 <button onClick={() => { setAccountMenuOpen(false); setAccountPanelOpen(true); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-stone-900 text-[11px] font-bold flex items-center gap-2">
-                  <LucideIcons.UserCog size={14} className="text-purple-400" /> Meine Daten & Einstellungen
+                  <LucideIcons.UserCog size={14} className="text-[#E8DCC2]" /> Meine Daten & Einstellungen
                 </button>
                 <button onClick={() => { setAccountMenuOpen(false); setTeamPanelOpen(true); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-stone-900 text-[11px] font-bold flex items-center gap-2">
-                  <LucideIcons.Users size={14} className="text-purple-400" /> Nutzerverwaltung / Team
+                  <LucideIcons.Users size={14} className="text-[#E8DCC2]" /> Nutzerverwaltung / Team
                 </button>
                 <div className="px-3 py-2 rounded-xl bg-stone-950/50 border border-stone-850">
                   <p className="text-[9px] uppercase tracking-wider text-stone-500 font-black mb-1">Aktive ureel</p>
@@ -728,7 +811,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 onClick={() => setActiveTab(item.id as MainModule)}
                 className={`min-w-[60px] md:min-w-0 flex flex-col items-center justify-center py-2.5 px-2 md:px-0 rounded-xl transition duration-150 relative cursor-pointer ${
                   active 
-                    ? 'text-purple-400 bg-purple-950/20 shadow-inner border border-purple-900/30 font-bold' 
+                    ? 'text-[#E8DCC2] bg-[#F5F2EA]/10 shadow-inner border border-[#E8DCC2]/25 font-bold' 
                     : 'text-stone-400 hover:text-stone-150 hover:bg-stone-900/40 font-medium'
                 }`}
                 title={item.label}
@@ -736,7 +819,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <IconComponent size={18} className="stroke-[2.2]" />
                 <span className="text-[8.5px] mt-1 tracking-wider leading-none">{item.label}</span>
                 {active && (
-                  <div className="absolute right-0 top-1/4 h-1/2 w-0.5 bg-gradient-to-b from-purple-500 to-indigo-500 rounded-l" />
+                  <div className="absolute right-0 top-1/4 h-1/2 w-0.5 bg-gradient-to-b from-[#F5F2EA] to-[#E8DCC2] rounded-l" />
                 )}
               </button>
             );
@@ -744,14 +827,21 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         </div>
 
         {/* Bottom Profile Details or Exit */}
-        <div className="flex flex-row md:flex-col items-center gap-3 shrink-0">
+        <div className="flex flex-row md:flex-col items-center gap-2 shrink-0">
+          <button
+            onClick={() => setTeamPanelOpen(true)}
+            className="p-2 text-stone-500 hover:text-[#F5F2EA] transition duration-150 hover:bg-stone-900 rounded-lg cursor-pointer"
+            title={lang === 'de' ? 'Nutzerverwaltung' : 'Team management'}
+          >
+            <LucideIcons.Users size={16} />
+          </button>
           <button
             onClick={() => {
               if (confirm(lang === 'de' ? 'Möchten Sie sich wirklich abmelden?' : 'Do you really want to log out?')) {
                 logout();
               }
             }}
-            className="p-2 text-stone-500 hover:text-white transition duration-150 hover:bg-stone-900 rounded-lg cursor-pointer"
+            className="p-2 text-stone-500 hover:text-[#F5F2EA] transition duration-150 hover:bg-stone-900 rounded-lg cursor-pointer"
             title={lang === 'de' ? 'Abmelden' : 'Logout'}
           >
             <LucideIcons.LogOut size={16} />
@@ -781,45 +871,55 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <button
                   onClick={() => setActiveSubSection('scene-video')}
                   className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all text-left ${
-                    activeSubSection === 'scene-video' ? 'bg-purple-950/20 text-purple-300 font-bold border border-purple-900/20' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/50'
+                    activeSubSection === 'scene-video' ? 'bg-[#F5F2EA]/10 text-[#F5F2EA] font-bold border border-[#E8DCC2]/25' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/50'
                   }`}
                 >
-                  <LucideIcons.Tv size={14} className="text-purple-400 shrink-0" />
+                  <LucideIcons.Tv size={14} className="text-[#E8DCC2] shrink-0" />
                   <span>Clip / Video</span>
                 </button>
                 <button
                   onClick={() => setActiveSubSection('scene-color')}
                   className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all text-left ${
-                    activeSubSection === 'scene-color' ? 'bg-purple-950/20 text-purple-300 font-bold border border-purple-900/20' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/50'
+                    activeSubSection === 'scene-color' ? 'bg-[#F5F2EA]/10 text-[#F5F2EA] font-bold border border-[#E8DCC2]/25' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/50'
                   }`}
                 >
-                  <LucideIcons.Palmtree size={14} className="text-purple-400 shrink-0" />
+                  <LucideIcons.Palmtree size={14} className="text-[#E8DCC2] shrink-0" />
                   <span>Statisch / Fülleffekt</span>
                 </button>
               </>
             )}
 
             {activeTab === 'timeline' && (
-              <>
-                <button
-                  onClick={() => setActiveSubSection('timeline-texts')}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all text-left ${
-                    activeSubSection === 'timeline-texts' ? 'bg-purple-950/20 text-purple-300 font-bold border border-purple-900/20' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/50'
-                  }`}
-                >
-                  <LucideIcons.Heading size={14} className="text-purple-400 shrink-0" />
-                  <span>Texte bearbeiten</span>
-                </button>
-                <button
-                  onClick={() => setActiveSubSection('timeline-times')}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all text-left ${
-                    activeSubSection === 'timeline-times' ? 'bg-purple-950/20 text-purple-300 font-bold border border-purple-900/20' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/50'
-                  }`}
-                >
-                  <LucideIcons.Hourglass size={14} className="text-purple-400 shrink-0" />
-                  <span>Einblend-Timing</span>
-                </button>
-              </>
+              <div className="space-y-2 pt-1">
+                <div className="px-2 text-[10px] text-stone-500 uppercase font-bold tracking-wider">Werbetexter-Studio</div>
+                {[
+                  { id: 'timeline-texts', icon: LucideIcons.Megaphone, label: 'Werbetext', desc: 'Headline, Slogan, Beschreibung' },
+                  { id: 'timeline-templates', icon: LucideIcons.LayoutTemplate, label: 'Vorlagen', desc: 'Reel-, Angebot-, Event-Layouts' },
+                  { id: 'timeline-style', icon: LucideIcons.Frame, label: 'Rahmen & Stil', desc: 'Box, Rahmen, Schrift, Highlight' },
+                  { id: 'timeline-times', icon: LucideIcons.Hourglass, label: 'Timing', desc: 'Einblendung & Simulation' },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  const selected = activeSubSection === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveSubSection(item.id)}
+                      className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
+                        selected
+                          ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
+                          : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'
+                      }`}
+                    >
+                      <Icon size={15} className={selected ? 'text-[#101010]' : 'text-[#E8DCC2]'} />
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">{item.label}</span>
+                        <span className={`block text-[8.5px] leading-snug mt-0.5 ${selected ? 'text-[#101010]/60' : 'text-stone-500'}`}>{item.desc}</span>
+                      </span>
+                      <LucideIcons.ChevronRight size={13} className="opacity-50" />
+                    </button>
+                  );
+                })}
+              </div>
             )}
 
             {activeTab === 'buttons' && (
@@ -870,19 +970,19 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <button
                   onClick={() => setActiveSubSection('endcard-general')}
                   className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all text-left ${
-                    activeSubSection === 'endcard-general' ? 'bg-purple-950/20 text-purple-300 font-bold border border-purple-900/20' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/50'
+                    activeSubSection === 'endcard-general' ? 'bg-[#F5F2EA]/10 text-[#F5F2EA] font-bold border border-[#E8DCC2]/25' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/50'
                   }`}
                 >
-                  <LucideIcons.PlaySquare size={14} className="text-purple-400 shrink-0" />
+                  <LucideIcons.PlaySquare size={14} className="text-[#E8DCC2] shrink-0" />
                   <span>Nachspielsequenz</span>
                 </button>
                 <button
                   onClick={() => setActiveSubSection('endcard-branding')}
                   className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all text-left ${
-                    activeSubSection === 'endcard-branding' ? 'bg-purple-950/20 text-purple-300 font-bold border border-purple-900/20' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/50'
+                    activeSubSection === 'endcard-branding' ? 'bg-[#F5F2EA]/10 text-[#F5F2EA] font-bold border border-[#E8DCC2]/25' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/50'
                   }`}
                 >
-                  <LucideIcons.Sparkles size={14} className="text-purple-400 shrink-0" />
+                  <LucideIcons.Sparkles size={14} className="text-[#E8DCC2] shrink-0" />
                   <span>Wasserzeichen / Logo</span>
                 </button>
               </>
@@ -893,19 +993,19 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <button
                   onClick={() => setActiveSubSection('design-presets')}
                   className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all text-left ${
-                    activeSubSection === 'design-presets' ? 'bg-purple-950/20 text-purple-300 font-bold border border-purple-900/20' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/50'
+                    activeSubSection === 'design-presets' ? 'bg-[#F5F2EA]/10 text-[#F5F2EA] font-bold border border-[#E8DCC2]/25' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/50'
                   }`}
                 >
-                  <LucideIcons.SlidersHorizontal size={14} className="text-purple-400 shrink-0" />
+                  <LucideIcons.SlidersHorizontal size={14} className="text-[#E8DCC2] shrink-0" />
                   <span>Design-Presets</span>
                 </button>
                 <button
                   onClick={() => setActiveSubSection('design-typography')}
                   className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all text-left ${
-                    activeSubSection === 'design-typography' ? 'bg-purple-950/20 text-purple-300 font-bold border border-purple-900/20' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/50'
+                    activeSubSection === 'design-typography' ? 'bg-[#F5F2EA]/10 text-[#F5F2EA] font-bold border border-[#E8DCC2]/25' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/50'
                   }`}
                 >
-                  <LucideIcons.Type size={14} className="text-purple-400 shrink-0" />
+                  <LucideIcons.Type size={14} className="text-[#E8DCC2] shrink-0" />
                   <span>Schriftarten / Style</span>
                 </button>
               </>
@@ -927,7 +1027,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     setEditingBtnId(card.buttons?.[0]?.id || null);
                   }
                 }}
-                className="w-full bg-stone-900 border border-stone-800 text-white rounded-lg h-8.5 px-2 text-[10.5px] font-bold focus:outline-none focus:border-purple-600 appearance-none relative pr-6"
+                className="w-full bg-stone-900 border border-stone-800 text-white rounded-lg h-8.5 px-2 text-[10.5px] font-bold focus:outline-none focus:border-[#F5F2EA] appearance-none relative pr-6"
               >
                 {cards.map(c => (
                   <option key={c.cardId} value={c.cardId}>{c.title || c.slug}</option>
@@ -940,7 +1040,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           )}
           <button
             onClick={handleCreateNewUreel}
-            className="w-full h-9 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition shadow-lg shadow-purple-950/30"
+            className="w-full h-9 rounded-xl bg-[#F5F2EA] hover:bg-white text-[#101010] text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition shadow-lg shadow-black/25"
           >
             <LucideIcons.Plus size={14} />
             Neue ureel erstellen
@@ -956,14 +1056,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           <div>
             <h1 className="text-base font-black text-white tracking-tight uppercase">
               {activeTab === 'scene' && (activeSubSection === 'scene-video' ? 'Clip-Video / Background Reel' : 'Statische Füllfarbe & Overlay')}
-              {activeTab === 'timeline' && (activeSubSection === 'timeline-texts' ? 'Texte, Slogans & Format' : 'Animations-Timeline')}
+              {activeTab === 'timeline' && (activeSubSection === 'timeline-texts' ? 'Werbebotschaft' : activeSubSection === 'timeline-templates' ? 'Werbeschriften & Vorlagen' : activeSubSection === 'timeline-style' ? 'Rahmen, Schrift & Effekt' : 'Animations-Timeline')}
               {activeTab === 'buttons' && (activeSubSection === 'buttons-list' ? 'Button-Liste' : activeSubSection === 'buttons-action' ? 'Aktion & Ziel' : activeSubSection === 'buttons-design' ? 'Button-Design' : 'Raster & Vorschau')}
               {activeTab === 'endcard' && (activeSubSection === 'endcard-general' ? 'Nachspielsequenz einrichten' : 'Wasserzeichen & Branding')}
               {activeTab === 'design' && (activeSubSection === 'design-presets' ? 'Exklusive Design-Presets' : 'Schriftart konfigurieren')}
             </h1>
             <p className="text-[10px] text-stone-450 mt-1">
               {activeTab === 'scene' && (activeSubSection === 'scene-video' ? 'Ermöglicht das automatische Abspielen eines Videos oder Loops im Hintergrund.' : 'Bestimmen Sie das statische Farbsystem oder Overlay.')}
-              {activeTab === 'timeline' && (activeSubSection === 'timeline-texts' ? 'Passe die Begrüßung und Beschreibung an, die über der Szene liegen.' : 'Reguliere millisekundengenaue Animations-Szenen wie bei professionellen Werbeanzeigen.')}
+              {activeTab === 'timeline' && (activeSubSection === 'timeline-texts' ? 'Formuliere die Werbebotschaft, die aus Video oder Bild eine Aktion macht.' : activeSubSection === 'timeline-templates' ? 'Wähle eine professionelle Werbeschrift und fülle die Karte mit passenden Texten.' : activeSubSection === 'timeline-style' ? 'Gestalte Rahmen, Textbox, Schrift, Highlight und Animation.' : 'Reguliere millisekundengenaue Animations-Szenen wie bei professionellen Werbeanzeigen.')}
               {activeTab === 'buttons' && (activeSubSection === 'buttons-list' ? 'Jeder Button ist als eigene Karte sichtbar – inklusive Kopieren, Duplizieren und Löschen.' : activeSubSection === 'buttons-action' ? 'Bestimme, was der Button öffnet: Link, Telefon, PDF, Datei oder Formular.' : activeSubSection === 'buttons-design' ? 'Gestalte Text, Bild, Farbe, Form und Lesbarkeit des Buttons.' : 'Wechsle zwischen Karte, Button und Raster-Vorschau und passe Größe/Abstand an.')}
               {activeTab === 'endcard' && (activeSubSection === 'endcard-general' ? 'Bestimme, was abläuft, wenn das Video zu Ende abgespielt wurde.' : 'Entferne ureel-Wasserzeichen oder füge eigene Marken-Logos hinzu.')}
               {activeTab === 'design' && (activeSubSection === 'design-presets' ? 'Wähle aus einer Reihe von optimalen Designvorlagen für deinen Kampagnenflow.' : 'Definiere Headline-Schrifteffekte und Designstile.')}
@@ -977,7 +1077,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               rel="noreferrer"
               className="bg-stone-900 hover:bg-stone-850 hover:text-white border border-stone-800 text-stone-300 font-extrabold px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1.5 uppercase tracking-wider text-[9.5px]"
             >
-              <LucideIcons.ExternalLink size={11} className="text-purple-400" />
+              <LucideIcons.ExternalLink size={11} className="text-[#E8DCC2]" />
               <span>Live-Link</span>
             </a>
           </div>
@@ -990,7 +1090,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           {activeTab === 'scene' && activeSubSection === 'scene-video' && (
             <div className="space-y-4">
               <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-4">
-                <span className="text-[10px] uppercase font-black tracking-wider text-purple-400 block">Hintergrund-Typ erzwingen</span>
+                <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Hintergrund-Typ erzwingen</span>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={async () => {
@@ -1006,11 +1106,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     }}
                     className={`flex items-center gap-2 p-3 rounded-lg border text-left cursor-pointer transition ${
                       activeCard.backgroundType === 'video' || activeCard.videoBackgroundConfig?.enabled
-                        ? 'border-purple-600 bg-purple-950/20 text-white font-bold'
+                        ? 'border-[#F5F2EA] bg-purple-950/20 text-white font-bold'
                         : 'border-stone-800 bg-stone-900/60 text-stone-400 hover:bg-stone-800'
                     }`}
                   >
-                    <LucideIcons.Video size={14} className="text-purple-400 shrink-0" />
+                    <LucideIcons.Video size={14} className="text-[#E8DCC2] shrink-0" />
                     <div className="truncate">
                       <span className="block text-[10px] leading-tight">Reel Video-Hintergrund</span>
                       <span className="block text-[8px] text-stone-500 leading-none mt-0.5">Automatisches Abspielen</span>
@@ -1030,11 +1130,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     }}
                     className={`flex items-center gap-2 p-3 rounded-lg border text-left cursor-pointer transition ${
                       activeCard.backgroundType === 'image' && !activeCard.videoBackgroundConfig?.enabled
-                        ? 'border-purple-600 bg-purple-950/20 text-white font-bold'
+                        ? 'border-[#F5F2EA] bg-purple-950/20 text-white font-bold'
                         : 'border-stone-800 bg-stone-900/60 text-stone-400 hover:bg-stone-800'
                     }`}
                   >
-                    <LucideIcons.Image size={14} className="text-purple-400 shrink-0" />
+                    <LucideIcons.Image size={14} className="text-[#E8DCC2] shrink-0" />
                     <div className="truncate">
                       <span className="block text-[10px] leading-tight">Mattes Cover-Bild</span>
                       <span className="block text-[8px] text-stone-500 leading-none mt-0.5">Statische Ansicht</span>
@@ -1063,7 +1163,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                           });
                         }}
                         placeholder="z.B. https://www.youtube.com/watch?v=..."
-                        className="flex-1 bg-stone-900 border border-stone-800 h-9 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-purple-600"
+                        className="flex-1 bg-stone-900 border border-stone-800 h-9 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-[#F5F2EA]"
                       />
                     </div>
                     <span className="text-[9px] text-stone-500 mt-1 block">YouTube oder Shorts werden automatisch im Hintergrund geloopt.</span>
@@ -1072,7 +1172,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   <div>
                     <div className="flex justify-between items-center text-[10.5px] font-bold text-stone-400 mb-2">
                       <span>Maximale Video-Spieldauer:</span>
-                      <span className="text-purple-400 font-mono">{(activeCard.videoBackgroundConfig?.durationSeconds || 12)}s</span>
+                      <span className="text-[#E8DCC2] font-mono">{(activeCard.videoBackgroundConfig?.durationSeconds || 12)}s</span>
                     </div>
                     <input
                       type="range"
@@ -1089,7 +1189,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                           }
                         });
                       }}
-                      className="w-full h-1 h-1.5 bg-stone-800 accent-purple-600 rounded-lg appearance-none cursor-pointer"
+                      className="w-full h-1 h-1.5 bg-stone-800 accent-[#E8DCC2] rounded-lg appearance-none cursor-pointer"
                     />
                     <div className="flex justify-between text-[8px] text-stone-500 mt-1">
                       <span>5 Sek.</span>
@@ -1105,7 +1205,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           {activeTab === 'scene' && activeSubSection === 'scene-color' && (
             <div className="space-y-4">
               <div className="p-4 bg-stone-950/40 rounded-xl border border-stone-900 space-y-4">
-                <span className="text-[10px] uppercase font-black tracking-wider text-purple-400 block">Hintergrund-Fülleffekte</span>
+                <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Hintergrund-Fülleffekte</span>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -1140,7 +1240,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         }}
                         className={`w-full text-center py-2 rounded-xl transition font-bold text-[10px] cursor-pointer ${
                           (activeCard.cardBackgroundDarken || 0) >= 50
-                            ? 'bg-purple-950/30 text-purple-400 border border-purple-900/30'
+                            ? 'bg-purple-950/30 text-[#E8DCC2] border border-[#E8DCC2]/25'
                             : 'bg-stone-900 text-stone-400 border border-stone-850 hover:bg-stone-850'
                         }`}
                       >
@@ -1153,44 +1253,192 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             </div>
           )}
 
-          {/* TAB 2: TIMELINE & TEXTS */}
+          {/* TAB 2: TIMELINE & WERBETEXTER */}
           {activeTab === 'timeline' && activeSubSection === 'timeline-texts' && (
             <div className="space-y-4">
-              <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-4">
-                <span className="text-[10px] uppercase font-black tracking-wider text-purple-400 block">Sichtbare Werbebotschaft</span>
-                
-                <div className="space-y-3">
+              <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4 shadow-xl">
+                <div className="flex items-start justify-between gap-3">
                   <div>
-                    <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-1.5">Hauptüberschrift (Headline)</label>
+                    <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Werbebotschaft</span>
+                    <p className="text-[10px] text-stone-400 mt-1 max-w-xl">Headline, Slogan und Beschreibung werden als Werbeschrift über deine Szene gelegt.</p>
+                  </div>
+                  <div className="hidden md:flex items-center gap-1.5 text-[9px] uppercase tracking-widest text-stone-500 border border-[#3A3732] rounded-full px-3 py-1">Live im Preview</div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-1.5">Hauptüberschrift</label>
                     <input
                       type="text"
                       value={activeCard.title || ''}
                       onChange={(e) => syncCardUpdate({ title: e.target.value })}
-                      className="w-full bg-stone-900 border border-stone-800 h-9 px-3 rounded-xl text-xs text-white focus:outline-none focus:border-purple-600"
+                      className="w-full bg-[#1A1A1A] border border-[#3A3732] h-11 px-3 rounded-2xl text-sm text-[#F5F2EA] focus:outline-none focus:border-[#E8DCC2]"
                       placeholder="z.B. Mehr Kunden im Handumdrehen!"
                     />
                   </div>
-
                   <div>
-                    <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-1.5">Untertitel (Slogan)</label>
+                    <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-1.5">Untertitel / Slogan</label>
                     <input
                       type="text"
                       value={activeCard.subtitle || ''}
                       onChange={(e) => syncCardUpdate({ subtitle: e.target.value })}
-                      className="w-full bg-stone-900 border border-stone-800 h-9 px-3 rounded-xl text-xs text-white focus:outline-none focus:border-purple-600"
-                      placeholder="z.B. Gestalte professionelle Video-Landingpages kostenlos."
+                      className="w-full bg-[#1A1A1A] border border-[#3A3732] h-11 px-3 rounded-2xl text-sm text-[#F5F2EA] focus:outline-none focus:border-[#E8DCC2]"
+                      placeholder="z.B. Kurz ansehen. Direkt reagieren."
                     />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-1.5">Werbetext / Beschreibung</label>
+                  <textarea
+                    value={activeCard.description || ''}
+                    onChange={(e) => syncCardUpdate({ description: e.target.value })}
+                    rows={4}
+                    className="w-full bg-[#1A1A1A] border border-[#3A3732] p-3 rounded-2xl text-sm text-[#F5F2EA] focus:outline-none focus:border-[#E8DCC2] resize-none"
+                    placeholder="Beschreibe kurz Nutzen, Angebot und nächsten Schritt."
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {[
+                    { id: 'product', label: 'Produkt', icon: LucideIcons.Box },
+                    { id: 'offer', label: 'Angebot', icon: LucideIcons.BadgePercent },
+                    { id: 'event', label: 'Event', icon: LucideIcons.CalendarDays },
+                    { id: 'contact', label: 'Kontakt', icon: LucideIcons.Contact },
+                  ].map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => applyCopyPreset(item.id as any)}
+                        className="min-h-[58px] rounded-2xl border border-[#3A3732] bg-[#181818] hover:bg-[#F5F2EA] hover:text-[#101010] text-[#F5F2EA] transition flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-wide"
+                      >
+                        <Icon size={15} />
+                        {item.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'timeline' && activeSubSection === 'timeline-templates' && (
+            <div className="space-y-4">
+              <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
+                <div>
+                  <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Werbeschriften</span>
+                  <p className="text-[10px] text-stone-400 mt-1">Eine Vorlage steuert Schrift, Rahmen, Box, Animation und empfohlene Wirkung.</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <button
+                    onClick={() => applyTextTemplatePreset('none')}
+                    className={`p-4 rounded-2xl border text-left transition ${currentTextTemplate.style === 'none' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732] hover:border-[#E8DCC2]/70'}`}
+                  >
+                    <div className="text-sm font-black">Klassisch</div>
+                    <div className="text-[10px] opacity-60 mt-1">Ohne Spezialrahmen, neutral und direkt.</div>
+                  </button>
+                  {Object.values(UREEL_TEXT_TEMPLATES).map((tmpl) => {
+                    const selected = currentTextTemplate.style === tmpl.id;
+                    return (
+                      <button
+                        key={tmpl.id}
+                        onClick={() => applyTextTemplatePreset(tmpl.id)}
+                        className={`p-4 rounded-2xl border text-left transition ${selected ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732] hover:border-[#E8DCC2]/70'}`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="text-sm font-black">{lang === 'de' ? tmpl.labelDe : tmpl.labelEn}</div>
+                          {selected && <LucideIcons.Check size={16} />}
+                        </div>
+                        <div className="text-[10px] opacity-60 mt-1 leading-snug">{lang === 'de' ? tmpl.descriptionDe : tmpl.descriptionEn}</div>
+                        <div className="mt-3 flex flex-wrap gap-1.5 text-[9px] uppercase tracking-wide opacity-70">
+                          <span className="px-2 py-1 rounded-full border border-current/20">{tmpl.defaultFrame}</span>
+                          <span className="px-2 py-1 rounded-full border border-current/20">{tmpl.defaultBox}</span>
+                          <span className="px-2 py-1 rounded-full border border-current/20">{tmpl.defaultAnimation}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'timeline' && activeSubSection === 'timeline-style' && (
+            <div className="space-y-4">
+              <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Rahmen & Werbestil</span>
+                    <p className="text-[10px] text-stone-400 mt-1">Macht aus Text eine Werbeschrift: Rahmen, Textbox, Font, Animation und Highlight.</p>
+                  </div>
+                  {selectedTextTemplatePreset && (
+                    <span className="rounded-full bg-[#F5F2EA] text-[#101010] px-3 py-1 text-[9px] font-black uppercase">{lang === 'de' ? selectedTextTemplatePreset.labelDe : selectedTextTemplatePreset.labelEn}</span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-2">Rahmen</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        ['none','Ohne'], ['thin','Fein'], ['corner','Ecken'], ['underline','Unterlinie'], ['side_line','Seitenlinie'], ['badge','Badge']
+                      ].map(([value,label]) => (
+                        <button key={value} onClick={() => updateTextTemplate({ frame: { ...currentTextTemplate.frame, type: value } })} className={`min-h-[42px] rounded-xl border text-[11px] font-bold transition ${currentTextTemplate.frame.type === value ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732] hover:border-[#E8DCC2]/60'}`}>{label}</button>
+                      ))}
+                    </div>
                   </div>
 
                   <div>
-                    <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-1.5">Werbetext / Beschreibung</label>
-                    <textarea
-                      value={activeCard.description || ''}
-                      onChange={(e) => syncCardUpdate({ description: e.target.value })}
-                      rows={3}
-                      className="w-full bg-stone-900 border border-stone-800 p-3 rounded-xl text-xs text-white focus:outline-none focus:border-purple-600 resize-none"
-                      placeholder="Hier ist Platz für dein detailliertes Verkaufsangebot..."
-                    />
+                    <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-2">Textbox</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        ['none','Keine'], ['transparent','Transparent'], ['glass','Glas'], ['dark','Dunkel'], ['light','Creme']
+                      ].map(([value,label]) => (
+                        <button key={value} onClick={() => updateTextTemplate({ box: { ...currentTextTemplate.box, type: value } })} className={`min-h-[42px] rounded-xl border text-[11px] font-bold transition ${currentTextTemplate.box.type === value ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732] hover:border-[#E8DCC2]/60'}`}>{label}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-2">Schriftstil</label>
+                    <select value={currentTextTemplate.fontStyle} onChange={(e) => updateTextTemplate({ fontStyle: e.target.value })} className="w-full h-11 rounded-2xl bg-[#181818] border border-[#3A3732] text-[#F5F2EA] px-3 text-sm focus:outline-none focus:border-[#E8DCC2]">
+                      <option value="modern">Modern</option>
+                      <option value="elegant">Elegant</option>
+                      <option value="serif">Serif</option>
+                      <option value="condensed">Condensed</option>
+                      <option value="tech">Tech Mono</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-2">Animation</label>
+                    <select value={currentTextTemplate.animation} onChange={(e) => updateTextTemplate({ animation: e.target.value })} className="w-full h-11 rounded-2xl bg-[#181818] border border-[#3A3732] text-[#F5F2EA] px-3 text-sm focus:outline-none focus:border-[#E8DCC2]">
+                      <option value="fade">Sanft erscheinen</option>
+                      <option value="slide_left">Von links</option>
+                      <option value="slide_up">Von unten</option>
+                      <option value="reveal">Aufklappen</option>
+                      <option value="focus">Fokus</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-2">Akzentfarbe</label>
+                    <input type="color" value={currentTextTemplate.frame.color || '#E8DCC2'} onChange={(e) => updateTextTemplate({ frame: { ...currentTextTemplate.frame, color: e.target.value }, emphasis: { ...currentTextTemplate.emphasis, color: e.target.value } })} className="w-full h-11 rounded-xl bg-[#181818] border border-[#3A3732] p-1" />
+                  </div>
+                  <div>
+                    <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-2">Highlight</label>
+                    <select value={currentTextTemplate.emphasis.mode} onChange={(e) => updateTextTemplate({ emphasis: { ...currentTextTemplate.emphasis, mode: e.target.value } })} className="w-full h-11 rounded-2xl bg-[#181818] border border-[#3A3732] text-[#F5F2EA] px-3 text-sm focus:outline-none focus:border-[#E8DCC2]">
+                      <option value="none">Kein Highlight</option>
+                      <option value="last_word">Letztes Wort</option>
+                      <option value="custom_word">Eigenes Wort</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-2">Highlight-Wort</label>
+                    <input value={currentTextTemplate.emphasis.word || ''} onChange={(e) => updateTextTemplate({ emphasis: { ...currentTextTemplate.emphasis, word: e.target.value } })} className="w-full h-11 rounded-2xl bg-[#181818] border border-[#3A3732] text-[#F5F2EA] px-3 text-sm focus:outline-none focus:border-[#E8DCC2]" placeholder="z.B. Aktion" />
                   </div>
                 </div>
               </div>
@@ -1201,7 +1449,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <div className="space-y-4">
               <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-5">
                 <div>
-                  <span className="text-[10px] uppercase font-black tracking-wider text-purple-400 block">Timeline-Steuerung</span>
+                  <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Timeline-Steuerung</span>
                   <p className="text-[9.5px] text-stone-400 mt-1">Steuere, wann Text, Buttons und Endkarte in der ureel-Karte erscheinen. Die Zeitsteuerung läuft unabhängig davon, ob das Video lädt.</p>
                 </div>
 
@@ -1240,7 +1488,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         onClick={() => applyDuration(duration as 12 | 15)}
                         className={`min-h-[44px] rounded-xl border text-xs font-black transition cursor-pointer ${
                           timelineDuration === duration
-                            ? 'border-purple-500 bg-purple-600 text-white'
+                            ? 'border-[#F5F2EA] bg-[#F5F2EA] text-[#101010]'
                             : 'border-stone-850 bg-stone-900 text-stone-400 hover:bg-stone-850'
                         }`}
                       >
@@ -1263,7 +1511,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       <div key={item.key}>
                         <div className="flex justify-between items-center text-[10.5px] font-bold text-stone-400 mb-1.5">
                           <span>{item.label}</span>
-                          <span className="text-purple-400 font-mono">{value.toFixed(1)}s</span>
+                          <span className="text-[#E8DCC2] font-mono">{value.toFixed(1)}s</span>
                         </div>
                         <input
                           type="range"
@@ -1272,7 +1520,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                           step={0.1}
                           value={value}
                           onChange={(e) => updateTimelineField(item.key as keyof Omit<UreelTimeline, 'preset'>, parseFloat(e.target.value))}
-                          className="w-full bg-stone-800 accent-purple-600 h-1.5 rounded-lg appearance-none cursor-pointer"
+                          className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer"
                         />
                       </div>
                     );
@@ -1288,7 +1536,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <button
                       type="button"
                       onClick={() => setEndCard({ enabled: !endCard.enabled })}
-                      className={`p-1 w-10 rounded-full transition-colors flex shrink-0 ${endCard.enabled ? 'bg-purple-600 justify-end' : 'bg-stone-800 justify-start'} cursor-pointer`}
+                      className={`p-1 w-10 rounded-full transition-colors flex shrink-0 ${endCard.enabled ? 'bg-[#F5F2EA] justify-end' : 'bg-stone-800 justify-start'} cursor-pointer`}
                     >
                       <span className="w-4 h-4 rounded-full bg-stone-950 block shadow-md" />
                     </button>
@@ -1302,7 +1550,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <button
                       type="button"
                       onClick={() => setEndCard({ replayButton: !endCard.replayButton })}
-                      className={`p-1 w-10 rounded-full transition-colors flex shrink-0 ${endCard.replayButton !== false ? 'bg-purple-600 justify-end' : 'bg-stone-800 justify-start'} cursor-pointer`}
+                      className={`p-1 w-10 rounded-full transition-colors flex shrink-0 ${endCard.replayButton !== false ? 'bg-[#F5F2EA] justify-end' : 'bg-stone-800 justify-start'} cursor-pointer`}
                     >
                       <span className="w-4 h-4 rounded-full bg-stone-950 block shadow-md" />
                     </button>
@@ -1313,7 +1561,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <select
                       value={endCard.source || 'scene'}
                       onChange={(e) => setEndCard({ source: e.target.value as UreelEndCard['source'] })}
-                      className="w-full bg-stone-950 border border-stone-800 h-9 px-3 rounded-xl text-xs font-semibold text-white focus:outline-none focus:border-purple-600"
+                      className="w-full bg-stone-950 border border-stone-800 h-9 px-3 rounded-xl text-xs font-semibold text-white focus:outline-none focus:border-[#F5F2EA]"
                     >
                       <option value="scene">Szene bleibt sichtbar</option>
                       <option value="poster">Poster / Standbild</option>
@@ -1326,7 +1574,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
                 <div className="bg-stone-950 border border-stone-850 rounded-xl p-3">
                   <div className="relative h-10 rounded-lg bg-stone-900 overflow-hidden border border-stone-800">
-                    <div className="absolute left-0 top-0 bottom-0 bg-purple-600/15" style={{ width: `${Math.min(100, (timelineSec / timelineDuration) * 100)}%` }} />
+                    <div className="absolute left-0 top-0 bottom-0 bg-[#F5F2EA]/15" style={{ width: `${Math.min(100, (timelineSec / timelineDuration) * 100)}%` }} />
                     {[
                       { label: 'Titel', value: timeline.titleAt },
                       { label: 'Untertitel', value: timeline.subtitleAt },
@@ -1336,7 +1584,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     ].map((mark) => (
                       <div
                         key={mark.label}
-                        className="absolute top-1 bottom-1 w-px bg-purple-400/80"
+                        className="absolute top-1 bottom-1 w-px bg-[#E8DCC2]/80"
                         style={{ left: `${Math.min(100, (Number(mark.value) / timelineDuration) * 100)}%` }}
                         title={`${mark.label}: ${Number(mark.value).toFixed(1)}s`}
                       >
@@ -1351,7 +1599,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 pt-1">
-                  <button type="button" onClick={restartPreviewSimulation} className="min-h-[44px] bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-black text-[10px] uppercase tracking-wider cursor-pointer">Timing simulieren</button>
+                  <button type="button" onClick={restartPreviewSimulation} className="min-h-[44px] bg-[#F5F2EA] hover:bg-white text-[#101010] rounded-xl font-black text-[10px] uppercase tracking-wider cursor-pointer">Timing simulieren</button>
                   <button type="button" onClick={() => applyTimeline(valuesForTimelinePreset('direct'))} className="min-h-[44px] bg-stone-900 hover:bg-stone-850 border border-stone-800 text-stone-300 rounded-xl font-black text-[10px] uppercase tracking-wider cursor-pointer">Alles sofort anzeigen</button>
                   <button type="button" onClick={() => applyTimeline(valuesForTimelinePreset('ad_reel'))} className="min-h-[44px] bg-stone-900 hover:bg-stone-850 border border-stone-800 text-stone-300 rounded-xl font-black text-[10px] uppercase tracking-wider cursor-pointer">Als Werbe-Reel timen</button>
                   <button type="button" onClick={() => applyTimeline(valuesForTimelinePreset('direct'))} className="min-h-[44px] bg-stone-900 hover:bg-stone-850 border border-stone-800 text-stone-300 rounded-xl font-black text-[10px] uppercase tracking-wider cursor-pointer">Timing zurücksetzen</button>
@@ -1533,7 +1781,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           {activeTab === 'endcard' && activeSubSection === 'endcard-general' && (
             <div className="space-y-4">
               <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-4">
-                <span className="text-[10px] uppercase font-black tracking-wider text-purple-400 block">Dauerhafte Endkarte (CTA Banner)</span>
+                <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Dauerhafte Endkarte (CTA Banner)</span>
                 <p className="text-[9.5px] text-stone-400">Blenden Sie ein horizontales Aktions-Kombibanner am unteren Bildschirmrand ein, damit Endkunden immer auf Ihre ureel reagieren können.</p>
 
                 <div className="space-y-3 pt-2">
@@ -1545,7 +1793,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <button
                       onClick={() => handleToggleElementInReelLocal('includeCta')}
                       className={`p-1 w-9 rounded-full transition-colors flex ${
-                        activeCard.reelExportConfig?.includeCta !== false ? 'bg-purple-600 justify-end' : 'bg-stone-800 justify-start'
+                        activeCard.reelExportConfig?.includeCta !== false ? 'bg-[#F5F2EA] justify-end' : 'bg-stone-800 justify-start'
                       } cursor-pointer`}
                     >
                       <span className="w-3.5 h-3.5 rounded-full bg-stone-950 block shadow-md" />
@@ -1565,7 +1813,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                           }
                         });
                       }}
-                      className="w-full bg-stone-900 border border-stone-800 h-9 px-3 rounded-xl text-xs text-white focus:outline-none focus:border-purple-600"
+                      className="w-full bg-stone-900 border border-stone-800 h-9 px-3 rounded-xl text-xs text-white focus:outline-none focus:border-[#F5F2EA]"
                     />
                   </div>
                 </div>
@@ -1576,7 +1824,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           {activeTab === 'endcard' && activeSubSection === 'endcard-branding' && (
             <div className="space-y-4">
               <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-4">
-                <span className="text-[10px] uppercase font-black tracking-wider text-purple-400 block">Wasserzeichen und ureel-Marke</span>
+                <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Wasserzeichen und ureel-Marke</span>
                 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between p-2.5 bg-stone-900 rounded-lg">
@@ -1587,7 +1835,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <button
                       onClick={() => handleToggleElementInReelLocal('includeBranding')}
                       className={`p-1 w-9 rounded-full transition-colors flex ${
-                        activeCard.reelExportConfig?.includeBranding !== false ? 'bg-purple-600 justify-end' : 'bg-stone-800 justify-start'
+                        activeCard.reelExportConfig?.includeBranding !== false ? 'bg-[#F5F2EA] justify-end' : 'bg-stone-800 justify-start'
                       } cursor-pointer`}
                     >
                       <span className="w-3.5 h-3.5 rounded-full bg-stone-950 block shadow-md" />
@@ -1601,7 +1849,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           {/* TAB 5: DESIGN PRESETS */}
           {activeTab === 'design' && activeSubSection === 'design-presets' && (
             <div className="space-y-4">
-              <span className="text-[10px] uppercase font-black tracking-wider text-purple-400 block">Exklusive Design-Presets</span>
+              <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Exklusive Design-Presets</span>
               <div className="grid grid-cols-2 gap-3 pt-1">
                 {[
                   { id: 'elegant-violet', name: 'Elegant Violet (Standard)', desc: 'Modernes violettes Ambient-Licht', themeColor: 'bg-purple-500' },
@@ -1631,7 +1879,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           {activeTab === 'design' && activeSubSection === 'design-typography' && (
             <div className="space-y-4">
               <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-4">
-                <span className="text-[10px] uppercase font-black tracking-wider text-purple-400 block">Schriftgruppen-Grundeinstellung</span>
+                <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Schriftgruppen-Grundeinstellung</span>
                 
                 <div>
                   <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-2">Headline-Font Gruppe</label>
@@ -1649,7 +1897,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                           onClick={() => syncCardUpdate({ heroFontStyle: font.id as any, heroTitleFontStyle: font.id as any })}
                           className={`py-2 px-3 text-center rounded-lg border text-[10px] font-bold cursor-pointer transition ${
                             selected
-                              ? 'border-purple-600 bg-purple-950/25 text-white'
+                              ? 'border-[#F5F2EA] bg-[#F5F2EA]/10 text-white'
                               : 'border-stone-850 bg-stone-900/70 text-stone-400 hover:bg-stone-850'
                           }`}
                         >
@@ -1670,65 +1918,111 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       <div className="order-2 md:order-none w-full md:w-[330px] max-h-[48dvh] md:max-h-none overflow-hidden md:overflow-visible bg-[#0E0E11] border-b md:border-b-0 md:border-l border-stone-900 flex flex-col justify-between shrink-0 p-3 md:p-4">
         
         {/* Preview Title bar */}
-        <div className="flex items-center justify-between border-b border-stone-900 pb-3">
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
-            <span className="text-[10px] font-mono font-black text-stone-300 uppercase tracking-widest">ureel live</span>
+        <div className="flex items-center justify-between border-b border-stone-900 pb-3 gap-2">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E8DCC2] animate-pulse" />
+            <span className="text-[10px] font-mono font-black text-stone-300 uppercase tracking-widest truncate">
+              {activeTab === 'buttons' ? 'Button-Monitor' : 'ureel live'}
+            </span>
           </div>
 
-          <div className="flex bg-stone-950 border border-stone-900 p-0.5 rounded-lg">
-            <button
-              onClick={() => setIsPlaying(!isPlaying)}
-              className="p-1 px-2.5 rounded text-[8.5px] font-bold cursor-pointer transition flex items-center gap-1 hover:text-white"
-            >
-              {isPlaying ? (
-                <>
-                  <LucideIcons.Pause size={10} className="text-purple-500 fill-purple-500" />
-                  <span>Stop</span>
-                </>
-              ) : (
-                <>
-                  <LucideIcons.Play size={10} className="text-purple-500 fill-purple-500" />
-                  <span>Simulation</span>
-                </>
-              )}
-            </button>
-          </div>
+          {activeTab === 'buttons' ? (
+            <div className="grid grid-cols-3 gap-0.5 rounded-xl border border-[#3A3732] bg-[#0F0F0F] p-0.5 text-[8px] font-black uppercase shrink-0">
+              {(['card','button','grid'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => setButtonPreviewMode(mode)}
+                  className={`h-7 rounded-lg px-2 transition ${buttonPreviewMode === mode ? 'bg-[#F5F2EA] text-[#101010]' : 'text-stone-400 hover:text-[#F5F2EA]'}`}
+                >
+                  {mode === 'card' ? 'Karte' : mode === 'button' ? 'Button' : 'Raster'}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="flex bg-stone-950 border border-stone-900 p-0.5 rounded-lg">
+              <button
+                onClick={() => setIsPlaying(!isPlaying)}
+                className="p-1 px-2.5 rounded text-[8.5px] font-bold cursor-pointer transition flex items-center gap-1 hover:text-white"
+              >
+                {isPlaying ? (
+                  <>
+                    <LucideIcons.Pause size={10} className="text-[#E8DCC2] fill-[#E8DCC2]" />
+                    <span>Stop</span>
+                  </>
+                ) : (
+                  <>
+                    <LucideIcons.Play size={10} className="text-[#E8DCC2] fill-[#E8DCC2]" />
+                    <span>Simulation</span>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Realistic iPhone mockup frame */}
-        <div className="flex-none md:flex-1 flex items-center justify-center py-2 md:py-4 bg-stone-950/20">
-          <div className="relative mx-auto w-[150px] h-[308px] sm:w-[180px] sm:h-[370px] md:w-[256px] md:h-[526px] bg-black rounded-[30px] md:rounded-[38px] border-[8px] border-stone border-stone-850 shadow-2xl overflow-hidden flex flex-col justify-between relative ring-4 ring-purple-900/10">
-            {/* Dynamic Notch */}
-            <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-black rounded-b-xl z-25 flex items-center justify-center" />
-
-            {/* Simulated UTC & Battery header line */}
-            <div className="absolute top-0.5 left-0 right-0 px-5 flex justify-between text-[7px] text-stone-500 z-20 font-bold font-mono">
-              <span>09:41</span>
-              <span>100% 🔋</span>
+        {/* Smart preview / Button monitor */}
+        <div className="flex-none md:flex-1 flex items-center justify-center py-2 md:py-4 bg-stone-950/20 overflow-hidden">
+          {activeTab === 'buttons' ? (
+            <div className="w-full h-full min-h-[230px] md:min-h-0 flex items-center justify-center">
+              {buttonPreviewMode === 'button' && editingButton && (
+                <div className="w-full max-w-[250px] rounded-[28px] border border-[#3A3732] bg-[#111111] p-4 shadow-2xl shadow-black/40">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[9px] uppercase tracking-widest font-black text-[#E8DCC2]">Aktueller Button</span>
+                    <span className="text-[8px] text-stone-500 font-mono">#{Math.max(1, (activeCard.buttons || []).findIndex(b => b.id === editingButton.id) + 1)}</span>
+                  </div>
+                  {renderButtonPreviewTile(editingButton)}
+                  <p className="mt-3 text-center text-[9px] text-stone-500 leading-snug">Diese Vorschau bleibt sichtbar, auch wenn der Button in der Karte erst ab {visibleButtonsAt.toFixed(1)}s erscheint.</p>
+                </div>
+              )}
+              {buttonPreviewMode === 'grid' && (
+                <div className="w-full max-w-[270px] rounded-[28px] border border-[#3A3732] bg-[#111111] p-4 shadow-2xl shadow-black/40">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[9px] uppercase tracking-widest font-black text-[#E8DCC2]">Raster-Vorschau</span>
+                    <span className="text-[8px] text-stone-500 font-mono">{buttonGridCols} pro Reihe</span>
+                  </div>
+                  <div className="grid" style={{ gridTemplateColumns: `repeat(${buttonGridCols}, minmax(0, 1fr))`, gap: `${Math.min(buttonGapPx, 14)}px` }}>
+                    {(activeButtons.length ? activeButtons : activeCard.buttons || []).slice(0, 9).map((button) => renderButtonPreviewTile(button, true))}
+                  </div>
+                </div>
+              )}
+              {buttonPreviewMode === 'card' && (
+                <div className="relative mx-auto w-[150px] h-[308px] sm:w-[180px] sm:h-[370px] md:w-[230px] md:h-[472px] bg-black rounded-[30px] md:rounded-[36px] border-[8px] border-[#F5F2EA]/80 shadow-2xl overflow-hidden flex flex-col justify-between ring-4 ring-[#E8DCC2]/10">
+                  <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-black rounded-b-xl z-25" />
+                  <div className="w-full h-full overflow-y-auto select-none bg-[#09090B] text-stone-200 scrollbar-none flex flex-col justify-between relative pt-5">
+                    <KonuCardCore card={activeCard} lang={lang} isDesktopPreview={false} isPreview={true} />
+                  </div>
+                </div>
+              )}
+              {buttonPreviewMode === 'button' && !editingButton && (
+                <div className="rounded-3xl border border-dashed border-[#3A3732] bg-[#111111] p-6 text-center text-[#F5F2EA]">
+                  <LucideIcons.MousePointerClick className="mx-auto mb-2 text-[#E8DCC2]" size={30} />
+                  <p className="font-black text-sm">Button auswählen</p>
+                  <p className="text-[10px] text-stone-500 mt-1">Wähle links einen Button aus der Liste.</p>
+                </div>
+              )}
             </div>
-
-            {/* Inner frame wrapper with absolute overlays */}
-            <div className="w-full h-full overflow-y-auto select-none bg-[#09090B] text-stone-200 scrollbar-none flex flex-col justify-between relative pt-5">
-              <KonuCardCore
-                card={activeCard}
-                lang={lang}
-                isDesktopPreview={false}
-                isPreview={true}
-              />
-            </div>
-            
-            {/* Timeline bottom indicator bar */}
-            {isPlaying && (
-              <div className="absolute bottom-1.5 left-2 right-2 bg-black/80 border border-purple-900/40 p-1.5 rounded-lg flex items-center justify-between text-[7.5px] z-30 font-mono text-purple-400">
-                <span className="flex items-center gap-1 font-bold">
-                  <LucideIcons.Tv size={8} className="animate-pulse" />
-                  REEL PLAYBACK
-                </span>
-                <span>{timelineSec}s / {activeCard.videoBackgroundConfig?.durationSeconds || 12}s</span>
+          ) : (
+            <div className="relative mx-auto w-[150px] h-[308px] sm:w-[180px] sm:h-[370px] md:w-[256px] md:h-[526px] bg-black rounded-[30px] md:rounded-[38px] border-[8px] border-[#F5F2EA]/80 shadow-2xl overflow-hidden flex flex-col justify-between ring-4 ring-[#E8DCC2]/10">
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-black rounded-b-xl z-25 flex items-center justify-center" />
+              <div className="absolute top-0.5 left-0 right-0 px-5 flex justify-between text-[7px] text-stone-500 z-20 font-bold font-mono">
+                <span>09:41</span>
+                <span>100% 🔋</span>
               </div>
-            )}
-          </div>
+              <div className="w-full h-full overflow-y-auto select-none bg-[#09090B] text-stone-200 scrollbar-none flex flex-col justify-between relative pt-5">
+                <KonuCardCore card={activeCard} lang={lang} isDesktopPreview={false} isPreview={true} />
+              </div>
+              {isPlaying && (
+                <div className="absolute bottom-1.5 left-2 right-2 bg-black/80 border border-[#E8DCC2]/30 p-1.5 rounded-lg flex items-center justify-between text-[7.5px] z-30 font-mono text-[#E8DCC2]">
+                  <span className="flex items-center gap-1 font-bold">
+                    <LucideIcons.Tv size={8} className="animate-pulse" />
+                    REEL PLAYBACK
+                  </span>
+                  <span>{timelineSec}s / {activeCard.videoBackgroundConfig?.durationSeconds || 12}s</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Share buttons or actions below preview */}
@@ -1743,7 +2037,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   triggerToast(lang === 'de' ? 'Nicht erfolgreich' : 'Copy unsuccessful', 'error');
                 }
               }}
-              className="flex-1 bg-purple-600 hover:bg-purple-500 text-white border-0 font-extrabold py-2.5 px-3 rounded-xl transition duration-150 flex items-center justify-center gap-1 text-[9.5px] uppercase tracking-wider cursor-pointer shadow-lg shadow-purple-900/20"
+              className="flex-1 bg-[#F5F2EA] hover:bg-white text-[#101010] border-0 font-extrabold py-2.5 px-3 rounded-xl transition duration-150 flex items-center justify-center gap-1 text-[9.5px] uppercase tracking-wider cursor-pointer shadow-lg shadow-black/25"
             >
               <LucideIcons.Copy size={11} className="stroke-[2.5]" />
               <span>{lang === 'de' ? 'Link kopieren' : 'Copy link'}</span>
