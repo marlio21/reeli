@@ -209,8 +209,11 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const fontScale = Math.min(scaleFactor, 1.12);
   const iconScale = Math.min(scaleFactor, 1.15);
 
+  const labelLength = (btn.title || '').trim().length;
   const baseFontSize = btn.fontSize !== undefined ? btn.fontSize : 12;
-  const sizeStyle = `${Math.round(baseFontSize * fontScale)}px`;
+  const lengthPenalty = labelLength > 28 ? 4 : labelLength > 20 ? 3 : labelLength > 14 ? 1.8 : labelLength > 10 ? 0.8 : 0;
+  const autoFitFontSize = Math.max(7, Math.round((baseFontSize * fontScale) - lengthPenalty));
+  const sizeStyle = `${autoFitFontSize}px`;
 
   const fontWeights: any = {
     light: '300',
@@ -292,8 +295,8 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   // Text wrapper properties
   const getTextWrapClass = () => {
     if (btn.textWrap === 'ellipsis') return 'truncate whitespace-nowrap block w-full';
-    if (btn.textWrap === 'single') return 'line-clamp-1 break-all';
-    return 'line-clamp-2 break-all';
+    if (btn.textWrap === 'single') return 'line-clamp-1 break-words';
+    return 'line-clamp-3 break-words whitespace-normal';
   };
 
   // Layout alignment classes
@@ -468,6 +471,10 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
               letterSpacing: btn.letterSpacing ? `${btn.letterSpacing}px` : undefined,
               textShadow: textShadowVal,
               color: textColor,
+              lineHeight: 1.08,
+              overflowWrap: 'anywhere',
+              wordBreak: 'break-word',
+              hyphens: 'auto',
             }}
           >
             {btn.title || (lang === 'en' ? 'Untitled' : 'Ohne Titel')}

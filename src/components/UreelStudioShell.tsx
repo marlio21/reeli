@@ -73,6 +73,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
   const [activeTab, setActiveTab] = useState<MainModule>('scene');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [activeSubSection, setActiveSubSection] = useState<string>('scene-core');
   
   // Local state for actively selected button being edited
@@ -175,13 +176,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       triggerToast(lang === 'de' ? 'Für „PDF öffnen“ bitte eine PDF-Datei wählen.' : 'Please choose a PDF file.', 'error');
       return;
     }
-    const maxMb = type === 'pdf_link' ? 25 : 50;
+    const maxMb = type === 'pdf_link' ? 20 : 50;
     if (file.size > maxMb * 1024 * 1024) {
       triggerToast(lang === 'de' ? `Datei ist zu groß. Maximal ${maxMb} MB.` : `File is too large. Max ${maxMb} MB.`, 'error');
       return;
     }
     const cleanName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '')}`;
-    const storagePath = `users/${user.uid}/cards/${activeCard.cardId}/button-files/${btnId}/${cleanName}`;
+    const cardStorageId = activeCard.cardId || (activeCard as any).id || activeCard.slug || 'draft';
+    const storagePath = `users/${user.uid}/cards/${cardStorageId}/button-files/${btnId}/${cleanName}`;
     try {
       setButtonFileUploading(true);
       setButtonFileUploadProgress(0);
@@ -203,7 +205,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       triggerToast(lang === 'de' ? 'Datei hochgeladen und als Button-Ziel gesetzt.' : 'File uploaded and set as button target.', 'success');
     } catch (err: any) {
       console.error('Button file upload failed', err);
-      triggerToast(lang === 'de' ? `Upload fehlgeschlagen: ${err?.message || err}` : `Upload failed: ${err?.message || err}`, 'error');
+      triggerToast(lang === 'de' ? `Upload fehlgeschlagen: ${err?.message || err}. Prüfe Firebase Storage, Storage-Regeln und Vercel-Variable VITE_FIREBASE_STORAGE_BUCKET.` : `Upload failed: ${err?.message || err}. Check Firebase Storage, Storage rules and VITE_FIREBASE_STORAGE_BUCKET.`, 'error');
     } finally {
       setButtonFileUploading(false);
       setTimeout(() => setButtonFileUploadProgress(null), 1200);
@@ -225,6 +227,26 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     setActiveTab('buttons');
     setActiveSubSection('buttons-list');
     triggerToast(lang === 'de' ? 'Schaltfläche hinzugefügt' : 'Button added successfully', 'success');
+  };
+
+
+  const handleCreateNewUreel = async () => {
+    try {
+      const created = await createNewCard({
+        title: lang === 'de' ? 'Neue ureel' : 'New ureel',
+        subtitle: lang === 'de' ? 'Aus Video wird Aktion.' : 'Turn video into action.',
+        description: '',
+        isPublished: false,
+        visibility: 'draft' as any,
+      }, lang);
+      setActiveCard(created);
+      setActiveTab('scene');
+      setActiveSubSection('scene-video');
+      triggerToast(lang === 'de' ? 'Neue ureel wurde erstellt.' : 'New ureel created.', 'success');
+    } catch (err: any) {
+      console.error('Create ureel failed', err);
+      triggerToast(lang === 'de' ? `Neue ureel konnte nicht erstellt werden: ${err?.message || err}` : `Could not create ureel: ${err?.message || err}`, 'error');
+    }
   };
 
   // Delete button
@@ -446,6 +468,57 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const visibleButtonsAt = Number(timeline.buttonsAt || 0.6);
   const buttonsCurrentlyVisible = timelineSec >= visibleButtonsAt || !isPlaying;
 
+
+  const handleButtonImageUpload = async (btnId: string, file: File) => {
+    if (!activeCard || !user) {
+      triggerToast(lang === 'de' ? 'Bitte einloggen, bevor du Buttonbilder hochlädst.' : 'Please log in before uploading button images.', 'error');
+      return;
+    }
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      triggerToast(lang === 'de' ? 'Bitte eine Bilddatei auswählen.' : 'Please choose an image file.', 'error');
+      return;
+    }
+    const maxMb = 10;
+    if (file.size > maxMb * 1024 * 1024) {
+      triggerToast(lang === 'de' ? `Bild ist zu groß. Maximal ${maxMb} MB.` : `Image is too large. Max ${maxMb} MB.`, 'error');
+      return;
+    }
+    const cleanName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '')}`;
+    const cardStorageId = activeCard.cardId || (activeCard as any).id || activeCard.slug || 'draft';
+    const storagePath = `users/${user.uid}/cards/${cardStorageId}/button-images/${btnId}/${cleanName}`;
+    try {
+      setButtonFileUploading(true);
+      setButtonFileUploadProgress(0);
+      const storageRef = ref(storage, storagePath);
+      const downloadUrl = await new Promise<string>((resolve, reject) => {
+        const task = uploadBytesResumable(storageRef, file, { contentType: file.type || 'image/jpeg' });
+        task.on('state_changed',
+          (snap) => setButtonFileUploadProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
+          reject,
+          async () => resolve(await getDownloadURL(task.snapshot.ref))
+        );
+      });
+      await handleUpdateSingleButton(btnId, {
+        buttonImageUrl: downloadUrl,
+        imageUrl: downloadUrl,
+        buttonImageFileName: file.name,
+        buttonImageStoragePath: storagePath,
+        buttonImageFit: editingButton?.buttonImageFit || 'cover',
+        imageMode: editingButton?.imageMode || 'cover',
+        buttonImageOverlay: editingButton?.buttonImageOverlay ?? true,
+        imageOverlay: typeof editingButton?.imageOverlay === 'number' ? editingButton.imageOverlay : 35,
+      } as any);
+      triggerToast(lang === 'de' ? 'Buttonbild hochgeladen.' : 'Button image uploaded.', 'success');
+    } catch (err: any) {
+      console.error('Button image upload failed', err);
+      triggerToast(lang === 'de' ? `Buttonbild-Upload fehlgeschlagen: ${err?.message || err}` : `Button image upload failed: ${err?.message || err}`, 'error');
+    } finally {
+      setButtonFileUploading(false);
+      setButtonFileUploadProgress(null);
+    }
+  };
+
   const actionOptions = [
     { value: 'url', label: 'Web-Link', hint: 'Website oder Landingpage' },
     { value: 'phone', label: 'Telefon', hint: 'Direkt anrufen' },
@@ -508,6 +581,22 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     };
   };
 
+  const getAutoButtonLabelStyle = (button: CardButton, compact = false): React.CSSProperties => {
+    const label = (button.title || 'Button').trim();
+    const len = label.length;
+    const sizeBase = compact ? Math.max(8, Math.min(12, buttonSizePx / 7.2)) : Math.max(10, Math.min(15, buttonSizePx / 6.2));
+    const lengthPenalty = len > 26 ? 3.2 : len > 18 ? 2.2 : len > 12 ? 1.2 : 0;
+    const fontSize = Math.max(compact ? 7.5 : 9.5, sizeBase - lengthPenalty);
+    return {
+      fontSize: `${fontSize}px`,
+      lineHeight: 1.08,
+      maxWidth: '100%',
+      overflowWrap: 'anywhere',
+      wordBreak: 'break-word',
+      hyphens: 'auto',
+    };
+  };
+
   const renderButtonPreviewTile = (button: CardButton, compact = false) => {
     const Icon = getButtonActionIcon(button.actionType);
     return (
@@ -520,7 +609,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         <div className={`relative z-20 flex items-center justify-center ${compact ? 'w-8 h-8' : 'w-12 h-12'} rounded-2xl bg-black/25 border border-white/10 mb-2`}>
           <Icon size={compact ? 16 : 22} className="text-current" />
         </div>
-        <span className={`relative z-20 font-black leading-tight ${compact ? 'text-[9px]' : 'text-xs'} line-clamp-2`}>{button.title || 'Button'}</span>
+        <span
+          className="relative z-20 font-black line-clamp-3 px-1"
+          style={getAutoButtonLabelStyle(button, compact)}
+        >
+          {button.title || 'Button'}
+        </span>
         {!compact && (
           <span className="relative z-20 mt-1 text-[8px] uppercase tracking-widest opacity-70">
             {actionOptions.find((option) => option.value === button.actionType)?.label || button.actionType || 'Aktion'}
@@ -565,11 +659,52 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       <div className="order-1 md:order-none sticky top-0 z-40 md:static w-full md:w-[76px] bg-[#0E0E11] border-b md:border-b-0 md:border-r border-stone-900 flex flex-row md:flex-col justify-between items-center gap-3 px-3 md:px-0 py-2 md:py-4 shrink-0 overflow-x-auto">
         
         {/* Top Logo */}
-        <div className="flex flex-row md:flex-col items-center gap-1.5 cursor-pointer shrink-0" onClick={() => onGoToRoute?.('/')}>
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-700 to-indigo-500 p-0.5 flex items-center justify-center shadow-lg shadow-purple-950/40">
-            <LucideIcons.Tv className="text-white w-5 h-5 stroke-[2.2]" />
-          </div>
-          <span className="font-black text-[9px] tracking-widest text-purple-400 uppercase select-none">ureel</span>
+        <div className="relative shrink-0">
+          <button
+            type="button"
+            className="flex flex-row md:flex-col items-center gap-1.5 cursor-pointer"
+            onClick={() => setAccountMenuOpen((open) => !open)}
+            title={lang === 'de' ? 'Menü öffnen' : 'Open menu'}
+          >
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-700 to-indigo-500 p-0.5 flex items-center justify-center shadow-lg shadow-purple-950/40">
+              <LucideIcons.Tv className="text-white w-5 h-5 stroke-[2.2]" />
+            </div>
+            <span className="font-black text-[9px] tracking-widest text-purple-400 uppercase select-none">ureel</span>
+          </button>
+          {accountMenuOpen && (
+            <div className="absolute left-0 md:left-[66px] top-12 md:top-0 z-50 w-[280px] rounded-2xl border border-purple-900/40 bg-[#121216] shadow-2xl shadow-black/60 p-3 text-stone-200">
+              <div className="border-b border-stone-800 pb-3 mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-9 h-9 rounded-xl bg-purple-950/50 border border-purple-700/50 flex items-center justify-center text-purple-200 font-black">
+                    {(profile?.displayName || user?.email || 'U').slice(0,1).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-black text-white truncate">{profile?.displayName || user?.displayName || 'Mein ureel.me Konto'}</p>
+                    <p className="text-[9px] text-stone-400 truncate">{user?.email || 'Angemeldet'}</p>
+                  </div>
+                </div>
+                <p className="mt-2 text-[9px] text-purple-300 font-bold uppercase tracking-wider">Plan: {effectivePlanId || 'free'}</p>
+              </div>
+              <div className="space-y-1">
+                <button onClick={() => { setAccountMenuOpen(false); handleCreateNewUreel(); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-purple-950/25 text-[11px] font-bold flex items-center gap-2">
+                  <LucideIcons.Plus size={14} className="text-purple-400" /> Neue ureel erstellen
+                </button>
+                <button onClick={() => { setAccountMenuOpen(false); onGoToRoute?.('/settings'); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-stone-900 text-[11px] font-bold flex items-center gap-2">
+                  <LucideIcons.UserCog size={14} className="text-purple-400" /> Meine Daten & Einstellungen
+                </button>
+                <button onClick={() => { setAccountMenuOpen(false); onGoToAdmin?.(); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-stone-900 text-[11px] font-bold flex items-center gap-2">
+                  <LucideIcons.Users size={14} className="text-purple-400" /> Nutzerverwaltung / Team
+                </button>
+                <div className="px-3 py-2 rounded-xl bg-stone-950/50 border border-stone-850">
+                  <p className="text-[9px] uppercase tracking-wider text-stone-500 font-black mb-1">Aktive ureel</p>
+                  <p className="text-[10px] text-white font-bold truncate">{activeCard?.title || activeCard?.slug || 'Keine ureel gewählt'}</p>
+                </div>
+                <button onClick={() => { setAccountMenuOpen(false); logout(); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-red-950/25 text-[11px] font-bold flex items-center gap-2 text-red-200">
+                  <LucideIcons.LogOut size={14} /> Abmelden
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Mid Navigation Tabs */}
@@ -808,6 +943,13 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           ) : (
             <span className="text-[10px] text-stone-450 italic">Keine Seite vorhanden</span>
           )}
+          <button
+            onClick={handleCreateNewUreel}
+            className="w-full h-9 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition shadow-lg shadow-purple-950/30"
+          >
+            <LucideIcons.Plus size={14} />
+            Neue ureel erstellen
+          </button>
         </div>
       </div>
 
@@ -1424,17 +1566,39 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       <div className="flex items-center justify-between gap-3">
                         <div>
                           <span className="block text-[10px] font-black uppercase tracking-wider text-purple-300">Buttonbild / Aktionsbild</span>
-                          <span className="block text-[8.5px] text-stone-500 mt-0.5">Bild-URL verwenden; Upload kann später an Firebase Storage angebunden werden.</span>
+                          <span className="block text-[8.5px] text-stone-500 mt-0.5">Bild direkt hochladen oder vorhandene Bild-URL einfügen.</span>
                         </div>
                         <LucideIcons.ImagePlus size={16} className="text-purple-400" />
                       </div>
-                      <input
-                        type="text"
-                        value={editingButton.buttonImageUrl || editingButton.imageUrl || ''}
-                        onChange={(e) => handleUpdateSingleButton(editingButton.id, { buttonImageUrl: e.target.value, imageUrl: e.target.value })}
-                        className="w-full bg-stone-950 border border-stone-800 h-9 px-2.5 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-purple-600"
-                        placeholder="https://.../buttonbild.jpg"
-                      />
+                      <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2 items-center">
+                        <input
+                          type="text"
+                          value={editingButton.buttonImageUrl || editingButton.imageUrl || ''}
+                          onChange={(e) => handleUpdateSingleButton(editingButton.id, { buttonImageUrl: e.target.value, imageUrl: e.target.value })}
+                          className="w-full bg-stone-950 border border-stone-800 h-10 px-2.5 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-purple-600"
+                          placeholder="https://.../buttonbild.jpg"
+                        />
+                        <label className="h-10 px-3 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-[9px] uppercase font-black tracking-wider cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap">
+                          <LucideIcons.UploadCloud size={13} />
+                          Bild hochladen
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleButtonImageUpload(editingButton.id, file);
+                              e.currentTarget.value = '';
+                            }}
+                          />
+                        </label>
+                      </div>
+                      {(editingButton as any).buttonImageFileName && (
+                        <div className="rounded-lg border border-stone-800 bg-stone-950/70 px-3 py-2 text-[9px] text-stone-300 flex items-center justify-between gap-2">
+                          <span className="truncate">{(editingButton as any).buttonImageFileName}</span>
+                          <LucideIcons.Image size={13} className="text-purple-400 shrink-0" />
+                        </div>
+                      )}
                       <div className="grid grid-cols-2 gap-2">
                         <select
                           value={editingButton.buttonImageFit || editingButton.imageMode || 'cover'}
@@ -1451,6 +1615,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         >
                           Overlay {editingButton.buttonImageOverlay || Number(editingButton.imageOverlay || 0) > 0 ? 'an' : 'aus'}
                         </button>
+                      </div>
+                      <div className="rounded-lg border border-purple-900/30 bg-purple-950/10 p-2 text-[8.5px] leading-relaxed text-purple-100">
+                        Der Buttontext wird in Vorschau und Karte automatisch verkleinert/umbrochen, damit längere Labels in die Kachel passen.
                       </div>
                     </div>
                   </div>
