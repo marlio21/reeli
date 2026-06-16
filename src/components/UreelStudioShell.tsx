@@ -993,10 +993,15 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
   const getCleanMonitorCard = (card: Card): Card => {
-    const hiddenPreviewLabels = ['ureel editor', 'reel editor', 'texte & timeline', 'profil/texte', 'vorschau'];
+    const hiddenPreviewLabels = ['ureel editor', 'reel editor', 'texte & timeline', 'profil/texte', 'vorschau', 'editor', 'timeline'];
+    const cleanedButtons = (card.buttons || []).filter((button) => {
+      const label = (button.title || '').trim().toLowerCase();
+      const action = (button.actionType || '').trim().toLowerCase();
+      return !hiddenPreviewLabels.some((hidden) => label.includes(hidden)) && action !== 'editor';
+    });
     return {
       ...card,
-      buttons: (card.buttons || []).filter((button) => !hiddenPreviewLabels.includes((button.title || '').trim().toLowerCase())),
+      buttons: cleanedButtons,
     };
   };
 
@@ -1113,7 +1118,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       </div>
 
       {/* COLUMN 2: LINKES MODULPANEL (SUB NAV / SUB OPTIONS) */}
-      <div className="order-3 md:order-none w-full md:w-[220px] bg-[#111115] max-h-[240px] md:max-h-screen overflow-y-auto md:overflow-visible border-b md:border-b-0 md:border-r border-stone-900 flex flex-col justify-between shrink-0">
+      <div className="order-3 md:order-none w-full md:w-[220px] bg-[#111115] md:max-h-screen overflow-y-visible md:overflow-visible border-b md:border-b-0 md:border-r border-stone-900 flex flex-col justify-between shrink-0">
         <div>
           {/* Active Module Title */}
           <div className="p-4 border-b border-stone-850/60">
@@ -1130,26 +1135,36 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           {/* Tab specific menu layouts */}
           <div className="p-2 space-y-1 md:overflow-visible">
             {activeTab === 'scene' && (
-              <>
-                <button
-                  onClick={() => setActiveSubSection('scene-video')}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all text-left ${
-                    activeSubSection === 'scene-video' ? 'bg-[#F5F2EA]/10 text-[#F5F2EA] font-bold border border-[#E8DCC2]/25' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/50'
-                  }`}
-                >
-                  <LucideIcons.Tv size={14} className="text-[#E8DCC2] shrink-0" />
-                  <span>Clip / Video</span>
-                </button>
-                <button
-                  onClick={() => setActiveSubSection('scene-color')}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all text-left ${
-                    activeSubSection === 'scene-color' ? 'bg-[#F5F2EA]/10 text-[#F5F2EA] font-bold border border-[#E8DCC2]/25' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/50'
-                  }`}
-                >
-                  <LucideIcons.Palmtree size={14} className="text-[#E8DCC2] shrink-0" />
-                  <span>Statisch / Fülleffekt</span>
-                </button>
-              </>
+              <div className="space-y-2 pt-1">
+                <div className="px-2 text-[10px] text-stone-500 uppercase font-bold tracking-wider">Szenen-Studio</div>
+                {[
+                  { id: 'scene-video', icon: LucideIcons.Video, label: 'Video', desc: 'YouTube, Shorts, Loop' },
+                  { id: 'scene-poster', icon: LucideIcons.Image, label: 'Bild / Poster', desc: 'Cover, Upload, Standbild' },
+                  { id: 'scene-color', icon: LucideIcons.PaintBucket, label: 'Farbe / Verlauf', desc: 'Anthrazit, Creme, Gradient' },
+                  { id: 'scene-display', icon: LucideIcons.Scan, label: 'Darstellung', desc: 'Füllen, ganz, Hero' },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  const selected = activeSubSection === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveSubSection(item.id)}
+                      className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
+                        selected
+                          ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
+                          : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'
+                      }`}
+                    >
+                      <Icon size={15} className={selected ? 'text-[#101010]' : 'text-[#E8DCC2]'} />
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">{item.label}</span>
+                        <span className={`block text-[8.5px] leading-snug mt-0.5 ${selected ? 'text-[#101010]/60' : 'text-stone-500'}`}>{item.desc}</span>
+                      </span>
+                      <LucideIcons.ChevronRight size={13} className="opacity-50" />
+                    </button>
+                  );
+                })}
+              </div>
             )}
 
             {activeTab === 'timeline' && (
@@ -1318,14 +1333,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-900 pb-4">
           <div>
             <h1 className="text-base font-black text-white tracking-tight uppercase">
-              {activeTab === 'scene' && (activeSubSection === 'scene-video' ? 'Clip-Video / Background Reel' : 'Statische Füllfarbe & Overlay')}
+              {activeTab === 'scene' && (activeSubSection === 'scene-video' ? 'Clip-Video / Background Reel' : activeSubSection === 'scene-poster' ? 'Bild / Poster einrichten' : activeSubSection === 'scene-display' ? 'Darstellung & Zuschnitt' : 'Farbe, Verlauf & Overlay')}
               {activeTab === 'timeline' && (activeSubSection === 'timeline-texts' ? 'Werbebotschaft' : activeSubSection === 'timeline-templates' ? 'Werbeschriften & Vorlagen' : activeSubSection === 'timeline-style' ? 'Rahmen, Schrift & Effekt' : 'Animations-Timeline')}
               {activeTab === 'buttons' && (activeSubSection === 'buttons-list' ? 'Button-Liste' : activeSubSection === 'buttons-action' ? 'Aktion & Ziel' : activeSubSection === 'buttons-design' ? 'Button-Design' : 'Raster & Vorschau')}
               {activeTab === 'endcard' && (activeSubSection === 'endcard-general' ? 'Nachspielsequenz einrichten' : 'Wasserzeichen & Branding')}
               {activeTab === 'design' && (activeSubSection === 'design-presets' ? 'Exklusive Design-Presets' : 'Schriftart konfigurieren')}
             </h1>
             <p className="text-[10px] text-stone-450 mt-1">
-              {activeTab === 'scene' && (activeSubSection === 'scene-video' ? 'Ermöglicht das automatische Abspielen eines Videos oder Loops im Hintergrund.' : 'Bestimmen Sie das statische Farbsystem oder Overlay.')}
+              {activeTab === 'scene' && (activeSubSection === 'scene-video' ? 'Ermöglicht das automatische Abspielen eines Videos oder Loops im Hintergrund.' : activeSubSection === 'scene-poster' ? 'Lege ein ruhiges Cover- oder Werbebild fest, falls kein Video genutzt wird.' : activeSubSection === 'scene-display' ? 'Bestimme, wie 9:16-, 16:9- und Bildinhalte innerhalb der ureel-Karte sitzen.' : 'Bestimme Anthrazit-/Cremeflächen, Verläufe, Vignette und Abdunklung.')}
               {activeTab === 'timeline' && (activeSubSection === 'timeline-texts' ? 'Formuliere die Werbebotschaft, die aus Video oder Bild eine Aktion macht.' : activeSubSection === 'timeline-templates' ? 'Wähle eine professionelle Werbeschrift und fülle die Karte mit passenden Texten.' : activeSubSection === 'timeline-style' ? 'Gestalte Rahmen, Textbox, Schrift, Highlight und Animation.' : 'Reguliere millisekundengenaue Animations-Szenen wie bei professionellen Werbeanzeigen.')}
               {activeTab === 'buttons' && (activeSubSection === 'buttons-list' ? 'Jeder Button ist als eigene Karte sichtbar – inklusive Kopieren, Duplizieren und Löschen.' : activeSubSection === 'buttons-action' ? 'Bestimme, was der Button öffnet: Link, Telefon, PDF, Datei oder Formular.' : activeSubSection === 'buttons-design' ? 'Gestalte Text, Bild, Farbe, Form und Lesbarkeit des Buttons.' : 'Wechsle zwischen Karte, Button und Raster-Vorschau und passe Größe/Abstand an.')}
               {activeTab === 'endcard' && (activeSubSection === 'endcard-general' ? 'Bestimme, was abläuft, wenn das Video zu Ende abgespielt wurde.' : 'Entferne ureel-Wasserzeichen oder füge eigene Marken-Logos hinzu.')}
@@ -1462,6 +1477,70 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {activeTab === 'scene' && activeSubSection === 'scene-poster' && (
+            <div className="space-y-4">
+              <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
+                <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Bild / Poster</span>
+                <p className="text-[10px] text-stone-400">Nutze ein statisches Werbebild, Cover oder Poster als Szene. Ideal für Angebote, Events und statische ureels.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => syncCardUpdate({ backgroundType: 'image', videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false } as any })}
+                    className="min-h-[92px] rounded-2xl border border-[#3A3732] bg-[#181818] hover:border-[#F5F2EA]/60 text-left p-4 transition"
+                  >
+                    <LucideIcons.ImagePlus size={18} className="text-[#E8DCC2] mb-2" />
+                    <span className="block text-[11px] font-black uppercase text-[#F5F2EA]">Cover-Bild aktivieren</span>
+                    <span className="block text-[9px] text-stone-500 mt-1">Bild statt Video als Bühne nutzen.</span>
+                  </button>
+                  <div className="rounded-2xl border border-dashed border-[#3A3732] bg-[#181818] p-4">
+                    <span className="block text-[10px] uppercase font-black tracking-wider text-[#E8DCC2]">Bild-URL / Upload</span>
+                    <input
+                      type="text"
+                      value={(activeCard as any).backgroundImageUrl || activeCard.cardBackgroundImageUrl || ''}
+                      onChange={(e) => syncCardUpdate({ backgroundImageUrl: e.target.value, cardBackgroundImageUrl: e.target.value } as any)}
+                      placeholder="https://.../cover.jpg"
+                      className="mt-3 w-full h-10 rounded-xl border border-[#3A3732] bg-[#0F0F0F] px-3 text-xs text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]"
+                    />
+                    <p className="mt-2 text-[9px] text-stone-500">Upload folgt über Firebase Storage. Bis dahin kann ein Bildlink genutzt werden.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'scene' && activeSubSection === 'scene-display' && (
+            <div className="space-y-4">
+              <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
+                <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Darstellung</span>
+                <p className="text-[10px] text-stone-400">Steuere, ob Video oder Bild die ganze Karte füllt oder als ruhiger Hero-Bereich gezeigt wird.</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {[
+                    { id: 'cover', label: 'Reel füllen', desc: '9:16 vollflächig, kann beschneiden' },
+                    { id: 'contain', label: 'Ganz anzeigen', desc: 'Nichts abschneiden, mit Rand' },
+                    { id: 'hero', label: 'Als Video-Bildschirm', desc: '16:9 Hero innerhalb der Karte' },
+                  ].map((mode) => {
+                    const selected = (activeCard.ureelScene?.video?.displayMode || 'cover') === mode.id || (mode.id === 'hero' && (activeCard.ureelScene?.video as any)?.placement === 'hero');
+                    return (
+                      <button
+                        key={mode.id}
+                        type="button"
+                        onClick={() => syncCardUpdate({ ureelScene: { ...(activeCard.ureelScene || { mode: 'video' as const }), video: { ...(activeCard.ureelScene?.video || { type: 'none' as const, duration: 12 }), displayMode: mode.id === 'hero' ? 'contain' : mode.id, placement: mode.id === 'hero' ? 'hero' : 'background' } } as any })}
+                        className={`min-h-[102px] rounded-2xl border p-4 text-left transition ${selected ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732] hover:border-[#F5F2EA]/60'}`}
+                      >
+                        <span className="block text-[11px] font-black uppercase">{mode.label}</span>
+                        <span className={`block text-[9px] mt-1 leading-snug ${selected ? 'text-[#101010]/60' : 'text-stone-500'}`}>{mode.desc}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div>
+                  <div className="flex justify-between text-[10px] uppercase font-bold text-stone-400 mb-2"><span>Abdunklung</span><span>{activeCard.cardBackgroundDarken || activeCard.ureelScene?.overlay?.darken || 0}%</span></div>
+                  <input type="range" min={0} max={70} step={5} value={activeCard.cardBackgroundDarken || activeCard.ureelScene?.overlay?.darken || 0} onChange={(e) => syncCardUpdate({ cardBackgroundDarken: Number(e.target.value), ureelScene: { ...(activeCard.ureelScene || { mode: 'color' as const }), overlay: { ...(activeCard.ureelScene?.overlay || { blur: 0, vignette: true }), darken: Number(e.target.value) } } as any })} className="w-full accent-[#E8DCC2]" />
+                </div>
+              </div>
             </div>
           )}
 
@@ -2278,7 +2357,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       </div>
 
       {/* COLUMN 4: RECHTE PERMANENTE SMARTPHONE-VORSCHAU */}
-      <div className="order-2 md:order-none w-full md:w-[330px] max-h-[48dvh] md:max-h-none overflow-hidden md:overflow-visible bg-[#0E0E11] border-b md:border-b-0 md:border-l border-stone-900 flex flex-col justify-between shrink-0 p-3 md:p-4">
+      <div className="order-2 md:order-none w-full md:w-[330px] md:max-h-none overflow-visible md:overflow-visible bg-[#0E0E11] border-b md:border-b-0 md:border-l border-stone-900 flex flex-col justify-between shrink-0 p-3 md:p-4">
         
         {/* Preview Title bar */}
         <div className="flex items-center justify-between border-b border-stone-900 pb-3 gap-2">
@@ -2338,7 +2417,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         </div>
 
         {/* Smart preview / Button monitor */}
-        <div className="flex-none md:flex-1 flex items-center justify-center py-2 md:py-4 bg-stone-950/20 overflow-hidden">
+        <div className="flex-none md:flex-1 flex items-center justify-center py-2 md:py-4 bg-stone-950/20 overflow-visible md:overflow-hidden">
           {activeTab === 'buttons' ? (
             <div className="w-full h-full min-h-[230px] md:min-h-0 flex items-center justify-center">
               {buttonPreviewMode === 'button' && editingButton && (
