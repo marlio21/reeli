@@ -1,0 +1,84 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isUser(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+
+    function isPdf() {
+      return request.resource.contentType == 'application/pdf';
+    }
+
+    function isVideo() {
+      return request.resource.contentType == 'video/mp4'
+        || request.resource.contentType == 'video/quicktime'
+        || request.resource.contentType == 'video/x-m4v'
+        || request.resource.contentType == 'video/webm'
+        || request.resource.contentType == 'application/octet-stream';
+    }
+
+    function maxImageSize() {
+      return request.resource.size < 10 * 1024 * 1024;
+    }
+
+    function maxPdfSize() {
+      return request.resource.size < 20 * 1024 * 1024;
+    }
+
+    function maxVideoOriginalSize() {
+      return request.resource.size < 100 * 1024 * 1024;
+    }
+
+    function maxOptimizedVideoSize() {
+      return request.resource.size < 20 * 1024 * 1024;
+    }
+
+    match /users/{userId}/cards/{cardId}/reel/video-original/{fileName} {
+      allow read: if isUser(userId);
+      allow write: if isUser(userId)
+        && (request.resource == null || (isVideo() && maxVideoOriginalSize()));
+    }
+
+    match /users/{userId}/cards/{cardId}/reel/video-optimized/{fileName} {
+      allow read: if true;
+      allow write: if isUser(userId)
+        && (request.resource == null || (isVideo() && maxOptimizedVideoSize()));
+    }
+
+    match /users/{userId}/cards/{cardId}/reel/video-thumbnail/{fileName} {
+      allow read: if true;
+      allow write: if isUser(userId)
+        && (request.resource == null || (isImage() && maxImageSize()));
+    }
+
+    match /users/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if isUser(userId)
+        && (
+          request.resource == null || 
+          (isImage() && maxImageSize())
+          || (isPdf() && maxPdfSize())
+        );
+    }
+
+    match /public/icons/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+  }
+}
