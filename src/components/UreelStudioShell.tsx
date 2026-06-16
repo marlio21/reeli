@@ -81,6 +81,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [buttonPreviewMode, setButtonPreviewMode] = useState<'card' | 'button' | 'grid'>('button');
   const [textPreviewMode, setTextPreviewMode] = useState<'card' | 'text' | 'fit'>('text');
   const [textAnimationSeed, setTextAnimationSeed] = useState(0);
+  const [textDraft, setTextDraft] = useState({ title: activeCard.title || '', subtitle: activeCard.subtitle || '', description: activeCard.description || '' });
+  const [textDirty, setTextDirty] = useState(false);
   const [activeSubSection, setActiveSubSection] = useState<string>('scene-core');
   
   // Local state for actively selected button being edited
@@ -109,24 +111,49 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     else if (activeTab === 'design') setActiveSubSection('design-presets');
   }, [activeTab]);
 
+  useEffect(() => {
+    if (!textDirty) {
+      setTextDraft({
+        title: activeCard.title || '',
+        subtitle: activeCard.subtitle || '',
+        description: activeCard.description || '',
+      });
+    }
+  }, [activeCard.id, activeCard.title, activeCard.subtitle, activeCard.description, textDirty]);
+
+  const flushTextDraft = async () => {
+    setTextDirty(false);
+    await syncCardUpdate({
+      title: textDraft.title,
+      subtitle: textDraft.subtitle,
+      description: textDraft.description,
+    });
+  };
+
   // Handle Playback Simulation Loop
   useEffect(() => {
     let interval: any = null;
     if (isPlaying) {
       interval = setInterval(() => {
         setTimelineSec((prev) => {
-          const limit = activeCard.videoBackgroundConfig?.durationSeconds || 12;
+          const limit = Number(activeCard.videoBackgroundConfig?.durationSeconds || activeCard.ureelScene?.video?.duration || 12);
           if (prev >= limit) {
-             return 0; // Loop back
+            setIsPlaying(false);
+            return limit;
           }
-          return prev + 1;
+          const next = Math.round((prev + 0.5) * 10) / 10;
+          if (next >= limit) {
+            setIsPlaying(false);
+            return limit;
+          }
+          return next;
         });
-      }, 1000);
+      }, 500);
     } else {
       clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, [isPlaying, activeCard]);
+  }, [isPlaying, activeCard.videoBackgroundConfig?.durationSeconds, activeCard.ureelScene?.video?.duration]);
 
   // Helper: Get active button object being edited
   const editingButton = activeCard?.buttons?.find(b => b.id === editingBtnId) || null;
@@ -219,10 +246,18 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       },
     }[kind];
     const preset = UREEL_TEXT_TEMPLATES[presets.template];
+    const currentTitle = (textDirty ? textDraft.title : activeCard.title || '').trim();
+    const currentSubtitle = (textDirty ? textDraft.subtitle : activeCard.subtitle || '').trim();
+    const currentDescription = (textDirty ? textDraft.description : activeCard.description || '').trim();
+    const nextTitle = currentTitle || presets.title;
+    const nextSubtitle = currentSubtitle || presets.subtitle;
+    const nextDescription = currentDescription || presets.description;
+    setTextDraft({ title: nextTitle, subtitle: nextSubtitle, description: nextDescription });
+    setTextDirty(false);
     await syncCardUpdate({
-      title: presets.title,
-      subtitle: presets.subtitle,
-      description: presets.description,
+      title: nextTitle,
+      subtitle: nextSubtitle,
+      description: nextDescription,
       ureelTextTemplate: preset ? {
         id: preset.id,
         style: preset.id,
@@ -577,14 +612,42 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     replayButton: true,
   };
 
+  const isTextLayerEnabled = (fieldKey: 'title' | 'subtitle' | 'description') => {
+    const item = activeCard.videoBackgroundConfig?.profileTextReveals?.find((r: any) => r.fieldKey === fieldKey);
+    return item?.enabled !== false;
+  };
+
+  const setTextLayerEnabled = async (fieldKey: 'title' | 'subtitle' | 'description', enabled: boolean) => {
+    const current = activeCard.videoBackgroundConfig?.profileTextReveals || [];
+    const startMap: Record<string, number> = { title: timeline.titleAt, subtitle: timeline.subtitleAt, description: timeline.descriptionAt };
+    const fields: Array<'title' | 'subtitle' | 'description'> = ['title', 'subtitle', 'description'];
+    const profileTextReveals = fields.map((key) => {
+      const existing = current.find((r: any) => r.fieldKey === key) || {};
+      return {
+        ...existing,
+        fieldKey: key,
+        enabled: key === fieldKey ? enabled : existing.enabled !== false,
+        startSecond: startMap[key],
+        fadeDuration: existing.fadeDuration ?? 0.8,
+        staysVisibleAfterSequence: existing.staysVisibleAfterSequence ?? true,
+      };
+    });
+    await syncCardUpdate({
+      videoBackgroundConfig: {
+        ...(activeCard.videoBackgroundConfig || {}),
+        profileTextReveals,
+      } as any,
+    });
+  };
+
   const syncTimelineToLegacyVideoConfig = (next: Required<UreelTimeline>, duration = timelineDuration) => ({
     ...(activeCard.videoBackgroundConfig || {}),
     durationSeconds: duration,
     duration,
     profileTextReveals: [
-      { fieldKey: 'title', enabled: true, startSecond: next.titleAt, fadeDuration: 0.8, staysVisibleAfterSequence: true },
-      { fieldKey: 'subtitle', enabled: true, startSecond: next.subtitleAt, fadeDuration: 0.8, staysVisibleAfterSequence: true },
-      { fieldKey: 'description', enabled: true, startSecond: next.descriptionAt, fadeDuration: 0.8, staysVisibleAfterSequence: true },
+      { fieldKey: 'title', enabled: isTextLayerEnabled('title'), startSecond: next.titleAt, fadeDuration: 0.8, staysVisibleAfterSequence: true },
+      { fieldKey: 'subtitle', enabled: isTextLayerEnabled('subtitle'), startSecond: next.subtitleAt, fadeDuration: 0.8, staysVisibleAfterSequence: true },
+      { fieldKey: 'description', enabled: isTextLayerEnabled('description'), startSecond: next.descriptionAt, fadeDuration: 0.8, staysVisibleAfterSequence: true },
     ],
     buttonReveal: {
       ...(activeCard.videoBackgroundConfig?.buttonReveal || {}),
@@ -631,8 +694,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
   const restartPreviewSimulation = () => {
     setTimelineSec(0);
-    setIsPlaying(false);
-    setTimeout(() => setIsPlaying(true), 80);
+    setIsPlaying(true);
     window.dispatchEvent(new CustomEvent('ureel-timeline-reset'));
   };
 
@@ -824,9 +886,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     const frameType = currentTextTemplate.frame?.type || 'none';
     const boxType = currentTextTemplate.box?.type || 'none';
     const accent = currentTextTemplate.frame?.color || currentTextTemplate.emphasis?.color || '#E8DCC2';
-    const title = activeCard.title || 'Deine Headline';
-    const subtitle = activeCard.subtitle || 'Dein Slogan';
-    const description = activeCard.description || 'Dein Nutzen und nächster Schritt.';
+    const title = (textDirty ? textDraft.title : activeCard.title) || 'Deine Headline';
+    const subtitle = (textDirty ? textDraft.subtitle : activeCard.subtitle) || 'Dein Slogan';
+    const description = (textDirty ? textDraft.description : activeCard.description) || 'Dein Nutzen und nächster Schritt.';
     const baseTitle = clampTextSize(activeCard.heroTitleSize, 30, 16, 52) * (compact ? 0.62 : 0.82);
     const baseSubtitle = clampTextSize(activeCard.heroSubtitleSize, 12, 8, 24) * (compact ? 0.72 : 0.9);
     const baseDescription = clampTextSize(activeCard.heroDescriptionSize, 11, 8, 22) * (compact ? 0.78 : 0.95);
@@ -869,6 +931,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
   const getPreviewCardForTimeline = () => ({
     ...activeCard,
+    title: textDirty ? textDraft.title : activeCard.title,
+    subtitle: textDirty ? textDraft.subtitle : activeCard.subtitle,
+    description: textDirty ? textDraft.description : activeCard.description,
     ureelTimeline: { ...(activeCard.ureelTimeline || {}), titleAt: 0, subtitleAt: 0, descriptionAt: 0, buttonsAt: 999, endCardAt: activeCard.videoBackgroundConfig?.durationSeconds || 12 },
   } as Card);
 
@@ -1468,8 +1533,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-1.5">Hauptüberschrift</label>
                     <input
                       type="text"
-                      value={activeCard.title || ''}
-                      onChange={(e) => syncCardUpdate({ title: e.target.value })}
+                      value={textDraft.title}
+                      onChange={(e) => { setTextDirty(true); setTextDraft((draft) => ({ ...draft, title: e.target.value })); }}
+                      onBlur={flushTextDraft}
                       className="w-full bg-[#1A1A1A] border border-[#3A3732] h-11 px-3 rounded-2xl text-sm text-[#F5F2EA] focus:outline-none focus:border-[#E8DCC2]"
                       placeholder="z.B. Mehr Kunden im Handumdrehen!"
                     />
@@ -1478,8 +1544,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-1.5">Untertitel / Slogan</label>
                     <input
                       type="text"
-                      value={activeCard.subtitle || ''}
-                      onChange={(e) => syncCardUpdate({ subtitle: e.target.value })}
+                      value={textDraft.subtitle}
+                      onChange={(e) => { setTextDirty(true); setTextDraft((draft) => ({ ...draft, subtitle: e.target.value })); }}
+                      onBlur={flushTextDraft}
                       className="w-full bg-[#1A1A1A] border border-[#3A3732] h-11 px-3 rounded-2xl text-sm text-[#F5F2EA] focus:outline-none focus:border-[#E8DCC2]"
                       placeholder="z.B. Kurz ansehen. Direkt reagieren."
                     />
@@ -1489,12 +1556,34 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div>
                   <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-1.5">Werbetext / Beschreibung</label>
                   <textarea
-                    value={activeCard.description || ''}
-                    onChange={(e) => syncCardUpdate({ description: e.target.value })}
+                    value={textDraft.description}
+                    onChange={(e) => { setTextDirty(true); setTextDraft((draft) => ({ ...draft, description: e.target.value })); }}
+                    onBlur={flushTextDraft}
                     rows={4}
                     className="w-full bg-[#1A1A1A] border border-[#3A3732] p-3 rounded-2xl text-sm text-[#F5F2EA] focus:outline-none focus:border-[#E8DCC2] resize-none"
                     placeholder="Beschreibe kurz Nutzen, Angebot und nächsten Schritt."
                   />
+                </div>
+
+                <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
+                  <div>
+                    <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Sichtbarkeit</span>
+                    <p className="text-[9px] text-stone-500 mt-1">Blende einzelne Werbetext-Ebenen aus, ohne den Text zu löschen.</p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { key: 'title', label: 'Titel' },
+                      { key: 'subtitle', label: 'Slogan' },
+                      { key: 'description', label: 'Text' },
+                    ].map((item) => {
+                      const enabled = isTextLayerEnabled(item.key as any);
+                      return (
+                        <button key={item.key} type="button" onClick={() => setTextLayerEnabled(item.key as any, !enabled)} className={`h-10 rounded-xl border text-[10px] font-black uppercase transition ${enabled ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#111111] text-stone-500 border-[#3A3732]'}`}>
+                          {item.label} {enabled ? 'AN' : 'AUS'}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
@@ -1523,7 +1612,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3">
+                  <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block mb-1">Text-Ideen anwenden</span>
+                  <p className="text-[9px] text-stone-500 mb-3">Füllt nur leere Textfelder. Bereits eingegebener Text bleibt erhalten.</p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {[
                     { id: 'product', label: 'Produkt', icon: LucideIcons.Box },
                     { id: 'offer', label: 'Angebot', icon: LucideIcons.BadgePercent },
@@ -1546,6 +1638,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       </button>
                     );
                   })}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1767,8 +1860,20 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     const value = Number((timeline as any)[item.key] || 0);
                     return (
                       <div key={item.key}>
-                        <div className="flex justify-between items-center text-[10.5px] font-bold text-stone-400 mb-1.5">
-                          <span>{item.label}</span>
+                        <div className="flex justify-between items-center text-[10.5px] font-bold text-stone-400 mb-1.5 gap-2">
+                          <div className="flex items-center gap-2">
+                            <span>{item.label}</span>
+                            {['titleAt','subtitleAt','descriptionAt'].includes(item.key) && (() => {
+                              const fieldMap: any = { titleAt: 'title', subtitleAt: 'subtitle', descriptionAt: 'description' };
+                              const field = fieldMap[item.key] as 'title' | 'subtitle' | 'description';
+                              const enabled = isTextLayerEnabled(field);
+                              return (
+                                <button type="button" onClick={() => setTextLayerEnabled(field, !enabled)} className={`px-2 py-0.5 rounded-full border text-[7px] uppercase font-black ${enabled ? 'border-[#E8DCC2] text-[#E8DCC2]' : 'border-stone-700 text-stone-500'}`}>
+                                  {enabled ? 'AN' : 'AUS'}
+                                </button>
+                              );
+                            })()}
+                          </div>
                           <span className="text-[#E8DCC2] font-mono">{value.toFixed(1)}s</span>
                         </div>
                         <input
@@ -1857,7 +1962,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 pt-1">
-                  <button type="button" onClick={restartPreviewSimulation} className="min-h-[44px] bg-[#F5F2EA] hover:bg-white text-[#101010] rounded-xl font-black text-[10px] uppercase tracking-wider cursor-pointer">Timing simulieren</button>
+                  <button type="button" onClick={restartPreviewSimulation} className="min-h-[44px] bg-[#F5F2EA] hover:bg-white text-[#101010] rounded-xl font-black text-[10px] uppercase tracking-wider cursor-pointer">Simulation einmal starten</button>
                   <button type="button" onClick={() => applyTimeline(valuesForTimelinePreset('direct'))} className="min-h-[44px] bg-stone-900 hover:bg-stone-850 border border-stone-800 text-stone-300 rounded-xl font-black text-[10px] uppercase tracking-wider cursor-pointer">Alles sofort anzeigen</button>
                   <button type="button" onClick={() => applyTimeline(valuesForTimelinePreset('ad_reel'))} className="min-h-[44px] bg-stone-900 hover:bg-stone-850 border border-stone-800 text-stone-300 rounded-xl font-black text-[10px] uppercase tracking-wider cursor-pointer">Als Werbe-Reel timen</button>
                   <button type="button" onClick={() => applyTimeline(valuesForTimelinePreset('direct'))} className="min-h-[44px] bg-stone-900 hover:bg-stone-850 border border-stone-800 text-stone-300 rounded-xl font-black text-[10px] uppercase tracking-wider cursor-pointer">Timing zurücksetzen</button>

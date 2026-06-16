@@ -164,9 +164,14 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     return () => clearInterval(interval);
   }, [hasEndCard, endCardConfig.enabled, timelineConfig.endCardAt]);
 
-  const showTitle = !hasTimeline || elapsed >= timelineConfig.titleAt;
-  const showSubtitle = !hasTimeline || elapsed >= timelineConfig.subtitleAt;
-  const showDescription = !hasTimeline || elapsed >= timelineConfig.descriptionAt;
+  const textRevealEnabled = React.useCallback((fieldKey: 'title' | 'subtitle' | 'description') => {
+    const reveal = card.videoBackgroundConfig?.profileTextReveals?.find((item: any) => item.fieldKey === fieldKey);
+    return reveal?.enabled !== false;
+  }, [card.videoBackgroundConfig?.profileTextReveals]);
+
+  const showTitle = textRevealEnabled('title') && (!hasTimeline || elapsed >= timelineConfig.titleAt);
+  const showSubtitle = textRevealEnabled('subtitle') && (!hasTimeline || elapsed >= timelineConfig.subtitleAt);
+  const showDescription = textRevealEnabled('description') && (!hasTimeline || elapsed >= timelineConfig.descriptionAt);
   const showButtons = !hasTimeline || elapsed >= timelineConfig.buttonsAt;
   const showEndCard = hasEndCard && endCardConfig.enabled && elapsed >= timelineConfig.endCardAt;
 
