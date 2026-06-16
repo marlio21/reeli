@@ -612,9 +612,23 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     replayButton: true,
   };
 
+  const getTextLayerDraftValue = (fieldKey: 'title' | 'subtitle' | 'description') => {
+    if (fieldKey === 'title') return textDirty ? textDraft.title : (activeCard.title || '');
+    if (fieldKey === 'subtitle') return textDirty ? textDraft.subtitle : (activeCard.subtitle || '');
+    return textDirty ? textDraft.description : (activeCard.description || '');
+  };
+
+  const hasTextLayerContent = (fieldKey: 'title' | 'subtitle' | 'description') => {
+    return getTextLayerDraftValue(fieldKey).trim().length > 0;
+  };
+
   const isTextLayerEnabled = (fieldKey: 'title' | 'subtitle' | 'description') => {
     const item = activeCard.videoBackgroundConfig?.profileTextReveals?.find((r: any) => r.fieldKey === fieldKey);
     return item?.enabled !== false;
+  };
+
+  const isTextLayerVisible = (fieldKey: 'title' | 'subtitle' | 'description') => {
+    return isTextLayerEnabled(fieldKey) && hasTextLayerContent(fieldKey);
   };
 
   const setTextLayerEnabled = async (fieldKey: 'title' | 'subtitle' | 'description', enabled: boolean) => {
@@ -645,9 +659,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     durationSeconds: duration,
     duration,
     profileTextReveals: [
-      { fieldKey: 'title', enabled: isTextLayerEnabled('title'), startSecond: next.titleAt, fadeDuration: 0.8, staysVisibleAfterSequence: true },
-      { fieldKey: 'subtitle', enabled: isTextLayerEnabled('subtitle'), startSecond: next.subtitleAt, fadeDuration: 0.8, staysVisibleAfterSequence: true },
-      { fieldKey: 'description', enabled: isTextLayerEnabled('description'), startSecond: next.descriptionAt, fadeDuration: 0.8, staysVisibleAfterSequence: true },
+      { fieldKey: 'title', enabled: isTextLayerVisible('title'), startSecond: next.titleAt, fadeDuration: 0.8, staysVisibleAfterSequence: true },
+      { fieldKey: 'subtitle', enabled: isTextLayerVisible('subtitle'), startSecond: next.subtitleAt, fadeDuration: 0.8, staysVisibleAfterSequence: true },
+      { fieldKey: 'description', enabled: isTextLayerVisible('description'), startSecond: next.descriptionAt, fadeDuration: 0.8, staysVisibleAfterSequence: true },
     ],
     buttonReveal: {
       ...(activeCard.videoBackgroundConfig?.buttonReveal || {}),
@@ -882,18 +896,39 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     );
   };
 
+  const fontFamilyForAdStyle = (style?: string) => {
+    if (style === 'tech') return 'ui-monospace, SFMono-Regular, Menlo, monospace';
+    if (style === 'serif') return 'Georgia, serif';
+    if (style === 'condensed') return 'Bebas Neue, Impact, sans-serif';
+    if (style === 'elegant') return 'Playfair Display, Georgia, serif';
+    return 'Inter, ui-sans-serif, system-ui, sans-serif';
+  };
+
+  const letterSpacingForAdStyle = (style?: string) => {
+    if (style === 'elegant') return '0.10em';
+    if (style === 'condensed') return '0.02em';
+    if (style === 'tech') return '-0.02em';
+    return '-0.03em';
+  };
+
   const renderWerbeTextMonitor = (compact = false) => {
     const frameType = currentTextTemplate.frame?.type || 'none';
     const boxType = currentTextTemplate.box?.type || 'none';
     const accent = currentTextTemplate.frame?.color || currentTextTemplate.emphasis?.color || '#E8DCC2';
-    const title = (textDirty ? textDraft.title : activeCard.title) || 'Deine Headline';
-    const subtitle = (textDirty ? textDraft.subtitle : activeCard.subtitle) || 'Dein Slogan';
-    const description = (textDirty ? textDraft.description : activeCard.description) || 'Dein Nutzen und nächster Schritt.';
+    const title = getTextLayerDraftValue('title');
+    const subtitle = getTextLayerDraftValue('subtitle');
+    const description = getTextLayerDraftValue('description');
+    const showTitle = isTextLayerVisible('title');
+    const showSubtitle = isTextLayerVisible('subtitle');
+    const showDescription = isTextLayerVisible('description');
     const baseTitle = clampTextSize(activeCard.heroTitleSize, 30, 16, 52) * (compact ? 0.62 : 0.82);
     const baseSubtitle = clampTextSize(activeCard.heroSubtitleSize, 12, 8, 24) * (compact ? 0.72 : 0.9);
     const baseDescription = clampTextSize(activeCard.heroDescriptionSize, 11, 8, 22) * (compact ? 0.78 : 0.95);
-    const fontFamily = currentTextTemplate.fontStyle === 'tech' ? 'ui-monospace, SFMono-Regular, Menlo, monospace' : currentTextTemplate.fontStyle === 'serif' ? 'Georgia, serif' : 'Inter, ui-sans-serif, system-ui, sans-serif';
-    const letterSpacing = currentTextTemplate.fontStyle === 'elegant' ? '0.14em' : currentTextTemplate.fontStyle === 'condensed' ? '-0.04em' : currentTextTemplate.fontStyle === 'tech' ? '-0.02em' : '-0.03em';
+    const titleFontFamily = fontFamilyForAdStyle((activeCard as any).heroTitleFontStyle || currentTextTemplate.fontStyle);
+    const subtitleFontFamily = fontFamilyForAdStyle((activeCard as any).heroSubtitleFontStyle || currentTextTemplate.fontStyle);
+    const descriptionFontFamily = fontFamilyForAdStyle((activeCard as any).heroDescFontStyle || currentTextTemplate.fontStyle);
+    const titleLetterSpacing = letterSpacingForAdStyle((activeCard as any).heroTitleFontStyle || currentTextTemplate.fontStyle);
+    const subtitleLetterSpacing = letterSpacingForAdStyle((activeCard as any).heroSubtitleFontStyle || currentTextTemplate.fontStyle);
     const boxStyles: React.CSSProperties = boxType === 'light'
       ? { background: '#F5F2EA', color: '#111111', borderColor: '#E8DCC2' }
       : boxType === 'glass'
@@ -915,11 +950,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             {frameType === 'corner' && <><span className="absolute left-2 top-2 w-5 h-5 border-l-2 border-t-2" style={{ borderColor: accent }} /><span className="absolute right-2 top-2 w-5 h-5 border-r-2 border-t-2" style={{ borderColor: accent }} /><span className="absolute left-2 bottom-2 w-5 h-5 border-l-2 border-b-2" style={{ borderColor: accent }} /><span className="absolute right-2 bottom-2 w-5 h-5 border-r-2 border-b-2" style={{ borderColor: accent }} /></>}
             {frameType === 'thin' && <span className="absolute inset-2 rounded-2xl border border-dashed pointer-events-none" style={{ borderColor: `${accent}66` }} />}
             {frameType === 'side_line' && <span className="absolute left-3 top-5 bottom-5 w-1 rounded-full" style={{ background: accent }} />}
-            {frameType === 'badge' && <div className="inline-flex mb-3 px-3 py-1 rounded-full border text-[8px] font-black uppercase tracking-widest" style={{ borderColor: `${accent}66`, color: accent }}>{subtitle}</div>}
+            {frameType === 'badge' && showSubtitle && <div className="inline-flex mb-3 px-3 py-1 rounded-full border text-[8px] font-black uppercase tracking-widest" style={{ borderColor: `${accent}66`, color: accent }}>{subtitle}</div>}
             <div className={frameType === 'side_line' ? 'pl-4' : ''}>
-              {renderAdTextWithHighlight(title, "block font-black uppercase leading-[0.92] break-words", { fontSize: baseTitle, fontFamily, letterSpacing, color: boxType === 'light' ? '#111111' : '#F5F2EA' })}
-              {frameType !== 'badge' && <span className="block mt-3 font-black uppercase leading-tight break-words" style={{ fontSize: baseSubtitle, fontFamily, letterSpacing: '0.08em', color: boxType === 'light' ? '#3A3732' : accent }}>{subtitle}</span>}
-              <span className="block mt-3 font-semibold leading-snug break-words" style={{ fontSize: baseDescription, fontFamily, color: boxType === 'light' ? '#3A3732' : '#D8D2C5' }}>{description}</span>
+              {showTitle && renderAdTextWithHighlight(title, "block font-black uppercase leading-[0.92] break-words", { fontSize: baseTitle, fontFamily: titleFontFamily, letterSpacing: titleLetterSpacing, color: (activeCard as any).heroTitleTextColor || (boxType === 'light' ? '#111111' : '#F5F2EA') })}
+              {showSubtitle && frameType !== 'badge' && <span className="block mt-3 font-black uppercase leading-tight break-words" style={{ fontSize: baseSubtitle, fontFamily: subtitleFontFamily, letterSpacing: subtitleLetterSpacing, color: (activeCard as any).heroSubtitleTextColor || (boxType === 'light' ? '#3A3732' : accent) }}>{subtitle}</span>}
+              {showDescription && <span className="block mt-3 font-semibold leading-snug break-words" style={{ fontSize: baseDescription, fontFamily: descriptionFontFamily, color: (activeCard as any).heroDescTextColor || (boxType === 'light' ? '#3A3732' : '#D8D2C5') }}>{description}</span>}
+              {!showTitle && !showSubtitle && !showDescription && <span className="block text-[11px] text-stone-500 font-bold">Alle Werbetext-Ebenen sind leer oder deaktiviert.</span>}
               {frameType === 'underline' && <span className="block mt-4 h-1 rounded-full mx-auto w-2/3" style={{ background: accent }} />}
             </div>
           </div>
@@ -931,10 +967,19 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
   const getPreviewCardForTimeline = () => ({
     ...activeCard,
-    title: textDirty ? textDraft.title : activeCard.title,
-    subtitle: textDirty ? textDraft.subtitle : activeCard.subtitle,
-    description: textDirty ? textDraft.description : activeCard.description,
+    title: getTextLayerDraftValue('title'),
+    subtitle: getTextLayerDraftValue('subtitle'),
+    description: getTextLayerDraftValue('description'),
     ureelTimeline: { ...(activeCard.ureelTimeline || {}), titleAt: 0, subtitleAt: 0, descriptionAt: 0, buttonsAt: 999, endCardAt: activeCard.videoBackgroundConfig?.durationSeconds || 12 },
+    videoBackgroundConfig: {
+      ...(activeCard.videoBackgroundConfig || {}),
+      profileTextReveals: [
+        { fieldKey: 'title', enabled: isTextLayerVisible('title'), startSecond: 0, fadeDuration: 0.8, staysVisibleAfterSequence: true },
+        { fieldKey: 'subtitle', enabled: isTextLayerVisible('subtitle'), startSecond: 0, fadeDuration: 0.8, staysVisibleAfterSequence: true },
+        { fieldKey: 'description', enabled: isTextLayerVisible('description'), startSecond: 0, fadeDuration: 0.8, staysVisibleAfterSequence: true },
+      ],
+      buttonReveal: { ...(activeCard.videoBackgroundConfig?.buttonReveal || {}), enabled: false, startSecond: 999 },
+    } as any,
   } as Card);
 
   const renderButtonPreviewTile = (button: CardButton, compact = false) => {
@@ -1656,13 +1701,52 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       { key: 'description', label: 'Text' },
                     ].map((item) => {
                       const enabled = isTextLayerEnabled(item.key as any);
+                      const hasContent = hasTextLayerContent(item.key as any);
                       return (
-                        <button key={item.key} type="button" onClick={() => setTextLayerEnabled(item.key as any, !enabled)} className={`h-10 rounded-xl border text-[10px] font-black uppercase transition ${enabled ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#111111] text-stone-500 border-[#3A3732]'}`}>
-                          {item.label} {enabled ? 'AN' : 'AUS'}
+                        <button key={item.key} type="button" onClick={() => setTextLayerEnabled(item.key as any, !enabled)} className={`h-10 rounded-xl border text-[10px] font-black uppercase transition ${enabled && hasContent ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#111111] text-stone-500 border-[#3A3732]'}`}>
+                          {item.label} {!hasContent ? 'LEER' : enabled ? 'AN' : 'AUS'}
                         </button>
                       );
                     })}
                   </div>
+                </div>
+
+                <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-4">
+                  <div>
+                    <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Einblend-Timer</span>
+                    <p className="text-[9px] text-stone-500 mt-1">Steuere direkt hier, wann Titel, Slogan und Beschreibung erscheinen. Leere Felder bleiben automatisch ausgeblendet.</p>
+                  </div>
+                  {[
+                    { key: 'titleAt', field: 'title', label: 'Titel', value: timeline.titleAt },
+                    { key: 'subtitleAt', field: 'subtitle', label: 'Slogan', value: timeline.subtitleAt },
+                    { key: 'descriptionAt', field: 'description', label: 'Beschreibung', value: timeline.descriptionAt },
+                  ].map((item) => {
+                    const enabled = isTextLayerEnabled(item.field as any);
+                    const hasContent = hasTextLayerContent(item.field as any);
+                    return (
+                      <div key={item.key} className={`rounded-xl border p-3 ${enabled && hasContent ? 'border-[#3A3732] bg-[#101010]' : 'border-stone-900 bg-stone-950/40 opacity-75'}`}>
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <div className="min-w-0">
+                            <span className="text-[10px] font-black uppercase text-[#F5F2EA]">{item.label}</span>
+                            <span className="ml-2 text-[9px] font-mono text-[#E8DCC2]">{Number(item.value).toFixed(1)}s</span>
+                          </div>
+                          <button type="button" onClick={() => setTextLayerEnabled(item.field as any, !enabled)} className={`px-2 py-1 rounded-full border text-[8px] uppercase font-black ${enabled && hasContent ? 'border-[#E8DCC2] text-[#E8DCC2]' : 'border-stone-700 text-stone-500'}`}>
+                            {!hasContent ? 'leer' : enabled ? 'an' : 'aus'}
+                          </button>
+                        </div>
+                        <input
+                          type="range"
+                          min={0}
+                          max={timelineDuration}
+                          step={0.1}
+                          value={Number(item.value)}
+                          disabled={!hasContent}
+                          onChange={(e) => updateTimelineField(item.key as keyof Omit<UreelTimeline, 'preset'>, parseFloat(e.target.value))}
+                          className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer disabled:opacity-35"
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
 
                 <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
@@ -1686,6 +1770,35 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       <div key={item.key}>
                         <div className="flex justify-between text-[9px] uppercase font-bold text-stone-400 mb-1"><span>{item.label}</span><span>{clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max).toFixed(0)}px</span></div>
                         <input type="range" min={item.min} max={item.max} step="1" value={clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max)} onChange={(e) => syncCardUpdate({ [item.key]: Number(e.target.value) } as any)} className="w-full accent-[#E8DCC2]" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-4">
+                  <div>
+                    <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Schrift & Farben</span>
+                    <p className="text-[9px] text-stone-500 mt-1">Titel, Slogan und Beschreibung können eigene Schriftart und Farbe haben.</p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {[
+                      { label: 'Titel', fontKey: 'heroTitleFontStyle', colorKey: 'heroTitleTextColor', fallback: '#F5F2EA' },
+                      { label: 'Slogan', fontKey: 'heroSubtitleFontStyle', colorKey: 'heroSubtitleTextColor', fallback: '#E8DCC2' },
+                      { label: 'Beschreibung', fontKey: 'heroDescFontStyle', colorKey: 'heroDescTextColor', fallback: '#D8D2C5' },
+                    ].map((item) => (
+                      <div key={item.label} className="rounded-xl border border-[#3A3732] bg-[#101010] p-3 space-y-2">
+                        <span className="block text-[9px] uppercase font-black tracking-wider text-stone-400">{item.label}</span>
+                        <select value={(activeCard as any)[item.fontKey] || currentTextTemplate.fontStyle || 'modern'} onChange={(e) => syncCardUpdate({ [item.fontKey]: e.target.value } as any)} className="w-full h-9 rounded-xl bg-[#181818] border border-[#3A3732] text-[#F5F2EA] px-2 text-[11px] font-bold focus:outline-none focus:border-[#E8DCC2]">
+                          <option value="modern">Modern</option>
+                          <option value="elegant">Elegant</option>
+                          <option value="serif">Serif</option>
+                          <option value="condensed">Condensed</option>
+                          <option value="tech">Tech Mono</option>
+                        </select>
+                        <div className="flex items-center gap-2">
+                          <input type="color" value={(activeCard as any)[item.colorKey] || item.fallback} onChange={(e) => syncCardUpdate({ [item.colorKey]: e.target.value } as any)} className="w-10 h-9 rounded-lg bg-[#181818] border border-[#3A3732] p-1" />
+                          <input value={(activeCard as any)[item.colorKey] || item.fallback} onChange={(e) => syncCardUpdate({ [item.colorKey]: e.target.value } as any)} className="flex-1 h-9 rounded-xl bg-[#181818] border border-[#3A3732] text-[#F5F2EA] px-2 text-[10px] font-mono focus:outline-none focus:border-[#E8DCC2]" />
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -2427,7 +2540,17 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <span className="text-[8px] text-stone-500 font-mono">#{Math.max(1, (activeCard.buttons || []).findIndex(b => b.id === editingButton.id) + 1)}</span>
                   </div>
                   {renderButtonPreviewTile(editingButton)}
-                  <p className="mt-3 text-center text-[9px] text-stone-500 leading-snug">Diese Vorschau bleibt sichtbar, auch wenn der Button in der Karte erst ab {visibleButtonsAt.toFixed(1)}s erscheint.</p>
+                  <div className="mt-3 rounded-2xl border border-[#3A3732] bg-[#0F0F0F] p-3">
+                    <div className="flex items-center justify-between text-[8.5px] font-black uppercase tracking-wider">
+                      <span className="text-stone-500">Karten-Timing</span>
+                      <span className={buttonsCurrentlyVisible ? 'text-emerald-300' : 'text-[#E8DCC2]'}>{buttonsCurrentlyVisible ? 'Jetzt sichtbar' : `ab ${visibleButtonsAt.toFixed(1)}s`}</span>
+                    </div>
+                    <div className="relative mt-2 h-2 rounded-full bg-stone-900 overflow-hidden">
+                      <div className="absolute inset-y-0 left-0 bg-[#E8DCC2]/25" style={{ width: `${Math.min(100, (timelineSec / timelineDuration) * 100)}%` }} />
+                      <span className="absolute top-0 bottom-0 w-0.5 bg-[#E8DCC2]" style={{ left: `${Math.min(100, (visibleButtonsAt / timelineDuration) * 100)}%` }} />
+                    </div>
+                    <p className="mt-2 text-center text-[8px] text-stone-500 leading-snug">Button-Vorschau ist immer sichtbar. In der Karte erscheint das Raster laut Timeline ab {visibleButtonsAt.toFixed(1)}s.</p>
+                  </div>
                 </div>
               )}
               {buttonPreviewMode === 'grid' && (
@@ -2439,6 +2562,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   <div className="grid" style={{ gridTemplateColumns: `repeat(${buttonGridCols}, minmax(0, 1fr))`, gap: `${Math.min(buttonGapPx, 14)}px` }}>
                     {(activeButtons.length ? activeButtons : activeCard.buttons || []).slice(0, 9).map((button) => renderButtonPreviewTile(button, true))}
                   </div>
+                  <div className="mt-3 rounded-xl border border-[#3A3732] bg-[#0F0F0F] p-2 text-[8px] text-stone-500 text-center">Raster erscheint in der Karte ab <b className="text-[#E8DCC2]">{visibleButtonsAt.toFixed(1)}s</b>. Hier bleibt es dauerhaft sichtbar.</div>
                 </div>
               )}
               {buttonPreviewMode === 'card' && (
