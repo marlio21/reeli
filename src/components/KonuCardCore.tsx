@@ -53,6 +53,7 @@ export interface KonuCardCoreProps {
   reelConfig?: any;
   onButtonActionClick?: (action: any, value: any) => Promise<void>;
   isDesktopPreview?: boolean;
+  cleanPreview?: boolean;
 }
 
 export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
@@ -60,6 +61,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   lang,
   isPreview = false,
   isMiniPreview = false,
+  cleanPreview = false,
   videoBackgroundPreviewState,
 
   isReelView = false,
@@ -1198,7 +1200,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
           )}
 
           {/* Simple Grid Dots overlays */}
-          {isPreview && (
+          {isPreview && !cleanPreview && (
             <div
               className="absolute inset-0 pointer-events-none opacity-25 z-0"
               style={{
@@ -1209,7 +1211,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
           )}
 
           {/* Background Edit Floating Overlay Button */}
-          {isPreview && onEditBackground && (
+          {isPreview && !cleanPreview && onEditBackground && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -1247,7 +1249,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             }`}
           >
             {/* Floating Edit Icon Overlay if Preview mode */}
-            {isPreview && !isReelView && (
+            {isPreview && !cleanPreview && !isReelView && (
               <div className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity bg-[#A855F7] text-stone-950 p-1.5 rounded-full shadow-lg z-30 animate-pulse">
                 <LucideIcons.Edit2 size={11} />
               </div>
@@ -1293,7 +1295,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
           {renderEndCardOverlay()}
 
           {/* INTERACTIVE SORT MODE ALERT BOX inside Card Shell */}
-          {isPreview && isSortingMode && (
+          {isPreview && !cleanPreview && isSortingMode && (
             <div
               onClick={(e) => e.stopPropagation()}
               className="w-full bg-stone-950/95 border border-[#A855F7]/30 rounded-2xl p-3 mb-4 space-y-2 shadow-xl z-20 animate-fade-in"
@@ -1457,7 +1459,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               })}
 
             {/* WORKSPACE "+" SPECIAL ADD BUTTON SLOT - ONLY FOR EDITOR */}
-            {isPreview && !isSortingMode && onAddButton && (
+            {isPreview && !cleanPreview && !isSortingMode && onAddButton && (
               <div
                 onClick={(e) => {
                   e.stopPropagation();
@@ -1474,7 +1476,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
           </div>
 
           {/* Touch sort/hold tip inside Card Shell */}
-          {isPreview && (
+          {isPreview && !cleanPreview && (
             <div className="w-full text-center mt-3 py-2 px-3 bg-stone-900/50 border border-stone-850/60 rounded-xl text-[10px] text-stone-450 font-medium flex items-center justify-center gap-1.5 select-none z-10 shrink-0">
               <LucideIcons.Move size={11} className="text-[#A855F7] shrink-0 animate-pulse" />
               <span>
@@ -1705,7 +1707,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       )}
 
       {/* Simple Grid Dots overlays to indicate interactive background in editor mode */}
-      {isPreview && (
+      {isPreview && !cleanPreview && (
         <div
           className="absolute inset-0 pointer-events-none opacity-25 z-0"
           style={{
@@ -1716,7 +1718,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       )}
 
       {/* Background Edit Floating Overlay Button */}
-      {isPreview && onEditBackground && (
+      {isPreview && !cleanPreview && onEditBackground && (
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -1754,7 +1756,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         }`}
       >
         {/* Floating Edit Icon Overlay if Preview mode */}
-        {isPreview && !isReelView && (
+        {isPreview && !cleanPreview && !isReelView && (
           <div className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity bg-[#A855F7] text-stone-950 p-1.5 rounded-full shadow-lg z-30 animate-pulse">
             <LucideIcons.Edit2 size={11} />
           </div>
@@ -1800,7 +1802,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       {renderEndCardOverlay()}
 
       {/* INTERACTIVE SORT MODE ALERT BOX inside Card Shell */}
-      {isPreview && isSortingMode && (
+      {isPreview && !cleanPreview && isSortingMode && (
         <div
           onClick={(e) => e.stopPropagation()}
           className="w-full bg-stone-950/95 border border-[#A855F7]/30 rounded-2xl p-3 mb-4 space-y-2 shadow-xl z-20 animate-fade-in"
@@ -1968,7 +1970,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
           })}
 
         {/* WORKSPACE "+" SPECIAL ADD BUTTON SLOT - ONLY FOR EDITOR */}
-        {isPreview && !isSortingMode && onAddButton && (
+        {isPreview && !cleanPreview && !isSortingMode && onAddButton && (
           <div
             onClick={(e) => {
               e.stopPropagation();
@@ -1985,7 +1987,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       </div>
 
       {/* Touch sort/hold tip inside Card Shell (only for editor) */}
-      {isPreview && !isReelView && (
+      {isPreview && !cleanPreview && !isReelView && (
         <div className="w-full text-center mt-auto py-2.5 px-3 bg-stone-900/50 border border-stone-850/60 rounded-xl text-[10px] text-stone-450 font-medium flex items-center justify-center gap-1.5 select-none z-10">
           <LucideIcons.Move size={11} className="text-[#A855F7] shrink-0 animate-pulse" />
           <span>

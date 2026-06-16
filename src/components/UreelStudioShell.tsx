@@ -89,6 +89,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [editingBtnId, setEditingBtnId] = useState<string | null>(null);
   const [buttonFileUploadProgress, setButtonFileUploadProgress] = useState<number | null>(null);
   const [buttonFileUploading, setButtonFileUploading] = useState(false);
+  const [sceneImageUploadProgress, setSceneImageUploadProgress] = useState<number | null>(null);
+  const [sceneImageUploading, setSceneImageUploading] = useState(false);
   
   // Timeline/Video playback simulation states for Vorschau column
   const [timelineSec, setTimelineSec] = useState<number>(0);
@@ -721,6 +723,60 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const buttonsCurrentlyVisible = timelineSec >= visibleButtonsAt || !isPlaying;
 
 
+  const handleSceneImageUpload = async (file: File) => {
+    if (!activeCard || !user) {
+      triggerToast(lang === 'de' ? 'Bitte einloggen, bevor du Bilder hochlädst.' : 'Please log in before uploading images.', 'error');
+      return;
+    }
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      triggerToast(lang === 'de' ? 'Bitte eine Bilddatei auswählen.' : 'Please choose an image file.', 'error');
+      return;
+    }
+    const maxMb = 10;
+    if (file.size > maxMb * 1024 * 1024) {
+      triggerToast(lang === 'de' ? `Bild ist zu groß. Maximal ${maxMb} MB.` : `Image is too large. Max ${maxMb} MB.`, 'error');
+      return;
+    }
+    const cleanName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '')}`;
+    const cardStorageId = activeCard.cardId || (activeCard as any).id || activeCard.slug || 'draft';
+    const storagePath = `users/${user.uid}/cards/${cardStorageId}/scene-images/${cleanName}`;
+    try {
+      setSceneImageUploading(true);
+      setSceneImageUploadProgress(0);
+      const storageRef = ref(storage, storagePath);
+      const downloadUrl = await new Promise<string>((resolve, reject) => {
+        const task = uploadBytesResumable(storageRef, file, { contentType: file.type || 'image/jpeg' });
+        task.on('state_changed',
+          (snap) => setSceneImageUploadProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
+          reject,
+          async () => resolve(await getDownloadURL(task.snapshot.ref))
+        );
+      });
+      await syncCardUpdate({
+        backgroundType: 'image',
+        backgroundImageUrl: downloadUrl,
+        cardBackgroundImageUrl: downloadUrl,
+        cardBackgroundEnabled: true,
+        videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false } as any,
+        ureelScene: {
+          ...(activeCard.ureelScene || {}),
+          mode: 'image',
+          backgroundImageUrl: downloadUrl,
+          overlay: { ...(activeCard.ureelScene?.overlay || { blur: 0, vignette: false }), darken: 0 }
+        } as any,
+      } as any);
+      triggerToast(lang === 'de' ? 'Szenenbild hochgeladen und aktiviert.' : 'Scene image uploaded and activated.', 'success');
+    } catch (err: any) {
+      console.error('Scene image upload failed', err);
+      triggerToast(lang === 'de' ? `Bild-Upload fehlgeschlagen: ${err?.message || err}` : `Image upload failed: ${err?.message || err}`, 'error');
+    } finally {
+      setSceneImageUploading(false);
+      setTimeout(() => setSceneImageUploadProgress(null), 1200);
+    }
+  };
+
+
   const handleButtonImageUpload = async (btnId: string, file: File) => {
     if (!activeCard || !user) {
       triggerToast(lang === 'de' ? 'Bitte einloggen, bevor du Buttonbilder hochlädst.' : 'Please log in before uploading button images.', 'error');
@@ -1038,11 +1094,16 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
   const getCleanMonitorCard = (card: Card): Card => {
-    const hiddenPreviewLabels = ['ureel editor', 'reel editor', 'texte & timeline', 'profil/texte', 'vorschau', 'editor', 'timeline'];
+    const hiddenPreviewLabels = [
+      'ureel editor', 'reel editor', 'reel/editor', 'reel / editor',
+      'texte timeline', 'texte & timeline', 'text timeline', 'text/timeline', 'texte/timeline',
+      'profil texte', 'profil/texte', 'vorschau', 'preview', 'editor', 'timeline', 'konu live', 'ureel live'
+    ];
     const cleanedButtons = (card.buttons || []).filter((button) => {
-      const label = (button.title || '').trim().toLowerCase();
+      const rawLabel = (button.title || '').trim().toLowerCase();
+      const label = rawLabel.replace(/[\/_-]+/g, ' ').replace(/&/g, ' ').replace(/\s+/g, ' ').trim();
       const action = (button.actionType || '').trim().toLowerCase();
-      return !hiddenPreviewLabels.some((hidden) => label.includes(hidden)) && action !== 'editor';
+      return !hiddenPreviewLabels.some((hidden) => rawLabel.includes(hidden) || label.includes(hidden.replace(/[\/_-]+/g, ' '))) && action !== 'editor';
     });
     return {
       ...card,
@@ -1419,12 +1480,27 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     onClick={async () => {
                       await syncCardUpdate({
                         backgroundType: 'video',
+                        cardBackgroundEnabled: true,
                         videoBackgroundConfig: {
                           ...activeCard.videoBackgroundConfig,
                           enabled: true,
                           mediaMode: 'youtube'
-                        }
-                      });
+                        },
+                        ureelScene: {
+                          ...(activeCard.ureelScene || {}),
+                          mode: 'video',
+                          backgroundImageUrl: activeCard.ureelScene?.backgroundImageUrl || activeCard.cardBackgroundImageUrl || '',
+                          video: {
+                            ...(activeCard.ureelScene?.video || {}),
+                            type: 'youtube',
+                            url: activeCard.videoBackgroundConfig?.youtubeUrl || activeCard.ureelScene?.video?.url || '',
+                            duration: activeCard.videoBackgroundConfig?.durationSeconds || activeCard.ureelScene?.video?.duration || 12,
+                            displayMode: activeCard.ureelScene?.video?.displayMode || 'cover',
+                            placement: activeCard.ureelScene?.video?.placement || 'background',
+                            startAt: activeCard.ureelScene?.video?.startAt || 0,
+                          }
+                        } as any,
+                      } as any);
                       triggerToast(lang === 'de' ? 'Video-Modus aktiviert' : 'Video Mode activated', 'info');
                     }}
                     className={`flex items-center gap-2 p-3 rounded-lg border text-left cursor-pointer transition ${
@@ -1444,11 +1520,18 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     onClick={async () => {
                       await syncCardUpdate({
                         backgroundType: 'image',
+                        cardBackgroundEnabled: true,
                         videoBackgroundConfig: {
                           ...activeCard.videoBackgroundConfig,
                           enabled: false,
-                        }
-                      });
+                        },
+                        ureelScene: {
+                          ...(activeCard.ureelScene || {}),
+                          mode: 'image',
+                          backgroundImageUrl: activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl || '',
+                          overlay: { ...(activeCard.ureelScene?.overlay || { blur: 0, vignette: false }), darken: 0 }
+                        } as any,
+                      } as any);
                       triggerToast(lang === 'de' ? 'Bild-Modus aktiviert' : 'Static Image activated', 'info');
                     }}
                     className={`flex items-center gap-2 p-3 rounded-lg border text-left cursor-pointer transition ${
@@ -1477,13 +1560,28 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         onChange={(e) => {
                           const val = e.target.value;
                           syncCardUpdate({
+                            backgroundType: 'video',
+                            cardBackgroundEnabled: true,
                             videoBackgroundConfig: {
                               ...activeCard.videoBackgroundConfig,
                               youtubeUrl: val,
                               enabled: true,
                               mediaMode: 'youtube'
-                            }
-                          });
+                            },
+                            ureelScene: {
+                              ...(activeCard.ureelScene || {}),
+                              mode: 'video',
+                              video: {
+                                ...(activeCard.ureelScene?.video || {}),
+                                type: val.includes('/shorts/') ? 'youtube_shorts' : 'youtube',
+                                url: val,
+                                duration: activeCard.videoBackgroundConfig?.durationSeconds || activeCard.ureelScene?.video?.duration || 12,
+                                displayMode: activeCard.ureelScene?.video?.displayMode || 'cover',
+                                placement: activeCard.ureelScene?.video?.placement || 'background',
+                                startAt: activeCard.ureelScene?.video?.startAt || 0,
+                              }
+                            } as any,
+                          } as any);
                         }}
                         placeholder="z.B. https://www.youtube.com/watch?v=..."
                         className="flex-1 bg-stone-900 border border-stone-800 h-9 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-[#F5F2EA]"
@@ -1509,8 +1607,20 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                             ...activeCard.videoBackgroundConfig,
                             durationSeconds: val,
                             duration: val
-                          }
-                        });
+                          },
+                          ureelScene: {
+                            ...(activeCard.ureelScene || {}),
+                            mode: activeCard.ureelScene?.mode || 'video',
+                            video: {
+                              ...(activeCard.ureelScene?.video || {}),
+                              duration: val,
+                              url: activeCard.ureelScene?.video?.url || activeCard.videoBackgroundConfig?.youtubeUrl || '',
+                              type: activeCard.ureelScene?.video?.type || 'youtube',
+                              displayMode: activeCard.ureelScene?.video?.displayMode || 'cover',
+                              placement: activeCard.ureelScene?.video?.placement || 'background',
+                            }
+                          } as any,
+                        } as any);
                       }}
                       className="w-full h-1 h-1.5 bg-stone-800 accent-[#E8DCC2] rounded-lg appearance-none cursor-pointer"
                     />
@@ -1533,23 +1643,40 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <button
                     type="button"
-                    onClick={() => syncCardUpdate({ backgroundType: 'image', videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false } as any })}
+                    onClick={() => syncCardUpdate({ backgroundType: 'image', cardBackgroundEnabled: true, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'image', backgroundImageUrl: activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl || '', overlay: { ...(activeCard.ureelScene?.overlay || { blur: 0, vignette: false }), darken: 0 } } as any } as any)}
                     className="min-h-[92px] rounded-2xl border border-[#3A3732] bg-[#181818] hover:border-[#F5F2EA]/60 text-left p-4 transition"
                   >
                     <LucideIcons.ImagePlus size={18} className="text-[#E8DCC2] mb-2" />
                     <span className="block text-[11px] font-black uppercase text-[#F5F2EA]">Cover-Bild aktivieren</span>
                     <span className="block text-[9px] text-stone-500 mt-1">Bild statt Video als Bühne nutzen.</span>
                   </button>
-                  <div className="rounded-2xl border border-dashed border-[#3A3732] bg-[#181818] p-4">
-                    <span className="block text-[10px] uppercase font-black tracking-wider text-[#E8DCC2]">Bild-URL / Upload</span>
-                    <input
-                      type="text"
-                      value={(activeCard as any).backgroundImageUrl || activeCard.cardBackgroundImageUrl || ''}
-                      onChange={(e) => syncCardUpdate({ backgroundImageUrl: e.target.value, cardBackgroundImageUrl: e.target.value } as any)}
-                      placeholder="https://.../cover.jpg"
-                      className="mt-3 w-full h-10 rounded-xl border border-[#3A3732] bg-[#0F0F0F] px-3 text-xs text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]"
-                    />
-                    <p className="mt-2 text-[9px] text-stone-500">Upload folgt über Firebase Storage. Bis dahin kann ein Bildlink genutzt werden.</p>
+                  <div className="rounded-2xl border border-dashed border-[#3A3732] bg-[#181818] p-4 space-y-3">
+                    <span className="block text-[10px] uppercase font-black tracking-wider text-[#E8DCC2]">Bild hochladen</span>
+                    <label className="h-11 rounded-xl bg-[#F5F2EA] hover:bg-white text-[#101010] text-[9px] uppercase font-black tracking-wider cursor-pointer flex items-center justify-center gap-1.5">
+                      <LucideIcons.UploadCloud size={15} /> {sceneImageUploading ? `Upload ${sceneImageUploadProgress || 0}%` : 'Szenenbild hochladen'}
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleSceneImageUpload(file); e.currentTarget.value = ''; }} />
+                    </label>
+                    <div className="pt-1 border-t border-[#3A3732]/70">
+                      <span className="block text-[9px] uppercase font-black tracking-wider text-stone-500 mb-2">Optional: Bildlink</span>
+                      <input
+                        type="text"
+                        value={(activeCard as any).backgroundImageUrl || activeCard.cardBackgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl || ''}
+                        onChange={(e) => {
+                          const url = e.target.value;
+                          syncCardUpdate({
+                            backgroundType: 'image',
+                            backgroundImageUrl: url,
+                            cardBackgroundImageUrl: url,
+                            cardBackgroundEnabled: true,
+                            videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false } as any,
+                            ureelScene: { ...(activeCard.ureelScene || {}), mode: 'image', backgroundImageUrl: url, overlay: { ...(activeCard.ureelScene?.overlay || { blur: 0, vignette: false }), darken: 0 } } as any,
+                          } as any);
+                        }}
+                        placeholder="https://.../cover.jpg"
+                        className="w-full h-10 rounded-xl border border-[#3A3732] bg-[#0F0F0F] px-3 text-xs text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]"
+                      />
+                    </div>
+                    <p className="text-[9px] text-stone-500">Empfohlen: eigenes Werbebild direkt hochladen. Der Link ist nur als Alternative gedacht.</p>
                   </div>
                 </div>
               </div>
@@ -1592,17 +1719,17 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           {activeTab === 'scene' && activeSubSection === 'scene-color' && (
             <div className="space-y-4">
               <div className="p-4 bg-stone-950/40 rounded-xl border border-stone-900 space-y-4">
-                <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Hintergrund-Fülleffekte</span>
+                <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Farbe / Verlauf</span>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[9.5px] uppercase font-bold text-stone-450 tracking-wider mb-2">Grund-Hintergrundfarbe</label>
+                    <label className="block text-[9.5px] uppercase font-bold text-stone-450 tracking-wider mb-2">Hintergrundfarbe</label>
                     <div className="flex items-center gap-2 h-9 bg-stone-900 border border-stone-850 rounded-xl px-2">
                       <input
                         type="color"
                         value={activeCard.cardBackgroundColor || '#121212'}
                         onChange={(e) => {
-                          syncCardUpdate({ cardBackgroundColor: e.target.value });
+                          syncCardUpdate({ backgroundType: 'color', cardBackgroundEnabled: true, cardBackgroundColor: e.target.value, cardBackgroundGradientEnabled: false, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color', backgroundColor: e.target.value, overlay: { ...(activeCard.ureelScene?.overlay || { blur: 0, vignette: false }), darken: 0 } } as any } as any);
                         }}
                         className="w-5 h-5 rounded cursor-pointer border-0 outline-none bg-transparent"
                       />
@@ -1610,7 +1737,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         type="text"
                         value={activeCard.cardBackgroundColor || '#121212'}
                         onChange={(e) => {
-                          syncCardUpdate({ cardBackgroundColor: e.target.value });
+                          syncCardUpdate({ backgroundType: 'color', cardBackgroundEnabled: true, cardBackgroundColor: e.target.value, cardBackgroundGradientEnabled: false, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color', backgroundColor: e.target.value, overlay: { ...(activeCard.ureelScene?.overlay || { blur: 0, vignette: false }), darken: 0 } } as any } as any);
                         }}
                         className="bg-transparent border-0 text-white w-full h-full text-xs font-mono outline-none"
                       />
@@ -1618,21 +1745,27 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-[9.5px] uppercase font-bold text-stone-450 tracking-wider mb-2">Vignette / Verdunklung</label>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => {
-                          const dark = activeCard.cardBackgroundDarken || 0;
-                          syncCardUpdate({ cardBackgroundDarken: dark >= 50 ? 0 : 50 });
+                    <label className="block text-[9.5px] uppercase font-bold text-stone-450 tracking-wider mb-2">Verlaufsfarbe</label>
+                    <div className="flex items-center gap-2 h-9 bg-stone-900 border border-stone-850 rounded-xl px-2">
+                      <input
+                        type="color"
+                        value={activeCard.cardBackgroundGradientColor || activeCard.ureelScene?.gradient?.to || '#3A3732'}
+                        onChange={(e) => {
+                          const to = e.target.value;
+                          const from = activeCard.cardBackgroundColor || activeCard.ureelScene?.gradient?.from || '#121212';
+                          syncCardUpdate({ backgroundType: 'gradient', cardBackgroundEnabled: true, cardBackgroundGradientEnabled: true, cardBackgroundGradientColor: to, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'gradient', gradient: { from, to, direction: activeCard.cardBackgroundGradientDirection || '135deg' }, overlay: { ...(activeCard.ureelScene?.overlay || { blur: 0, vignette: false }), darken: 0 } } as any } as any);
                         }}
-                        className={`w-full text-center py-2 rounded-xl transition font-bold text-[10px] cursor-pointer ${
-                          (activeCard.cardBackgroundDarken || 0) >= 50
-                            ? 'bg-purple-950/30 text-[#E8DCC2] border border-[#E8DCC2]/25'
-                            : 'bg-stone-900 text-stone-400 border border-stone-850 hover:bg-stone-850'
-                        }`}
-                      >
-                        {(activeCard.cardBackgroundDarken || 0) >= 50 ? 'Verdunklung AN (50%)' : 'Verdunklung AUS'}
-                      </button>
+                        className="w-5 h-5 rounded cursor-pointer border-0 outline-none bg-transparent"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const from = activeCard.cardBackgroundColor || '#121212';
+                          const to = activeCard.cardBackgroundGradientColor || '#3A3732';
+                          syncCardUpdate({ backgroundType: 'gradient', cardBackgroundEnabled: true, cardBackgroundGradientEnabled: true, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'gradient', gradient: { from, to, direction: activeCard.cardBackgroundGradientDirection || '135deg' }, overlay: { ...(activeCard.ureelScene?.overlay || { blur: 0, vignette: false }), darken: 0 } } as any } as any);
+                        }}
+                        className="ml-auto text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]"
+                      >Verlauf aktivieren</button>
                     </div>
                   </div>
                 </div>
@@ -2317,7 +2450,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div className="space-y-4">
                   <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div><span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Vorschau wechseln</span><p className="text-[9.5px] text-stone-500 mt-1">Im Buttoneditor siehst du Karte, Einzelbutton oder Raster – unabhängig von der Timeline.</p></div><div className="grid grid-cols-3 gap-1 rounded-2xl border border-[#3A3732] bg-[#0F0F0F] p-1 text-[9px] font-black uppercase">{(['card','button','grid'] as const).map((mode) => <button key={mode} type="button" onClick={() => setButtonPreviewMode(mode)} className={`h-9 rounded-xl px-2 ${buttonPreviewMode === mode ? 'bg-[#F5F2EA] text-[#101010]' : 'text-stone-400 hover:text-[#F5F2EA]'}`}>{mode === 'card' ? 'Karte' : mode === 'button' ? 'Button' : 'Raster'}</button>)}</div></div>
-                    {buttonPreviewMode === 'card' && <div className="rounded-3xl border border-[#3A3732] bg-[#0B0B0B] p-3 max-w-[260px] mx-auto"><div className="h-[430px] rounded-[28px] overflow-hidden border-[8px] border-[#1C1C1C] bg-black"><KonuCardCore card={monitorCard} lang={lang} isDesktopPreview={false} isPreview={true} /></div></div>}
+                    {buttonPreviewMode === 'card' && <div className="rounded-3xl border border-[#3A3732] bg-[#0B0B0B] p-3 max-w-[260px] mx-auto"><div className="h-[430px] rounded-[28px] overflow-hidden border-[8px] border-[#1C1C1C] bg-black"><KonuCardCore card={monitorCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} /></div></div>}
                     {buttonPreviewMode === 'button' && editingButton && <div className="max-w-[240px] mx-auto">{renderButtonPreviewTile(editingButton)}</div>}
                     {buttonPreviewMode === 'grid' && <div className="grid max-w-sm mx-auto" style={{ gridTemplateColumns: `repeat(${buttonGridCols}, minmax(0, 1fr))`, gap: `${buttonGapPx}px` }}>{(activeButtons.length ? activeButtons : activeCard.buttons || []).map((button) => renderButtonPreviewTile(button, true))}</div>}
                     <div className="rounded-xl border border-[#3A3732] bg-[#181818] p-3 text-[9px] leading-relaxed text-[#F5F2EA]/80"><b>Timeline-Hinweis:</b> In der Live-Karte erscheinen Buttons ab <b>{visibleButtonsAt.toFixed(1)}s</b>. Die Button-Vorschau bleibt hier immer sichtbar.</div>
@@ -2569,7 +2702,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div className="relative mx-auto w-[150px] h-[308px] sm:w-[180px] sm:h-[370px] md:w-[230px] md:h-[472px] bg-black rounded-[30px] md:rounded-[36px] border-[8px] border-[#F5F2EA]/80 shadow-2xl overflow-hidden flex flex-col justify-between ring-4 ring-[#E8DCC2]/10">
                   <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-black rounded-b-xl z-25" />
                   <div className="w-full h-full overflow-y-auto select-none bg-[#09090B] text-stone-200 scrollbar-none flex flex-col justify-between relative pt-5">
-                    <KonuCardCore card={monitorCard} lang={lang} isDesktopPreview={false} isPreview={true} />
+                    <KonuCardCore card={monitorCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} />
                   </div>
                 </div>
               )}
@@ -2588,7 +2721,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div className="w-full max-w-[280px] rounded-[28px] border border-[#3A3732] bg-[#111111] p-3 shadow-2xl shadow-black/40">
                   <div className="flex items-center justify-between mb-2"><span className="text-[8px] uppercase tracking-widest font-black text-[#E8DCC2]">Fit-Vorschau</span><span className="text-[7px] text-stone-500">kleine Karte</span></div>
                   <div className="h-[390px] rounded-[26px] overflow-hidden border-[7px] border-[#F5F2EA]/85 bg-black">
-                    <KonuCardCore card={getPreviewCardForTimeline()} lang={lang} isDesktopPreview={false} isPreview={true} />
+                    <KonuCardCore card={getPreviewCardForTimeline()} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} />
                   </div>
                   <p className="mt-2 text-[8.5px] leading-snug text-stone-500 text-center">Alle Texte werden unabhängig vom Timing eingeblendet, damit Größe und Rahmen prüfbar sind.</p>
                 </div>
@@ -2597,7 +2730,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div className="relative mx-auto w-[150px] h-[308px] sm:w-[180px] sm:h-[370px] md:w-[230px] md:h-[472px] bg-black rounded-[30px] md:rounded-[36px] border-[8px] border-[#F5F2EA]/80 shadow-2xl overflow-hidden flex flex-col justify-between ring-4 ring-[#E8DCC2]/10">
                   <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-black rounded-b-xl z-25" />
                   <div className="w-full h-full overflow-y-auto select-none bg-[#09090B] text-stone-200 scrollbar-none flex flex-col justify-between relative pt-5">
-                    <KonuCardCore card={getPreviewCardForTimeline()} lang={lang} isDesktopPreview={false} isPreview={true} />
+                    <KonuCardCore card={getPreviewCardForTimeline()} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} />
                   </div>
                 </div>
               )}
@@ -2610,7 +2743,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <span>100% 🔋</span>
               </div>
               <div className="w-full h-full overflow-y-auto select-none bg-[#09090B] text-stone-200 scrollbar-none flex flex-col justify-between relative pt-5">
-                <KonuCardCore card={monitorCard} lang={lang} isDesktopPreview={false} isPreview={true} />
+                <KonuCardCore card={monitorCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} />
               </div>
               {isPlaying && (
                 <div className="absolute bottom-1.5 left-2 right-2 bg-black/80 border border-[#E8DCC2]/30 p-1.5 rounded-lg flex items-center justify-between text-[7.5px] z-30 font-mono text-[#E8DCC2]">
