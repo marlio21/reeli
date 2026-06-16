@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import * as LucideIcons from 'lucide-react';
 import { Card, CardButton, UreelScene, UreelTimeline, UreelEndCard, UreelTextTemplate, getPublicCardUrl } from '../types';
 import { KonuCardCore } from './KonuCardCore';
 import { createDefaultButton, sanitizeButtonForFirestore } from '../utils/buttonUtils';
+import { storage } from '../firebase';
 
 interface UreelStudioShellProps {
   activeCard: Card;
@@ -75,6 +77,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   
   // Local state for actively selected button being edited
   const [editingBtnId, setEditingBtnId] = useState<string | null>(null);
+  const [buttonFileUploadProgress, setButtonFileUploadProgress] = useState<number | null>(null);
+  const [buttonFileUploading, setButtonFileUploading] = useState(false);
   
   // Timeline/Video playback simulation states for Vorschau column
   const [timelineSec, setTimelineSec] = useState<number>(0);
@@ -129,6 +133,81 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       return b;
     });
     await syncCardUpdate({ buttons: updatedButtons });
+  };
+
+
+  const fileActionTypes = ['pdf_link', 'external_file_link', 'google_drive_file', 'dropbox_file', 'onedrive_file', 'download_area'];
+  const cloudLinkActionTypes = ['google_drive_folder', 'dropbox_folder', 'onedrive_folder'];
+  const isFileUploadAction = (actionType?: string) => fileActionTypes.includes(actionType || '');
+  const isCloudLinkAction = (actionType?: string) => cloudLinkActionTypes.includes(actionType || '');
+
+  const getActionInputMeta = (actionType?: string) => {
+    switch (actionType) {
+      case 'phone': return { label: 'Telefonnummer', placeholder: '+43 660 1234567', helper: 'Direktanruf auf Smartphones.' };
+      case 'whatsapp': return { label: 'WhatsApp-Nummer', placeholder: '+43 660 1234567', helper: 'Nummer im internationalen Format.' };
+      case 'email': return { label: 'E-Mail-Adresse', placeholder: 'name@firma.at', helper: 'Öffnet das Mailprogramm des Besuchers.' };
+      case 'maps': return { label: 'Adresse / Maps-Link', placeholder: 'Adresse oder Google-Maps-Link', helper: 'Route oder Standort öffnen.' };
+      case 'pdf_link': return { label: 'PDF-Datei', placeholder: 'PDF hochladen oder Link einfügen', helper: 'Lade ein PDF hoch oder nutze einen vorhandenen PDF-Link.' };
+      case 'external_file_link': return { label: 'Datei', placeholder: 'Datei hochladen oder Link einfügen', helper: 'PDF, Bild oder Datei als anklickbare Ressource.' };
+      case 'download_area': return { label: 'Download-Datei', placeholder: 'Datei hochladen oder Link einfügen', helper: 'MVP: eine Datei oder ein externer Download-Link.' };
+      case 'google_drive_file': return { label: 'Google-Drive-Datei', placeholder: 'Drive-Link einfügen oder Datei hochladen', helper: 'Für Drive-Dateien reicht meist ein Freigabelink.' };
+      case 'dropbox_file': return { label: 'Dropbox-Datei', placeholder: 'Dropbox-Link einfügen oder Datei hochladen', helper: 'Freigabelink oder direkter Upload.' };
+      case 'onedrive_file': return { label: 'OneDrive-Datei', placeholder: 'OneDrive-Link einfügen oder Datei hochladen', helper: 'Freigabelink oder direkter Upload.' };
+      case 'google_drive_folder': return { label: 'Google-Drive-Ordnerlink', placeholder: 'https://drive.google.com/drive/folders/...', helper: 'Ordner können nicht hochgeladen werden. Bitte Freigabelink einfügen.' };
+      case 'dropbox_folder': return { label: 'Dropbox-Ordnerlink', placeholder: 'https://www.dropbox.com/scl/fo/...', helper: 'Ordner können nicht hochgeladen werden. Bitte Freigabelink einfügen.' };
+      case 'onedrive_folder': return { label: 'OneDrive-Ordnerlink', placeholder: 'https://1drv.ms/f/...', helper: 'Ordner können nicht hochgeladen werden. Bitte Freigabelink einfügen.' };
+      case 'video_replay': return { label: 'Keine Zieladresse nötig', placeholder: '', helper: 'Dieser Button startet die ureel-Timeline neu.' };
+      case 'vcard': return { label: 'Kontakt speichern', placeholder: '', helper: 'Nutzt die Kontaktdaten der ureel-Seite.' };
+      case 'contact_form':
+      case 'inquiry_form': return { label: 'Formular-Aktion', placeholder: '', helper: 'Öffnet das integrierte Anfrageformular.' };
+      default: return { label: 'Ziel-Adresse / Ziel-Wert', placeholder: 'https://...', helper: 'Webseite oder Landingpage öffnen.' };
+    }
+  };
+
+  const handleButtonFileUpload = async (btnId: string, file: File) => {
+    if (!activeCard || !user) {
+      triggerToast(lang === 'de' ? 'Bitte einloggen, bevor du Dateien hochlädst.' : 'Please log in before uploading files.', 'error');
+      return;
+    }
+    if (!file) return;
+    const type = editingButton?.actionType || 'external_file_link';
+    if (type === 'pdf_link' && file.type && file.type !== 'application/pdf') {
+      triggerToast(lang === 'de' ? 'Für „PDF öffnen“ bitte eine PDF-Datei wählen.' : 'Please choose a PDF file.', 'error');
+      return;
+    }
+    const maxMb = type === 'pdf_link' ? 25 : 50;
+    if (file.size > maxMb * 1024 * 1024) {
+      triggerToast(lang === 'de' ? `Datei ist zu groß. Maximal ${maxMb} MB.` : `File is too large. Max ${maxMb} MB.`, 'error');
+      return;
+    }
+    const cleanName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '')}`;
+    const storagePath = `users/${user.uid}/cards/${activeCard.cardId}/button-files/${btnId}/${cleanName}`;
+    try {
+      setButtonFileUploading(true);
+      setButtonFileUploadProgress(0);
+      const storageRef = ref(storage, storagePath);
+      const downloadUrl = await new Promise<string>((resolve, reject) => {
+        const task = uploadBytesResumable(storageRef, file, { contentType: file.type || 'application/octet-stream' });
+        task.on('state_changed',
+          (snap) => setButtonFileUploadProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
+          reject,
+          async () => resolve(await getDownloadURL(task.snapshot.ref))
+        );
+      });
+      await handleUpdateSingleButton(btnId, {
+        actionValue: downloadUrl,
+        fileName: file.name,
+        fileUrl: downloadUrl,
+        storagePath,
+      } as any);
+      triggerToast(lang === 'de' ? 'Datei hochgeladen und als Button-Ziel gesetzt.' : 'File uploaded and set as button target.', 'success');
+    } catch (err: any) {
+      console.error('Button file upload failed', err);
+      triggerToast(lang === 'de' ? `Upload fehlgeschlagen: ${err?.message || err}` : `Upload failed: ${err?.message || err}`, 'error');
+    } finally {
+      setButtonFileUploading(false);
+      setTimeout(() => setButtonFileUploadProgress(null), 1200);
+    }
   };
 
   // Helper to add button
@@ -483,7 +562,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     <div className="flex flex-col md:flex-row min-h-[100dvh] md:h-screen w-full max-w-[100vw] bg-[#09090B] text-stone-200 overflow-x-hidden md:overflow-hidden overflow-y-auto font-sans antialiased text-xs">
       
       {/* COLUMN 1: LINKE HAUPTNAVIGATION (SIDEBAR) */}
-      <div className="order-1 md:order-none w-full md:w-[76px] bg-[#0E0E11] border-b md:border-b-0 md:border-r border-stone-900 flex flex-row md:flex-col justify-between items-center gap-3 px-3 md:px-0 py-2 md:py-4 shrink-0 overflow-x-auto">
+      <div className="order-1 md:order-none sticky top-0 z-40 md:static w-full md:w-[76px] bg-[#0E0E11] border-b md:border-b-0 md:border-r border-stone-900 flex flex-row md:flex-col justify-between items-center gap-3 px-3 md:px-0 py-2 md:py-4 shrink-0 overflow-x-auto">
         
         {/* Top Logo */}
         <div className="flex flex-row md:flex-col items-center gap-1.5 cursor-pointer shrink-0" onClick={() => onGoToRoute?.('/')}>
@@ -542,7 +621,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       </div>
 
       {/* COLUMN 2: LINKES MODULPANEL (SUB NAV / SUB OPTIONS) */}
-      <div className="order-3 md:order-none w-full md:w-[220px] bg-[#111115] border-b md:border-b-0 md:border-r border-stone-900 flex flex-col justify-between shrink-0 max-h-none md:max-h-screen">
+      <div className="order-3 md:order-none w-full md:w-[220px] bg-[#111115] max-h-[240px] md:max-h-screen overflow-y-auto md:overflow-visible border-b md:border-b-0 md:border-r border-stone-900 flex flex-col justify-between shrink-0">
         <div>
           {/* Active Module Title */}
           <div className="p-4 border-b border-stone-850/60">
@@ -557,7 +636,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           </div>
 
           {/* Tab specific menu layouts */}
-          <div className="p-2 space-y-1 overflow-x-auto md:overflow-visible">
+          <div className="p-2 space-y-1 md:overflow-visible">
             {activeTab === 'scene' && (
               <>
                 <button
@@ -613,7 +692,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   </button>
                 </div>
                 
-                <div className="space-y-1 max-h-[280px] overflow-y-auto pr-1">
+                <div className="space-y-1 max-h-[160px] md:max-h-[280px] overflow-y-auto pr-1">
                   {activeCard?.buttons?.map((button, index) => (
                     <button
                       key={button.id || index}
@@ -1195,14 +1274,93 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     </div>
 
                     <div className="sm:col-span-2">
-                      <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Ziel-Adresse / Ziel-Wert</label>
-                      <input
-                        type="text"
-                        value={editingButton.actionValue || ''}
-                        onChange={(e) => handleUpdateSingleButton(editingButton.id, { actionValue: e.target.value })}
-                        className="w-full bg-stone-900 border border-stone-800 h-9 px-2.5 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-purple-600"
-                        placeholder={['phone', 'whatsapp'].includes(editingButton.actionType) ? 'z.B. +49170123456' : editingButton.actionType === 'email' ? 'name@beispiel.de' : 'https://...'}
-                      />
+                      {(() => {
+                        const meta = getActionInputMeta(editingButton.actionType);
+                        const needsNoTarget = ['video_replay', 'vcard', 'contact_form', 'inquiry_form'].includes(editingButton.actionType || '');
+                        return (
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider">{meta.label}</label>
+                              {editingButton.actionValue && (isFileUploadAction(editingButton.actionType) || isCloudLinkAction(editingButton.actionType)) && (
+                                <a href={editingButton.actionValue} target="_blank" rel="noreferrer" className="text-[8.5px] font-black uppercase tracking-wider text-purple-300 hover:text-purple-200">Link testen</a>
+                              )}
+                            </div>
+                            {needsNoTarget ? (
+                              <div className="rounded-xl border border-purple-900/30 bg-purple-950/10 p-3 text-[10px] text-purple-100 leading-relaxed">
+                                {meta.helper}
+                              </div>
+                            ) : isFileUploadAction(editingButton.actionType) ? (
+                              <div className="rounded-xl border border-stone-800 bg-stone-900/45 p-3 space-y-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2 items-center">
+                                  <input
+                                    type="text"
+                                    value={editingButton.actionValue || ''}
+                                    onChange={(e) => handleUpdateSingleButton(editingButton.id, { actionValue: e.target.value })}
+                                    className="w-full bg-stone-950 border border-stone-800 h-10 px-3 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-purple-600"
+                                    placeholder={meta.placeholder}
+                                  />
+                                  <label className="h-10 px-3 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-[9px] uppercase font-black tracking-wider cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap">
+                                    <LucideIcons.UploadCloud size={13} />
+                                    Datei hochladen
+                                    <input
+                                      type="file"
+                                      className="hidden"
+                                      accept={editingButton.actionType === 'pdf_link' ? 'application/pdf,.pdf' : undefined}
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) handleButtonFileUpload(editingButton.id, file);
+                                        e.currentTarget.value = '';
+                                      }}
+                                    />
+                                  </label>
+                                </div>
+                                <div className="flex items-start gap-2 text-[8.5px] text-stone-500 leading-relaxed">
+                                  <LucideIcons.Info size={12} className="text-purple-400 shrink-0 mt-0.5" />
+                                  <span>{meta.helper} Das Upload-Feld sitzt bewusst hier im Zielbereich, damit der Link-/Telefonbereich je nach Aktion zur passenden Eingabe wird.</span>
+                                </div>
+                                {buttonFileUploading && (
+                                  <div className="space-y-1">
+                                    <div className="h-1.5 bg-stone-800 rounded-full overflow-hidden">
+                                      <div className="h-full bg-purple-500 transition-all" style={{ width: `${buttonFileUploadProgress || 0}%` }} />
+                                    </div>
+                                    <span className="text-[8px] text-purple-300 font-mono">Upload {buttonFileUploadProgress || 0}%</span>
+                                  </div>
+                                )}
+                                {(editingButton as any).fileName && (
+                                  <div className="rounded-lg border border-stone-800 bg-stone-950/70 px-3 py-2 text-[9px] text-stone-300 flex items-center justify-between gap-2">
+                                    <span className="truncate">{(editingButton as any).fileName}</span>
+                                    <LucideIcons.FileText size={13} className="text-purple-400 shrink-0" />
+                                  </div>
+                                )}
+                              </div>
+                            ) : isCloudLinkAction(editingButton.actionType) ? (
+                              <div className="space-y-2">
+                                <input
+                                  type="text"
+                                  value={editingButton.actionValue || ''}
+                                  onChange={(e) => handleUpdateSingleButton(editingButton.id, { actionValue: e.target.value })}
+                                  className="w-full bg-stone-900 border border-stone-800 h-10 px-2.5 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-purple-600"
+                                  placeholder={meta.placeholder}
+                                />
+                                <div className="rounded-xl border border-amber-900/40 bg-amber-950/10 p-2.5 text-[8.5px] text-amber-100 leading-relaxed">
+                                  {meta.helper}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="space-y-1.5">
+                                <input
+                                  type={editingButton.actionType === 'email' ? 'email' : ['phone', 'whatsapp'].includes(editingButton.actionType || '') ? 'tel' : 'text'}
+                                  value={editingButton.actionValue || ''}
+                                  onChange={(e) => handleUpdateSingleButton(editingButton.id, { actionValue: e.target.value })}
+                                  className="w-full bg-stone-900 border border-stone-800 h-10 px-2.5 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-purple-600"
+                                  placeholder={meta.placeholder}
+                                />
+                                <span className="text-[8.5px] text-stone-550 block">{meta.helper}</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-3 bg-stone-900/45 border border-stone-850 rounded-xl p-3">
@@ -1576,7 +1734,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       </div>
 
       {/* COLUMN 4: RECHTE PERMANENTE SMARTPHONE-VORSCHAU */}
-      <div className="order-2 md:order-none w-full md:w-[330px] bg-[#0E0E11] border-b md:border-b-0 md:border-l border-stone-900 flex flex-col justify-between shrink-0 p-3 md:p-4">
+      <div className="order-2 md:order-none w-full md:w-[330px] max-h-[48dvh] md:max-h-none overflow-hidden md:overflow-visible bg-[#0E0E11] border-b md:border-b-0 md:border-l border-stone-900 flex flex-col justify-between shrink-0 p-3 md:p-4">
         
         {/* Preview Title bar */}
         <div className="flex items-center justify-between border-b border-stone-900 pb-3">
@@ -1606,8 +1764,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         </div>
 
         {/* Realistic iPhone mockup frame */}
-        <div className="flex-none md:flex-1 flex items-center justify-center py-3 md:py-4 bg-stone-950/20">
-          <div className="relative mx-auto w-[190px] h-[390px] sm:w-[220px] sm:h-[452px] md:w-[256px] md:h-[526px] bg-black rounded-[30px] md:rounded-[38px] border-[8px] border-stone border-stone-850 shadow-2xl overflow-hidden flex flex-col justify-between relative ring-4 ring-purple-900/10">
+        <div className="flex-none md:flex-1 flex items-center justify-center py-2 md:py-4 bg-stone-950/20">
+          <div className="relative mx-auto w-[150px] h-[308px] sm:w-[180px] sm:h-[370px] md:w-[256px] md:h-[526px] bg-black rounded-[30px] md:rounded-[38px] border-[8px] border-stone border-stone-850 shadow-2xl overflow-hidden flex flex-col justify-between relative ring-4 ring-purple-900/10">
             {/* Dynamic Notch */}
             <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-black rounded-b-xl z-25 flex items-center justify-center" />
 
