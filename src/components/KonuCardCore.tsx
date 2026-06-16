@@ -136,6 +136,16 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
           productImageUrl: '',
           heroVideoUrl: '',
           productVideoUrl: '',
+          // In clean Studio preview, the visible card text must always come from the
+          // Werbetexter fields (title/subtitle/description). Older KONU hero fields
+          // are intentionally ignored here so stored demo graphics like
+          // "Deine neue ureel-Seite / zum Bearbeiten" cannot override the editor.
+          showHeroText: true,
+          heroTitle: card.title || '',
+          heroSubtitle: card.subtitle || '',
+          heroDescription: card.description || '',
+          heroCompany: '',
+          heroLocation: '',
           heroTextColor: card.heroTextColor || (card.ureelScene?.mode === 'color' || card.ureelScene?.mode === 'gradient' ? 'dark' : 'white'),
         }
       : card;
@@ -709,13 +719,13 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
 
     return (
       <div 
-        className={`${activeSceneVideoResult.heroSize === 'compact' ? 'w-[88%] mx-auto px-0 mt-3 mb-4' : 'w-full px-3 mt-2 mb-4'} z-10 shrink-0 pointer-events-auto`}
+        className={`${activeSceneVideoResult.heroSize === 'compact' ? 'w-[88%] mx-auto px-0 mt-3 mb-4' : 'w-[calc(100%+1.5rem)] -mx-3 -mt-3 mb-4'} z-10 shrink-0 pointer-events-auto`}
         onClick={(e) => {
           e.stopPropagation();
         }}
       >
         <div 
-          className={`${activeSceneVideoResult.heroSize === 'compact' ? 'relative w-full aspect-video rounded-2xl' : 'relative w-full aspect-video rounded-[18px]'} overflow-hidden bg-stone-950 border border-[#F5F2EA]/25 shadow-2xl pointer-events-none`}
+          className={`${activeSceneVideoResult.heroSize === 'compact' ? 'relative w-full aspect-video rounded-2xl border border-[#F5F2EA]/25 shadow-2xl' : 'relative w-full aspect-video rounded-none border-0 shadow-none'} overflow-hidden bg-stone-950 pointer-events-none`}
           style={{ imageRendering: 'auto' }}
         >
           {isYt && activeSceneVideoResult.embedUrl && (
@@ -959,6 +969,192 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     ? "w-[calc(100%+1.5rem)] -mx-3 -mt-3 mb-6 z-10 shrink-0"
     : "w-[calc(100%+1.5rem)] -mx-3 sm:w-[calc(100%+2.5rem)] sm:-mx-5 md:w-[calc(100%+3rem)] md:-mx-6 -mt-3 sm:-mt-4 mb-6 z-10 shrink-0";
 
+
+
+  // v23: Unified ureel card layer model.
+  // The background is always the lowest 100% smartphone layer. Video, image, color and
+  // gradient never push the card content around. Werbetexte/Vorlagen and action buttons
+  // are separate layers on top, so they can appear/timeline without blocking each other.
+  const useLayeredUreelCard = hasUreelScene && (cleanPreview || !isPreview || isMiniPreview);
+
+  const fontFamilyForLayeredText = (style?: string) => {
+    if (style === 'tech') return 'ui-monospace, SFMono-Regular, Menlo, monospace';
+    if (style === 'serif') return 'Georgia, serif';
+    if (style === 'condensed') return 'Bebas Neue, Impact, sans-serif';
+    if (style === 'elegant') return 'Playfair Display, Georgia, serif';
+    return 'Inter, ui-sans-serif, system-ui, sans-serif';
+  };
+
+  const layeredTemplate = card.ureelTextTemplate || {} as any;
+  const layeredAccent = layeredTemplate.frame?.color || layeredTemplate.emphasis?.color || '#E8DCC2';
+  const layeredFrameType = layeredTemplate.frame?.type || 'corner';
+  const layeredBoxType = layeredTemplate.box?.type || 'transparent';
+  const layeredFont = fontFamilyForLayeredText(layeredTemplate.fontStyle || card.textFontFamily || 'modern');
+
+  const layeredTextBoxStyle = (): React.CSSProperties => {
+    if (layeredBoxType === 'light') return { background: 'rgba(245,242,234,0.92)', color: '#141414', borderColor: 'rgba(232,220,194,0.72)' };
+    if (layeredBoxType === 'glass') return { background: 'rgba(15,15,15,0.38)', backdropFilter: 'blur(10px)', borderColor: 'rgba(232,220,194,0.34)' };
+    if (layeredBoxType === 'dark') return { background: 'rgba(8,8,8,0.72)', borderColor: 'rgba(232,220,194,0.28)' };
+    if (layeredBoxType === 'transparent') return { background: 'rgba(10,10,10,0.22)', borderColor: 'rgba(232,220,194,0.16)' };
+    return { background: 'transparent', borderColor: 'transparent' };
+  };
+
+  const layerTextWithHighlight = (text: string, className: string, style: React.CSSProperties) => {
+    const clean = text || '';
+    const mode = layeredTemplate.emphasis?.mode || 'none';
+    if (!clean || mode === 'none') return <span className={className} style={style}>{clean}</span>;
+    let target = '';
+    if (mode === 'last_word') {
+      const parts = clean.trim().split(/\s+/);
+      target = parts.length > 1 ? parts[parts.length - 1] : clean;
+    } else if (mode === 'custom_word') {
+      target = layeredTemplate.emphasis?.word || '';
+    }
+    const idx = target ? clean.toLowerCase().lastIndexOf(target.toLowerCase()) : -1;
+    if (idx < 0) return <span className={className} style={style}>{clean}</span>;
+    return <span className={className} style={style}>{clean.slice(0, idx)}<span style={{ color: layeredAccent }}>{clean.slice(idx, idx + target.length)}</span>{clean.slice(idx + target.length)}</span>;
+  };
+
+  const filteredLayeredButtons = normalizeButtons(card.buttons || [])
+    .filter((btn) => btn.isActive)
+    .filter((btn) => {
+      const label = `${btn.title || ''} ${btn.label || ''}`.toLowerCase();
+      return !/(editor|timeline|vorschau|bearbeiten|ureel live|konu live|texte)/i.test(label);
+    });
+
+  const renderLayeredYoutube = (embedUrl: string, mode: 'cover' | 'contain' | 'heroWide' | 'heroCompact') => {
+    const isHero = mode === 'heroWide' || mode === 'heroCompact';
+    const frameClass = isHero
+      ? 'absolute inset-0 w-full h-full'
+      : 'absolute left-1/2 top-1/2 w-[178%] h-full -translate-x-1/2 -translate-y-1/2';
+    return (
+      <iframe
+        src={embedUrl}
+        className={frameClass}
+        frameBorder="0"
+        allow="autoplay; encrypted-media"
+        title="ureel scene video"
+        style={{ pointerEvents: 'none' }}
+      />
+    );
+  };
+
+  const renderLayeredVideoSurface = () => {
+    if (scene.mode !== 'video' || activeSceneVideoResult.type === 'none') return null;
+    const isYt = activeSceneVideoResult.type === 'youtube' || activeSceneVideoResult.type === 'youtube_shorts';
+    const src = activeSceneVideoResult.videoSrc;
+    const embed = activeSceneVideoResult.embedUrl;
+    const isHero = activeSceneVideoResult.placement === 'hero';
+    const heroCompact = isHero && activeSceneVideoResult.heroSize === 'compact';
+
+    if (isHero) {
+      return (
+        <div className={`${heroCompact ? 'absolute top-3 left-[6%] right-[6%] z-[8]' : 'absolute top-0 left-0 right-0 z-[8]'} aspect-video overflow-hidden ${heroCompact ? 'rounded-2xl border border-[#F5F2EA]/25 shadow-2xl' : 'rounded-none border-0'}`}>
+          {isYt && embed && renderLayeredYoutube(embed, heroCompact ? 'heroCompact' : 'heroWide')}
+          {!isYt && src && <video src={src} autoPlay muted loop playsInline preload="metadata" className="absolute inset-0 w-full h-full object-cover" />}
+        </div>
+      );
+    }
+
+    return (
+      <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
+        {isYt && embed && renderLayeredYoutube(embed, 'cover')}
+        {!isYt && src && <video src={src} autoPlay muted loop playsInline preload="metadata" className="absolute inset-0 w-full h-full object-cover" />}
+      </div>
+    );
+  };
+
+  const renderLayeredAdText = () => {
+    const title = (mappedCardData.title || mappedCardData.heroTitle || '').trim();
+    const subtitle = (mappedCardData.subtitle || mappedCardData.heroSubtitle || '').trim();
+    const description = (mappedCardData.description || mappedCardData.heroDescription || '').trim();
+    const visibleTitle = showTitle && title.length > 0;
+    const visibleSubtitle = showSubtitle && subtitle.length > 0;
+    const visibleDescription = showDescription && description.length > 0;
+    if (!visibleTitle && !visibleSubtitle && !visibleDescription) return null;
+
+    const buttonsVisible = showButtons && filteredLayeredButtons.length > 0;
+    const isHero = activeSceneVideoResult.placement === 'hero' && scene.mode === 'video';
+    const heroOffset = isHero ? (activeSceneVideoResult.heroSize === 'compact' ? 'top-[28%]' : 'top-[33%]') : (buttonsVisible ? 'top-[12%]' : 'top-1/2 -translate-y-1/2');
+    const maxHeight = buttonsVisible ? 'max-h-[58%]' : 'max-h-[82%]';
+    const widthClass = layeredFrameType === 'badge' ? 'max-w-[78%]' : 'max-w-[84%]';
+    const titleSize = Math.max(15, Math.min(buttonsVisible ? 28 : 38, Number((card as any).heroTitleSize || 30) * (buttonsVisible ? 0.72 : 0.9)));
+    const subtitleSize = Math.max(8, Math.min(buttonsVisible ? 13 : 18, Number((card as any).heroSubtitleSize || 12) * (buttonsVisible ? 0.78 : 0.95)));
+    const descriptionSize = Math.max(8, Math.min(buttonsVisible ? 11 : 15, Number((card as any).heroDescriptionSize || 11) * (buttonsVisible ? 0.82 : 1)));
+    const boxStyle = layeredTextBoxStyle();
+
+    return (
+      <div className={`absolute left-1/2 -translate-x-1/2 ${heroOffset} ${widthClass} ${maxHeight} z-[12] overflow-hidden pointer-events-none transition-all duration-500`}>
+        <div className={`relative w-full rounded-3xl border px-5 py-5 text-center shadow-2xl shadow-black/20 ureel-ad-anim-${layeredTemplate.animation || 'fade'}`} style={{ ...boxStyle, animationDuration: `${Number((card as any).adAnimationDuration || 1.2)}s` }}>
+          {layeredFrameType === 'corner' && <><span className="absolute left-2 top-2 w-5 h-5 border-l-2 border-t-2" style={{ borderColor: layeredAccent }} /><span className="absolute right-2 top-2 w-5 h-5 border-r-2 border-t-2" style={{ borderColor: layeredAccent }} /><span className="absolute left-2 bottom-2 w-5 h-5 border-l-2 border-b-2" style={{ borderColor: layeredAccent }} /><span className="absolute right-2 bottom-2 w-5 h-5 border-r-2 border-b-2" style={{ borderColor: layeredAccent }} /></>}
+          {layeredFrameType === 'thin' && <span className="absolute inset-2 rounded-2xl border border-dashed pointer-events-none" style={{ borderColor: `${layeredAccent}77` }} />}
+          {layeredFrameType === 'side_line' && <span className="absolute left-3 top-5 bottom-5 w-1 rounded-full" style={{ background: layeredAccent }} />}
+          {layeredFrameType === 'badge' && visibleSubtitle && <div className="inline-flex mb-2 px-3 py-1 rounded-full border text-[8px] font-black uppercase tracking-widest" style={{ borderColor: `${layeredAccent}66`, color: layeredAccent }}>{subtitle}</div>}
+          <div className={layeredFrameType === 'side_line' ? 'pl-4' : ''}>
+            {visibleTitle && layerTextWithHighlight(title, 'block font-black uppercase leading-[0.92] break-words', { fontSize: titleSize, fontFamily: layeredFont, letterSpacing: layeredTemplate.fontStyle === 'elegant' ? '0.10em' : layeredTemplate.fontStyle === 'condensed' ? '0.02em' : '-0.03em', color: (card as any).heroTitleTextColor || (layeredBoxType === 'light' ? '#151515' : '#F5F2EA') })}
+            {visibleSubtitle && layeredFrameType !== 'badge' && <span className="block mt-3 font-black uppercase leading-tight break-words" style={{ fontSize: subtitleSize, fontFamily: layeredFont, color: (card as any).heroSubtitleTextColor || (layeredBoxType === 'light' ? '#3A3732' : layeredAccent), letterSpacing: '0.06em' }}>{subtitle}</span>}
+            {visibleDescription && <span className="block mt-3 font-semibold leading-snug break-words" style={{ fontSize: descriptionSize, fontFamily: layeredFont, color: (card as any).heroDescTextColor || (layeredBoxType === 'light' ? '#3A3732' : '#E8DCC2') }}>{description}</span>}
+            {layeredFrameType === 'underline' && <span className="block mt-4 h-1 rounded-full mx-auto w-2/3" style={{ background: layeredAccent }} />}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  if (useLayeredUreelCard) {
+    const buttonDockMaxHeight = filteredLayeredButtons.length > 6 ? 'max-h-[38%]' : 'max-h-[34%]';
+    return (
+      <div
+        onClick={() => {
+          if (isPreview && onEditBackground) onEditBackground();
+        }}
+        className={`relative w-full h-full min-h-full overflow-hidden rounded-[23px] select-none ${isPreview ? 'cursor-pointer' : ''}`}
+        style={cardStyle}
+      >
+        {/* Layer 1: full smartphone background surface. */}
+        <div className="absolute inset-0 z-0 pointer-events-none" style={{ ...cardStyle, filter: `${sceneBlurValue} ${saturationFilter}`.trim() || undefined }} />
+        {renderLayeredVideoSurface()}
+        {hasUreelScene && (
+          <div
+            className="absolute inset-0 z-[5] pointer-events-none"
+            style={{
+              backgroundColor: scene.overlay?.darken ? `rgba(0,0,0,${scene.overlay.darken / 100})` : 'transparent',
+              backgroundImage: scene.overlay?.vignette ? 'radial-gradient(circle, transparent 35%, rgba(0,0,0,0.55) 100%)' : undefined,
+            }}
+          />
+        )}
+        {renderEndCardOverlay()}
+
+        {/* Layer 2: Werbetext / template area. It can use the full card before buttons and compacts automatically when buttons appear. */}
+        {renderLayeredAdText()}
+
+        {/* Layer 3: timed action dock. More than six buttons scroll inside the phone, the background remains fixed behind it. */}
+        {showButtons && filteredLayeredButtons.length > 0 && (
+          <div
+            className={`absolute left-3 right-3 bottom-3 z-[20] ${buttonDockMaxHeight} overflow-y-auto overflow-x-hidden scrollbar-none rounded-[24px] p-1 transition-all duration-500`}
+            style={buttonRevealStyle}
+          >
+            <div
+              className={`grid ${gridLayout.cols === 1 ? 'grid-cols-1' : gridLayout.cols === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}
+              style={{ gap: `${gridLayout.gapPx}px`, justifyItems: 'center' }}
+            >
+              {filteredLayeredButtons.map((btn) => (
+                <ButtonRenderer
+                  key={btn.id}
+                  button={btn}
+                  mode="public"
+                  onClick={() => handleButtonClick && handleButtonClick(btn)}
+                  lang={lang}
+                  forceSquare={gridLayout.square}
+                  forceSizePx={gridLayout.buttonSizePx}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
   if (isVideoBgActive) {
     // Scrollable layout context for immersive Reels experience
     const outerScrollClass = "w-full h-full relative flex-grow flex flex-col items-stretch overflow-y-auto overflow-x-hidden scrollbar-none select-none transition-all duration-300 scroll-smooth rounded-[23px]";

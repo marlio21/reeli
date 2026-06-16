@@ -83,7 +83,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [textAnimationSeed, setTextAnimationSeed] = useState(0);
   const [textDraft, setTextDraft] = useState({ title: activeCard.title || '', subtitle: activeCard.subtitle || '', description: activeCard.description || '' });
   const [textDirty, setTextDirty] = useState(false);
-  const [activeSubSection, setActiveSubSection] = useState<string>('scene-core');
+  const [activeSubSection, setActiveSubSection] = useState<string>('scene-video');
   
   // Local state for actively selected button being edited
   const [editingBtnId, setEditingBtnId] = useState<string | null>(null);
@@ -408,9 +408,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   });
 
   const createStarterUreelTemplate = (): Partial<Card> => ({
-    title: 'UREEL',
+    title: lang === 'de' ? 'Deine neue ureel-Seite' : 'Your new ureel page',
     subtitle: lang === 'de' ? 'Deine Welt. Dein Link.' : 'Your world. Your link.',
-    description: lang === 'de' ? 'Telefon, Webseite, Mail, WhatsApp, Unternehmen und Datei sind für dich vorbereitet.' : 'Phone, website, mail, WhatsApp, company and file are ready for you.',
+    description: lang === 'de' ? 'Telefon, Webseite, Mail, WhatsApp, Unternehmen und Datei sind bereits vorbereitet.' : 'Phone, website, mail, WhatsApp, company and file are already prepared.',
     isPublished: false,
     visibility: 'draft' as any,
     backgroundType: 'color',
@@ -1250,7 +1250,6 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             { id: 'scene', label: lang === 'de' ? 'Szene' : 'Scene', icon: LucideIcons.Tv },
             { id: 'timeline', label: lang === 'de' ? 'Timeline' : 'Timeline', icon: LucideIcons.Milestone },
             { id: 'buttons', label: lang === 'de' ? 'Buttons' : 'Buttons', icon: LucideIcons.Grid },
-            { id: 'endcard', label: lang === 'de' ? 'Endkarte' : 'Endcard', icon: LucideIcons.Flag },
             { id: 'design', label: lang === 'de' ? 'Design' : 'Design', icon: LucideIcons.Palette }
           ].map((item) => {
             const IconComponent = item.icon;
@@ -1258,7 +1257,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id as MainModule)}
+                onClick={() => {
+                  setActiveTab(item.id as MainModule);
+                  const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-list', design: 'design-presets' };
+                  if (defaults[item.id]) setActiveSubSection(defaults[item.id]);
+                }}
                 className={`min-w-[60px] md:min-w-0 flex flex-col items-center justify-center py-2.5 px-2 md:px-0 rounded-xl transition duration-150 relative cursor-pointer ${
                   active 
                     ? 'text-[#E8DCC2] bg-[#F5F2EA]/10 shadow-inner border border-[#E8DCC2]/25 font-bold' 
@@ -1324,6 +1327,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   { id: 'scene-poster', icon: LucideIcons.Image, label: 'Bild / Poster', desc: 'Cover, Upload, Standbild' },
                   { id: 'scene-color', icon: LucideIcons.PaintBucket, label: 'Farbe / Verlauf', desc: 'Anthrazit, Creme, Gradient' },
                   { id: 'scene-display', icon: LucideIcons.Scan, label: 'Darstellung', desc: 'Füllen, ganz, Hero' },
+                  { id: 'scene-endcard', icon: LucideIcons.Flag, label: 'Endkarte', desc: 'Abschluss, Replay, CTA' },
                 ].map((item) => {
                   const Icon = item.icon;
                   const selected = activeSubSection === item.id;
@@ -1515,14 +1519,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-900 pb-4">
           <div>
             <h1 className="text-base font-black text-white tracking-tight uppercase">
-              {activeTab === 'scene' && (activeSubSection === 'scene-video' ? 'Clip-Video / Background Reel' : activeSubSection === 'scene-poster' ? 'Bild / Poster einrichten' : activeSubSection === 'scene-display' ? 'Darstellung & Zuschnitt' : 'Farbe, Verlauf & Overlay')}
+              {activeTab === 'scene' && (activeSubSection === 'scene-video' ? 'Clip-Video / Background Reel' : activeSubSection === 'scene-poster' ? 'Bild / Poster einrichten' : activeSubSection === 'scene-display' ? 'Darstellung & Zuschnitt' : activeSubSection === 'scene-endcard' ? 'Endkarte in der Szene' : 'Farbe, Verlauf & Overlay')}
               {activeTab === 'timeline' && (activeSubSection === 'timeline-texts' ? 'Werbebotschaft' : activeSubSection === 'timeline-templates' ? 'Werbeschriften & Vorlagen' : activeSubSection === 'timeline-style' ? 'Rahmen, Schrift & Effekt' : 'Animations-Timeline')}
               {activeTab === 'buttons' && (activeSubSection === 'buttons-list' ? 'Button-Liste' : activeSubSection === 'buttons-action' ? 'Aktion & Ziel' : activeSubSection === 'buttons-design' ? 'Button-Design' : 'Raster & Vorschau')}
               {activeTab === 'endcard' && (activeSubSection === 'endcard-general' ? 'Nachspielsequenz einrichten' : 'Wasserzeichen & Branding')}
               {activeTab === 'design' && (activeSubSection === 'design-presets' ? 'Exklusive Design-Presets' : 'Schriftart konfigurieren')}
             </h1>
             <p className="text-[10px] text-stone-450 mt-1">
-              {activeTab === 'scene' && (activeSubSection === 'scene-video' ? 'Ermöglicht das automatische Abspielen eines Videos oder Loops im Hintergrund.' : activeSubSection === 'scene-poster' ? 'Lege ein ruhiges Cover- oder Werbebild fest, falls kein Video genutzt wird.' : activeSubSection === 'scene-display' ? 'Bestimme, wie 9:16-, 16:9- und Bildinhalte innerhalb der ureel-Karte sitzen.' : 'Bestimme Anthrazit-/Cremeflächen, Verläufe, Vignette und Abdunklung.')}
+              {activeTab === 'scene' && (activeSubSection === 'scene-video' ? 'Ermöglicht das automatische Abspielen eines Videos oder Loops im Hintergrund.' : activeSubSection === 'scene-poster' ? 'Lege ein ruhiges Cover- oder Werbebild fest, falls kein Video genutzt wird.' : activeSubSection === 'scene-display' ? 'Bestimme, wie 9:16-, 16:9- und Bildinhalte innerhalb der ureel-Karte sitzen.' : activeSubSection === 'scene-endcard' ? 'Steuere den Abschluss der Karte direkt dort, wo Video, Bild und Szene entstehen.' : 'Bestimme Anthrazit-/Cremeflächen, Verläufe, Vignette und Abdunklung.')}
               {activeTab === 'timeline' && (activeSubSection === 'timeline-texts' ? 'Formuliere die Werbebotschaft, die aus Video oder Bild eine Aktion macht.' : activeSubSection === 'timeline-templates' ? 'Wähle eine professionelle Werbeschrift und fülle die Karte mit passenden Texten.' : activeSubSection === 'timeline-style' ? 'Gestalte Rahmen, Textbox, Schrift, Highlight und Animation.' : 'Reguliere millisekundengenaue Animations-Szenen wie bei professionellen Werbeanzeigen.')}
               {activeTab === 'buttons' && (activeSubSection === 'buttons-list' ? 'Jeder Button ist als eigene Karte sichtbar – inklusive Kopieren, Duplizieren und Löschen.' : activeSubSection === 'buttons-action' ? 'Bestimme, was der Button öffnet: Link, Telefon, PDF, Datei oder Formular.' : activeSubSection === 'buttons-design' ? 'Gestalte Text, Bild, Farbe, Form und Lesbarkeit des Buttons.' : 'Wechsle zwischen Karte, Button und Raster-Vorschau und passe Größe/Abstand an.')}
               {activeTab === 'endcard' && (activeSubSection === 'endcard-general' ? 'Bestimme, was abläuft, wenn das Video zu Ende abgespielt wurde.' : 'Entferne ureel-Wasserzeichen oder füge eigene Marken-Logos hinzu.')}
@@ -1690,8 +1694,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {[
                     { id: 'cover', label: 'Reel füllen', desc: 'Füllt den Smartphone-Screen im 9:16 Rahmen' },
-                    { id: 'contain', label: 'Ganz anzeigen', desc: '16:9 komplett sichtbar oben auf der Karte' },
-                    { id: 'hero', label: 'Als Video-Bildschirm', desc: 'Kompakter 16:9-Bereich oben mit Abstand' },
+                    { id: 'contain', label: 'Ganz anzeigen', desc: '16:9 über volle Breite direkt oben an der Karte' },
+                    { id: 'hero', label: 'Als Video-Bildschirm', desc: 'Kompakter 16:9-Bereich oben mit kleinem Abstand' },
                   ].map((mode) => {
                     const selected = mode.id === 'cover'
                       ? ((activeCard.ureelScene?.video?.displayMode || 'cover') === 'cover' && (activeCard.ureelScene?.video as any)?.placement !== 'hero')
@@ -2557,7 +2561,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           )}
 
           {/* TAB 4: ENDCARD & CTA */}
-          {activeTab === 'endcard' && activeSubSection === 'endcard-general' && (
+          {((activeTab === 'endcard' && activeSubSection === 'endcard-general') || (activeTab === 'scene' && activeSubSection === 'scene-endcard')) && (
             <div className="space-y-4">
               <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-4">
                 <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Dauerhafte Endkarte (CTA Banner)</span>
