@@ -671,7 +671,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     return match ? match[1] : '';
   };
 
-  const activeYtUrl = normalized.youtube?.url || normalized.youtubeUrl || '';
+  const activeYtUrl = hasUreelScene ? (activeSceneVideoResult.videoSrc || scene.video?.url || normalized.youtube?.url || normalized.youtubeUrl || '') : (normalized.youtube?.url || normalized.youtubeUrl || '');
   const ytId = isYoutubeActive ? getYoutubeId(activeYtUrl) : '';
   const ytLoopParam = '&loop=0';
   const ytMuteParam = normalized.youtube?.mute !== false ? '&mute=1' : '';
@@ -987,9 +987,11 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               <iframe
                 src={ytEmbedUrl}
                 className={
-                  (hasUreelScene ? activeSceneVideoResult.displayMode === 'cover' : normalized.videoFitMode === 'cover')
-                    ? "absolute top-1/2 left-1/2 w-[300%] h-[300%] -translate-x-1/2 -translate-y-1/2 object-cover"
-                    : "absolute inset-0 w-full h-full"
+                  hasUreelScene
+                    ? "absolute inset-0 w-full h-full"
+                    : ((normalized.videoFitMode === 'cover')
+                      ? "absolute top-1/2 left-1/2 w-[300%] h-[300%] -translate-x-1/2 -translate-y-1/2 object-cover"
+                      : "absolute inset-0 w-full h-full")
                 }
                 frameBorder="0"
                 allow="autoplay; encrypted-media"
@@ -1580,9 +1582,11 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             <iframe
               src={ytEmbedUrl}
               className={
-                (hasUreelScene ? activeSceneVideoResult.displayMode === 'cover' : normalized.videoFitMode === 'cover')
-                  ? "absolute top-1/2 left-1/2 w-[300%] h-[300%] -translate-x-1/2 -translate-y-1/2 object-cover"
-                  : "absolute inset-0 w-full h-full"
+                hasUreelScene
+                  ? "absolute inset-0 w-full h-full"
+                  : (normalized.videoFitMode === 'cover'
+                    ? "absolute top-1/2 left-1/2 w-[300%] h-[300%] -translate-x-1/2 -translate-y-1/2 object-cover"
+                    : "absolute inset-0 w-full h-full")
               }
               frameBorder="0"
               allow="autoplay; encrypted-media"

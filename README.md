@@ -1,17 +1,20 @@
-# ureel v19 — Startkarte mit echten Aktionsbuttons
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
 
-Diese Version legt für jede neu erstellte ureel eine saubere Startkarte an:
+# Run and deploy your AI Studio app
 
-- hochwertiger 9:16 Start-Hintergrund als lokales SVG (`/ureel-start-bg.svg`)
-- cremeweißer ureel Button-Look als lokales SVG (`/ureel-button-cream.svg`)
-- echte vorkonfigurierte Aktionsbuttons statt Demo-/Editorbuttons
-- Telefon → `phone`
-- Webseite → `url`
-- Mail → `email`
-- WhatsApp → `whatsapp`
-- Unternehmen → `contact_form`
-- Datei → `pdf_link`
+This contains everything you need to run your app locally.
 
-Jeder zusätzliche Klick auf „Neue ureel erstellen“ erzeugt wieder diese vollständige Startkarte.
+View your app in AI Studio: https://ai.studio/apps/31bef616-9331-409c-9318-b985dac4c06e
 
-Build geprüft mit `npm run build`.
+## Run Locally
+
+**Prerequisites:**  Node.js
+
+
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`
