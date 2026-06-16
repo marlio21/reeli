@@ -74,6 +74,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [activeTab, setActiveTab] = useState<MainModule>('scene');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [accountPanelOpen, setAccountPanelOpen] = useState(false);
+  const [teamPanelOpen, setTeamPanelOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [buttonPreviewMode, setButtonPreviewMode] = useState<'card' | 'button' | 'grid'>('button');
   const [activeSubSection, setActiveSubSection] = useState<string>('scene-core');
   
   // Local state for actively selected button being edited
@@ -666,10 +670,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             onClick={() => setAccountMenuOpen((open) => !open)}
             title={lang === 'de' ? 'Menü öffnen' : 'Open menu'}
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-700 to-indigo-500 p-0.5 flex items-center justify-center shadow-lg shadow-purple-950/40">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#262626] to-[#3A3732] p-0.5 flex items-center justify-center shadow-lg shadow-purple-950/40">
               <LucideIcons.Tv className="text-white w-5 h-5 stroke-[2.2]" />
             </div>
-            <span className="font-black text-[9px] tracking-widest text-purple-400 uppercase select-none">ureel</span>
+            <span className="font-black text-[9px] tracking-widest text-[#E8DCC2] uppercase select-none">ureel</span>
           </button>
           {accountMenuOpen && (
             <div className="absolute left-0 md:left-[66px] top-12 md:top-0 z-50 w-[280px] rounded-2xl border border-purple-900/40 bg-[#121216] shadow-2xl shadow-black/60 p-3 text-stone-200">
@@ -689,10 +693,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <button onClick={() => { setAccountMenuOpen(false); handleCreateNewUreel(); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-purple-950/25 text-[11px] font-bold flex items-center gap-2">
                   <LucideIcons.Plus size={14} className="text-purple-400" /> Neue ureel erstellen
                 </button>
-                <button onClick={() => { setAccountMenuOpen(false); onGoToRoute?.('/settings'); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-stone-900 text-[11px] font-bold flex items-center gap-2">
+                <button onClick={() => { setAccountMenuOpen(false); setAccountPanelOpen(true); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-stone-900 text-[11px] font-bold flex items-center gap-2">
                   <LucideIcons.UserCog size={14} className="text-purple-400" /> Meine Daten & Einstellungen
                 </button>
-                <button onClick={() => { setAccountMenuOpen(false); onGoToAdmin?.(); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-stone-900 text-[11px] font-bold flex items-center gap-2">
+                <button onClick={() => { setAccountMenuOpen(false); setTeamPanelOpen(true); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-stone-900 text-[11px] font-bold flex items-center gap-2">
                   <LucideIcons.Users size={14} className="text-purple-400" /> Nutzerverwaltung / Team
                 </button>
                 <div className="px-3 py-2 rounded-xl bg-stone-950/50 border border-stone-850">
@@ -819,53 +823,44 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             )}
 
             {activeTab === 'buttons' && (
-              <div className="space-y-3 pt-1">
+              <div className="space-y-2 pt-1">
                 <div className="flex items-center justify-between px-2 text-[10px] text-stone-500 uppercase font-bold tracking-wider">
-                  <span>Buttons-Liste</span>
-                  <button onClick={handleAddButtonLocal} className="text-purple-400 hover:text-purple-300 cursor-pointer flex items-center gap-0.5">
+                  <span>Button-Studio</span>
+                  <button onClick={handleAddButtonLocal} className="text-[#F5F2EA] hover:text-white cursor-pointer flex items-center gap-0.5">
                     <LucideIcons.Plus size={12} className="stroke-[3]" />
                   </button>
                 </div>
-                
-                <div className="space-y-1 max-h-[160px] md:max-h-[280px] overflow-y-auto pr-1">
-                  {activeCard?.buttons?.map((button, index) => (
+                {[
+                  { id: 'buttons-list', icon: LucideIcons.ListChecks, label: 'Button-Liste', desc: 'Auswählen, kopieren, duplizieren' },
+                  { id: 'buttons-action', icon: LucideIcons.MousePointerClick, label: 'Aktion', desc: 'Telefon, Link, PDF, Kontakt' },
+                  { id: 'buttons-design', icon: LucideIcons.ImagePlus, label: 'Design', desc: 'Bild, Text, Farben, Form' },
+                  { id: 'buttons-preview', icon: LucideIcons.LayoutGrid, label: 'Raster & Vorschau', desc: 'Karte, Button, Raster' },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  const selected = activeSubSection === item.id;
+                  return (
                     <button
-                      key={button.id || index}
-                      onClick={() => {
-                        setEditingBtnId(button.id);
-                        setActiveSubSection('buttons-list');
-                      }}
-                      className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg transition-all text-left ${
-                        editingBtnId === button.id ? 'bg-purple-950/30 text-purple-300 border border-purple-900/40 font-bold' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/30'
+                      key={item.id}
+                      onClick={() => setActiveSubSection(item.id)}
+                      className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
+                        selected
+                          ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
+                          : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'
                       }`}
                     >
-                      <div className="flex items-center gap-2 truncate">
-                        <span className="text-[10px] font-mono font-bold text-stone-500">#{index + 1}</span>
-                        <span className="truncate">{button.title || '(Unbenannt)'}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        {button.isActive ? (
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Aktiv" />
-                        ) : (
-                          <span className="w-1.5 h-1.5 rounded-full bg-stone-700" title="Inaktiv" />
-                        )}
-                        <LucideIcons.ChevronRight size={12} className="opacity-45" />
-                      </div>
+                      <Icon size={15} className={selected ? 'text-[#101010]' : 'text-[#E8DCC2]'} />
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">{item.label}</span>
+                        <span className={`block text-[8.5px] leading-snug mt-0.5 ${selected ? 'text-[#101010]/60' : 'text-stone-500'}`}>{item.desc}</span>
+                      </span>
+                      <LucideIcons.ChevronRight size={13} className="opacity-50" />
                     </button>
-                  ))}
-                </div>
-
-                <div className="pt-2 border-t border-stone-850/60 px-2 space-y-1">
-                  <span className="text-[9px] font-bold text-stone-500 uppercase block tracking-wider mb-1">Layout & Spaltigkeit</span>
-                  <button
-                    onClick={() => setActiveSubSection('buttons-layout')}
-                    className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition-all text-left ${
-                      activeSubSection === 'buttons-layout' ? 'bg-purple-950/20 text-purple-300 border border-purple-900/20' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/30'
-                    }`}
-                  >
-                    <LucideIcons.LayoutGrid size={13} className="text-purple-400" />
-                    <span>Spaltenraster-Konfig</span>
-                  </button>
+                  );
+                })}
+                <div className="mt-3 rounded-2xl border border-[#3A3732] bg-[#111111] p-3">
+                  <span className="block text-[9px] font-black uppercase tracking-wider text-stone-500 mb-1">Aktueller Button</span>
+                  <p className="text-[11px] font-black text-[#F5F2EA] truncate">{editingButton?.title || 'Kein Button gewählt'}</p>
+                  <p className="text-[9px] text-stone-500 truncate">{editingButton ? (actionOptions.find((option) => option.value === editingButton.actionType)?.label || editingButton.actionType || 'Aktion') : 'Wähle einen Button aus der Liste.'}</p>
                 </div>
               </div>
             )}
@@ -962,14 +957,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <h1 className="text-base font-black text-white tracking-tight uppercase">
               {activeTab === 'scene' && (activeSubSection === 'scene-video' ? 'Clip-Video / Background Reel' : 'Statische Füllfarbe & Overlay')}
               {activeTab === 'timeline' && (activeSubSection === 'timeline-texts' ? 'Texte, Slogans & Format' : 'Animations-Timeline')}
-              {activeTab === 'buttons' && (activeSubSection === 'buttons-list' ? 'Button-Details anpassen' : 'Mehrspaltiges Button-Layout')}
+              {activeTab === 'buttons' && (activeSubSection === 'buttons-list' ? 'Button-Liste' : activeSubSection === 'buttons-action' ? 'Aktion & Ziel' : activeSubSection === 'buttons-design' ? 'Button-Design' : 'Raster & Vorschau')}
               {activeTab === 'endcard' && (activeSubSection === 'endcard-general' ? 'Nachspielsequenz einrichten' : 'Wasserzeichen & Branding')}
               {activeTab === 'design' && (activeSubSection === 'design-presets' ? 'Exklusive Design-Presets' : 'Schriftart konfigurieren')}
             </h1>
             <p className="text-[10px] text-stone-450 mt-1">
               {activeTab === 'scene' && (activeSubSection === 'scene-video' ? 'Ermöglicht das automatische Abspielen eines Videos oder Loops im Hintergrund.' : 'Bestimmen Sie das statische Farbsystem oder Overlay.')}
               {activeTab === 'timeline' && (activeSubSection === 'timeline-texts' ? 'Passe die Begrüßung und Beschreibung an, die über der Szene liegen.' : 'Reguliere millisekundengenaue Animations-Szenen wie bei professionellen Werbeanzeigen.')}
-              {activeTab === 'buttons' && (activeSubSection === 'buttons-list' ? 'Konfiguriere Funktions-Links wie Routen, Formulare, Leads oder Direktkontakte.' : 'Bestimme, in wie vielen Spalten die Kacheln auf Smartphones nebeneinander liegen.')}
+              {activeTab === 'buttons' && (activeSubSection === 'buttons-list' ? 'Jeder Button ist als eigene Karte sichtbar – inklusive Kopieren, Duplizieren und Löschen.' : activeSubSection === 'buttons-action' ? 'Bestimme, was der Button öffnet: Link, Telefon, PDF, Datei oder Formular.' : activeSubSection === 'buttons-design' ? 'Gestalte Text, Bild, Farbe, Form und Lesbarkeit des Buttons.' : 'Wechsle zwischen Karte, Button und Raster-Vorschau und passe Größe/Abstand an.')}
               {activeTab === 'endcard' && (activeSubSection === 'endcard-general' ? 'Bestimme, was abläuft, wenn das Video zu Ende abgespielt wurde.' : 'Entferne ureel-Wasserzeichen oder füge eigene Marken-Logos hinzu.')}
               {activeTab === 'design' && (activeSubSection === 'design-presets' ? 'Wähle aus einer Reihe von optimalen Designvorlagen für deinen Kampagnenflow.' : 'Definiere Headline-Schrifteffekte und Designstile.')}
             </p>
@@ -1366,55 +1361,96 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           )}
 
           {/* TAB 3: BUTTONS & COLUMNS */}
-          {activeTab === 'buttons' && activeSubSection === 'buttons-list' && editingButton && (
+          {activeTab === 'buttons' && (
             <div className="space-y-4">
-              <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                  <div>
-                    <span className="text-[10px] uppercase font-black tracking-wider text-purple-400 block">Aktuellen Button bearbeiten</span>
-                    <p className="text-[9.5px] text-stone-500 mt-1">Inhalt, Aktion, Bild und Design der ausgewählten ureel-Aktion.</p>
+              {!editingButton && (
+                <div className="rounded-2xl border border-dashed border-[#3A3732] bg-[#111111] p-5 text-center">
+                  <LucideIcons.MousePointerClick className="mx-auto mb-2 text-[#E8DCC2]" size={28} />
+                  <p className="text-sm font-black text-[#F5F2EA]">Noch kein Button ausgewählt</p>
+                  <p className="text-[10px] text-stone-500 mt-1">Wähle einen Button aus der Button-Liste oder erstelle eine neue ureel-Aktion.</p>
+                  <button onClick={handleAddButtonLocal} className="mt-4 h-10 px-4 rounded-xl bg-[#F5F2EA] text-[#101010] font-black text-[10px] uppercase tracking-wider inline-flex items-center gap-2">
+                    <LucideIcons.Plus size={14} /> Button hinzufügen
+                  </button>
+                </div>
+              )}
+
+              {activeSubSection === 'buttons-list' && (
+                <div className="space-y-4">
+                  <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Button-Liste</span>
+                        <p className="text-[9.5px] text-stone-500 mt-1">Jeder Button ist selbst eine kleine Karte. Aktionen sitzen direkt auf der Karte.</p>
+                      </div>
+                      <button onClick={handleAddButtonLocal} className="h-10 px-3 rounded-xl bg-[#F5F2EA] text-[#101010] text-[10px] font-black uppercase tracking-wider flex items-center gap-2">
+                        <LucideIcons.Plus size={14} /> Neu
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {(activeCard.buttons || []).map((button, index) => {
+                        const selected = editingBtnId === button.id;
+                        const actionLabel = actionOptions.find((option) => option.value === button.actionType)?.label || button.actionType || 'Aktion';
+                        return (
+                          <div key={button.id || index} className={`rounded-2xl border p-3 transition ${selected ? 'border-[#F5F2EA] bg-[#F5F2EA]/8' : 'border-[#3A3732] bg-[#181818]'}`}>
+                            <button
+                              type="button"
+                              onClick={() => { setEditingBtnId(button.id); setActiveSubSection('buttons-action'); }}
+                              className="w-full text-left flex items-center gap-3"
+                            >
+                              <div className="w-12 h-12 shrink-0 rounded-2xl overflow-hidden border border-[#3A3732] bg-[#0F0F0F]">
+                                {renderButtonPreviewTile(button, true)}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <span className="block text-[8px] font-mono text-stone-500">#{index + 1}</span>
+                                <span className="block text-[12px] font-black text-[#F5F2EA] truncate">{button.title || '(Unbenannt)'}</span>
+                                <span className="block text-[9px] text-stone-500 truncate">{actionLabel} · {button.isActive !== false ? 'Aktiv' : 'Inaktiv'}</span>
+                              </div>
+                              <LucideIcons.ChevronRight size={14} className="text-stone-500" />
+                            </button>
+                            <div className="grid grid-cols-3 gap-2 mt-3">
+                              <button type="button" onClick={() => handleCopyButtonLocal(button)} className="h-8 rounded-xl border border-[#3A3732] bg-[#101010] text-[#F5F2EA] text-[8.5px] font-black uppercase flex items-center justify-center gap-1">
+                                <LucideIcons.Copy size={10} /> Kopieren
+                              </button>
+                              <button type="button" onClick={() => handleDuplicateButtonLocal(button)} className="h-8 rounded-xl border border-[#3A3732] bg-[#101010] text-[#F5F2EA] text-[8.5px] font-black uppercase flex items-center justify-center gap-1">
+                                <LucideIcons.CopyPlus size={10} /> Duplizieren
+                              </button>
+                              <button type="button" onClick={() => handleDeleteButtonLocal(button.id)} className="h-8 rounded-xl border border-red-950/50 bg-red-950/20 text-red-300 text-[8.5px] font-black uppercase flex items-center justify-center gap-1">
+                                <LucideIcons.Trash2 size={10} /> Löschen
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <div className="flex gap-2 shrink-0">
+                </div>
+              )}
+
+              {activeSubSection === 'buttons-action' && editingButton && (
+                <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                    <div>
+                      <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Aktion & Ziel</span>
+                      <p className="text-[9.5px] text-stone-500 mt-1">Nur Funktion, Ziel und Button-Status. Design bleibt im Design-Menü.</p>
+                    </div>
                     <button
                       onClick={() => handleUpdateSingleButton(editingButton.id, { isActive: editingButton.isActive === false })}
-                      className={`px-3 py-1.5 rounded-xl text-[9px] uppercase font-black cursor-pointer border ${editingButton.isActive !== false ? 'bg-emerald-950/30 border-emerald-700 text-emerald-300' : 'bg-stone-900 border-stone-800 text-stone-400'}`}
+                      className={`px-3 py-2 rounded-xl text-[9px] uppercase font-black cursor-pointer border ${editingButton.isActive !== false ? 'bg-emerald-950/30 border-emerald-700 text-emerald-300' : 'bg-stone-900 border-stone-800 text-stone-400'}`}
                     >
                       {editingButton.isActive !== false ? 'Aktiv' : 'Inaktiv'}
                     </button>
-                    <button
-                      onClick={() => handleDeleteButtonLocal(editingButton.id)}
-                      className="text-red-400 hover:text-red-300 transition text-[9px] uppercase font-black cursor-pointer flex items-center gap-0.5 border border-red-950/50 bg-red-950/20 px-3 py-1.5 rounded-xl"
-                    >
-                      <LucideIcons.Trash2 size={11} />
-                      Entfernen
-                    </button>
                   </div>
-                </div>
-
-                <div className="grid grid-cols-1 xl:grid-cols-[1fr_180px] gap-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div>
-                      <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Beschriftung (Label)</label>
-                      <input
-                        type="text"
-                        value={editingButton.title || ''}
-                        onChange={(e) => handleUpdateSingleButton(editingButton.id, { title: e.target.value })}
-                        className="w-full bg-stone-900 border border-stone-800 h-9 px-2.5 rounded-lg text-xs font-bold text-white focus:outline-none focus:border-purple-600"
-                      />
+                      <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Beschriftung</label>
+                      <input type="text" value={editingButton.title || ''} onChange={(e) => handleUpdateSingleButton(editingButton.id, { title: e.target.value })} className="w-full bg-[#181818] border border-[#3A3732] h-10 px-3 rounded-xl text-xs font-bold text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
                     </div>
-
                     <div>
                       <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Aktions-Typ</label>
-                      <select
-                        value={editingButton.actionType || 'url'}
-                        onChange={(e) => handleUpdateSingleButton(editingButton.id, { actionType: e.target.value })}
-                        className="w-full bg-stone-900 border border-stone-800 h-9 px-2 rounded-lg text-xs font-semibold text-white focus:outline-none focus:border-purple-600"
-                      >
+                      <select value={editingButton.actionType || 'url'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { actionType: e.target.value })} className="w-full bg-[#181818] border border-[#3A3732] h-10 px-3 rounded-xl text-xs font-semibold text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]">
                         {actionOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                       </select>
-                      <span className="text-[8.5px] text-stone-550 mt-1 block">{actionOptions.find((option) => option.value === editingButton.actionType)?.hint || 'Aktion konfigurieren'}</span>
                     </div>
-
                     <div className="sm:col-span-2">
                       {(() => {
                         const meta = getActionInputMeta(editingButton.actionType);
@@ -1423,343 +1459,73 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                           <div className="space-y-2">
                             <div className="flex items-center justify-between gap-2">
                               <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider">{meta.label}</label>
-                              {editingButton.actionValue && (isFileUploadAction(editingButton.actionType) || isCloudLinkAction(editingButton.actionType)) && (
-                                <a href={editingButton.actionValue} target="_blank" rel="noreferrer" className="text-[8.5px] font-black uppercase tracking-wider text-purple-300 hover:text-purple-200">Link testen</a>
-                              )}
+                              {editingButton.actionValue && (isFileUploadAction(editingButton.actionType) || isCloudLinkAction(editingButton.actionType)) && <a href={editingButton.actionValue} target="_blank" rel="noreferrer" className="text-[8.5px] font-black uppercase tracking-wider text-[#E8DCC2] hover:text-white">Link testen</a>}
                             </div>
                             {needsNoTarget ? (
-                              <div className="rounded-xl border border-purple-900/30 bg-purple-950/10 p-3 text-[10px] text-purple-100 leading-relaxed">
-                                {meta.helper}
-                              </div>
+                              <div className="rounded-xl border border-[#3A3732] bg-[#181818] p-3 text-[10px] text-[#F5F2EA] leading-relaxed">{meta.helper}</div>
                             ) : isFileUploadAction(editingButton.actionType) ? (
-                              <div className="rounded-xl border border-stone-800 bg-stone-900/45 p-3 space-y-3">
+                              <div className="rounded-xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
                                 <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2 items-center">
-                                  <input
-                                    type="text"
-                                    value={editingButton.actionValue || ''}
-                                    onChange={(e) => handleUpdateSingleButton(editingButton.id, { actionValue: e.target.value })}
-                                    className="w-full bg-stone-950 border border-stone-800 h-10 px-3 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-purple-600"
-                                    placeholder={meta.placeholder}
-                                  />
-                                  <label className="h-10 px-3 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-[9px] uppercase font-black tracking-wider cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap">
-                                    <LucideIcons.UploadCloud size={13} />
-                                    Datei hochladen
-                                    <input
-                                      type="file"
-                                      className="hidden"
-                                      accept={editingButton.actionType === 'pdf_link' ? 'application/pdf,.pdf' : undefined}
-                                      onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) handleButtonFileUpload(editingButton.id, file);
-                                        e.currentTarget.value = '';
-                                      }}
-                                    />
+                                  <input type="text" value={editingButton.actionValue || ''} onChange={(e) => handleUpdateSingleButton(editingButton.id, { actionValue: e.target.value })} className="w-full bg-[#0F0F0F] border border-[#3A3732] h-10 px-3 rounded-xl text-xs font-mono text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" placeholder={meta.placeholder} />
+                                  <label className="h-10 px-3 rounded-xl bg-[#F5F2EA] hover:bg-white text-[#101010] text-[9px] uppercase font-black tracking-wider cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap">
+                                    <LucideIcons.UploadCloud size={13} /> Datei hochladen
+                                    <input type="file" className="hidden" accept={editingButton.actionType === 'pdf_link' ? 'application/pdf,.pdf' : undefined} onChange={(e) => { const file = e.target.files?.[0]; if (file) handleButtonFileUpload(editingButton.id, file); e.currentTarget.value = ''; }} />
                                   </label>
                                 </div>
-                                <div className="flex items-start gap-2 text-[8.5px] text-stone-500 leading-relaxed">
-                                  <LucideIcons.Info size={12} className="text-purple-400 shrink-0 mt-0.5" />
-                                  <span>{meta.helper} Das Upload-Feld sitzt bewusst hier im Zielbereich, damit der Link-/Telefonbereich je nach Aktion zur passenden Eingabe wird.</span>
-                                </div>
-                                {buttonFileUploading && (
-                                  <div className="space-y-1">
-                                    <div className="h-1.5 bg-stone-800 rounded-full overflow-hidden">
-                                      <div className="h-full bg-purple-500 transition-all" style={{ width: `${buttonFileUploadProgress || 0}%` }} />
-                                    </div>
-                                    <span className="text-[8px] text-purple-300 font-mono">Upload {buttonFileUploadProgress || 0}%</span>
-                                  </div>
-                                )}
-                                {(editingButton as any).fileName && (
-                                  <div className="rounded-lg border border-stone-800 bg-stone-950/70 px-3 py-2 text-[9px] text-stone-300 flex items-center justify-between gap-2">
-                                    <span className="truncate">{(editingButton as any).fileName}</span>
-                                    <LucideIcons.FileText size={13} className="text-purple-400 shrink-0" />
-                                  </div>
-                                )}
+                                <div className="flex items-start gap-2 text-[8.5px] text-stone-500 leading-relaxed"><LucideIcons.Info size={12} className="text-[#E8DCC2] shrink-0 mt-0.5" /><span>{meta.helper}</span></div>
+                                {buttonFileUploading && <div className="space-y-1"><div className="h-1.5 bg-stone-800 rounded-full overflow-hidden"><div className="h-full bg-[#E8DCC2] transition-all" style={{ width: `${buttonFileUploadProgress || 0}%` }} /></div><span className="text-[8px] text-[#E8DCC2] font-mono">Upload {buttonFileUploadProgress || 0}%</span></div>}
                               </div>
                             ) : isCloudLinkAction(editingButton.actionType) ? (
-                              <div className="space-y-2">
-                                <input
-                                  type="text"
-                                  value={editingButton.actionValue || ''}
-                                  onChange={(e) => handleUpdateSingleButton(editingButton.id, { actionValue: e.target.value })}
-                                  className="w-full bg-stone-900 border border-stone-800 h-10 px-2.5 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-purple-600"
-                                  placeholder={meta.placeholder}
-                                />
-                                <div className="rounded-xl border border-amber-900/40 bg-amber-950/10 p-2.5 text-[8.5px] text-amber-100 leading-relaxed">
-                                  {meta.helper}
-                                </div>
-                              </div>
+                              <input type="text" value={editingButton.actionValue || ''} onChange={(e) => handleUpdateSingleButton(editingButton.id, { actionValue: e.target.value })} placeholder={meta.placeholder} className="w-full bg-[#181818] border border-[#3A3732] h-10 px-3 rounded-xl text-xs font-mono text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
                             ) : (
-                              <div className="space-y-1.5">
-                                <input
-                                  type={editingButton.actionType === 'email' ? 'email' : ['phone', 'whatsapp'].includes(editingButton.actionType || '') ? 'tel' : 'text'}
-                                  value={editingButton.actionValue || ''}
-                                  onChange={(e) => handleUpdateSingleButton(editingButton.id, { actionValue: e.target.value })}
-                                  className="w-full bg-stone-900 border border-stone-800 h-10 px-2.5 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-purple-600"
-                                  placeholder={meta.placeholder}
-                                />
-                                <span className="text-[8.5px] text-stone-550 block">{meta.helper}</span>
-                              </div>
+                              <input type={editingButton.actionType === 'email' ? 'email' : ['phone', 'whatsapp'].includes(editingButton.actionType || '') ? 'tel' : 'text'} value={editingButton.actionValue || ''} onChange={(e) => handleUpdateSingleButton(editingButton.id, { actionValue: e.target.value })} placeholder={meta.placeholder} className="w-full bg-[#181818] border border-[#3A3732] h-10 px-3 rounded-xl text-xs font-mono text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
                             )}
+                            <span className="text-[8.5px] text-stone-550 block">{meta.helper}</span>
                           </div>
                         );
                       })()}
                     </div>
-
-                    <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-3 bg-stone-900/45 border border-stone-850 rounded-xl p-3">
-                      <div>
-                        <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Button-Farbe</label>
-                        <input
-                          type="color"
-                          value={editingButton.bgColor || editingButton.backgroundColor || activeCard.buttonColor || '#18181B'}
-                          onChange={(e) => handleUpdateSingleButton(editingButton.id, { bgColor: e.target.value, backgroundColor: e.target.value })}
-                          className="w-full h-9 bg-stone-950 border border-stone-800 rounded-lg p-1 cursor-pointer"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Textfarbe</label>
-                        <input
-                          type="color"
-                          value={editingButton.textColor || activeCard.buttonTextColor || '#FFFFFF'}
-                          onChange={(e) => handleUpdateSingleButton(editingButton.id, { textColor: e.target.value, iconColor: e.target.value })}
-                          className="w-full h-9 bg-stone-950 border border-stone-800 rounded-lg p-1 cursor-pointer"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Rahmenfarbe</label>
-                        <input
-                          type="color"
-                          value={editingButton.borderColor || '#A855F7'}
-                          onChange={(e) => handleUpdateSingleButton(editingButton.id, { borderColor: e.target.value, borderEnabled: true, borderWidth: editingButton.borderWidth || 'thin' })}
-                          className="w-full h-9 bg-stone-950 border border-stone-800 rounded-lg p-1 cursor-pointer"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Abgerundete Ecken</label>
-                      <select
-                        value={editingButton.radius || 'rounded'}
-                        onChange={(e) => handleUpdateSingleButton(editingButton.id, { radius: e.target.value as any })}
-                        className="w-full bg-stone-900 border border-stone-800 h-9 px-2 rounded-lg text-xs font-semibold text-white focus:outline-none focus:border-purple-600"
-                      >
-                        <option value="square">Eckig</option>
-                        <option value="rounded">Leicht gerundet</option>
-                        <option value="pill">Maximal rund</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Verhalten / Animation</label>
-                      <select
-                        value={editingButton.animation || 'none'}
-                        onChange={(e) => handleUpdateSingleButton(editingButton.id, { animation: e.target.value as any })}
-                        className="w-full bg-stone-900 border border-stone-800 h-9 px-2 rounded-lg text-xs font-semibold text-white focus:outline-none focus:border-purple-600"
-                      >
-                        <option value="none">Flach / statisch</option>
-                        <option value="scale">Sanft vergrößern</option>
-                        <option value="pulse">Pulse-Effekt</option>
-                        <option value="wiggle">Wiggle</option>
-                      </select>
-                    </div>
-
-                    <div className="sm:col-span-2 bg-stone-900/45 border border-stone-850 rounded-xl p-3 space-y-3">
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <span className="block text-[10px] font-black uppercase tracking-wider text-purple-300">Buttonbild / Aktionsbild</span>
-                          <span className="block text-[8.5px] text-stone-500 mt-0.5">Bild direkt hochladen oder vorhandene Bild-URL einfügen.</span>
-                        </div>
-                        <LucideIcons.ImagePlus size={16} className="text-purple-400" />
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2 items-center">
-                        <input
-                          type="text"
-                          value={editingButton.buttonImageUrl || editingButton.imageUrl || ''}
-                          onChange={(e) => handleUpdateSingleButton(editingButton.id, { buttonImageUrl: e.target.value, imageUrl: e.target.value })}
-                          className="w-full bg-stone-950 border border-stone-800 h-10 px-2.5 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-purple-600"
-                          placeholder="https://.../buttonbild.jpg"
-                        />
-                        <label className="h-10 px-3 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-[9px] uppercase font-black tracking-wider cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap">
-                          <LucideIcons.UploadCloud size={13} />
-                          Bild hochladen
-                          <input
-                            type="file"
-                            className="hidden"
-                            accept="image/*"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleButtonImageUpload(editingButton.id, file);
-                              e.currentTarget.value = '';
-                            }}
-                          />
-                        </label>
-                      </div>
-                      {(editingButton as any).buttonImageFileName && (
-                        <div className="rounded-lg border border-stone-800 bg-stone-950/70 px-3 py-2 text-[9px] text-stone-300 flex items-center justify-between gap-2">
-                          <span className="truncate">{(editingButton as any).buttonImageFileName}</span>
-                          <LucideIcons.Image size={13} className="text-purple-400 shrink-0" />
-                        </div>
-                      )}
-                      <div className="grid grid-cols-2 gap-2">
-                        <select
-                          value={editingButton.buttonImageFit || editingButton.imageMode || 'cover'}
-                          onChange={(e) => handleUpdateSingleButton(editingButton.id, { buttonImageFit: e.target.value as any, imageMode: e.target.value as any })}
-                          className="w-full bg-stone-950 border border-stone-800 h-9 px-2 rounded-lg text-xs font-semibold text-white focus:outline-none focus:border-purple-600"
-                        >
-                          <option value="cover">Cover / füllen</option>
-                          <option value="contain">Contain / ganz anzeigen</option>
-                        </select>
-                        <button
-                          type="button"
-                          onClick={() => handleUpdateSingleButton(editingButton.id, { buttonImageOverlay: !editingButton.buttonImageOverlay, imageOverlay: editingButton.buttonImageOverlay ? 0 : 35 })}
-                          className={`h-9 rounded-lg border text-[10px] font-black uppercase cursor-pointer ${editingButton.buttonImageOverlay || Number(editingButton.imageOverlay || 0) > 0 ? 'border-purple-500 bg-purple-950/30 text-white' : 'border-stone-800 bg-stone-950 text-stone-400'}`}
-                        >
-                          Overlay {editingButton.buttonImageOverlay || Number(editingButton.imageOverlay || 0) > 0 ? 'an' : 'aus'}
-                        </button>
-                      </div>
-                      <div className="rounded-lg border border-purple-900/30 bg-purple-950/10 p-2 text-[8.5px] leading-relaxed text-purple-100">
-                        Der Buttontext wird in Vorschau und Karte automatisch verkleinert/umbrochen, damit längere Labels in die Kachel passen.
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div>
-                      <span className="text-[9px] uppercase font-black tracking-wider text-stone-500 block mb-2">Aktueller Button</span>
-                      {renderButtonPreviewTile(editingButton)}
-                    </div>
-                    <div className="rounded-xl border border-purple-900/30 bg-purple-950/10 p-3 text-[9px] leading-relaxed text-purple-100">
-                      <b>Live-Hinweis:</b> Buttons erscheinen laut Timeline ab <b>{visibleButtonsAt.toFixed(1)}s</b>. Im Button-Menü ist die Vorschau immer sichtbar, unabhängig von der Timeline.
-                    </div>
                   </div>
                 </div>
+              )}
 
-                <div className="pt-3 border-t border-stone-850 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px]">
-                  <button
-                    onClick={() => handleDuplicateButtonLocal(editingButton)}
-                    className="bg-stone-800 hover:bg-stone-750 text-white font-extrabold px-3 py-2 rounded-xl cursor-pointer flex items-center justify-center gap-1 uppercase tracking-wider text-[9px]"
-                  >
-                    <LucideIcons.Copy size={11} />
-                    Duplizieren
-                  </button>
-                  <button
-                    onClick={transferButtonDesignToAll}
-                    className="bg-purple-950/30 hover:bg-purple-900/35 border border-purple-800/50 text-purple-100 font-extrabold px-3 py-2 rounded-xl cursor-pointer flex items-center justify-center gap-1 uppercase tracking-wider text-[9px]"
-                  >
-                    <LucideIcons.Paintbrush size={11} />
-                    Design übertragen
-                  </button>
-                  <button
-                    onClick={() => setActiveSubSection('buttons-layout')}
-                    className="bg-stone-900 hover:bg-stone-850 border border-stone-800 text-stone-300 font-extrabold px-3 py-2 rounded-xl cursor-pointer flex items-center justify-center gap-1 uppercase tracking-wider text-[9px]"
-                  >
-                    <LucideIcons.LayoutGrid size={11} />
-                    Raster öffnen
-                  </button>
-                </div>
-              </div>
-
-              <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <span className="text-[10px] uppercase font-black tracking-wider text-purple-400 block">Button-Raster Vorschau</span>
-                    <p className="text-[9.5px] text-stone-500 mt-1">Alle aktiven Buttons als ureel-Standardraster. Diese Ansicht ist nicht von der Timeline abhängig.</p>
-                  </div>
-                  <span className="text-[9px] font-black text-stone-400 uppercase">{buttonGridCols} Spalten</span>
-                </div>
-                {activeButtons.length > 0 ? (
-                  <div className="grid max-w-sm" style={{ gridTemplateColumns: `repeat(${buttonGridCols}, minmax(0, 1fr))`, gap: `${buttonGapPx}px` }}>
-                    {activeButtons.map((button) => renderButtonPreviewTile(button, true))}
-                  </div>
-                ) : (
-                  <div className="rounded-xl border border-dashed border-stone-800 p-5 text-center text-stone-500 text-xs">Keine aktiven Buttons sichtbar. Aktiviere mindestens einen Button.</div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'buttons' && activeSubSection === 'buttons-layout' && (
-            <div className="space-y-4">
-              <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-4">
-                <span className="text-[10px] uppercase font-black tracking-wider text-purple-400 block">Mehrspaltiges Button-Layout</span>
-                <p className="text-[9.5px] text-stone-400">Bestimme, wie deine klickbaren ureel-Aktionen als Smartphone-Raster erscheinen.</p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
-                  {[
-                    { id: 'list', label: '1 Spalte', desc: 'Unter-einander', cols: 1 },
-                    { id: 'grid-2', label: '2 Spalten', desc: 'Kompakt', cols: 2 },
-                    { id: 'grid-3', label: '3er Raster', desc: 'ureel-Standard', cols: 3 },
-                  ].map((preset) => {
-                    const currentCols = activeCard.buttonGridCols || activeCard.buttonGridLayout?.cols || 3;
-                    const selected = preset.cols === currentCols;
-                    return (
-                      <button
-                        key={preset.id}
-                        type="button"
-                        onClick={async () => {
-                          await syncCardUpdate({
-                            buttonGridCols: preset.cols as any,
-                            buttonGridLayout: {
-                              ...(activeCard.buttonGridLayout || {}),
-                              mode: preset.cols === 3 ? 'three_columns' : preset.cols === 2 ? 'two_columns' : 'one_column',
-                              cols: preset.cols as any,
-                              square: true,
-                            }
-                          });
-                          triggerToast(lang === 'de' ? 'Spalten-Wahl angepasst' : 'Grid changed', 'success');
-                        }}
-                        className={`flex flex-col text-left p-3.5 rounded-xl border-2 transition cursor-pointer ${
-                          selected
-                            ? 'border-purple-600 bg-purple-950/20'
-                            : 'border-stone-850 bg-stone-900/40 opacity-80 hover:opacity-100 hover:bg-stone-850'
-                        }`}
-                      >
-                        <span className="text-[10.5px] font-black text-white block uppercase tracking-wide leading-none">{preset.label}</span>
-                        <span className="text-[8.5px] text-stone-500 mt-1 leading-snug">{preset.desc}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                  <div>
-                    <div className="flex items-center justify-between text-[10.5px] font-bold text-stone-400 mb-2">
-                      <span>Button-Größe</span>
-                      <span className="text-purple-400 font-mono">{buttonSizePx}px</span>
+              {activeSubSection === 'buttons-design' && editingButton && (
+                <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
+                  <div><span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Design & Buttonbild</span><p className="text-[9.5px] text-stone-500 mt-1">Der Text skaliert automatisch zur Buttongröße und bricht sauber um.</p></div>
+                  <div className="grid grid-cols-1 xl:grid-cols-[1fr_190px] gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Button-Farbe</label><input type="color" value={editingButton.bgColor || editingButton.backgroundColor || activeCard.buttonColor || '#18181B'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { bgColor: e.target.value, backgroundColor: e.target.value })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
+                      <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Textfarbe</label><input type="color" value={editingButton.textColor || activeCard.buttonTextColor || '#F5F2EA'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { textColor: e.target.value, iconColor: e.target.value })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
+                      <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Rahmenfarbe</label><input type="color" value={editingButton.borderColor || '#E8DCC2'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { borderColor: e.target.value, borderEnabled: true, borderWidth: editingButton.borderWidth || 'thin' })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
+                      <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Eckenform</label><select value={editingButton.radius || 'rounded'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { radius: e.target.value as any })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] px-3 text-xs text-[#F5F2EA]"><option value="square">Eckig</option><option value="rounded">Abgerundet</option><option value="pill">Stark rund</option></select></div>
+                      <div className="sm:col-span-2 rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
+                        <div className="flex items-center justify-between gap-2"><span className="block text-[10px] font-black uppercase tracking-wider text-[#E8DCC2]">Buttonbild / Aktionsbild</span>{(editingButton.buttonImageUrl || editingButton.imageUrl) && <button type="button" onClick={() => handleUpdateSingleButton(editingButton.id, { buttonImageUrl: '', imageUrl: '', buttonImageFileName: '' } as any)} className="text-[8.5px] text-red-300 font-black uppercase">Entfernen</button>}</div>
+                        <input type="text" value={editingButton.buttonImageUrl || editingButton.imageUrl || ''} onChange={(e) => handleUpdateSingleButton(editingButton.id, { buttonImageUrl: e.target.value, imageUrl: e.target.value })} placeholder="Bild-Link einfügen oder hochladen" className="w-full bg-[#0F0F0F] border border-[#3A3732] h-10 px-3 rounded-xl text-xs font-mono text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
+                        <label className="h-10 rounded-xl bg-[#F5F2EA] hover:bg-white text-[#101010] text-[9px] uppercase font-black tracking-wider cursor-pointer flex items-center justify-center gap-1.5"><LucideIcons.ImagePlus size={14} /> Buttonbild hochladen<input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleButtonImageUpload(editingButton.id, file); e.currentTarget.value = ''; }} /></label>
+                        <div className="grid grid-cols-2 gap-2"><select value={editingButton.buttonImageFit || editingButton.imageMode || 'cover'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { buttonImageFit: e.target.value as any, imageMode: e.target.value as any })} className="h-10 rounded-xl bg-[#0F0F0F] border border-[#3A3732] px-3 text-xs text-[#F5F2EA]"><option value="cover">Cover</option><option value="contain">Contain</option></select><button type="button" onClick={() => handleUpdateSingleButton(editingButton.id, { buttonImageOverlay: !editingButton.buttonImageOverlay, imageOverlay: editingButton.buttonImageOverlay ? 0 : 35 })} className={`h-10 rounded-xl border text-[10px] font-black uppercase cursor-pointer ${editingButton.buttonImageOverlay || Number(editingButton.imageOverlay || 0) > 0 ? 'border-[#F5F2EA] bg-[#F5F2EA]/10 text-[#F5F2EA]' : 'border-[#3A3732] bg-[#0F0F0F] text-stone-400'}`}>Overlay {editingButton.buttonImageOverlay || Number(editingButton.imageOverlay || 0) > 0 ? 'an' : 'aus'}</button></div>
+                      </div>
                     </div>
-                    <input
-                      type="range"
-                      min={52}
-                      max={104}
-                      step={2}
-                      value={buttonSizePx}
-                      onChange={(e) => syncCardUpdate({ buttonSizePx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), buttonSizePx: Number(e.target.value), cols: buttonGridCols as any, square: true } })}
-                      className="w-full bg-stone-800 accent-purple-600 h-1.5 rounded-lg appearance-none cursor-pointer"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between text-[10.5px] font-bold text-stone-400 mb-2">
-                      <span>Button-Abstand</span>
-                      <span className="text-purple-400 font-mono">{buttonGapPx}px</span>
-                    </div>
-                    <input
-                      type="range"
-                      min={4}
-                      max={22}
-                      step={1}
-                      value={buttonGapPx}
-                      onChange={(e) => syncCardUpdate({ buttonGapPx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), gapPx: Number(e.target.value), gap: Number(e.target.value), cols: buttonGridCols as any, square: true } })}
-                      className="w-full bg-stone-800 accent-purple-600 h-1.5 rounded-lg appearance-none cursor-pointer"
-                    />
+                    <div className="space-y-3"><span className="text-[9px] uppercase font-black tracking-wider text-stone-500 block">Button-Vorschau</span>{renderButtonPreviewTile(editingButton)}<button onClick={transferButtonDesignToAll} className="w-full h-10 rounded-xl border border-[#3A3732] bg-[#181818] text-[#F5F2EA] text-[9px] font-black uppercase tracking-wider flex items-center justify-center gap-2"><LucideIcons.Paintbrush size={12} /> Design übertragen</button></div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-3">
-                <span className="text-[10px] uppercase font-black tracking-wider text-purple-400 block">Live Raster Vorschau</span>
-                <div className="grid max-w-sm" style={{ gridTemplateColumns: `repeat(${buttonGridCols}, minmax(0, 1fr))`, gap: `${buttonGapPx}px` }}>
-                  {(activeButtons.length ? activeButtons : activeCard.buttons || []).map((button) => renderButtonPreviewTile(button, true))}
+              {activeSubSection === 'buttons-preview' && (
+                <div className="space-y-4">
+                  <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div><span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Vorschau wechseln</span><p className="text-[9.5px] text-stone-500 mt-1">Im Buttoneditor siehst du Karte, Einzelbutton oder Raster – unabhängig von der Timeline.</p></div><div className="grid grid-cols-3 gap-1 rounded-2xl border border-[#3A3732] bg-[#0F0F0F] p-1 text-[9px] font-black uppercase">{(['card','button','grid'] as const).map((mode) => <button key={mode} type="button" onClick={() => setButtonPreviewMode(mode)} className={`h-9 rounded-xl px-2 ${buttonPreviewMode === mode ? 'bg-[#F5F2EA] text-[#101010]' : 'text-stone-400 hover:text-[#F5F2EA]'}`}>{mode === 'card' ? 'Karte' : mode === 'button' ? 'Button' : 'Raster'}</button>)}</div></div>
+                    {buttonPreviewMode === 'card' && <div className="rounded-3xl border border-[#3A3732] bg-[#0B0B0B] p-3 max-w-[260px] mx-auto"><div className="h-[430px] rounded-[28px] overflow-hidden border-[8px] border-[#1C1C1C] bg-black"><KonuCardCore card={activeCard} lang={lang} isDesktopPreview={false} isPreview={true} /></div></div>}
+                    {buttonPreviewMode === 'button' && editingButton && <div className="max-w-[240px] mx-auto">{renderButtonPreviewTile(editingButton)}</div>}
+                    {buttonPreviewMode === 'grid' && <div className="grid max-w-sm mx-auto" style={{ gridTemplateColumns: `repeat(${buttonGridCols}, minmax(0, 1fr))`, gap: `${buttonGapPx}px` }}>{(activeButtons.length ? activeButtons : activeCard.buttons || []).map((button) => renderButtonPreviewTile(button, true))}</div>}
+                    <div className="rounded-xl border border-[#3A3732] bg-[#181818] p-3 text-[9px] leading-relaxed text-[#F5F2EA]/80"><b>Timeline-Hinweis:</b> In der Live-Karte erscheinen Buttons ab <b>{visibleButtonsAt.toFixed(1)}s</b>. Die Button-Vorschau bleibt hier immer sichtbar.</div>
+                  </div>
+                  <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
+                    <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Raster-Einstellungen</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">{[{ id: 'list', label: '1 Spalte', desc: 'Unter-einander', cols: 1 }, { id: 'grid-2', label: '2 Spalten', desc: 'Kompakt', cols: 2 }, { id: 'grid-3', label: '3er Raster', desc: 'ureel-Standard', cols: 3 }].map((preset) => { const currentCols = activeCard.buttonGridCols || activeCard.buttonGridLayout?.cols || 3; const selected = preset.cols === currentCols; return <button key={preset.id} type="button" onClick={async () => { await syncCardUpdate({ buttonGridCols: preset.cols as any, buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), mode: preset.cols === 3 ? 'three_columns' : preset.cols === 2 ? 'two_columns' : 'one_column', cols: preset.cols as any, square: true } }); triggerToast(lang === 'de' ? 'Spalten-Wahl angepasst' : 'Grid changed', 'success'); }} className={`flex flex-col text-left p-3.5 rounded-xl border-2 transition cursor-pointer ${selected ? 'border-[#F5F2EA] bg-[#F5F2EA]/10' : 'border-[#3A3732] bg-[#181818] opacity-80 hover:opacity-100'}`}><span className="text-[10.5px] font-black text-[#F5F2EA] block uppercase tracking-wide leading-none">{preset.label}</span><span className="text-[8.5px] text-stone-500 mt-1 leading-snug">{preset.desc}</span></button>; })}</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2"><div><div className="flex items-center justify-between text-[10.5px] font-bold text-stone-400 mb-2"><span>Button-Größe</span><span className="text-[#E8DCC2] font-mono">{buttonSizePx}px</span></div><input type="range" min={52} max={104} step={2} value={buttonSizePx} onChange={(e) => syncCardUpdate({ buttonSizePx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), buttonSizePx: Number(e.target.value), cols: buttonGridCols as any, square: true } })} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" /></div><div><div className="flex items-center justify-between text-[10.5px] font-bold text-stone-400 mb-2"><span>Button-Abstand</span><span className="text-[#E8DCC2] font-mono">{buttonGapPx}px</span></div><input type="range" min={4} max={22} step={1} value={buttonGapPx} onChange={(e) => syncCardUpdate({ buttonGapPx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), gapPx: Number(e.target.value), gap: Number(e.target.value), cols: buttonGridCols as any, square: true } })} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" /></div></div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
@@ -1987,6 +1753,27 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         </div>
 
       </div>
+
+
+      {accountPanelOpen && (
+        <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm flex items-end md:items-center justify-center p-3">
+          <div className="absolute inset-0" onClick={() => setAccountPanelOpen(false)} />
+          <div className="relative w-full max-w-md rounded-t-3xl md:rounded-3xl border border-[#3A3732] bg-[#111111] p-5 shadow-2xl text-[#F5F2EA]">
+            <div className="flex items-center justify-between gap-3 mb-4"><div><span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2]">Mein Konto</span><h3 className="text-lg font-black">Meine Daten</h3></div><button onClick={() => setAccountPanelOpen(false)} className="w-10 h-10 rounded-xl border border-[#3A3732] bg-[#181818] flex items-center justify-center"><LucideIcons.X size={16} /></button></div>
+            <div className="space-y-3 text-sm"><div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4"><span className="block text-[9px] uppercase font-black text-stone-500 tracking-wider">E-Mail</span><span className="block text-[#F5F2EA] font-bold truncate">{user?.email || 'Nicht verfügbar'}</span></div><div className="grid grid-cols-2 gap-3"><div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4"><span className="block text-[9px] uppercase font-black text-stone-500 tracking-wider">Plan</span><span className="block font-black">{effectivePlanId || profile?.plan || 'starter'}</span></div><div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4"><span className="block text-[9px] uppercase font-black text-stone-500 tracking-wider">ureels</span><span className="block font-black">{cards.length}</span></div></div><button onClick={logout} className="w-full h-11 rounded-2xl border border-red-950/50 bg-red-950/20 text-red-200 font-black uppercase text-[10px] tracking-wider flex items-center justify-center gap-2"><LucideIcons.LogOut size={14} /> Abmelden</button></div>
+          </div>
+        </div>
+      )}
+
+      {teamPanelOpen && (
+        <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm flex items-end md:items-center justify-center p-3">
+          <div className="absolute inset-0" onClick={() => setTeamPanelOpen(false)} />
+          <div className="relative w-full max-w-lg rounded-t-3xl md:rounded-3xl border border-[#3A3732] bg-[#111111] p-5 shadow-2xl text-[#F5F2EA]">
+            <div className="flex items-center justify-between gap-3 mb-4"><div><span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2]">Nutzerverwaltung</span><h3 className="text-lg font-black">Team & Zugriff</h3></div><button onClick={() => setTeamPanelOpen(false)} className="w-10 h-10 rounded-xl border border-[#3A3732] bg-[#181818] flex items-center justify-center"><LucideIcons.X size={16} /></button></div>
+            <div className="space-y-4"><div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4 flex items-center gap-3"><div className="w-11 h-11 rounded-2xl bg-[#F5F2EA] text-[#101010] flex items-center justify-center font-black">{(profile?.displayName || user?.email || 'U').slice(0,1).toUpperCase()}</div><div className="min-w-0 flex-1"><span className="block text-[12px] font-black truncate">{profile?.displayName || user?.displayName || 'Inhaber'}</span><span className="block text-[10px] text-stone-500 truncate">{user?.email}</span></div><span className="px-2.5 py-1 rounded-full border border-[#E8DCC2]/30 bg-[#E8DCC2]/10 text-[#E8DCC2] text-[9px] font-black uppercase">Inhaber</span></div><div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4 space-y-3"><span className="block text-[10px] uppercase font-black tracking-wider text-[#E8DCC2]">Mitarbeiter einladen</span><div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2"><input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} type="email" placeholder="name@firma.de" className="h-11 rounded-xl border border-[#3A3732] bg-[#0F0F0F] px-3 text-sm text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" /><button type="button" onClick={() => { if (!inviteEmail.includes('@')) { triggerToast('Bitte eine gültige E-Mail eingeben.', 'error'); return; } const subject = 'Einladung zu ureel.me'; const body = `Du wurdest eingeladen, an einer ureel.me Karte mitzuarbeiten.\n\nProjekt: ${activeCard?.title || activeCard?.slug || 'ureel'}\nLink: ${currentSlugUrl}`; window.location.href = `mailto:${encodeURIComponent(inviteEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; triggerToast('Einladungs-Mail geöffnet.', 'success'); }} className="h-11 px-4 rounded-xl bg-[#F5F2EA] text-[#101010] font-black text-[10px] uppercase tracking-wider">Einladen</button></div><p className="text-[10px] text-stone-500 leading-relaxed">MVP: Die Einladung öffnet dein Mailprogramm. Rollen & echte Teamrechte können danach an Firestore-Regeln/Company-Accounts angebunden werden.</p></div></div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
