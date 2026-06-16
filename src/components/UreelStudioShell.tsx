@@ -80,6 +80,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [inviteEmail, setInviteEmail] = useState('');
   const [buttonPreviewMode, setButtonPreviewMode] = useState<'card' | 'button' | 'grid'>('button');
   const [textPreviewMode, setTextPreviewMode] = useState<'card' | 'text' | 'fit'>('text');
+  const [textAnimationSeed, setTextAnimationSeed] = useState(0);
   const [activeSubSection, setActiveSubSection] = useState<string>('scene-core');
   
   // Local state for actively selected button being edited
@@ -165,7 +166,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     });
   };
 
-  const applyCopyPreset = async (kind: 'product' | 'offer' | 'event' | 'contact') => {
+  const applyCopyPreset = async (kind: 'product' | 'offer' | 'event' | 'contact' | 'gastro' | 'realestate' | 'recruiting' | 'service') => {
     const base = (activeCard.title || activeCard.companyName || activeCard.heroCompany || 'Dein Angebot').trim();
     const presets = {
       product: {
@@ -191,6 +192,30 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         subtitle: 'Kontakt aufnehmen, speichern oder direkt anfragen.',
         description: 'Alle wichtigen Aktionen kompakt auf einer interaktiven Karte.',
         template: 'contact_premium',
+      },
+      gastro: {
+        title: 'Heute reservieren',
+        subtitle: base,
+        description: 'Speisekarte öffnen, Tisch buchen und direkt Kontakt aufnehmen.',
+        template: 'social_reel',
+      },
+      realestate: {
+        title: base,
+        subtitle: 'Objekt ansehen. Exposé öffnen. Besichtigung anfragen.',
+        description: 'Alle Informationen kompakt als klickbare Immobilien-Werbekarte.',
+        template: 'real_estate',
+      },
+      recruiting: {
+        title: 'Jetzt bewerben',
+        subtitle: base,
+        description: 'Job ansehen, Kontakt aufnehmen und Bewerbung direkt starten.',
+        template: 'business_clean',
+      },
+      service: {
+        title: 'Service direkt buchen',
+        subtitle: base,
+        description: 'Leistung verstehen, Angebot anfragen und sofort handeln.',
+        template: 'offer_action',
       },
     }[kind];
     const preset = UREEL_TEXT_TEMPLATES[presets.template];
@@ -300,6 +325,75 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     }
   };
 
+  const makeStarterButton = (id: string, title: string, actionType: string, actionValue: string, icon: string, position: number): CardButton => ({
+    id,
+    title,
+    actionType,
+    actionValue,
+    icon,
+    iconId: icon,
+    position,
+    isActive: true,
+    radius: 'rounded',
+    styleVariant: 'filled',
+    bgColor: '#F5F2EA',
+    backgroundColor: '#F5F2EA',
+    textColor: '#111111',
+    iconColor: '#111111',
+    borderColor: '#E8DCC2',
+    borderEnabled: true,
+    borderWidth: 'thin',
+    buttonImageFit: 'cover',
+    buttonImageOverlay: false,
+    animation: 'none',
+    textWrap: 'multi',
+  });
+
+  const createStarterUreelTemplate = (): Partial<Card> => ({
+    title: lang === 'de' ? 'Deine Aktion startet hier' : 'Your action starts here',
+    subtitle: lang === 'de' ? 'Video, Bild oder Angebot in eine klickbare Werbekarte verwandeln.' : 'Turn video, image or offer into a clickable ad card.',
+    description: lang === 'de' ? 'Kontakt, Website, Mail, Ordner, Unternehmen und Datei sind bereits vorbereitet.' : 'Contact, website, mail, folder, company and file actions are ready.',
+    isPublished: false,
+    visibility: 'draft' as any,
+    backgroundColor: '#111111',
+    cardBackgroundEnabled: true,
+    cardBackgroundDarken: 35,
+    buttonGridCols: 3 as any,
+    buttonSizePx: 76 as any,
+    buttonGapPx: 10 as any,
+    buttonColor: '#F5F2EA',
+    buttonTextColor: '#111111',
+    heroTextColor: 'cream' as any,
+    heroTitleSize: 30 as any,
+    heroSubtitleSize: 12 as any,
+    heroDescriptionSize: 10.5 as any,
+    ureelScene: {
+      mode: 'gradient',
+      gradient: { from: '#0F0F0F', to: '#3A3328', direction: 'to-br' },
+      backgroundColor: '#111111',
+      overlay: { darken: 24, blur: 0, vignette: true },
+      video: { type: 'none', duration: 12, displayMode: 'cover' },
+    } as any,
+    ureelTimeline: { preset: 'direct', titleAt: 0, subtitleAt: 0.2, descriptionAt: 0.4, buttonsAt: 0.6, endCardAt: 12 } as any,
+    ureelTextTemplate: {
+      id: 'premium_product',
+      style: 'premium_product',
+      animation: 'fade',
+      frame: { type: 'corner', color: '#E8DCC2', opacity: 100 },
+      box: { type: 'glass', opacity: 85 },
+      fontStyle: 'elegant',
+      emphasis: { mode: 'last_word', color: '#E8DCC2' },
+    } as any,
+    buttons: [
+      makeStarterButton('phone', 'Telefon', 'phone', '', 'phone', 0),
+      makeStarterButton('website', 'Webseite', 'url', '', 'globe', 1),
+      makeStarterButton('mail', 'Mail', 'email', '', 'mail', 2),
+      makeStarterButton('folder', 'Folder', 'google_drive_folder', '', 'folder-open', 3),
+      makeStarterButton('company', 'Unternehmen', 'contact_form', '', 'building-2', 4),
+      makeStarterButton('file', 'Datei', 'pdf', '', 'file-text', 5),
+    ],
+  });
+
   // Helper to add button
   const handleAddButtonLocal = async () => {
     if (!activeCard) return;
@@ -320,13 +414,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
   const handleCreateNewUreel = async () => {
     try {
-      const created = await createNewCard({
-        title: lang === 'de' ? 'Neue ureel' : 'New ureel',
-        subtitle: lang === 'de' ? 'Aus Video wird Aktion.' : 'Turn video into action.',
-        description: '',
-        isPublished: false,
-        visibility: 'draft' as any,
-      }, lang);
+      const created = await createNewCard(createStarterUreelTemplate(), lang);
       setActiveCard(created);
       setActiveTab('scene');
       setActiveSubSection('scene-video');
@@ -643,8 +731,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
   const radiusClassForButton = (button?: Partial<CardButton>) => {
-    if (button?.radius === 'square') return 'rounded-md';
-    if (button?.radius === 'pill') return 'rounded-[28px]';
+    if (button?.radius === 'square') return 'rounded-none';
+    if (button?.radius === 'pill') return 'rounded-full';
     return 'rounded-2xl';
   };
 
@@ -761,7 +849,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         </div>
         <div className="relative min-h-[330px] rounded-[24px] overflow-hidden border border-[#3A3732] bg-gradient-to-br from-[#181818] via-[#0F0F0F] to-black flex items-center justify-center p-5">
           <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #F5F2EA 1px, transparent 0)', backgroundSize: '18px 18px' }} />
-          <div className="relative w-full rounded-3xl border p-5 text-center" style={{ ...boxStyles }}>
+          <div key={textAnimationSeed + '-' + currentTextTemplate.animation} className={`relative w-full rounded-3xl border p-5 text-center ureel-ad-anim-${currentTextTemplate.animation || 'fade'}`} style={{ ...boxStyles }}>
             {frameType === 'corner' && <><span className="absolute left-2 top-2 w-5 h-5 border-l-2 border-t-2" style={{ borderColor: accent }} /><span className="absolute right-2 top-2 w-5 h-5 border-r-2 border-t-2" style={{ borderColor: accent }} /><span className="absolute left-2 bottom-2 w-5 h-5 border-l-2 border-b-2" style={{ borderColor: accent }} /><span className="absolute right-2 bottom-2 w-5 h-5 border-r-2 border-b-2" style={{ borderColor: accent }} /></>}
             {frameType === 'thin' && <span className="absolute inset-2 rounded-2xl border border-dashed pointer-events-none" style={{ borderColor: `${accent}66` }} />}
             {frameType === 'side_line' && <span className="absolute left-3 top-5 bottom-5 w-1 rounded-full" style={{ background: accent }} />}
@@ -789,7 +877,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     return (
       <div
         key={button.id}
-        className={`relative overflow-hidden border bg-stone-900 shadow-inner flex flex-col items-center justify-center text-center transition ${radiusClassForButton(button)} ${compact ? 'aspect-square p-2' : 'min-h-[132px] p-4'}`}
+        className={`relative overflow-hidden border bg-stone-900 shadow-inner flex flex-col items-center justify-center text-center transition ${radiusClassForButton(button)} ${compact ? 'aspect-square p-2' : 'aspect-square w-full max-w-[168px] mx-auto p-4'}`}
         style={buttonPreviewStyle(button)}
       >
         {!button.isActive && <div className="absolute inset-0 bg-black/55 z-10 flex items-center justify-center text-[8px] font-black uppercase tracking-widest text-stone-300">Inaktiv</div>}
@@ -839,6 +927,16 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     triggerToast(lang === 'de' ? 'Button-Design wurde auf alle anderen Buttons übertragen.' : 'Button design copied to all other buttons.', 'success');
   };
 
+  const getCleanMonitorCard = (card: Card): Card => {
+    const hiddenPreviewLabels = ['ureel editor', 'reel editor', 'texte & timeline', 'profil/texte', 'vorschau'];
+    return {
+      ...card,
+      buttons: (card.buttons || []).filter((button) => !hiddenPreviewLabels.includes((button.title || '').trim().toLowerCase())),
+    };
+  };
+
+  const monitorCard = getCleanMonitorCard(activeCard);
+
   return (
     <div className="flex flex-col md:flex-row min-h-[100dvh] md:h-screen w-full max-w-[100vw] bg-[#09090B] text-stone-200 overflow-x-hidden md:overflow-hidden overflow-y-auto font-sans antialiased text-xs">
       
@@ -859,7 +957,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <span className="font-black text-[9px] tracking-widest text-[#E8DCC2] uppercase select-none">ureel</span>
           </button>
           {accountMenuOpen && (
-            <div className="absolute left-0 md:left-[66px] top-12 md:top-0 z-50 w-[280px] rounded-2xl border border-[#E8DCC2]/25 bg-[#121216] shadow-2xl shadow-black/60 p-3 text-stone-200">
+            <div className="fixed left-3 top-[72px] md:absolute md:left-[66px] md:top-0 z-50 w-[280px] rounded-2xl border border-[#E8DCC2]/25 bg-[#121216] shadow-2xl shadow-black/60 p-3 text-stone-200">
               <div className="border-b border-stone-800 pb-3 mb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-9 h-9 rounded-xl bg-[#F5F2EA]/10 border border-purple-700/50 flex items-center justify-center text-[#F5F2EA] font-black">
@@ -1399,12 +1497,42 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   />
                 </div>
 
+                <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Textgrößen</span>
+                      <p className="text-[9px] text-stone-500 mt-1">Diese Größen sind sofort im Werbe-Monitor sichtbar.</p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-1 text-[8px] font-black uppercase">
+                      {(['compact','balanced','poster'] as const).map((preset) => (
+                        <button key={preset} type="button" onClick={() => applyAdTextSizePreset(preset)} className={`h-8 px-2 rounded-lg border ${adTextSizePreset() === preset ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#111111] text-stone-400 border-[#3A3732]'}`}>{preset === 'compact' ? 'Klein' : preset === 'balanced' ? 'Mittel' : 'Groß'}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {[
+                      { key: 'heroTitleSize', label: 'Headline', fallback: 30, min: 16, max: 52 },
+                      { key: 'heroSubtitleSize', label: 'Slogan', fallback: 12, min: 8, max: 24 },
+                      { key: 'heroDescriptionSize', label: 'Beschreibung', fallback: 11, min: 8, max: 22 },
+                    ].map((item) => (
+                      <div key={item.key}>
+                        <div className="flex justify-between text-[9px] uppercase font-bold text-stone-400 mb-1"><span>{item.label}</span><span>{clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max).toFixed(0)}px</span></div>
+                        <input type="range" min={item.min} max={item.max} step="1" value={clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max)} onChange={(e) => syncCardUpdate({ [item.key]: Number(e.target.value) } as any)} className="w-full accent-[#E8DCC2]" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {[
                     { id: 'product', label: 'Produkt', icon: LucideIcons.Box },
                     { id: 'offer', label: 'Angebot', icon: LucideIcons.BadgePercent },
                     { id: 'event', label: 'Event', icon: LucideIcons.CalendarDays },
                     { id: 'contact', label: 'Kontakt', icon: LucideIcons.Contact },
+                    { id: 'gastro', label: 'Gastro', icon: LucideIcons.Utensils },
+                    { id: 'realestate', label: 'Immobilie', icon: LucideIcons.Home },
+                    { id: 'recruiting', label: 'Job', icon: LucideIcons.BriefcaseBusiness },
+                    { id: 'service', label: 'Service', icon: LucideIcons.Wrench },
                   ].map((item) => {
                     const Icon = item.icon;
                     return (
@@ -1513,13 +1641,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
                   <div>
                     <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-2">Animation</label>
-                    <select value={currentTextTemplate.animation} onChange={(e) => updateTextTemplate({ animation: e.target.value })} className="w-full h-11 rounded-2xl bg-[#181818] border border-[#3A3732] text-[#F5F2EA] px-3 text-sm focus:outline-none focus:border-[#E8DCC2]">
+                    <select value={currentTextTemplate.animation} onChange={(e) => { updateTextTemplate({ animation: e.target.value }); setTextAnimationSeed((n) => n + 1); }} className="w-full h-11 rounded-2xl bg-[#181818] border border-[#3A3732] text-[#F5F2EA] px-3 text-sm focus:outline-none focus:border-[#E8DCC2]">
                       <option value="fade">Sanft erscheinen</option>
                       <option value="slide_left">Von links</option>
                       <option value="slide_up">Von unten</option>
                       <option value="reveal">Aufklappen</option>
                       <option value="focus">Fokus</option>
                     </select>
+                    <button type="button" onClick={() => setTextAnimationSeed((n) => n + 1)} className="mt-2 w-full h-9 rounded-xl border border-[#3A3732] bg-[#181818] text-[#F5F2EA] text-[9px] font-black uppercase tracking-wider">Animation ansehen</button>
                   </div>
                 </div>
 
@@ -1874,7 +2003,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Button-Farbe</label><input type="color" value={editingButton.bgColor || editingButton.backgroundColor || activeCard.buttonColor || '#18181B'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { bgColor: e.target.value, backgroundColor: e.target.value })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Textfarbe</label><input type="color" value={editingButton.textColor || activeCard.buttonTextColor || '#F5F2EA'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { textColor: e.target.value, iconColor: e.target.value })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Rahmenfarbe</label><input type="color" value={editingButton.borderColor || '#E8DCC2'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { borderColor: e.target.value, borderEnabled: true, borderWidth: editingButton.borderWidth || 'thin' })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
-                      <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Eckenform</label><select value={editingButton.radius || 'rounded'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { radius: e.target.value as any })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] px-3 text-xs text-[#F5F2EA]"><option value="square">Eckig</option><option value="rounded">Abgerundet</option><option value="pill">Stark rund</option></select></div>
+                      <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Eckenform</label><select value={editingButton.radius || 'rounded'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { radius: e.target.value as any })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] px-3 text-xs text-[#F5F2EA]"><option value="square">Quadrat</option><option value="rounded">Quadrat abgerundet</option><option value="pill">Kreis</option></select></div>
                       <div className="sm:col-span-2 rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
                         <div className="flex items-center justify-between gap-2"><span className="block text-[10px] font-black uppercase tracking-wider text-[#E8DCC2]">Buttonbild / Aktionsbild</span>{(editingButton.buttonImageUrl || editingButton.imageUrl) && <button type="button" onClick={() => handleUpdateSingleButton(editingButton.id, { buttonImageUrl: '', imageUrl: '', buttonImageFileName: '' } as any)} className="text-[8.5px] text-red-300 font-black uppercase">Entfernen</button>}</div>
                         <input type="text" value={editingButton.buttonImageUrl || editingButton.imageUrl || ''} onChange={(e) => handleUpdateSingleButton(editingButton.id, { buttonImageUrl: e.target.value, imageUrl: e.target.value })} placeholder="Bild-Link einfügen oder hochladen" className="w-full bg-[#0F0F0F] border border-[#3A3732] h-10 px-3 rounded-xl text-xs font-mono text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
@@ -1891,7 +2020,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div className="space-y-4">
                   <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div><span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Vorschau wechseln</span><p className="text-[9.5px] text-stone-500 mt-1">Im Buttoneditor siehst du Karte, Einzelbutton oder Raster – unabhängig von der Timeline.</p></div><div className="grid grid-cols-3 gap-1 rounded-2xl border border-[#3A3732] bg-[#0F0F0F] p-1 text-[9px] font-black uppercase">{(['card','button','grid'] as const).map((mode) => <button key={mode} type="button" onClick={() => setButtonPreviewMode(mode)} className={`h-9 rounded-xl px-2 ${buttonPreviewMode === mode ? 'bg-[#F5F2EA] text-[#101010]' : 'text-stone-400 hover:text-[#F5F2EA]'}`}>{mode === 'card' ? 'Karte' : mode === 'button' ? 'Button' : 'Raster'}</button>)}</div></div>
-                    {buttonPreviewMode === 'card' && <div className="rounded-3xl border border-[#3A3732] bg-[#0B0B0B] p-3 max-w-[260px] mx-auto"><div className="h-[430px] rounded-[28px] overflow-hidden border-[8px] border-[#1C1C1C] bg-black"><KonuCardCore card={activeCard} lang={lang} isDesktopPreview={false} isPreview={true} /></div></div>}
+                    {buttonPreviewMode === 'card' && <div className="rounded-3xl border border-[#3A3732] bg-[#0B0B0B] p-3 max-w-[260px] mx-auto"><div className="h-[430px] rounded-[28px] overflow-hidden border-[8px] border-[#1C1C1C] bg-black"><KonuCardCore card={monitorCard} lang={lang} isDesktopPreview={false} isPreview={true} /></div></div>}
                     {buttonPreviewMode === 'button' && editingButton && <div className="max-w-[240px] mx-auto">{renderButtonPreviewTile(editingButton)}</div>}
                     {buttonPreviewMode === 'grid' && <div className="grid max-w-sm mx-auto" style={{ gridTemplateColumns: `repeat(${buttonGridCols}, minmax(0, 1fr))`, gap: `${buttonGapPx}px` }}>{(activeButtons.length ? activeButtons : activeCard.buttons || []).map((button) => renderButtonPreviewTile(button, true))}</div>}
                     <div className="rounded-xl border border-[#3A3732] bg-[#181818] p-3 text-[9px] leading-relaxed text-[#F5F2EA]/80"><b>Timeline-Hinweis:</b> In der Live-Karte erscheinen Buttons ab <b>{visibleButtonsAt.toFixed(1)}s</b>. Die Button-Vorschau bleibt hier immer sichtbar.</div>
@@ -2132,7 +2261,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div className="relative mx-auto w-[150px] h-[308px] sm:w-[180px] sm:h-[370px] md:w-[230px] md:h-[472px] bg-black rounded-[30px] md:rounded-[36px] border-[8px] border-[#F5F2EA]/80 shadow-2xl overflow-hidden flex flex-col justify-between ring-4 ring-[#E8DCC2]/10">
                   <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-black rounded-b-xl z-25" />
                   <div className="w-full h-full overflow-y-auto select-none bg-[#09090B] text-stone-200 scrollbar-none flex flex-col justify-between relative pt-5">
-                    <KonuCardCore card={activeCard} lang={lang} isDesktopPreview={false} isPreview={true} />
+                    <KonuCardCore card={monitorCard} lang={lang} isDesktopPreview={false} isPreview={true} />
                   </div>
                 </div>
               )}
@@ -2173,7 +2302,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <span>100% 🔋</span>
               </div>
               <div className="w-full h-full overflow-y-auto select-none bg-[#09090B] text-stone-200 scrollbar-none flex flex-col justify-between relative pt-5">
-                <KonuCardCore card={activeCard} lang={lang} isDesktopPreview={false} isPreview={true} />
+                <KonuCardCore card={monitorCard} lang={lang} isDesktopPreview={false} isPreview={true} />
               </div>
               {isPlaying && (
                 <div className="absolute bottom-1.5 left-2 right-2 bg-black/80 border border-[#E8DCC2]/30 p-1.5 rounded-lg flex items-center justify-between text-[7.5px] z-30 font-mono text-[#E8DCC2]">

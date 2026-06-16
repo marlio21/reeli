@@ -126,3 +126,15 @@ body {
   transform: scale(0.95);
 }
 
+
+/* ureel ad monitor animation previews */
+@keyframes ureelAdFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes ureelAdSlideLeft { from { opacity: 0; transform: translateX(-34px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes ureelAdSlideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes ureelAdReveal { from { opacity: 0; clip-path: inset(0 100% 0 0); } to { opacity: 1; clip-path: inset(0 0 0 0); } }
+@keyframes ureelAdFocus { 0% { opacity: 0; filter: blur(9px); transform: scale(.95); } 60% { filter: blur(0); transform: scale(1.025); } 100% { opacity: 1; transform: scale(1); } }
+.ureel-ad-anim-fade { animation: ureelAdFade .55s ease both; }
+.ureel-ad-anim-slide_left { animation: ureelAdSlideLeft .65s cubic-bezier(.2,.8,.2,1) both; }
+.ureel-ad-anim-slide_up { animation: ureelAdSlideUp .65s cubic-bezier(.2,.8,.2,1) both; }
+.ureel-ad-anim-reveal { animation: ureelAdReveal .8s cubic-bezier(.2,.8,.2,1) both; }
+.ureel-ad-anim-focus { animation: ureelAdFocus .85s ease both; }
