@@ -1,6 +1,0 @@
-{
-  "name": "ureel",
-  "description": "Erstelle deine Video-Reel Mini-Webseite in Sekunden und teile alles, was zählt, mit einem Link. (ureel.me Studio)",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
