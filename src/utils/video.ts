@@ -65,6 +65,7 @@ export interface ResolvedUreelVideo {
   videoSrc: string;
   displayMode: 'cover' | 'contain';
   placement: 'background' | 'hero';
+  heroSize?: 'wide' | 'compact';
   duration: number;
   startAt: number;
 }
@@ -77,6 +78,7 @@ export const resolveUreelVideo = (videoConfig: any): ResolvedUreelVideo => {
     videoSrc: '',
     displayMode: 'cover',
     placement: 'background',
+    heroSize: 'wide',
     duration: 12,
     startAt: 0,
   };
@@ -87,10 +89,11 @@ export const resolveUreelVideo = (videoConfig: any): ResolvedUreelVideo => {
   const rawType = videoConfig.type || 'none';
   const displayMode = videoConfig.displayMode || 'cover';
   const placement = videoConfig.placement || 'background';
+  const heroSize = videoConfig.heroSize || 'wide';
   const duration = typeof videoConfig.duration === 'number' ? videoConfig.duration : 12;
   const startAt = typeof videoConfig.startAt === 'number' ? videoConfig.startAt : 0;
 
-  if (!url) return { ...defaultResolved, displayMode, placement, duration, startAt };
+  if (!url) return { ...defaultResolved, displayMode, placement, heroSize, duration, startAt };
 
   // Detect YouTube vs YouTube Shorts vs Direct Stream
   let type: ResolvedUreelVideo['type'] = rawType;
@@ -134,6 +137,7 @@ export const resolveUreelVideo = (videoConfig: any): ResolvedUreelVideo => {
     videoSrc,
     displayMode,
     placement,
+    heroSize,
     duration,
     startAt,
   };

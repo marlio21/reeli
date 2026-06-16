@@ -1562,7 +1562,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         backgroundType: activeCard.cardBackgroundImageUrl ? 'image' : 'color',
                         cardBackgroundEnabled: true,
                         videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any,
-                        ureelScene: { ...(activeCard.ureelScene || {}), mode: activeCard.cardBackgroundImageUrl ? 'image' : 'color', video: { type: 'none', url: '', duration: activeCard.ureelScene?.video?.duration || 12, displayMode: activeCard.ureelScene?.video?.displayMode || 'contain', placement: 'background', startAt: 0 } } as any,
+                        ureelScene: { ...(activeCard.ureelScene || {}), mode: activeCard.cardBackgroundImageUrl ? 'image' : 'color', video: { type: 'none', url: '', duration: activeCard.ureelScene?.video?.duration || 12, displayMode: activeCard.ureelScene?.video?.displayMode || 'cover', placement: 'background', startAt: 0 } } as any,
                       } as any)}
                       className="h-9 px-3 rounded-xl border border-red-900/40 bg-red-950/30 text-red-200 text-[9px] uppercase font-black tracking-wider hover:bg-red-900/40"
                     >
@@ -1596,8 +1596,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                             type: val ? (val.includes('/shorts/') ? 'youtube_shorts' : 'youtube') : 'none',
                             url: val,
                             duration: activeCard.videoBackgroundConfig?.durationSeconds || activeCard.ureelScene?.video?.duration || 12,
-                            displayMode: activeCard.ureelScene?.video?.displayMode || 'contain',
+                            displayMode: activeCard.ureelScene?.video?.displayMode || 'cover',
                             placement: activeCard.ureelScene?.video?.placement || 'background',
+                            heroSize: (activeCard.ureelScene?.video as any)?.heroSize || 'wide',
                             startAt: activeCard.ureelScene?.video?.startAt || 0,
                           }
                         } as any,
@@ -1689,15 +1690,19 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {[
                     { id: 'cover', label: 'Reel füllen', desc: 'Füllt den Smartphone-Screen im 9:16 Rahmen' },
-                    { id: 'contain', label: 'Ganz anzeigen', desc: 'Video/Bild komplett sichtbar im Smartphone' },
-                    { id: 'hero', label: 'Als Video-Bildschirm', desc: '16:9 im oberen Drittel/Viertel als Profil-Hero' },
+                    { id: 'contain', label: 'Ganz anzeigen', desc: '16:9 komplett sichtbar oben auf der Karte' },
+                    { id: 'hero', label: 'Als Video-Bildschirm', desc: 'Kompakter 16:9-Bereich oben mit Abstand' },
                   ].map((mode) => {
-                    const selected = (activeCard.ureelScene?.video?.displayMode || 'cover') === mode.id || (mode.id === 'hero' && (activeCard.ureelScene?.video as any)?.placement === 'hero');
+                    const selected = mode.id === 'cover'
+                      ? ((activeCard.ureelScene?.video?.displayMode || 'cover') === 'cover' && (activeCard.ureelScene?.video as any)?.placement !== 'hero')
+                      : mode.id === 'contain'
+                        ? ((activeCard.ureelScene?.video as any)?.placement === 'hero' && ((activeCard.ureelScene?.video as any)?.heroSize || 'wide') === 'wide')
+                        : ((activeCard.ureelScene?.video as any)?.placement === 'hero' && (activeCard.ureelScene?.video as any)?.heroSize === 'compact');
                     return (
                       <button
                         key={mode.id}
                         type="button"
-                        onClick={() => syncCardUpdate({ videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), videoFitMode: mode.id === 'hero' ? 'contain' : mode.id } as any, ureelScene: { ...(activeCard.ureelScene || { mode: 'video' as const }), video: { ...(activeCard.ureelScene?.video || { type: 'none' as const, duration: 12 }), displayMode: mode.id === 'hero' ? 'contain' : mode.id, placement: mode.id === 'hero' ? 'hero' : 'background' } } as any })}
+                        onClick={() => syncCardUpdate({ videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), videoFitMode: mode.id === 'cover' ? 'cover' : 'contain' } as any, ureelScene: { ...(activeCard.ureelScene || { mode: 'video' as const }), video: { ...(activeCard.ureelScene?.video || { type: 'none' as const, duration: 12 }), displayMode: mode.id === 'cover' ? 'cover' : 'contain', placement: mode.id === 'cover' ? 'background' : 'hero', heroSize: mode.id === 'hero' ? 'compact' : 'wide' } } as any })}
                         className={`min-h-[102px] rounded-2xl border p-4 text-left transition ${selected ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732] hover:border-[#F5F2EA]/60'}`}
                       >
                         <span className="block text-[11px] font-black uppercase">{mode.label}</span>
@@ -1717,7 +1722,26 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <div className="space-y-4">
               <div className="p-4 bg-stone-950/40 rounded-xl border border-stone-900 space-y-4">
                 <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Farbe / Verlauf</span>
-                
+                <p className="text-[10px] text-stone-400 leading-relaxed">Farbe oder Verlauf ist eine eigene Szene. Wenn du hier eine Fläche aktivierst, werden Video und Bild automatisch entfernt, damit der Hintergrund sofort sichtbar ist.</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {[
+                    { label: 'Creme', from: '#F5F2EA', to: '#E8DCC2' },
+                    { label: 'Anthrazit', from: '#1A1A1A', to: '#3A3732' },
+                    { label: 'Warm', from: '#F5F2EA', to: '#B99662' },
+                    { label: 'Nacht', from: '#0F0F0F', to: '#2A241E' },
+                  ].map((preset) => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => syncCardUpdate({ backgroundType: 'gradient', backgroundImageUrl: '', cardBackgroundImageUrl: '', cardBackgroundEnabled: true, cardBackgroundColor: preset.from, cardBackgroundGradientEnabled: true, cardBackgroundGradientColor: preset.to, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'gradient', backgroundImageUrl: '', backgroundColor: preset.from, gradient: { from: preset.from, to: preset.to, direction: '135deg' }, video: { type: 'none', url: '', duration: activeCard.ureelScene?.video?.duration || 12, displayMode: 'cover', placement: 'background', startAt: 0 }, overlay: { ...(activeCard.ureelScene?.overlay || { blur: 0, vignette: false }), darken: 0 } } as any } as any)}
+                      className="h-12 rounded-xl border border-[#3A3732] text-[9px] uppercase font-black tracking-wider text-[#F5F2EA] shadow-inner"
+                      style={{ background: `linear-gradient(135deg, ${preset.from}, ${preset.to})`, color: preset.from === '#F5F2EA' ? '#101010' : '#F5F2EA' }}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[9.5px] uppercase font-bold text-stone-450 tracking-wider mb-2">Hintergrundfarbe</label>
@@ -1726,7 +1750,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         type="color"
                         value={activeCard.cardBackgroundColor || '#121212'}
                         onChange={(e) => {
-                          syncCardUpdate({ backgroundType: 'color', backgroundImageUrl: '', cardBackgroundImageUrl: '', cardBackgroundEnabled: true, cardBackgroundColor: e.target.value, cardBackgroundGradientEnabled: false, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color', backgroundColor: e.target.value, overlay: { ...(activeCard.ureelScene?.overlay || { blur: 0, vignette: false }), darken: 0 } } as any } as any);
+                          syncCardUpdate({ backgroundType: 'color', backgroundImageUrl: '', cardBackgroundImageUrl: '', cardBackgroundEnabled: true, cardBackgroundColor: e.target.value, cardBackgroundGradientEnabled: false, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color', backgroundImageUrl: '', video: { type: 'none', url: '', duration: activeCard.ureelScene?.video?.duration || 12, displayMode: 'cover', placement: 'background', startAt: 0 }, backgroundColor: e.target.value, overlay: { ...(activeCard.ureelScene?.overlay || { blur: 0, vignette: false }), darken: 0 } } as any } as any);
                         }}
                         className="w-5 h-5 rounded cursor-pointer border-0 outline-none bg-transparent"
                       />
@@ -1734,7 +1758,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         type="text"
                         value={activeCard.cardBackgroundColor || '#121212'}
                         onChange={(e) => {
-                          syncCardUpdate({ backgroundType: 'color', backgroundImageUrl: '', cardBackgroundImageUrl: '', cardBackgroundEnabled: true, cardBackgroundColor: e.target.value, cardBackgroundGradientEnabled: false, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color', backgroundColor: e.target.value, overlay: { ...(activeCard.ureelScene?.overlay || { blur: 0, vignette: false }), darken: 0 } } as any } as any);
+                          syncCardUpdate({ backgroundType: 'color', backgroundImageUrl: '', cardBackgroundImageUrl: '', cardBackgroundEnabled: true, cardBackgroundColor: e.target.value, cardBackgroundGradientEnabled: false, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color', backgroundImageUrl: '', video: { type: 'none', url: '', duration: activeCard.ureelScene?.video?.duration || 12, displayMode: 'cover', placement: 'background', startAt: 0 }, backgroundColor: e.target.value, overlay: { ...(activeCard.ureelScene?.overlay || { blur: 0, vignette: false }), darken: 0 } } as any } as any);
                         }}
                         className="bg-transparent border-0 text-white w-full h-full text-xs font-mono outline-none"
                       />
@@ -1750,7 +1774,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         onChange={(e) => {
                           const to = e.target.value;
                           const from = activeCard.cardBackgroundColor || activeCard.ureelScene?.gradient?.from || '#121212';
-                          syncCardUpdate({ backgroundType: 'gradient', backgroundImageUrl: '', cardBackgroundImageUrl: '', cardBackgroundEnabled: true, cardBackgroundGradientEnabled: true, cardBackgroundGradientColor: to, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'gradient', gradient: { from, to, direction: activeCard.cardBackgroundGradientDirection || '135deg' }, overlay: { ...(activeCard.ureelScene?.overlay || { blur: 0, vignette: false }), darken: 0 } } as any } as any);
+                          syncCardUpdate({ backgroundType: 'gradient', backgroundImageUrl: '', cardBackgroundImageUrl: '', cardBackgroundEnabled: true, cardBackgroundGradientEnabled: true, cardBackgroundGradientColor: to, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'gradient', backgroundImageUrl: '', video: { type: 'none', url: '', duration: activeCard.ureelScene?.video?.duration || 12, displayMode: 'cover', placement: 'background', startAt: 0 }, gradient: { from, to, direction: activeCard.cardBackgroundGradientDirection || '135deg' }, overlay: { ...(activeCard.ureelScene?.overlay || { blur: 0, vignette: false }), darken: 0 } } as any } as any);
                         }}
                         className="w-5 h-5 rounded cursor-pointer border-0 outline-none bg-transparent"
                       />
@@ -1759,7 +1783,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         onClick={() => {
                           const from = activeCard.cardBackgroundColor || '#121212';
                           const to = activeCard.cardBackgroundGradientColor || '#3A3732';
-                          syncCardUpdate({ backgroundType: 'gradient', backgroundImageUrl: '', cardBackgroundImageUrl: '', cardBackgroundEnabled: true, cardBackgroundGradientEnabled: true, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'gradient', gradient: { from, to, direction: activeCard.cardBackgroundGradientDirection || '135deg' }, overlay: { ...(activeCard.ureelScene?.overlay || { blur: 0, vignette: false }), darken: 0 } } as any } as any);
+                          syncCardUpdate({ backgroundType: 'gradient', backgroundImageUrl: '', cardBackgroundImageUrl: '', cardBackgroundEnabled: true, cardBackgroundGradientEnabled: true, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'gradient', backgroundImageUrl: '', video: { type: 'none', url: '', duration: activeCard.ureelScene?.video?.duration || 12, displayMode: 'cover', placement: 'background', startAt: 0 }, gradient: { from, to, direction: activeCard.cardBackgroundGradientDirection || '135deg' }, overlay: { ...(activeCard.ureelScene?.overlay || { blur: 0, vignette: false }), darken: 0 } } as any } as any);
                         }}
                         className="ml-auto text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]"
                       >Verlauf aktivieren</button>

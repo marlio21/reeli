@@ -120,21 +120,41 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
 
   // Construct helper for separate Reel customizer profile section data mask (Teil D)
   const mappedCardData = React.useMemo(() => {
-    if (!isReelView) return card;
+    const cleanSceneCard = cleanPreview && card.ureelScene
+      ? {
+          ...card,
+          // In the studio monitor the scene itself is the stage. The old profile avatar/background
+          // must not cover color/gradient/video scenes. Text stays visible, but the profile image
+          // and hero media/background are disabled.
+          showProfileImage: false,
+          heroLogoUrl: '',
+          customLogoUrl: null,
+          heroBackgroundEnabled: false,
+          heroBackgroundType: 'color',
+          heroImageUrl: '',
+          coverImageUrl: '',
+          productImageUrl: '',
+          heroVideoUrl: '',
+          productVideoUrl: '',
+          heroTextColor: card.heroTextColor || (card.ureelScene?.mode === 'color' || card.ureelScene?.mode === 'gradient' ? 'dark' : 'white'),
+        }
+      : card;
+
+    if (!isReelView) return cleanSceneCard;
     const cfg = reelModeConfig || {};
     return {
-      ...card,
-      showProfileImage: cfg.includeProfileImage !== false && cfg.includeProfileSection !== false,
-      heroLogoUrl: cfg.includeLogo !== false && cfg.includeProfileSection !== false ? card.heroLogoUrl : '',
-      customLogoUrl: cfg.includeLogo !== false && cfg.includeProfileSection !== false ? card.customLogoUrl : null,
-      title: cfg.includeTitle !== false && cfg.includeProfileSection !== false ? card.title : '',
-      heroTitle: cfg.includeTitle !== false && cfg.includeProfileSection !== false ? card.heroTitle : '',
-      subtitle: cfg.includeTitle !== false && cfg.includeProfileSection !== false ? card.subtitle : '',
-      heroSubtitle: cfg.includeTitle !== false && cfg.includeProfileSection !== false ? card.heroSubtitle : '',
-      description: cfg.includeDescription !== false && cfg.includeProfileSection !== false ? card.description : '',
-      heroDescription: cfg.includeDescription !== false && cfg.includeProfileSection !== false ? card.heroDescription : '',
+      ...cleanSceneCard,
+      showProfileImage: cleanSceneCard.showProfileImage !== false && cfg.includeProfileImage !== false && cfg.includeProfileSection !== false,
+      heroLogoUrl: cfg.includeLogo !== false && cfg.includeProfileSection !== false ? cleanSceneCard.heroLogoUrl : '',
+      customLogoUrl: cfg.includeLogo !== false && cfg.includeProfileSection !== false ? cleanSceneCard.customLogoUrl : null,
+      title: cfg.includeTitle !== false && cfg.includeProfileSection !== false ? cleanSceneCard.title : '',
+      heroTitle: cfg.includeTitle !== false && cfg.includeProfileSection !== false ? cleanSceneCard.heroTitle : '',
+      subtitle: cfg.includeTitle !== false && cfg.includeProfileSection !== false ? cleanSceneCard.subtitle : '',
+      heroSubtitle: cfg.includeTitle !== false && cfg.includeProfileSection !== false ? cleanSceneCard.heroSubtitle : '',
+      description: cfg.includeDescription !== false && cfg.includeProfileSection !== false ? cleanSceneCard.description : '',
+      heroDescription: cfg.includeDescription !== false && cfg.includeProfileSection !== false ? cleanSceneCard.heroDescription : '',
     };
-  }, [card, isReelView, reelModeConfig]);
+  }, [card, isReelView, reelModeConfig, cleanPreview]);
   const scene = normalizeUreelScene(card);
   const hasUreelScene = !!card.ureelScene;
   const activeSceneVideoResult = resolveUreelVideo(scene.video);
@@ -689,13 +709,13 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
 
     return (
       <div 
-        className="w-full px-4 mb-5 z-10 shrink-0 pointer-events-auto"
+        className={`${activeSceneVideoResult.heroSize === 'compact' ? 'w-[88%] mx-auto px-0 mt-3 mb-4' : 'w-full px-3 mt-2 mb-4'} z-10 shrink-0 pointer-events-auto`}
         onClick={(e) => {
           e.stopPropagation();
         }}
       >
         <div 
-          className="relative w-full aspect-video rounded-2xl overflow-hidden bg-stone-900 border border-stone-800 shadow-2xl pointer-events-none"
+          className={`${activeSceneVideoResult.heroSize === 'compact' ? 'relative w-full aspect-video rounded-2xl' : 'relative w-full aspect-video rounded-[18px]'} overflow-hidden bg-stone-950 border border-[#F5F2EA]/25 shadow-2xl pointer-events-none`}
           style={{ imageRendering: 'auto' }}
         >
           {isYt && activeSceneVideoResult.embedUrl && (
@@ -988,7 +1008,9 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                 src={ytEmbedUrl}
                 className={
                   hasUreelScene
-                    ? "absolute inset-0 w-full h-full"
+                    ? (activeSceneVideoResult.displayMode === 'cover'
+                      ? "absolute top-1/2 left-1/2 h-full w-[178%] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2"
+                      : "absolute inset-0 w-full h-full")
                     : ((normalized.videoFitMode === 'cover')
                       ? "absolute top-1/2 left-1/2 w-[300%] h-[300%] -translate-x-1/2 -translate-y-1/2 object-cover"
                       : "absolute inset-0 w-full h-full")
@@ -1226,6 +1248,9 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             </button>
           )}
 
+          {/* 16:9 / top video screen for contain and hero scene modes */}
+          {renderHeroVideoPlayer()}
+
           {/* PROFILE BLOCK SECTION (Wrapped dynamically for Click to Edit in Preview with animation timing) */}
           <div
             onClick={(e) => {
@@ -1289,9 +1314,6 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               }
             />
           </div>
-
-          {/* 16:9 Hero Video Screen */}
-          {renderHeroVideoPlayer()}
 
           {/* Endcard HTML/CSS Overlay */}
           {renderEndCardOverlay()}
@@ -1583,7 +1605,9 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               src={ytEmbedUrl}
               className={
                 hasUreelScene
-                  ? "absolute inset-0 w-full h-full"
+                  ? (activeSceneVideoResult.displayMode === 'cover'
+                    ? "absolute top-1/2 left-1/2 h-full w-[178%] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2"
+                    : "absolute inset-0 w-full h-full")
                   : (normalized.videoFitMode === 'cover'
                     ? "absolute top-1/2 left-1/2 w-[300%] h-[300%] -translate-x-1/2 -translate-y-1/2 object-cover"
                     : "absolute inset-0 w-full h-full")
@@ -1735,6 +1759,9 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         </button>
       )}
 
+      {/* 16:9 / top video screen for contain and hero scene modes */}
+      {renderHeroVideoPlayer()}
+
       {/* PROFILE BLOCK SECTION (Wrapped dynamically for Click to Edit in Preview with animation timing) */}
       <div
         onClick={(e) => {
@@ -1798,9 +1825,6 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
           }
         />
       </div>
-
-      {/* 16:9 Hero Video Screen */}
-      {renderHeroVideoPlayer()}
 
       {/* Endcard HTML/CSS Overlay */}
       {renderEndCardOverlay()}

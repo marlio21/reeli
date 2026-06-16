@@ -464,6 +464,7 @@ export interface UreelScene {
     duration: number;
     displayMode: 'contain' | 'cover';
     placement?: 'background' | 'hero';
+    heroSize?: 'wide' | 'compact';
     startAt?: number;
   };
 }
