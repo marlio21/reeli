@@ -1,0 +1,520 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import React from 'react';
+import { motion } from 'motion/react';
+import * as LucideIcons from 'lucide-react';
+import { CardButton } from '../types';
+import { normalizeButton, getButtonScaleFactor } from '../utils/buttonUtils';
+
+interface ButtonRendererProps {
+  button: CardButton;
+  mode: 'designer' | 'editor' | 'public';
+  onClick?: (e: React.MouseEvent) => void;
+  previewScale?: number;
+  isSelected?: boolean;
+  isSortingMode?: boolean;
+  dragProps?: any; // For React DnD or custom dragging props
+  extraClassName?: string;
+  lang?: 'de' | 'en';
+  forceSquare?: boolean;
+  forceSizePx?: number;
+}
+
+export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
+  button,
+  mode,
+  onClick,
+  previewScale = 1,
+  isSelected,
+  isSortingMode,
+  dragProps = {},
+  extraClassName = '',
+  lang = 'de',
+  forceSquare = false,
+  forceSizePx,
+}) => {
+  const btn = normalizeButton(button);
+
+  // Parse font family
+  const getFontFamily = () => {
+    if (!btn.fontFamily) return 'inherit';
+    const fam = btn.fontFamily.toLowerCase();
+    if (fam.includes('grotesk') || fam.includes('space')) {
+      return '"Space Grotesk", sans-serif';
+    }
+    if (fam.includes('mono') || fam.includes('jetbrains')) {
+      return '"JetBrains Mono", monospace';
+    }
+    if (fam.includes('outfit')) {
+      return '"Outfit", sans-serif';
+    }
+    if (fam.includes('serif') || fam.includes('playfair')) {
+      return '"Playfair Display", serif';
+    }
+    return '"Inter", sans-serif';
+  };
+
+  // Border styles
+  const getBorderStyle = () => {
+    if (btn.borderEnabled === false) {
+      return { borderWidth: '0px' };
+    }
+    const color = btn.borderColor || '#A855F7';
+    let width = '1px';
+    if (btn.borderWidth === 'thin') width = '1px';
+    else if (btn.borderWidth === 'medium') width = '2px';
+    else if (btn.borderWidth === 'thick') width = '3px';
+    else if (btn.borderWidth === 'none') return { borderWidth: '0px' };
+    else if (typeof btn.borderWidth === 'number') width = `${btn.borderWidth}px`;
+    else if (btn.hasGoldBorder) {
+      width = '2px';
+    }
+
+    return {
+      borderWidth: width,
+      borderColor: color,
+      borderStyle: btn.borderStyle || 'solid',
+    };
+  };
+
+  // Shadow styles
+  const getShadowStyle = () => {
+    if (!btn.shadow || btn.shadow === 'none') return 'none';
+    const color = btn.shadowColor || 'rgba(0, 0, 0, 0.15)';
+    switch (btn.shadow) {
+      case 'soft':
+        return `0 2px 8px ${color}`;
+      case 'medium':
+        return `0 4px 14px ${color}`;
+      case 'strong':
+        return `0 8px 24px ${color}`;
+      default:
+        return 'none';
+    }
+  };
+
+  // Background and style variant handling
+  const getBgStyleAndColor = () => {
+    let backgroundColor = btn.bgColor || btn.backgroundColor || '#F5F0E6';
+    let backgroundStyle = {};
+
+    const op = typeof btn.opacity === 'number' ? btn.opacity / 100 : 1;
+
+    // Check if simplified background mode is preset
+    if (btn.bgMode === 'gradient') {
+      const dirMap: any = {
+        'to-bottom': 'to bottom',
+        'to-right': 'to right',
+        'to-br': 'to bottom right',
+        'to-bl': 'to bottom left',
+      };
+      const direction = dirMap[btn.gradientDirection || 'to-bottom'] || 'to bottom';
+      const c1 = btn.bgColor || '#F5F0E6';
+      const c2 = btn.gradientColor || '#A855F7';
+      backgroundStyle = {
+        background: `linear-gradient(${direction}, ${c1}, ${c2})`,
+        opacity: op,
+      };
+    } else if (btn.bgMode === 'solid') {
+      backgroundStyle = {
+        backgroundColor: backgroundColor,
+        opacity: op,
+      };
+    } else if (btn.styleVariant === 'gradient' && btn.gradient) {
+      backgroundStyle = {
+        background: btn.gradient,
+        opacity: op,
+      };
+    } else if (btn.styleVariant === 'outline') {
+      backgroundStyle = {
+        backgroundColor: 'transparent',
+      };
+    } else if (btn.styleVariant === 'minimal') {
+      backgroundStyle = {
+        backgroundColor: 'transparent',
+      };
+    } else if (btn.styleVariant === 'soft') {
+      // Add soft transparency
+      backgroundStyle = {
+        backgroundColor: backgroundColor,
+        opacity: 0.15,
+      };
+    } else {
+      // filled standard
+      backgroundStyle = {
+        backgroundColor: backgroundColor,
+        opacity: op,
+      };
+    }
+
+    return backgroundStyle;
+  };
+
+  // Normalize button shape to one of 'rounded', 'round', 'square'
+  const rawShape = btn.buttonShape || 'classic';
+  let shape: 'rounded' | 'round' | 'square' = 'rounded';
+  if (rawShape === 'round' || rawShape === 'pill') {
+    shape = 'round';
+  } else if (rawShape === 'square') {
+    shape = 'square';
+  } else if (rawShape === 'classic' || rawShape === 'rounded') {
+    if (btn.radius === 'square') shape = 'square';
+    else if (btn.radius === 'pill') shape = 'round';
+    else shape = 'rounded';
+  } else {
+    shape = 'rounded';
+  }
+
+  const bSize = btn.buttonSize;
+  const scaleFactor = getButtonScaleFactor(btn);
+  
+  // A button is square if no custom heights or custom widths are active, or if forceSquare is true
+  const isSquare = forceSquare || !bSize || bSize.preset === 'standard' || bSize.preset === 'compact' || bSize.preset === 'large' || bSize.scale !== undefined || (!bSize.height && !bSize.minHeight);
+
+  // Calculate buttonSize presets
+  let paddingXStyle = '';
+  let paddingYStyle = '';
+  let customWidth: string | number | undefined = undefined;
+  let customHeight: number | undefined = undefined;
+  let customMinHeight: number | undefined = undefined;
+
+  const defaultPaddingX = 18;
+  const defaultPaddingY = 10;
+  const defaultMinHeight = 44;
+
+  if (bSize && bSize.preset === 'custom' && bSize.scale === undefined) {
+    if (bSize.paddingX !== undefined) paddingXStyle = `${bSize.paddingX}px`;
+    if (bSize.paddingY !== undefined) paddingYStyle = `${bSize.paddingY}px`;
+    if (bSize.width !== undefined) customWidth = bSize.width;
+    if (bSize.height !== undefined) customHeight = bSize.height;
+    if (bSize.minHeight !== undefined) customMinHeight = bSize.minHeight;
+  } else {
+    paddingXStyle = `${Math.round(defaultPaddingX * scaleFactor)}px`;
+    paddingYStyle = `${Math.round(defaultPaddingY * scaleFactor)}px`;
+    customMinHeight = Math.round(defaultMinHeight * scaleFactor);
+  }
+
+  // Padding & Text properties
+  const isExtremeShape = shape === 'round';
+  const paddingStyle = isExtremeShape 
+    ? '15% 15%' 
+    : (paddingYStyle && paddingXStyle 
+        ? `${paddingYStyle} ${paddingXStyle}` 
+        : (btn.textPadding !== undefined ? `${Math.round(btn.textPadding * scaleFactor)}px` : `${Math.round(10 * scaleFactor)}px`));
+
+  // Proportional lightweight scaling for text & icons
+  const fontScale = Math.min(scaleFactor, 1.12);
+  const iconScale = Math.min(scaleFactor, 1.15);
+
+  const baseFontSize = btn.fontSize !== undefined ? btn.fontSize : 12;
+  const sizeStyle = `${Math.round(baseFontSize * fontScale)}px`;
+
+  const fontWeights: any = {
+    light: '300',
+    normal: '400',
+    medium: '500',
+    semibold: '600',
+    bold: '700',
+    extrabold: '800',
+  };
+  const weightStyle = btn.fontWeight ? fontWeights[btn.fontWeight.toLowerCase()] || '500' : '500';
+
+  // Text Shadow Style
+  let textShadowVal = 'none';
+  if (btn.textShadow === 'soft') {
+    textShadowVal = '0 1px 3px rgba(0,0,0,0.3)';
+  } else if (btn.textShadow === 'strong') {
+    textShadowVal = '0 2px 6px rgba(0,0,0,0.6)';
+  }
+
+  // Border Roundness (Radius)
+  const getRadiusClass = () => {
+    if (shape === 'square') return 'rounded-none';
+    if (shape === 'round') return 'rounded-full';
+    return 'rounded-[20px]'; // standard KONU card button style
+  };
+
+  // Render internal Icon
+  const renderIcon = (iconId: string, color: string, size = 18) => {
+    if (!iconId) return null;
+    const IconComp = (LucideIcons as any)[iconId];
+    if (IconComp) {
+      return <IconComp size={size} style={{ color }} className="shrink-0" />;
+    }
+    const SparklesComp = LucideIcons.Sparkles;
+    return <SparklesComp size={size} style={{ color }} className="shrink-0" />;
+  };
+
+  const renderIconOrImage = (extraStyle: React.CSSProperties = {}) => {
+    if (btn.iconEnabled === false) return null;
+    if (!btn.icon) return null;
+
+    const finalStyle: React.CSSProperties = {
+      transform: `translate(${btn.iconOffsetX || 0}px, ${btn.iconOffsetY || 0}px)`,
+      ...extraStyle,
+    };
+
+    return (
+      <div style={finalStyle} className="pointer-events-none shrink-0 flex items-center justify-center">
+        {renderIcon(btn.icon, iconColor, iconSize)}
+      </div>
+    );
+  };
+
+  // Image mode & overlay classes
+  const getOverlayOpacityClass = () => {
+    if (btn.imageOverlay === 'none' || btn.imageOverlay === 0 || btn.imageOverlay === undefined) return 'bg-transparent';
+    if (btn.imageOverlay === 'light') return 'bg-black/20';
+    if (btn.imageOverlay === 'dark') return 'bg-black/50';
+    if (typeof btn.imageOverlay === 'number') {
+      return `rgba(0,0,0,${btn.imageOverlay / 100})`;
+    }
+    return 'bg-black/35'; // default
+  };
+
+  // Glow classes
+  const getGlowStyles = () => {
+    if (btn.glow === 'gold') {
+      return 'shadow-[0_0_15px_rgba(201,166,70,0.4)] ring-1 ring-[#A855F7]/30';
+    }
+    if (btn.glow === 'light') {
+      return 'shadow-[0_0_15px_rgba(255,255,255,0.2)] ring-1 ring-white/10';
+    }
+    return '';
+  };
+
+  // Wiggle / Pulse style variants for motion (Disabled)
+  const animateProp: any = {};
+
+  // Text wrapper properties
+  const getTextWrapClass = () => {
+    if (btn.textWrap === 'ellipsis') return 'truncate whitespace-nowrap block w-full';
+    if (btn.textWrap === 'single') return 'line-clamp-1 break-all';
+    return 'line-clamp-2 break-all';
+  };
+
+  // Layout alignment classes
+  const getTextAlignClass = () => {
+    if (btn.textAlign === 'left') return 'text-left items-start';
+    if (btn.textAlign === 'right') return 'text-right items-end';
+    return 'text-center items-center';
+  };
+
+  const getTextPositionClass = () => {
+    if (btn.textPosition === 'top') return 'justify-start';
+    if (btn.textPosition === 'bottom') return 'justify-end';
+    return 'justify-center';
+  };
+
+  // Image Positions
+  const getImagePositionClass = () => {
+    if (btn.imagePosition === 'top') return 'object-top';
+    if (btn.imagePosition === 'bottom') return 'object-bottom';
+    if (btn.imagePosition === 'left') return 'object-left';
+    if (btn.imagePosition === 'right') return 'object-right';
+    return 'object-center';
+  };
+
+  // Determine actual color for the text / items
+  const textColor = btn.textColor || '#1E1E1E';
+  const iconColor = btn.iconColor || textColor;
+  const iconSize = Math.round((btn.iconSize || 18) * iconScale);
+
+  // Render Image Layer
+  const buttonImageUrlToUse = btn.buttonImageUrl || btn.imageUrl || '';
+  const hasBackgroundImg = !!buttonImageUrlToUse;
+  const buttonImageFitToUse = btn.buttonImageFit || btn.imageMode || 'cover';
+  const buttonImageOverlayToUse = btn.buttonImageOverlay ?? (btn.imageOverlay !== 'none' && btn.imageOverlay !== 0 && btn.imageOverlay !== undefined);
+
+  const inlineStyles: React.CSSProperties = {
+    color: textColor,
+    fontFamily: getFontFamily(),
+    boxShadow: getShadowStyle(),
+    transform: `scale(${previewScale})`,
+    ...getBorderStyle(),
+    ...getBgStyleAndColor(),
+  };
+
+  if (customHeight !== undefined) {
+    inlineStyles.height = `${customHeight}px`;
+  }
+  if (customMinHeight !== undefined) {
+    inlineStyles.minHeight = `${customMinHeight}px`;
+  }
+  if (customWidth !== undefined) {
+    inlineStyles.width = typeof customWidth === 'number' ? `${customWidth}px` : customWidth;
+  }
+
+  // Apply percentage dimensions if no fixed custom bounds are set
+  if (customHeight === undefined && customWidth === undefined) {
+    if (isSquare) {
+      inlineStyles.width = `${Math.round(scaleFactor * 100)}%`;
+      inlineStyles.height = `${Math.round(scaleFactor * 100)}%`;
+      inlineStyles.margin = 'auto';
+    } else {
+      inlineStyles.width = `${Math.min(100, Math.round(scaleFactor * 100))}%`;
+      inlineStyles.margin = 'auto';
+    }
+  }
+
+  // Force size absolute override (e.g. for ureel design)
+  if (forceSizePx !== undefined) {
+    inlineStyles.width = `${forceSizePx}px`;
+    if (isSquare) {
+      inlineStyles.height = `${forceSizePx}px`;
+      inlineStyles.minHeight = `${forceSizePx}px`;
+    } else {
+      inlineStyles.minHeight = '0px';
+    }
+  }
+
+  // Apply normalized shape style
+  if (shape === 'round') {
+    inlineStyles.borderRadius = '999px';
+  } else if (shape === 'square') {
+    inlineStyles.borderRadius = '0px';
+  } else {
+    // rounded - proportional slightly
+    inlineStyles.borderRadius = `${Math.round(20 * scaleFactor)}px`;
+  }
+
+  // Click Handler wrapping
+  const handleOnClick = (e: React.MouseEvent) => {
+    if (onClick) {
+      onClick(e);
+    }
+  };
+
+  const contentMarkup = (
+    <div className="absolute inset-0 z-0 flex flex-col h-full w-full pointer-events-none">
+      {/* Background full-bleed image if present */}
+      {hasBackgroundImg && (
+        <>
+          <img
+            src={buttonImageUrlToUse}
+            alt=""
+            referrerPolicy="no-referrer"
+            className={`absolute inset-0 w-full h-full ${
+              buttonImageFitToUse === 'contain' ? 'object-contain' : 'object-cover'
+            } ${getImagePositionClass()} z-0 pointer-events-none`}
+            style={{
+              filter: btn.imageSaturation !== undefined ? `saturate(${btn.imageSaturation}%)` : undefined
+            }}
+          />
+          {/* Abdunklung/Overlay layer */}
+          <div
+            className="absolute inset-0 z-10 pointer-events-none"
+            style={{
+              backgroundColor: buttonImageOverlayToUse === true
+                ? 'rgba(0,0,0,0.45)'
+                : typeof btn.imageDarken === 'number'
+                ? `rgba(0,0,0,${btn.imageDarken / 100})`
+                : typeof btn.imageOverlay === 'number' 
+                ? `rgba(0,0,0,${btn.imageOverlay / 100})` 
+                : btn.imageOverlay === 'dark' || btn.darkOverlay
+                ? 'rgba(0,0,0,0.5)'
+                : btn.imageOverlay === 'light'
+                ? 'rgba(0,0,0,0.2)'
+                : 'transparent'
+            }}
+          />
+        </>
+      )}
+
+      {/* Background position icon if present */}
+      {btn.iconEnabled !== false && btn.iconPosition === 'background' && btn.icon && (
+        <div 
+          className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 overflow-hidden"
+          style={{
+            padding: paddingStyle,
+            opacity: 0.15,
+            transform: `translate(${btn.iconOffsetX || 0}px, ${btn.iconOffsetY || 0}px)`
+          }}
+        >
+          {renderIcon(btn.icon, iconColor, iconSize * 2)}
+        </div>
+      )}
+
+      {/* Grid cells layout aligning Text & Media */}
+      <div
+        className={`absolute inset-0 p-2 z-20 flex flex-col h-full w-full ${getTextPositionClass()} ${getTextAlignClass()} pointer-events-none`}
+        style={{ 
+          padding: paddingStyle,
+        }}
+      >
+        <div 
+          className={`flex ${(btn.iconPosition === 'top' || btn.iconPosition === 'bottom' || btn.iconPosition === 'center') ? 'flex-col' : 'flex-row'} items-center max-w-full ${getTextAlignClass()} pointer-events-none`}
+          style={{
+            gap: `${Math.round(((btn.iconPosition === 'top' || btn.iconPosition === 'bottom' || btn.iconPosition === 'center') ? 4 : 6) * scaleFactor)}px`
+          }}
+        >
+          
+          {(btn.iconPosition === 'top' || btn.iconPosition === 'center') && renderIconOrImage()}
+
+          {btn.iconPosition === 'left' && renderIconOrImage()}
+
+          <span
+            className={`font-semibold z-10 ${getTextWrapClass()} pointer-events-none`}
+            style={{
+              display: 'inline-block',
+              transform: btn.textFineTuneEnabled === true
+                ? `translate(${Number(btn.textOffsetX ?? 0)}px, ${Number(btn.textOffsetY ?? 0)}px)`
+                : undefined,
+              fontSize: sizeStyle,
+              fontWeight: weightStyle,
+              letterSpacing: btn.letterSpacing ? `${btn.letterSpacing}px` : undefined,
+              textShadow: textShadowVal,
+              color: textColor,
+            }}
+          >
+            {btn.title || (lang === 'en' ? 'Untitled' : 'Ohne Titel')}
+          </span>
+
+          {btn.iconPosition === 'right' && renderIconOrImage()}
+
+          {btn.iconPosition === 'bottom' && renderIconOrImage()}
+
+        </div>
+      </div>
+    </div>
+  );
+
+  const containerClasses = `
+    relative overflow-hidden cursor-pointer select-none w-full flex flex-col justify-center items-center shadow-md transition-all duration-150
+    ${isSquare ? 'aspect-square h-full' : ''}
+    ${getRadiusClass()}
+    ${getGlowStyles()}
+    ${isSelected ? 'ring-2 ring-gold border-purple-500 scale-[1.05] shadow-[0_0_20px_rgba(201,166,70,0.6)]' : ''}
+    ${mode === 'editor' && !isSortingMode ? 'hover:scale-[1.03] hover:ring-1 hover:ring-[#A855F7]/30' : ''}
+    ${mode === 'public' ? 'hover:scale-[1.03] transition' : ''}
+    ${extraClassName}
+  `.trim();
+
+  // If in designer mode, or preview, we do not require touch DnD event parameters
+  const combinedProps = {
+    className: containerClasses,
+    style: inlineStyles,
+    onClick: handleOnClick,
+    ...dragProps,
+  };
+
+  return (
+    <motion.div
+      {...combinedProps}
+      {...animateProp}
+      whileTap={mode === 'public' ? { scale: 0.95 } : undefined}
+    >
+      {contentMarkup}
+
+      {/* Lock Indicator overlay */}
+      {btn.isProtected && (
+        <span className="absolute top-2 right-2 bg-black/50 p-1.5 rounded-lg z-30 shadow-md backdrop-blur-xxs border border-stone-800">
+          <LucideIcons.Lock size={10} className="text-[#A855F7]" />
+        </span>
+      )}
+    </motion.div>
+  );
+};
