@@ -359,6 +359,126 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     window.dispatchEvent(new CustomEvent('ureel-timeline-reset'));
   };
 
+
+  const activeButtons = (activeCard.buttons || []).filter((button) => button.isActive !== false);
+  const buttonGridCols = activeCard.buttonGridCols || activeCard.buttonGridLayout?.cols || 3;
+  const buttonSizePx = activeCard.buttonGridLayout?.buttonSizePx || activeCard.buttonSizePx || 72;
+  const buttonGapPx = activeCard.buttonGridLayout?.gapPx || activeCard.buttonGridLayout?.gap || activeCard.buttonGapPx || 10;
+  const visibleButtonsAt = Number(timeline.buttonsAt || 0.6);
+  const buttonsCurrentlyVisible = timelineSec >= visibleButtonsAt || !isPlaying;
+
+  const actionOptions = [
+    { value: 'url', label: 'Web-Link', hint: 'Website oder Landingpage' },
+    { value: 'phone', label: 'Telefon', hint: 'Direkt anrufen' },
+    { value: 'email', label: 'E-Mail', hint: 'Mail schreiben' },
+    { value: 'whatsapp', label: 'WhatsApp', hint: 'Chat öffnen' },
+    { value: 'vcard', label: 'Kontakt speichern', hint: 'VCF / Kontaktkarte' },
+    { value: 'contact_form', label: 'Kontaktformular', hint: 'Anfrage per Formular' },
+    { value: 'inquiry_form', label: 'Anfrage senden', hint: 'Lead / Angebot' },
+    { value: 'maps', label: 'Standort / Route', hint: 'Google/Apple Maps' },
+    { value: 'pdf_link', label: 'PDF öffnen', hint: 'PDF-Link' },
+    { value: 'external_file_link', label: 'Datei-Link', hint: 'Datei extern öffnen' },
+    { value: 'google_drive_file', label: 'Google Drive Datei', hint: 'Drive-Datei öffnen' },
+    { value: 'google_drive_folder', label: 'Google Drive Ordner', hint: 'Drive-Ordner öffnen' },
+    { value: 'dropbox_file', label: 'Dropbox Datei', hint: 'Dropbox-Datei öffnen' },
+    { value: 'dropbox_folder', label: 'Dropbox Ordner', hint: 'Dropbox-Ordner öffnen' },
+    { value: 'onedrive_file', label: 'OneDrive Datei', hint: 'OneDrive-Datei öffnen' },
+    { value: 'onedrive_folder', label: 'OneDrive Ordner', hint: 'OneDrive-Ordner öffnen' },
+    { value: 'download_area', label: 'Downloadbereich', hint: 'Mehrere Dateien' },
+    { value: 'video_replay', label: 'Video erneut ansehen', hint: 'Timeline neu starten' },
+  ];
+
+  const getButtonActionIcon = (actionType?: string) => {
+    const type = actionType || 'url';
+    if (type === 'phone') return LucideIcons.Phone;
+    if (type === 'email') return LucideIcons.Mail;
+    if (type === 'whatsapp') return LucideIcons.MessageCircle;
+    if (type === 'maps' || type === 'location' || type === 'location_address') return LucideIcons.MapPin;
+    if (type === 'vcard') return LucideIcons.Contact;
+    if (type === 'contact_form' || type === 'inquiry_form' || type === 'callback_request') return LucideIcons.FilePenLine;
+    if (type.includes('drive') || type.includes('dropbox') || type.includes('onedrive')) return LucideIcons.FolderOpen;
+    if (type.includes('pdf') || type.includes('file') || type === 'download_area') return LucideIcons.FileText;
+    if (type === 'video_replay') return LucideIcons.RotateCcw;
+    return LucideIcons.ExternalLink;
+  };
+
+  const radiusClassForButton = (button?: Partial<CardButton>) => {
+    if (button?.radius === 'square') return 'rounded-md';
+    if (button?.radius === 'pill') return 'rounded-[28px]';
+    return 'rounded-2xl';
+  };
+
+  const buttonPreviewStyle = (button?: Partial<CardButton>): React.CSSProperties => {
+    const image = button?.buttonImageUrl || button?.imageUrl;
+    const bg = button?.bgColor || button?.backgroundColor || activeCard.buttonColor || '#18181B';
+    const border = button?.borderColor || (button?.styleVariant === 'outline' ? '#A855F7' : 'rgba(168,85,247,0.35)');
+    const overlay = typeof button?.imageOverlay === 'number'
+      ? Math.max(0, Math.min(0.85, Number(button.imageOverlay) / 100))
+      : button?.buttonImageOverlay
+        ? 0.35
+        : (button?.darkOverlay ? 0.35 : 0);
+    return {
+      backgroundColor: bg,
+      color: button?.textColor || activeCard.buttonTextColor || '#FFFFFF',
+      borderColor: border,
+      backgroundImage: image
+        ? `linear-gradient(rgba(0,0,0,${overlay}), rgba(0,0,0,${overlay})), url(${image})`
+        : button?.gradient || undefined,
+      backgroundSize: button?.buttonImageFit || button?.imageMode || 'cover',
+      backgroundPosition: 'center',
+    };
+  };
+
+  const renderButtonPreviewTile = (button: CardButton, compact = false) => {
+    const Icon = getButtonActionIcon(button.actionType);
+    return (
+      <div
+        key={button.id}
+        className={`relative overflow-hidden border bg-stone-900 shadow-inner flex flex-col items-center justify-center text-center transition ${radiusClassForButton(button)} ${compact ? 'aspect-square p-2' : 'min-h-[132px] p-4'}`}
+        style={buttonPreviewStyle(button)}
+      >
+        {!button.isActive && <div className="absolute inset-0 bg-black/55 z-10 flex items-center justify-center text-[8px] font-black uppercase tracking-widest text-stone-300">Inaktiv</div>}
+        <div className={`relative z-20 flex items-center justify-center ${compact ? 'w-8 h-8' : 'w-12 h-12'} rounded-2xl bg-black/25 border border-white/10 mb-2`}>
+          <Icon size={compact ? 16 : 22} className="text-current" />
+        </div>
+        <span className={`relative z-20 font-black leading-tight ${compact ? 'text-[9px]' : 'text-xs'} line-clamp-2`}>{button.title || 'Button'}</span>
+        {!compact && (
+          <span className="relative z-20 mt-1 text-[8px] uppercase tracking-widest opacity-70">
+            {actionOptions.find((option) => option.value === button.actionType)?.label || button.actionType || 'Aktion'}
+          </span>
+        )}
+      </div>
+    );
+  };
+
+  const transferButtonDesignToAll = async () => {
+    if (!editingButton || !activeCard) return;
+    const designFields: Partial<CardButton> = {
+      bgColor: editingButton.bgColor,
+      backgroundColor: editingButton.backgroundColor,
+      textColor: editingButton.textColor,
+      borderColor: editingButton.borderColor,
+      styleVariant: editingButton.styleVariant,
+      radius: editingButton.radius,
+      animation: editingButton.animation,
+      imageMode: editingButton.imageMode,
+      buttonImageFit: editingButton.buttonImageFit,
+      imageOverlay: editingButton.imageOverlay,
+      buttonImageOverlay: editingButton.buttonImageOverlay,
+      borderEnabled: editingButton.borderEnabled,
+      borderWidth: editingButton.borderWidth,
+      borderStyle: editingButton.borderStyle,
+      shadow: editingButton.shadow,
+      iconColor: editingButton.iconColor,
+      iconSize: editingButton.iconSize,
+      buttonShape: editingButton.buttonShape,
+      buttonSize: editingButton.buttonSize,
+    };
+    const updatedButtons = activeCard.buttons.map((button) => button.id === editingButton.id ? button : { ...button, ...designFields });
+    await syncCardUpdate({ buttons: updatedButtons });
+    triggerToast(lang === 'de' ? 'Button-Design wurde auf alle anderen Buttons übertragen.' : 'Button design copied to all other buttons.', 'success');
+  };
+
   return (
     <div className="flex flex-col md:flex-row min-h-[100dvh] md:h-screen w-full max-w-[100vw] bg-[#09090B] text-stone-200 overflow-x-hidden md:overflow-hidden overflow-y-auto font-sans antialiased text-xs">
       
@@ -1028,90 +1148,206 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           {activeTab === 'buttons' && activeSubSection === 'buttons-list' && editingButton && (
             <div className="space-y-4">
               <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] uppercase font-black tracking-wider text-purple-400">Schaltfläche editieren</span>
-                  <button
-                    onClick={() => handleDeleteButtonLocal(editingButton.id)}
-                    className="text-red-400 hover:text-red-300 transition text-[9px] uppercase font-black cursor-pointer flex items-center gap-0.5"
-                  >
-                    <LucideIcons.Trash2 size={11} />
-                    Entfernen
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3.5">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                   <div>
-                    <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Beschriftung (Label)</label>
-                    <input
-                      type="text"
-                      value={editingButton.title || ''}
-                      onChange={(e) => handleUpdateSingleButton(editingButton.id, { title: e.target.value })}
-                      className="w-full bg-stone-900 border border-stone-800 h-8.5 px-2.5 rounded-lg text-xs font-bold text-white focus:outline-none focus:border-purple-600"
-                    />
+                    <span className="text-[10px] uppercase font-black tracking-wider text-purple-400 block">Aktuellen Button bearbeiten</span>
+                    <p className="text-[9.5px] text-stone-500 mt-1">Inhalt, Aktion, Bild und Design der ausgewählten ureel-Aktion.</p>
                   </div>
-
-                  <div>
-                    <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Aktions-Typ</label>
-                    <select
-                      value={editingButton.actionType}
-                      onChange={(e) => handleUpdateSingleButton(editingButton.id, { actionType: e.target.value })}
-                      className="w-full bg-stone-900 border border-stone-800 h-8.5 px-2 rounded-lg text-xs font-semibold text-white focus:outline-none focus:border-purple-600"
+                  <div className="flex gap-2 shrink-0">
+                    <button
+                      onClick={() => handleUpdateSingleButton(editingButton.id, { isActive: editingButton.isActive === false })}
+                      className={`px-3 py-1.5 rounded-xl text-[9px] uppercase font-black cursor-pointer border ${editingButton.isActive !== false ? 'bg-emerald-950/30 border-emerald-700 text-emerald-300' : 'bg-stone-900 border-stone-800 text-stone-400'}`}
                     >
-                      <option value="url">Web-Link (Standard)</option>
-                      <option value="phone">Telefon-Nummer</option>
-                      <option value="email">E-Mail verfassen</option>
-                      <option value="whatsapp">WhatsApp-Chat</option>
-                      <option value="download">Download verknüpfen</option>
-                    </select>
-                  </div>
-
-                  <div className="col-span-2">
-                    <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Ziel-Adresse / Ziel-Wert</label>
-                    <input
-                      type="text"
-                      value={editingButton.actionValue || ''}
-                      onChange={(e) => handleUpdateSingleButton(editingButton.id, { actionValue: e.target.value })}
-                      className="w-full bg-stone-900 border border-stone-800 h-8.5 px-2.5 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-purple-600"
-                      placeholder={editingButton.actionType === 'url' ? 'https://ihre-domain.de' : 'z.B. +49170123456'}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Abgerundete Ecken</label>
-                    <select
-                      value={editingButton.radius || 'rounded'}
-                      onChange={(e) => handleUpdateSingleButton(editingButton.id, { radius: e.target.value as any })}
-                      className="w-full bg-stone-900 border border-stone-800 h-8.5 px-2 rounded-lg text-xs font-semibold text-white focus:outline-none focus:border-purple-600"
+                      {editingButton.isActive !== false ? 'Aktiv' : 'Inaktiv'}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteButtonLocal(editingButton.id)}
+                      className="text-red-400 hover:text-red-300 transition text-[9px] uppercase font-black cursor-pointer flex items-center gap-0.5 border border-red-950/50 bg-red-950/20 px-3 py-1.5 rounded-xl"
                     >
-                      <option value="square">Eckig (Rechteckig)</option>
-                      <option value="rounded">Leicht gerundet (Viertel)</option>
-                      <option value="pill">Pille (Maximal rund)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Verhalten / Animation</label>
-                    <select
-                      value={editingButton.animation || 'none'}
-                      onChange={(e) => handleUpdateSingleButton(editingButton.id, { animation: e.target.value as any })}
-                      className="w-full bg-stone-900 border border-stone-800 h-8.5 px-2 rounded-lg text-xs font-semibold text-white focus:outline-none focus:border-purple-600"
-                    >
-                      <option value="none">Flach (Statisch)</option>
-                      <option value="pulse">Pulse-Effekt</option>
-                      <option value="wiggle">Wiggle (Wackeln)</option>
-                    </select>
+                      <LucideIcons.Trash2 size={11} />
+                      Entfernen
+                    </button>
                   </div>
                 </div>
 
-                <div className="pt-2 flex justify-end gap-2 text-[10px] border-t border-stone-850">
+                <div className="grid grid-cols-1 xl:grid-cols-[1fr_180px] gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                      <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Beschriftung (Label)</label>
+                      <input
+                        type="text"
+                        value={editingButton.title || ''}
+                        onChange={(e) => handleUpdateSingleButton(editingButton.id, { title: e.target.value })}
+                        className="w-full bg-stone-900 border border-stone-800 h-9 px-2.5 rounded-lg text-xs font-bold text-white focus:outline-none focus:border-purple-600"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Aktions-Typ</label>
+                      <select
+                        value={editingButton.actionType || 'url'}
+                        onChange={(e) => handleUpdateSingleButton(editingButton.id, { actionType: e.target.value })}
+                        className="w-full bg-stone-900 border border-stone-800 h-9 px-2 rounded-lg text-xs font-semibold text-white focus:outline-none focus:border-purple-600"
+                      >
+                        {actionOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                      </select>
+                      <span className="text-[8.5px] text-stone-550 mt-1 block">{actionOptions.find((option) => option.value === editingButton.actionType)?.hint || 'Aktion konfigurieren'}</span>
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Ziel-Adresse / Ziel-Wert</label>
+                      <input
+                        type="text"
+                        value={editingButton.actionValue || ''}
+                        onChange={(e) => handleUpdateSingleButton(editingButton.id, { actionValue: e.target.value })}
+                        className="w-full bg-stone-900 border border-stone-800 h-9 px-2.5 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-purple-600"
+                        placeholder={['phone', 'whatsapp'].includes(editingButton.actionType) ? 'z.B. +49170123456' : editingButton.actionType === 'email' ? 'name@beispiel.de' : 'https://...'}
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-3 bg-stone-900/45 border border-stone-850 rounded-xl p-3">
+                      <div>
+                        <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Button-Farbe</label>
+                        <input
+                          type="color"
+                          value={editingButton.bgColor || editingButton.backgroundColor || activeCard.buttonColor || '#18181B'}
+                          onChange={(e) => handleUpdateSingleButton(editingButton.id, { bgColor: e.target.value, backgroundColor: e.target.value })}
+                          className="w-full h-9 bg-stone-950 border border-stone-800 rounded-lg p-1 cursor-pointer"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Textfarbe</label>
+                        <input
+                          type="color"
+                          value={editingButton.textColor || activeCard.buttonTextColor || '#FFFFFF'}
+                          onChange={(e) => handleUpdateSingleButton(editingButton.id, { textColor: e.target.value, iconColor: e.target.value })}
+                          className="w-full h-9 bg-stone-950 border border-stone-800 rounded-lg p-1 cursor-pointer"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Rahmenfarbe</label>
+                        <input
+                          type="color"
+                          value={editingButton.borderColor || '#A855F7'}
+                          onChange={(e) => handleUpdateSingleButton(editingButton.id, { borderColor: e.target.value, borderEnabled: true, borderWidth: editingButton.borderWidth || 'thin' })}
+                          className="w-full h-9 bg-stone-950 border border-stone-800 rounded-lg p-1 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Abgerundete Ecken</label>
+                      <select
+                        value={editingButton.radius || 'rounded'}
+                        onChange={(e) => handleUpdateSingleButton(editingButton.id, { radius: e.target.value as any })}
+                        className="w-full bg-stone-900 border border-stone-800 h-9 px-2 rounded-lg text-xs font-semibold text-white focus:outline-none focus:border-purple-600"
+                      >
+                        <option value="square">Eckig</option>
+                        <option value="rounded">Leicht gerundet</option>
+                        <option value="pill">Maximal rund</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Verhalten / Animation</label>
+                      <select
+                        value={editingButton.animation || 'none'}
+                        onChange={(e) => handleUpdateSingleButton(editingButton.id, { animation: e.target.value as any })}
+                        className="w-full bg-stone-900 border border-stone-800 h-9 px-2 rounded-lg text-xs font-semibold text-white focus:outline-none focus:border-purple-600"
+                      >
+                        <option value="none">Flach / statisch</option>
+                        <option value="scale">Sanft vergrößern</option>
+                        <option value="pulse">Pulse-Effekt</option>
+                        <option value="wiggle">Wiggle</option>
+                      </select>
+                    </div>
+
+                    <div className="sm:col-span-2 bg-stone-900/45 border border-stone-850 rounded-xl p-3 space-y-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <span className="block text-[10px] font-black uppercase tracking-wider text-purple-300">Buttonbild / Aktionsbild</span>
+                          <span className="block text-[8.5px] text-stone-500 mt-0.5">Bild-URL verwenden; Upload kann später an Firebase Storage angebunden werden.</span>
+                        </div>
+                        <LucideIcons.ImagePlus size={16} className="text-purple-400" />
+                      </div>
+                      <input
+                        type="text"
+                        value={editingButton.buttonImageUrl || editingButton.imageUrl || ''}
+                        onChange={(e) => handleUpdateSingleButton(editingButton.id, { buttonImageUrl: e.target.value, imageUrl: e.target.value })}
+                        className="w-full bg-stone-950 border border-stone-800 h-9 px-2.5 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-purple-600"
+                        placeholder="https://.../buttonbild.jpg"
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <select
+                          value={editingButton.buttonImageFit || editingButton.imageMode || 'cover'}
+                          onChange={(e) => handleUpdateSingleButton(editingButton.id, { buttonImageFit: e.target.value as any, imageMode: e.target.value as any })}
+                          className="w-full bg-stone-950 border border-stone-800 h-9 px-2 rounded-lg text-xs font-semibold text-white focus:outline-none focus:border-purple-600"
+                        >
+                          <option value="cover">Cover / füllen</option>
+                          <option value="contain">Contain / ganz anzeigen</option>
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateSingleButton(editingButton.id, { buttonImageOverlay: !editingButton.buttonImageOverlay, imageOverlay: editingButton.buttonImageOverlay ? 0 : 35 })}
+                          className={`h-9 rounded-lg border text-[10px] font-black uppercase cursor-pointer ${editingButton.buttonImageOverlay || Number(editingButton.imageOverlay || 0) > 0 ? 'border-purple-500 bg-purple-950/30 text-white' : 'border-stone-800 bg-stone-950 text-stone-400'}`}
+                        >
+                          Overlay {editingButton.buttonImageOverlay || Number(editingButton.imageOverlay || 0) > 0 ? 'an' : 'aus'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-[9px] uppercase font-black tracking-wider text-stone-500 block mb-2">Aktueller Button</span>
+                      {renderButtonPreviewTile(editingButton)}
+                    </div>
+                    <div className="rounded-xl border border-purple-900/30 bg-purple-950/10 p-3 text-[9px] leading-relaxed text-purple-100">
+                      <b>Live-Hinweis:</b> Buttons erscheinen laut Timeline ab <b>{visibleButtonsAt.toFixed(1)}s</b>. Im Button-Menü ist die Vorschau immer sichtbar, unabhängig von der Timeline.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-stone-850 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px]">
                   <button
                     onClick={() => handleDuplicateButtonLocal(editingButton)}
-                    className="bg-stone-800 hover:bg-stone-750 text-white font-extrabold px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1 uppercase tracking-wider text-[9px]"
+                    className="bg-stone-800 hover:bg-stone-750 text-white font-extrabold px-3 py-2 rounded-xl cursor-pointer flex items-center justify-center gap-1 uppercase tracking-wider text-[9px]"
                   >
                     <LucideIcons.Copy size={11} />
                     Duplizieren
                   </button>
+                  <button
+                    onClick={transferButtonDesignToAll}
+                    className="bg-purple-950/30 hover:bg-purple-900/35 border border-purple-800/50 text-purple-100 font-extrabold px-3 py-2 rounded-xl cursor-pointer flex items-center justify-center gap-1 uppercase tracking-wider text-[9px]"
+                  >
+                    <LucideIcons.Paintbrush size={11} />
+                    Design übertragen
+                  </button>
+                  <button
+                    onClick={() => setActiveSubSection('buttons-layout')}
+                    className="bg-stone-900 hover:bg-stone-850 border border-stone-800 text-stone-300 font-extrabold px-3 py-2 rounded-xl cursor-pointer flex items-center justify-center gap-1 uppercase tracking-wider text-[9px]"
+                  >
+                    <LucideIcons.LayoutGrid size={11} />
+                    Raster öffnen
+                  </button>
                 </div>
+              </div>
+
+              <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] uppercase font-black tracking-wider text-purple-400 block">Button-Raster Vorschau</span>
+                    <p className="text-[9.5px] text-stone-500 mt-1">Alle aktiven Buttons als ureel-Standardraster. Diese Ansicht ist nicht von der Timeline abhängig.</p>
+                  </div>
+                  <span className="text-[9px] font-black text-stone-400 uppercase">{buttonGridCols} Spalten</span>
+                </div>
+                {activeButtons.length > 0 ? (
+                  <div className="grid max-w-sm" style={{ gridTemplateColumns: `repeat(${buttonGridCols}, minmax(0, 1fr))`, gap: `${buttonGapPx}px` }}>
+                    {activeButtons.map((button) => renderButtonPreviewTile(button, true))}
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-dashed border-stone-800 p-5 text-center text-stone-500 text-xs">Keine aktiven Buttons sichtbar. Aktiviere mindestens einen Button.</div>
+                )}
               </div>
             </div>
           )}
@@ -1120,16 +1356,16 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <div className="space-y-4">
               <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-4">
                 <span className="text-[10px] uppercase font-black tracking-wider text-purple-400 block">Mehrspaltiges Button-Layout</span>
-                <p className="text-[9.5px] text-stone-400">Wähle, ob deine Schaltflächen als Vollbreite gelistet, oder platzsparend als Grid-Preset nebeneinandergesetzt werden.</p>
+                <p className="text-[9.5px] text-stone-400">Bestimme, wie deine klickbaren ureel-Aktionen als Smartphone-Raster erscheinen.</p>
 
-                <div className="grid grid-cols-2 gap-3.5 pt-1">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
                   {[
-                    { id: 'list', label: 'Listen-Format', desc: 'Sämtliche Buttons untereinander', cols: 1 },
-                    { id: 'grid-2', label: 'Zweispaltiges Raster', desc: 'Dichter gepacktes 2x2 Raster', cols: 2 },
-                    { id: 'grid-3', label: '3er Aktionsraster', desc: 'ureel-Standard: drei Kacheln pro Reihe', cols: 3 },
+                    { id: 'list', label: '1 Spalte', desc: 'Unter-einander', cols: 1 },
+                    { id: 'grid-2', label: '2 Spalten', desc: 'Kompakt', cols: 2 },
+                    { id: 'grid-3', label: '3er Raster', desc: 'ureel-Standard', cols: 3 },
                   ].map((preset) => {
-                    const currentCols = activeCard.buttonGridCols || 1;
-                    const selected = (preset.cols === 3 && currentCols === 3) || (preset.cols === 2 && currentCols === 2) || (preset.cols === 1 && currentCols === 1);
+                    const currentCols = activeCard.buttonGridCols || activeCard.buttonGridLayout?.cols || 3;
+                    const selected = preset.cols === currentCols;
                     return (
                       <button
                         key={preset.id}
@@ -1138,16 +1374,18 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                           await syncCardUpdate({
                             buttonGridCols: preset.cols as any,
                             buttonGridLayout: {
-                              mode: preset.cols === 3 ? 'three_columns' : preset.cols === 2 ? 'two_columns' : 'list',
-                              cols: preset.cols as any
+                              ...(activeCard.buttonGridLayout || {}),
+                              mode: preset.cols === 3 ? 'three_columns' : preset.cols === 2 ? 'two_columns' : 'one_column',
+                              cols: preset.cols as any,
+                              square: true,
                             }
                           });
                           triggerToast(lang === 'de' ? 'Spalten-Wahl angepasst' : 'Grid changed', 'success');
                         }}
                         className={`flex flex-col text-left p-3.5 rounded-xl border-2 transition cursor-pointer ${
                           selected
-                            ? 'border-purple-600 bg-purple-950/15'
-                            : 'border-stone-850 bg-stone-900/40 opacity-70 hover:opacity-100 hover:bg-stone-850'
+                            ? 'border-purple-600 bg-purple-950/20'
+                            : 'border-stone-850 bg-stone-900/40 opacity-80 hover:opacity-100 hover:bg-stone-850'
                         }`}
                       >
                         <span className="text-[10.5px] font-black text-white block uppercase tracking-wide leading-none">{preset.label}</span>
@@ -1155,6 +1393,46 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       </button>
                     );
                   })}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div>
+                    <div className="flex items-center justify-between text-[10.5px] font-bold text-stone-400 mb-2">
+                      <span>Button-Größe</span>
+                      <span className="text-purple-400 font-mono">{buttonSizePx}px</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={52}
+                      max={104}
+                      step={2}
+                      value={buttonSizePx}
+                      onChange={(e) => syncCardUpdate({ buttonSizePx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), buttonSizePx: Number(e.target.value), cols: buttonGridCols as any, square: true } })}
+                      className="w-full bg-stone-800 accent-purple-600 h-1.5 rounded-lg appearance-none cursor-pointer"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between text-[10.5px] font-bold text-stone-400 mb-2">
+                      <span>Button-Abstand</span>
+                      <span className="text-purple-400 font-mono">{buttonGapPx}px</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={4}
+                      max={22}
+                      step={1}
+                      value={buttonGapPx}
+                      onChange={(e) => syncCardUpdate({ buttonGapPx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), gapPx: Number(e.target.value), gap: Number(e.target.value), cols: buttonGridCols as any, square: true } })}
+                      className="w-full bg-stone-800 accent-purple-600 h-1.5 rounded-lg appearance-none cursor-pointer"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-3">
+                <span className="text-[10px] uppercase font-black tracking-wider text-purple-400 block">Live Raster Vorschau</span>
+                <div className="grid max-w-sm" style={{ gridTemplateColumns: `repeat(${buttonGridCols}, minmax(0, 1fr))`, gap: `${buttonGapPx}px` }}>
+                  {(activeButtons.length ? activeButtons : activeCard.buttons || []).map((button) => renderButtonPreviewTile(button, true))}
                 </div>
               </div>
             </div>

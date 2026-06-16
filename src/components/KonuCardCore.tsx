@@ -1489,13 +1489,10 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
           {/* Zeile 1: Brand Header */}
           {!isHidden && (
             <div className="flex items-center justify-center gap-1.5 py-0.5 select-none text-center">
-              <img
-                src="/brand/konu-icon-512.png"
-                alt="KONU"
-                className="w-4.5 h-4.5 rounded bg-stone-950 object-contain shrink-0"
-                referrerPolicy="no-referrer"
-              />
-              <span className="text-[10px] uppercase tracking-widest font-extrabold text-[#A855F7]">KONU</span>
+              <span className="w-4.5 h-4.5 rounded bg-purple-950/50 border border-[#A855F7]/40 flex items-center justify-center shrink-0">
+                <LucideIcons.Tv size={12} className="text-[#A855F7]" />
+              </span>
+              <span className="text-[10px] uppercase tracking-widest font-extrabold text-[#A855F7]">ureel.me</span>
               <span className="text-stone-600 text-[10px] font-bold">•</span>
               <p className="text-[10px] font-medium text-stone-400 font-sans tracking-wide leading-none select-none">
                 {t.brandSlogan}
@@ -1513,7 +1510,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             <span>{t.saveContact}</span>
           </button>
 
-          {/* Sekundärer Button: Eigene KONU erstellen */}
+          {/* Sekundärer Button: Eigene ureel erstellen */}
           <button
             onClick={() => handleCtaClick && handleCtaClick()}
             className="w-full bg-stone-900 hover:bg-stone-850 active:bg-stone-950 text-[#F5EFE3] hover:text-white border border-[#A855F7]/40 hover:border-[#A855F7] rounded-xl py-3 px-5 flex items-center justify-center gap-2 transition duration-200 text-xs font-black uppercase tracking-wider cursor-pointer select-none"
@@ -2017,13 +2014,10 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                 }`}
                 title={lang === 'de' ? 'Branding umschalten' : 'Toggle Branding'}
               >
-                <img
-                  src="/brand/konu-icon-512.png"
-                  alt="KONU"
-                  className="w-4.5 h-4.5 rounded bg-stone-950 object-contain shrink-0"
-                  referrerPolicy="no-referrer"
-                />
-                <span className="text-[10px] uppercase tracking-widest font-extrabold text-[#A855F7]">KONU</span>
+                <span className="w-4.5 h-4.5 rounded bg-purple-950/50 border border-[#A855F7]/40 flex items-center justify-center shrink-0">
+                  <LucideIcons.Tv size={12} className="text-[#A855F7]" />
+                </span>
+                <span className="text-[10px] uppercase tracking-widest font-extrabold text-[#A855F7]">ureel.me</span>
                 <span className="text-stone-600 text-[10px] font-bold">•</span>
                 <p className="text-[10px] font-medium text-stone-300 font-sans tracking-wide leading-none select-none">
                   {t.brandSlogan}
@@ -2087,7 +2081,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         })()
       )}
 
-      {/* FESTE SYSTEM-AKTIONEN IM ELEGANTEN FOOTER-BALKEN (KONU Premium-Design) */}
+      {/* FESTE SYSTEM-AKTIONEN IM ELEGANTEN FOOTER-BALKEN (ureel Premium-Design) */}
       {/* Both Preview and Live now share EXACTLY the same Footer Block inside the card! */}
       {!isReelView && (
         <div
@@ -2097,13 +2091,10 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         {/* Zeile 1: Brand Header (Falls nicht versteckt durch Pro/Business plan) */}
         {!isHidden && (
           <div className="flex items-center justify-center gap-1.5 py-0.5 select-none text-center">
-            <img
-              src="/brand/konu-icon-512.png"
-              alt="KONU"
-              className="w-4.5 h-4.5 rounded bg-stone-950 object-contain shrink-0"
-              referrerPolicy="no-referrer"
-            />
-            <span className="text-[10px] uppercase tracking-widest font-extrabold text-[#A855F7]">KONU</span>
+            <span className="w-4.5 h-4.5 rounded bg-purple-950/50 border border-[#A855F7]/40 flex items-center justify-center shrink-0">
+              <LucideIcons.Tv size={12} className="text-[#A855F7]" />
+            </span>
+            <span className="text-[10px] uppercase tracking-widest font-extrabold text-[#A855F7]">ureel.me</span>
             <span className="text-stone-600 text-[10px] font-bold">•</span>
             <p className="text-[10px] font-medium text-stone-400 font-sans tracking-wide leading-none select-none">
               {t.brandSlogan}
@@ -2137,7 +2128,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             </span>
           </button>
 
-          {/* 3. Eigene KONU erstellen */}
+          {/* 3. Eigene ureel erstellen */}
           <button
             onClick={() => handleCtaClick && handleCtaClick()}
             title={t.createYourOwn || (lang === 'de' ? 'Eigene gratis Karte erstellen' : 'Create free card')}

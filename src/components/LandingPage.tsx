@@ -16,10 +16,10 @@ import { KonuLogo } from './KonuLogo';
 /// Local high quality Landing Page translations matching DE and EN
 const L_TXTS = {
   de: {
-    badge: "★ DIGITALE VISITENKARTE · MINI-WEBSITE · EIN LINK",
-    headline: "Eine digitale Karte. So einfach oder umfangreich, wie du sie brauchst.",
-    subheadline: "Mit KONU erstellst du moderne Kontaktkarten – von der einfachen 3-Button-Karte bis zur umfangreichen Profilkarte mit vielen Aktionen.",
-    explanation: "Wähle eine Vorlage, füge deine Inhalte hinzu und teile deine KONU per Link oder QR-Code. Ideal für Schüler, Bewerber, Selbstständige, Unternehmen, Vereine und Dienstleister.",
+    badge: "★ KLICKBARER UREEL · MINI-WEBSITE · EIN LINK",
+    headline: "Eine interaktive ureel-Karte. So einfach oder umfangreich, wie du sie brauchst.",
+    subheadline: "Mit ureel.me erstellst du klickbare Werbekarten – von der einfachen 3-Button-Karte bis zur umfangreichen Profilkarte mit vielen Aktionen.",
+    explanation: "Wähle eine Vorlage, füge deine Inhalte hinzu und teile deine ureel.me per Link oder QR-Code. Ideal für Schüler, Bewerber, Selbstständige, Unternehmen, Vereine und Dienstleister.",
     ctaStart: "Kostenlos starten",
     ctaSample: "Beispiel ansehen",
     trustNoApp: "Ohne App nutzbar",
@@ -27,8 +27,8 @@ const L_TXTS = {
     trustQr: "QR-Code & Link teilen",
     trustCurrent: "Immer aktuell",
     
-    authTitle: "Willkommen bei KONU",
-    authSubtitle: "Erstelle deine digitale Karte in wenigen Minuten.",
+    authTitle: "Willkommen bei ureel.me",
+    authSubtitle: "Erstelle deine interaktive ureel-Karte in wenigen Minuten.",
     tabLogin: "Einloggen",
     tabRegister: "Neu registrieren",
     labelEmail: "E-Mail-Adresse",
@@ -43,11 +43,11 @@ const L_TXTS = {
     separatorOr: "Oder weiter mit",
     noAccount: "Du hast noch kein Konto? Kostenlos starten",
     haveAccount: "Du hast bereits ein Konto? Einloggen",
-    startCreateNotice: "Starte jetzt mit deiner eigenen KONU-Karte.",
+    startCreateNotice: "Starte jetzt mit deiner eigenen ureel.me-Karte.",
     
     regFirstName: "Vorname",
     regLastName: "Nachname",
-    regDisplayName: "Anzeigename (für deine KONU-Seite)",
+    regDisplayName: "Anzeigename (für deine ureel.me-Seite)",
     regPhone: "Telefonnummer (optional)",
     regStreet: "Straße & Nr. (optional)",
     regPostal: "PLZ (optional)",
@@ -73,12 +73,12 @@ const L_TXTS = {
     bizWebsite: "Website URL",
     
     featuresTitle: "Alles, was du für deinen Auftritt brauchst",
-    featuresSub: "KONU vereint die Stärke einer Mini-Webseite mit der Einfachheit einer Visitenkarte.",
+    featuresSub: "ureel.me vereint die Stärke einer Smartphone-Werbekarte mit der Einfachheit einer Werbekarte.",
     
-    feat1Title: "Digitale Visitenkarte",
+    feat1Title: "Klickbare Werbekarte",
     feat1Desc: "Alle wichtigen Kontaktdaten, Social-Links und Anschriften vereint in einem einzigen Premium-Link.",
     
-    feat2Title: "Mini-Webseite",
+    feat2Title: "Smartphone-Werbekarte",
     feat2Desc: "Präsentiere dein gesamtes Profil, Portfoliogalerien, Angebote, PDFs und Dateien stilvoll auf einer Seite.",
     
     feat3Title: "Kontakt speichern",
@@ -93,7 +93,7 @@ const L_TXTS = {
     feat6Title: "Immer aktuell",
     feat6Desc: "Ändere Kontaktdaten oder Verlinkungen jederzeit im Handumdrehen – deine geteilten Links bleiben dauerhaft gleich.",
     
-    showcaseTitle: "So kann deine KONU aussehen",
+    showcaseTitle: "So kann deine ureel.me aussehen",
     showcaseSub: "Entdecke inspirierende Layouts aus unterschiedlichen Branchen.",
     
     showcase1Title: "Business & Beratung",
@@ -120,7 +120,7 @@ const L_TXTS = {
     mockupJob: "Unternehmensberater & Coach",
     mockupBio: "Strategische Beratung für KMU & Selbstständige. Lass uns gemeinsam wachsen und neue Potenziale heben.",
     btnSaveContact: "In Kontakten speichern",
-    btnCreateOwn: "Eigene KONU erstellen",
+    btnCreateOwn: "Eigene ureel.me erstellen",
     
     mockBtnPhone: "Telefon",
     mockBtnWhatsapp: "WhatsApp",
@@ -141,8 +141,8 @@ const L_TXTS = {
   en: {
     badge: "★ DIGITAL BUSINESS CARD · MINI WEBSITE · ONE LINK",
     headline: "One digital card. As simple or comprehensive as you need it.",
-    subheadline: "With KONU you create modern contact cards – from a simple 3-button card to a comprehensive profile card with many actions.",
-    explanation: "Choose a template, add your content, and share your KONU via link or QR code. Ideal for students, applicants, freelancers, companies, clubs, and service providers.",
+    subheadline: "With ureel.me you create modern contact cards – from a simple 3-button card to a comprehensive profile card with many actions.",
+    explanation: "Choose a template, add your content, and share your ureel.me via link or QR code. Ideal for students, applicants, freelancers, companies, clubs, and service providers.",
     ctaStart: "Start for free",
     ctaSample: "View example",
     trustNoApp: "No app required",
@@ -150,7 +150,7 @@ const L_TXTS = {
     trustQr: "Share by QR code & link",
     trustCurrent: "Always up to date",
     
-    authTitle: "Welcome to KONU",
+    authTitle: "Welcome to ureel.me",
     authSubtitle: "Create your digital card in just a few minutes.",
     tabLogin: "Sign in",
     tabRegister: "Create account",
@@ -166,11 +166,11 @@ const L_TXTS = {
     separatorOr: "Or continue with",
     noAccount: "No account yet? Start for free",
     haveAccount: "Already have an account? Sign in",
-    startCreateNotice: "Start now with your own KONU card.",
+    startCreateNotice: "Start now with your own ureel.me card.",
     
     regFirstName: "First Name",
     regLastName: "Last Name",
-    regDisplayName: "Display Name (for your KONU page)",
+    regDisplayName: "Display Name (for your ureel.me page)",
     regPhone: "Phone number (optional)",
     regStreet: "Street & No. (optional)",
     regPostal: "PLZ (optional)",
@@ -196,7 +196,7 @@ const L_TXTS = {
     bizWebsite: "Website URL",
     
     featuresTitle: "Everything you need for your presence",
-    featuresSub: "KONU combines the power of a mini-website with the absolute simplicity of a smart business card.",
+    featuresSub: "ureel.me combines the power of a mini-website with the absolute simplicity of a smart business card.",
     
     feat1Title: "Digital business card",
     feat1Desc: "Your vital contact info, social accounts, and addresses beautifully curated into a single link.",
@@ -216,7 +216,7 @@ const L_TXTS = {
     feat6Title: "Always up to date",
     feat6Desc: "Update details instantly within the editor – no re-printing or re-sharing required. The link stays the same.",
     
-    showcaseTitle: "This is what your KONU can look like",
+    showcaseTitle: "This is what your ureel.me can look like",
     showcaseSub: "Discover inspiring layouts across various industries.",
     
     showcase1Title: "Business & Consulting",
@@ -243,7 +243,7 @@ const L_TXTS = {
     mockupJob: "Unternehmensberater & Coach",
     mockupBio: "Strategische Beratung für KMU & Selbstständige. Lass uns gemeinsam wachsen und neue Pfade beschreiten.",
     btnSaveContact: "Save contact",
-    btnCreateOwn: "Create your own KONU",
+    btnCreateOwn: "Create your own ureel.me",
     
     mockBtnPhone: "Phone",
     mockBtnWhatsapp: "WhatsApp",
@@ -297,8 +297,8 @@ const CARD_ROTATION_INTERVAL_MS = 2500;
 const EXAMPLE_CARDS: ExampleCard[] = [
   {
     id: "visitenkarte",
-    title: { de: "1. Visitenkarte", en: "1. Business Card" },
-    type: { de: "Klassische digitale Visitenkarte", en: "Classic Digital Business Card" },
+    title: { de: "1. Werbekarte", en: "1. Business Card" },
+    type: { de: "Klassische digitale Werbekarte", en: "Classic Digital Business Card" },
     targetGroup: { de: "Für Beruf, Networking und schnellen Kontakt.", en: "For business, networking, and quick contact." },
     useCase: { de: "Ideal, wenn du deine wichtigsten Kontaktdaten professionell teilen möchtest.", en: "Ideal when you want to share your key contact details professionally." },
     benefit: { de: "Kompakt, übersichtlich und sofort speicherbar.", en: "Compact, clear, and instantly saveable." },
@@ -306,7 +306,7 @@ const EXAMPLE_CARDS: ExampleCard[] = [
     name: "Anna Berger",
     subtitle: { de: "Marketing & Kommunikation", en: "Marketing & Communication" },
     bio: { 
-      de: "Digitale Visitenkarte für schnellen Kontakt und professionellen Austausch.",
+      de: "Klickbare Werbekarte für schnellen Kontakt und professionellen Austausch.",
       en: "Digital business card for quick contact and professional networking."
     },
     theme: "light",
@@ -368,7 +368,7 @@ const EXAMPLE_CARDS: ExampleCard[] = [
     useCase: { de: "Ein Produktprofil zeigt dein Angebot kompakt mit Website, Anfrage und Download.", en: "A product profile displays your offer compactly with website, inquiry, and download." },
     benefit: { de: "Produktorientiert, modern und verkaufsstark.", en: "Product-oriented, modern, and sales-focused." },
     buttonCountLabel: { de: "5 Buttons: Produkt, Website, Anfrage, Download, Kontakt", en: "5 buttons: Product, Website, Inquiry, Download, Contact" },
-    name: "KONU NFC Card",
+    name: "ureel.me NFC Card",
     subtitle: { de: "Digitale Karte für dein Netzwerk", en: "Digital Card for your network" },
     bio: { 
       de: "Ein Produktprofil mit Kontakt, Website und Downloadmöglichkeit.",
@@ -989,7 +989,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <div className="space-y-2 text-left">
                 <span className="text-[#A855F7] text-[10px] font-black uppercase tracking-widest block font-mono">★★★ {t.examplesLabel}</span>
                 <h3 className="text-xl font-black text-white uppercase tracking-tight">
-                  {lang === 'de' ? 'Beispiele für deine KONU-Karte' : 'Examples of your KONU card'}
+                  {lang === 'de' ? 'Beispiele für deine ureel.me-Karte' : 'Examples of your ureel.me card'}
                 </h3>
                 <p className="text-stone-400 text-xs font-semibold leading-relaxed max-w-lg">
                   {lang === 'de' ? 'Ob kompakt, klassisch oder umfangreich – wähle ein Design:' : 'Whether compact, classic or comprehensive – choose a design:'}
@@ -1062,7 +1062,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                               <div className={`flex items-center justify-between px-5 pt-3 pb-2 z-10 relative ${card.textColor === 'text-white' || card.textColor === 'text-stone-100' || card.textColor === 'text-amber-50' || card.textColor === 'text-sky-50' || card.bgImage ? 'text-white/80' : 'text-stone-705/80'}`}>
                                 <div className="flex items-center gap-1.5 font-bold tracking-wider text-[9px] uppercase">
                                   <span className="w-3.5 h-3.5 rounded bg-stone-950 flex items-center justify-center text-[#A855F7] text-[7.5px] font-black">K</span>
-                                  <span>KONU</span>
+                                  <span>ureel.me</span>
                                 </div>
                               </div>
 
@@ -1106,7 +1106,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                                       {/* Background sheen */}
                                       <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
                                       <div className="flex justify-between items-start">
-                                        <span className="font-sans text-[8px] font-black tracking-widest text-[#A855F7] uppercase">KONU PREMIUM</span>
+                                        <span className="font-sans text-[8px] font-black tracking-widest text-[#A855F7] uppercase">ureel.me PREMIUM</span>
                                         <LucideIcons.Cpu size={14} className="text-amber-500/80 animate-pulse" />
                                       </div>
                                       <div className="space-y-0.5">
@@ -1166,7 +1166,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                                 </button>
                               </div>
 
-                              {/* Create Own KONU link CTA */}
+                              {/* Create Own ureel.me link CTA */}
                               <div className="px-4 py-0.5 z-10 relative">
                                 <button
                                   onClick={() => scrollToSection('auth-box')}
@@ -1298,8 +1298,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                           <LucideIcons.Info size={14} className="text-[#A855F7] shrink-0" />
                           <span>
                             {lang === 'de' 
-                              ? 'Alle gezeigten Beispiele lassen sich unkompliziert und realitätsnah mit der KONU-App gestalten.' 
-                              : 'All showcased designs can be fully configured in real-time with the KONU dashboard features.'}
+                              ? 'Alle gezeigten Beispiele lassen sich unkompliziert und realitätsnah mit der ureel.me-App gestalten.' 
+                              : 'All showcased designs can be fully configured in real-time with the ureel.me dashboard features.'}
                           </span>
                         </div>
                       </motion.div>
