@@ -1,20 +1,12 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# ureel Studio v18 – saubere Preview-Grundlage
 
-# Run and deploy your AI Studio app
+Diese Version trennt Studio-UI und echte Karten-Vorschau sauberer.
 
-This contains everything you need to run your app locally.
+Wichtigste Änderungen:
+- Clean Preview rendert ProfileHero ohne Editor-Buttons.
+- Studio-Monitor blendet interne Editor-Buttons/Labels aggressiver aus.
+- Neue ureel startet mit sechs echten Aktionsbuttons: Telefon, Webseite, Mail, Folder, Unternehmen, Datei.
+- Starter-Buttons sind als echte Nutzerbuttons angelegt, nicht als Editor-Demo-Elemente.
+- Szene bleibt als Bühne gedacht: fertige Karte mit Hintergrund, Werbetext und echten Buttons.
 
-View your app in AI Studio: https://ai.studio/apps/31bef616-9331-409c-9318-b985dac4c06e
-
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Build geprüft mit `npm run build`.

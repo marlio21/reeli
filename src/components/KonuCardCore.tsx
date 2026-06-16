@@ -1267,17 +1267,17 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             <ProfileHeroSection
               card={mappedCardData}
               className="rounded-none border-x-0 border-t-0"
-              isEditorMode={isPreview || isMiniPreview}
+              isEditorMode={cleanPreview ? false : (isPreview || isMiniPreview)}
               lang={lang}
-              onEditBackground={onEditBackground}
-              onEditProfileHero={onEditProfileHero}
+              onEditBackground={cleanPreview ? undefined : onEditBackground}
+              onEditProfileHero={cleanPreview ? undefined : onEditProfileHero}
               effectiveTime={effectiveTime}
               timelineState={timelineState}
               showTitle={showTitle}
               showSubtitle={showSubtitle}
               showDescription={showDescription}
               onPreview={
-                isPreview
+                cleanPreview ? undefined : isPreview
                   ? () => {
                       if (card.slug) {
                         window.open(`${window.location.origin}/u/${card.slug}`, '_blank');
@@ -1334,7 +1334,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             {normalizeButtons(card.buttons || [])
               .filter((btn) => btn.isActive)
               .map((btn) => {
-                if (isPreview) {
+                if (isPreview && !cleanPreview) {
                   const isDragSource = draggedButtonId === btn.id;
                   const isDragTarget = dragOverButtonId === btn.id;
                   const isSelectedForSwap = swapSelectionId === btn.id;
@@ -1774,7 +1774,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         <ProfileHeroSection
           card={mappedCardData}
           className="rounded-none border-x-0 border-t-0"
-          isEditorMode={isPreview || isMiniPreview}
+          isEditorMode={cleanPreview ? false : (isPreview || isMiniPreview)}
           lang={lang}
           onEditBackground={onEditBackground}
           onEditProfileHero={onEditProfileHero}
@@ -1841,7 +1841,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       {normalizeButtons(card.buttons || [])
         .filter((btn) => btn.isActive)
         .map((btn) => {
-          if (isPreview) {
+          if (isPreview && !cleanPreview) {
             const isDragSource = draggedButtonId === btn.id;
             const isDragTarget = dragOverButtonId === btn.id;
             const isSelectedForSwap = swapSelectionId === btn.id;

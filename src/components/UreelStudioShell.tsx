@@ -164,6 +164,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const selectedTextTemplatePreset = currentTextTemplate.style && UREEL_TEXT_TEMPLATES[currentTextTemplate.style]
     ? UREEL_TEXT_TEMPLATES[currentTextTemplate.style]
     : null;
+  const isAdCopyBlockEnabled = ((activeCard.ureelTextTemplate as any)?.blockModeEnabled ?? false) === true;
+  const adAnimationDuration = Math.max(0.2, Math.min(3, Number((activeCard.ureelTextTemplate as any)?.animationDuration ?? 0.8)));
 
   const updateTextTemplate = async (fields: any) => {
     const current = normalizeUreelTextTemplate(activeCard?.ureelTextTemplate);
@@ -191,6 +193,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         frame: { type: preset.defaultFrame, color: currentTextTemplate.frame?.color || '#E8DCC2', opacity: 100 },
         box: { type: preset.defaultBox, opacity: currentTextTemplate.box?.opacity || 85 },
         fontStyle: preset.defaultFontStyle,
+        animationDuration: (activeCard.ureelTextTemplate as any)?.animationDuration ?? 0.8,
+        blockModeEnabled: (activeCard.ureelTextTemplate as any)?.blockModeEnabled ?? false,
       } as any,
     });
   };
@@ -371,12 +375,13 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     iconId: icon,
     position,
     isActive: true,
-    radius: 'rounded',
+    radius: 'pill',
+    buttonShape: 'circle' as any,
     styleVariant: 'filled',
     bgColor: '#F5F2EA',
     backgroundColor: '#F5F2EA',
     textColor: '#111111',
-    iconColor: '#111111',
+    iconColor: '#8B5CF6',
     borderColor: '#E8DCC2',
     borderEnabled: true,
     borderWidth: 'thin',
@@ -427,7 +432,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       makeStarterButton('mail', 'Mail', 'email', '', 'mail', 2),
       makeStarterButton('folder', 'Folder', 'google_drive_folder', '', 'folder-open', 3),
       makeStarterButton('company', 'Unternehmen', 'contact_form', '', 'building-2', 4),
-      makeStarterButton('file', 'Datei', 'pdf', '', 'file-text', 5),
+      makeStarterButton('file', 'Datei', 'pdf_link', '', 'file-text', 5),
     ],
   });
 
@@ -656,24 +661,34 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     });
   };
 
-  const syncTimelineToLegacyVideoConfig = (next: Required<UreelTimeline>, duration = timelineDuration) => ({
-    ...(activeCard.videoBackgroundConfig || {}),
-    durationSeconds: duration,
-    duration,
-    profileTextReveals: [
-      { fieldKey: 'title', enabled: isTextLayerVisible('title'), startSecond: next.titleAt, fadeDuration: 0.8, staysVisibleAfterSequence: true },
-      { fieldKey: 'subtitle', enabled: isTextLayerVisible('subtitle'), startSecond: next.subtitleAt, fadeDuration: 0.8, staysVisibleAfterSequence: true },
-      { fieldKey: 'description', enabled: isTextLayerVisible('description'), startSecond: next.descriptionAt, fadeDuration: 0.8, staysVisibleAfterSequence: true },
-    ],
-    buttonReveal: {
-      ...(activeCard.videoBackgroundConfig?.buttonReveal || {}),
-      enabled: true,
-      startSecond: next.buttonsAt,
-      endSecond: Math.min(duration, next.buttonsAt + 0.8),
-      duration: 0.8,
-      style: activeCard.videoBackgroundConfig?.buttonReveal?.style || 'soft',
-    },
-  });
+  const syncTimelineToLegacyVideoConfig = (next: Required<UreelTimeline> & any, duration = timelineDuration) => {
+    const blockStart = typeof next.adTextAt === 'number' ? next.adTextAt : next.titleAt;
+    const revealDuration = adAnimationDuration;
+    const revealStart = (field: 'title' | 'subtitle' | 'description') => {
+      if (isAdCopyBlockEnabled) return blockStart;
+      if (field === 'title') return next.titleAt;
+      if (field === 'subtitle') return next.subtitleAt;
+      return next.descriptionAt;
+    };
+    return {
+      ...(activeCard.videoBackgroundConfig || {}),
+      durationSeconds: duration,
+      duration,
+      profileTextReveals: [
+        { fieldKey: 'title', enabled: isTextLayerVisible('title'), startSecond: revealStart('title'), fadeDuration: revealDuration, staysVisibleAfterSequence: true },
+        { fieldKey: 'subtitle', enabled: isTextLayerVisible('subtitle'), startSecond: revealStart('subtitle'), fadeDuration: revealDuration, staysVisibleAfterSequence: true },
+        { fieldKey: 'description', enabled: isTextLayerVisible('description'), startSecond: revealStart('description'), fadeDuration: revealDuration, staysVisibleAfterSequence: true },
+      ],
+      buttonReveal: {
+        ...(activeCard.videoBackgroundConfig?.buttonReveal || {}),
+        enabled: true,
+        startSecond: next.buttonsAt,
+        endSecond: Math.min(duration, next.buttonsAt + 0.8),
+        duration: 0.8,
+        style: activeCard.videoBackgroundConfig?.buttonReveal?.style || 'soft',
+      },
+    };
+  };
 
   const applyTimeline = async (next: Required<UreelTimeline>, duration = timelineDuration) => {
     await syncCardUpdate({
@@ -692,6 +707,33 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const updateTimelineField = async (field: keyof Omit<UreelTimeline, 'preset'>, value: number) => {
     const next = { ...timeline, preset: 'manual' as const, [field]: clampTime(value) } as Required<UreelTimeline>;
     await applyTimeline(next);
+  };
+
+  const updateTimelineAnyField = async (field: string, value: number) => {
+    const next = { ...(timeline as any), ...(activeCard.ureelTimeline as any), preset: 'manual', [field]: clampTime(value) } as any;
+    await applyTimeline(next);
+  };
+
+  const setAdCopyBlockMode = async (enabled: boolean) => {
+    const blockStart = typeof (activeCard.ureelTimeline as any)?.adTextAt === 'number' ? (activeCard.ureelTimeline as any).adTextAt : timeline.titleAt;
+    const nextTimeline: any = { ...(timeline as any), ...(activeCard.ureelTimeline as any), preset: 'manual', adTextAt: blockStart };
+    await syncCardUpdate({
+      ureelTimeline: nextTimeline,
+      ureelTextTemplate: {
+        ...(activeCard.ureelTextTemplate || currentTextTemplate),
+        blockModeEnabled: enabled,
+      } as any,
+      videoBackgroundConfig: {
+        ...(syncTimelineToLegacyVideoConfig(nextTimeline) as any),
+        profileTextReveals: ['title','subtitle','description'].map((fieldKey: any) => ({
+          fieldKey,
+          enabled: isTextLayerVisible(fieldKey),
+          startSecond: enabled ? blockStart : (fieldKey === 'title' ? timeline.titleAt : fieldKey === 'subtitle' ? timeline.subtitleAt : timeline.descriptionAt),
+          fadeDuration: adAnimationDuration,
+          staysVisibleAfterSequence: true,
+        })),
+      } as any,
+    });
   };
 
   const applyDuration = async (duration: 12 | 15) => {
@@ -1002,7 +1044,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         </div>
         <div className="relative min-h-[330px] rounded-[24px] overflow-hidden border border-[#3A3732] bg-gradient-to-br from-[#181818] via-[#0F0F0F] to-black flex items-center justify-center p-5">
           <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #F5F2EA 1px, transparent 0)', backgroundSize: '18px 18px' }} />
-          <div key={textAnimationSeed + '-' + currentTextTemplate.animation} className={`relative w-full rounded-3xl border p-5 text-center ureel-ad-anim-${currentTextTemplate.animation || 'fade'}`} style={{ ...boxStyles }}>
+          <div key={textAnimationSeed + '-' + currentTextTemplate.animation + '-' + adAnimationDuration} className={`relative w-full rounded-3xl border p-5 text-center ureel-ad-anim-${currentTextTemplate.animation || 'fade'}`} style={{ ...boxStyles, animationDuration: `${adAnimationDuration}s` }}>
             {frameType === 'corner' && <><span className="absolute left-2 top-2 w-5 h-5 border-l-2 border-t-2" style={{ borderColor: accent }} /><span className="absolute right-2 top-2 w-5 h-5 border-r-2 border-t-2" style={{ borderColor: accent }} /><span className="absolute left-2 bottom-2 w-5 h-5 border-l-2 border-b-2" style={{ borderColor: accent }} /><span className="absolute right-2 bottom-2 w-5 h-5 border-r-2 border-b-2" style={{ borderColor: accent }} /></>}
             {frameType === 'thin' && <span className="absolute inset-2 rounded-2xl border border-dashed pointer-events-none" style={{ borderColor: `${accent}66` }} />}
             {frameType === 'side_line' && <span className="absolute left-3 top-5 bottom-5 w-1 rounded-full" style={{ background: accent }} />}
@@ -1095,7 +1137,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
   const getCleanMonitorCard = (card: Card): Card => {
     const hiddenPreviewLabels = [
-      'ureel editor', 'reel editor', 'reel/editor', 'reel / editor',
+      'ureel editor', 'reel editor', 'reel/editor', 'reel / editor', 'zum bearbeiten', 'bearbeiten',
       'texte timeline', 'texte & timeline', 'text timeline', 'text/timeline', 'texte/timeline',
       'profil texte', 'profil/texte', 'vorschau', 'preview', 'editor', 'timeline', 'konu live', 'ureel live'
     ];
@@ -1103,7 +1145,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       const rawLabel = (button.title || '').trim().toLowerCase();
       const label = rawLabel.replace(/[\/_-]+/g, ' ').replace(/&/g, ' ').replace(/\s+/g, ' ').trim();
       const action = (button.actionType || '').trim().toLowerCase();
-      return !hiddenPreviewLabels.some((hidden) => rawLabel.includes(hidden) || label.includes(hidden.replace(/[\/_-]+/g, ' '))) && action !== 'editor';
+      const iconId = ((button as any).iconId || (button as any).icon || '').trim().toLowerCase();
+      const looksLikeEditorButton = hiddenPreviewLabels.some((hidden) => {
+        const normalizedHidden = hidden.replace(/[\/_-]+/g, ' ').replace(/&/g, ' ').replace(/\s+/g, ' ').trim();
+        return rawLabel.includes(hidden) || label.includes(normalizedHidden);
+      });
+      return !looksLikeEditorButton && action !== 'editor' && iconId !== 'edit' && iconId !== 'palette';
     });
     return {
       ...card,
@@ -1845,41 +1892,74 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 </div>
 
                 <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-4">
-                  <div>
-                    <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Einblend-Timer</span>
-                    <p className="text-[9px] text-stone-500 mt-1">Steuere direkt hier, wann Titel, Slogan und Beschreibung erscheinen. Leere Felder bleiben automatisch ausgeblendet.</p>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Werbetext-Timer</span>
+                      <p className="text-[9px] text-stone-500 mt-1">Wähle: komplette Werbevorlage als ein Block – oder Titel, Slogan und Beschreibung einzeln einblenden.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setAdCopyBlockMode(!isAdCopyBlockEnabled)}
+                      className={`shrink-0 px-3 py-2 rounded-xl border text-[8px] font-black uppercase tracking-wider ${isAdCopyBlockEnabled ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#101010] text-stone-400 border-[#3A3732]'}`}
+                    >
+                      Block {isAdCopyBlockEnabled ? 'AN' : 'AUS'}
+                    </button>
                   </div>
-                  {[
-                    { key: 'titleAt', field: 'title', label: 'Titel', value: timeline.titleAt },
-                    { key: 'subtitleAt', field: 'subtitle', label: 'Slogan', value: timeline.subtitleAt },
-                    { key: 'descriptionAt', field: 'description', label: 'Beschreibung', value: timeline.descriptionAt },
-                  ].map((item) => {
-                    const enabled = isTextLayerEnabled(item.field as any);
-                    const hasContent = hasTextLayerContent(item.field as any);
-                    return (
-                      <div key={item.key} className={`rounded-xl border p-3 ${enabled && hasContent ? 'border-[#3A3732] bg-[#101010]' : 'border-stone-900 bg-stone-950/40 opacity-75'}`}>
-                        <div className="flex items-center justify-between gap-2 mb-2">
-                          <div className="min-w-0">
-                            <span className="text-[10px] font-black uppercase text-[#F5F2EA]">{item.label}</span>
-                            <span className="ml-2 text-[9px] font-mono text-[#E8DCC2]">{Number(item.value).toFixed(1)}s</span>
-                          </div>
-                          <button type="button" onClick={() => setTextLayerEnabled(item.field as any, !enabled)} className={`px-2 py-1 rounded-full border text-[8px] uppercase font-black ${enabled && hasContent ? 'border-[#E8DCC2] text-[#E8DCC2]' : 'border-stone-700 text-stone-500'}`}>
-                            {!hasContent ? 'leer' : enabled ? 'an' : 'aus'}
-                          </button>
+
+                  {isAdCopyBlockEnabled ? (
+                    <div className="rounded-xl border border-[#3A3732] bg-[#101010] p-3">
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <div>
+                          <span className="text-[10px] font-black uppercase text-[#F5F2EA]">Werbetexter-Block</span>
+                          <p className="text-[8.5px] text-stone-500 mt-0.5">Alle aktiven Textfelder erscheinen zusammen mit der gewählten Vorlage.</p>
                         </div>
-                        <input
-                          type="range"
-                          min={0}
-                          max={timelineDuration}
-                          step={0.1}
-                          value={Number(item.value)}
-                          disabled={!hasContent}
-                          onChange={(e) => updateTimelineField(item.key as keyof Omit<UreelTimeline, 'preset'>, parseFloat(e.target.value))}
-                          className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer disabled:opacity-35"
-                        />
+                        <span className="text-[9px] font-mono text-[#E8DCC2]">{Number((activeCard.ureelTimeline as any)?.adTextAt ?? timeline.titleAt).toFixed(1)}s</span>
                       </div>
-                    );
-                  })}
+                      <input
+                        type="range"
+                        min={0}
+                        max={timelineDuration}
+                        step={0.1}
+                        value={Number((activeCard.ureelTimeline as any)?.adTextAt ?? timeline.titleAt)}
+                        onChange={(e) => updateTimelineAnyField('adTextAt', parseFloat(e.target.value))}
+                        className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer"
+                      />
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {[
+                        { key: 'titleAt', field: 'title', label: 'Titel', value: timeline.titleAt },
+                        { key: 'subtitleAt', field: 'subtitle', label: 'Slogan', value: timeline.subtitleAt },
+                        { key: 'descriptionAt', field: 'description', label: 'Beschreibung', value: timeline.descriptionAt },
+                      ].map((item) => {
+                        const enabled = isTextLayerEnabled(item.field as any);
+                        const hasContent = hasTextLayerContent(item.field as any);
+                        return (
+                          <div key={item.key} className={`rounded-xl border p-3 ${enabled && hasContent ? 'border-[#3A3732] bg-[#101010]' : 'border-stone-900 bg-stone-950/40 opacity-75'}`}>
+                            <div className="flex items-center justify-between gap-2 mb-2">
+                              <div className="min-w-0">
+                                <span className="text-[10px] font-black uppercase text-[#F5F2EA]">{item.label}</span>
+                                <span className="ml-2 text-[9px] font-mono text-[#E8DCC2]">{Number(item.value).toFixed(1)}s</span>
+                              </div>
+                              <button type="button" onClick={() => setTextLayerEnabled(item.field as any, !enabled)} className={`px-2 py-1 rounded-full border text-[8px] uppercase font-black ${enabled && hasContent ? 'border-[#E8DCC2] text-[#E8DCC2]' : 'border-stone-700 text-stone-500'}`}>
+                                {!hasContent ? 'leer' : enabled ? 'an' : 'aus'}
+                              </button>
+                            </div>
+                            <input
+                              type="range"
+                              min={0}
+                              max={timelineDuration}
+                              step={0.1}
+                              value={Number(item.value)}
+                              disabled={!hasContent}
+                              onChange={(e) => updateTimelineField(item.key as keyof Omit<UreelTimeline, 'preset'>, parseFloat(e.target.value))}
+                              className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer disabled:opacity-35"
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
@@ -2068,6 +2148,25 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     </select>
                     <button type="button" onClick={() => setTextAnimationSeed((n) => n + 1)} className="mt-2 w-full h-9 rounded-xl border border-[#3A3732] bg-[#181818] text-[#F5F2EA] text-[9px] font-black uppercase tracking-wider">Animation ansehen</button>
                   </div>
+
+                  <div className="md:col-span-2 rounded-2xl border border-[#3A3732] bg-[#101010] p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider">Animationsdauer</label>
+                        <p className="text-[8.5px] text-stone-500 mt-0.5">Bis 3 Sekunden, damit Werbeschriften langsam wie ein Mini-Werbespot einblenden können.</p>
+                      </div>
+                      <span className="text-[9px] font-mono text-[#E8DCC2]">{adAnimationDuration.toFixed(1)}s</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={0.2}
+                      max={3}
+                      step={0.1}
+                      value={adAnimationDuration}
+                      onChange={(e) => { updateTextTemplate({ animationDuration: parseFloat(e.target.value) } as any); setTextAnimationSeed((n) => n + 1); }}
+                      className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer"
+                    />
+                  </div>
                 </div>
 
                 <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
@@ -2174,9 +2273,27 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   </div>
                 </div>
 
+                <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Werbetexter-Timer</span>
+                      <p className="text-[9px] text-stone-500 mt-1">Block AN = ganze Werbevorlage kommt zusammen. Block AUS = Titel, Untertitel und Beschreibung einzeln timen.</p>
+                    </div>
+                    <button type="button" onClick={() => setAdCopyBlockMode(!isAdCopyBlockEnabled)} className={`px-3 py-2 rounded-xl border text-[8px] font-black uppercase tracking-wider ${isAdCopyBlockEnabled ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#101010] text-stone-400 border-[#3A3732]'}`}>
+                      Block {isAdCopyBlockEnabled ? 'AN' : 'AUS'}
+                    </button>
+                  </div>
+                  {isAdCopyBlockEnabled && (
+                    <div className="rounded-xl border border-[#3A3732] bg-[#101010] p-3">
+                      <div className="flex justify-between text-[10px] uppercase font-bold text-stone-400 mb-2"><span>Werbevorlage erscheint bei</span><span className="text-[#E8DCC2] font-mono">{Number((activeCard.ureelTimeline as any)?.adTextAt ?? timeline.titleAt).toFixed(1)}s</span></div>
+                      <input type="range" min={0} max={timelineDuration} step={0.1} value={Number((activeCard.ureelTimeline as any)?.adTextAt ?? timeline.titleAt)} onChange={(e) => updateTimelineAnyField('adTextAt', parseFloat(e.target.value))} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" />
+                    </div>
+                  )}
+                </div>
+
                 <div className="space-y-4">
                   {[
-                    { key: 'titleAt', label: 'Titel erscheint bei' },
+                    { key: 'titleAt', label: isAdCopyBlockEnabled ? 'Titel im Block' : 'Titel erscheint bei' },
                     { key: 'subtitleAt', label: 'Untertitel erscheint bei' },
                     { key: 'descriptionAt', label: 'Beschreibung erscheint bei' },
                     { key: 'buttonsAt', label: 'Buttons erscheinen bei' },
