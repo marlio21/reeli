@@ -206,7 +206,7 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
       setBtnStyleVariant(b.styleVariant || 'filled');
 
       setBtnIcon(b.icon || b.iconId || 'Link');
-      setBtnIconColor(b.iconColor || b.textColor || '#1E1E1E');
+      setBtnIconColor(b.iconColor || '#1E1E1E');
       setBtnIconSize(b.iconSize ?? 18);
       setBtnIconPosition(b.iconPosition || 'left');
 

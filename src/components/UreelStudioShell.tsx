@@ -1003,11 +1003,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     : desktopLayout === 'phone_left'
     ? 'grid-cols-[250px_minmax(240px,1fr)_minmax(240px,1fr)]'
     : desktopLayout === 'minimal'
-    ? 'grid-cols-[250px_minmax(260px,1fr)]'
+    ? 'grid-cols-[220px_minmax(240px,1fr)_minmax(220px,0.85fr)]'
     : 'grid-cols-[250px_minmax(240px,1fr)_minmax(240px,1fr)]';
   const desktopPhoneOrder = desktopLayout === 'phone_center' ? 'order-2' : 'order-1';
   const desktopTextOrder = desktopLayout === 'phone_center' ? 'order-1' : 'order-2';
-  const desktopButtonsOrder = desktopLayout === 'phone_center' ? 'order-3' : (desktopLayout === 'minimal' ? 'order-2' : 'order-3');
+  const desktopButtonsOrder = desktopLayout === 'phone_center' ? 'order-3' : 'order-3';
   const desktopTitle = desktopPage.contentMode === 'custom' && desktopPage.title ? desktopPage.title : (activeCard.title || 'Deine ureel');
   const desktopSubtitle = desktopPage.contentMode === 'custom' && desktopPage.subtitle ? desktopPage.subtitle : (activeCard.subtitle || 'Aus Video wird Aktion.');
   const desktopDescription = desktopPage.contentMode === 'custom' && desktopPage.description ? desktopPage.description : (activeCard.description || 'Öffne die Karte am Smartphone und starte direkt die nächste Aktion.');
@@ -1213,7 +1213,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
 
   const removeSceneImage = async () => {
-    const hasVideo = !!(activeCard.videoBackgroundConfig?.enabled || activeCard.ureelScene?.mode === 'video' || activeCard.backgroundType === 'video');
+    const hasVideo = !!(activeCard.videoBackgroundConfig?.enabled || activeCard.videoBackgroundConfig?.youtubeUrl || activeCard.ureelScene?.mode === 'video' || activeCard.ureelScene?.video?.url || activeCard.backgroundType === 'video');
     await syncCardUpdate({
       backgroundImageUrl: '',
       cardBackgroundImageUrl: '',
@@ -1223,10 +1223,45 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         ...(activeCard.ureelScene || {}),
         mode: hasVideo ? 'video' : 'color',
         backgroundImageUrl: '',
-        backgroundColor: activeCard.cardBackgroundColor || activeCard.ureelScene?.backgroundColor || '#1A1A1A',
+        backgroundColor: activeCard.cardBackgroundColor || activeCard.ureelScene?.backgroundColor || '#101010',
+        background: {
+          ...((activeCard.ureelScene as any)?.background || {}),
+          imageUrl: '',
+          url: '',
+        },
       } as any,
     } as any);
     triggerToast(lang === 'de' ? 'Szenenbild entfernt.' : 'Scene image removed.', 'success');
+  };
+
+  const removeSceneVideo = async () => {
+    const hasImage = !!(activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl);
+    await syncCardUpdate({
+      backgroundType: hasImage ? 'image' : 'color',
+      cardBackgroundEnabled: true,
+      videoBackgroundConfig: {
+        ...(activeCard.videoBackgroundConfig || {}),
+        enabled: false,
+        youtubeUrl: '',
+        mediaMode: 'none',
+        videoUrl: '',
+      } as any,
+      ureelScene: {
+        ...(activeCard.ureelScene || {}),
+        mode: hasImage ? 'image' : 'color',
+        video: {
+          ...(activeCard.ureelScene?.video || {}),
+          type: 'none',
+          url: '',
+          placement: 'background',
+          duration: activeCard.ureelScene?.video?.duration || activeCard.videoBackgroundConfig?.durationSeconds || 12,
+          displayMode: activeCard.ureelScene?.video?.displayMode || 'cover',
+          startAt: 0,
+        },
+      } as any,
+    } as any);
+    restartPreviewSimulation();
+    triggerToast(lang === 'de' ? 'Video entfernt.' : 'Video removed.', 'success');
   };
 
   const handleDesktopBackgroundUpload = async (file: File) => {
@@ -1250,7 +1285,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     try {
       setDesktopBgUploading(true);
       setDesktopBgUploadProgress(0);
-      await updateDesktopPage({ backgroundImageUrl: '', backgroundMode: 'image' });
+      await updateDesktopPage({ backgroundImageUrl: '', backgroundMode: 'image', buttonBackgroundImageUrl: '', legacyBackgroundImageUrl: '' });
       const storageRef = ref(storage, storagePath);
       const downloadUrl = await new Promise<string>((resolve, reject) => {
         const task = uploadBytesResumable(storageRef, file, { contentType: file.type || 'image/jpeg' });
@@ -1260,7 +1295,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           async () => resolve(await getDownloadURL(task.snapshot.ref))
         );
       });
-      await updateDesktopPage({ backgroundMode: 'image', backgroundImageUrl: downloadUrl });
+      await updateDesktopPage({ backgroundMode: 'image', backgroundImageUrl: downloadUrl, buttonBackgroundImageUrl: '' });
       triggerToast(lang === 'de' ? 'Desktop-Hintergrund hochgeladen.' : 'Desktop background uploaded.', 'success');
     } catch (err: any) {
       console.error('Desktop background upload failed', err);
@@ -1293,7 +1328,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     try {
       setDesktopButtonBgUploading(true);
       setDesktopButtonBgUploadProgress(0);
-      await updateDesktopPage({ buttonAreaBackgroundImageUrl: '', buttonAreaBackgroundMode: 'image' as any } as any);
+      await updateDesktopPage({ buttonAreaBackgroundImageUrl: '', buttonBackgroundImageUrl: '', buttonAreaBackgroundMode: 'image' as any } as any);
       const storageRef = ref(storage, storagePath);
       const downloadUrl = await new Promise<string>((resolve, reject) => {
         const task = uploadBytesResumable(storageRef, file, { contentType: file.type || 'image/jpeg' });
@@ -1303,7 +1338,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           async () => resolve(await getDownloadURL(task.snapshot.ref))
         );
       });
-      await updateDesktopPage({ buttonAreaBackgroundMode: 'image' as any, buttonAreaBackgroundImageUrl: downloadUrl } as any);
+      await updateDesktopPage({ buttonAreaBackgroundMode: 'image' as any, buttonAreaBackgroundImageUrl: downloadUrl, buttonBackgroundImageUrl: '' } as any);
       triggerToast(lang === 'de' ? 'Buttonbereich-Bild hochgeladen.' : 'Button area image uploaded.', 'success');
     } catch (err: any) {
       console.error('Desktop button background upload failed', err);
@@ -2089,15 +2124,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         Bild entfernen
                       </button>
                     )}
-                    {(activeCard.backgroundType === 'video' || activeCard.videoBackgroundConfig?.enabled || activeCard.ureelScene?.mode === 'video') && (
+                    {(activeCard.backgroundType === 'video' || activeCard.videoBackgroundConfig?.enabled || activeCard.videoBackgroundConfig?.youtubeUrl || activeCard.ureelScene?.mode === 'video' || activeCard.ureelScene?.video?.url) && (
                       <button
                         type="button"
-                        onClick={() => syncCardUpdate({
-                          backgroundType: activeCard.cardBackgroundImageUrl ? 'image' : 'color',
-                          cardBackgroundEnabled: true,
-                          videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any,
-                          ureelScene: { ...(activeCard.ureelScene || {}), mode: activeCard.cardBackgroundImageUrl ? 'image' : 'color', video: { type: 'none', url: '', duration: activeCard.ureelScene?.video?.duration || 12, displayMode: activeCard.ureelScene?.video?.displayMode || 'cover', placement: 'background', startAt: 0 } } as any,
-                        } as any)}
+                        onClick={removeSceneVideo}
                         className="h-9 px-3 rounded-xl border border-red-900/40 bg-red-950/30 text-red-200 text-[9px] uppercase font-black tracking-wider hover:bg-red-900/40"
                       >
                         Video entfernen
@@ -2215,7 +2245,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         <input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleSceneImageUpload(file); e.currentTarget.value = ''; }} />
                       </label>
                       <p className="text-[9px] text-stone-500">Empfohlen: 9:16 Hochformat oder ruhiges Werbebild mit Platz für Text und Buttons.</p>
-                      {(activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl) && <button type="button" onClick={removeSceneImage} className="w-full h-9 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 text-[8.5px] font-black uppercase tracking-wider">Bild entfernen</button>}
+                      {(activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl || (activeCard.ureelScene as any)?.background?.imageUrl) && <button type="button" onClick={removeSceneImage} className="w-full h-9 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 text-[8.5px] font-black uppercase tracking-wider">Bild entfernen</button>}
                     </div>
                   </div>
                 )}

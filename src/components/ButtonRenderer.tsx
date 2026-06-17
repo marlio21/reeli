@@ -334,7 +334,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
 
   // Determine actual color for the text / items
   const textColor = btn.textColor || '#1E1E1E';
-  const iconColor = btn.iconColor || textColor;
+  const iconColor = btn.iconColor || '#1E1E1E';
   const iconSize = Math.round((btn.iconSize || 18) * iconScale);
 
   // Render Image Layer

@@ -330,7 +330,7 @@ export const ButtonAppearanceTab: React.FC<ButtonAppearanceTabProps> = ({
                     </label>
                     <input
                       type="color"
-                      value={localButton.iconColor || localButton.textColor || '#1E1E1E'}
+                      value={localButton.iconColor || '#1E1E1E'}
                       onChange={(e) => updateButton({ iconColor: e.target.value })}
                       className="w-full h-8 rounded-lg bg-[#161616] border border-stone-800 cursor-pointer"
                       id="button-icon-color"

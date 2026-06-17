@@ -638,7 +638,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
     };
 
     const buttonsPanel = (
-      <section className="h-full min-w-0 flex flex-col justify-center p-5 lg:p-7 overflow-hidden" style={(desktopPage.buttonAreaBackgroundImageUrl || desktopPage.buttonBackgroundImageUrl) ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.28), rgba(0,0,0,0.28)), url(${desktopPage.buttonAreaBackgroundImageUrl || desktopPage.buttonBackgroundImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+      <section className="h-full min-w-0 flex flex-col justify-center p-5 lg:p-7 overflow-hidden" style={(desktopPage.buttonAreaBackgroundMode === 'image' && desktopPage.buttonAreaBackgroundImageUrl && desktopPage.buttonAreaBackgroundImageUrl !== desktopPage.backgroundImageUrl) ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.28), rgba(0,0,0,0.28)), url(${desktopPage.buttonAreaBackgroundImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
         <span className="w-fit rounded-full border border-[#E8DCC2]/30 px-3 py-1 text-[10px] uppercase tracking-[0.22em] font-black text-[#E8DCC2]">Aktionen</span>
         <h2 className="mt-4 text-xl xl:text-2xl font-black text-[#F5F2EA]">Direkt verbinden</h2>
         <p className="mt-2 mb-5 text-xs text-[#F5F2EA]/60">Alle wichtigen Aktionen deiner ureel auf einen Blick.</p>
@@ -648,7 +648,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
       </section>
     );
 
-    const columns = layout === 'phone_center' ? [textPanel, phonePanel, buttonsPanel] : layout === 'minimal' ? [phonePanel, buttonsPanel, textPanel] : [phonePanel, textPanel, buttonsPanel];
+    const columns = layout === 'phone_center' ? [textPanel, phonePanel, buttonsPanel] : layout === 'minimal' ? [textPanel, phonePanel, buttonsPanel] : [phonePanel, textPanel, buttonsPanel];
 
     return (
       <div className="h-screen w-screen overflow-hidden bg-[#0B0B0B] text-[#F5F2EA]" style={pageBg}>
