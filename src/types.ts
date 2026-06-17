@@ -222,6 +222,24 @@ export interface CardButton {
   };
 }
 
+
+export interface UreelDesktopPage {
+  layout?: 'phone_left' | 'phone_center' | 'premium_landing' | 'minimal';
+  backgroundMode?: 'gradient' | 'image' | 'color';
+  backgroundImageUrl?: string;
+  backgroundColor?: string;
+  gradientFrom?: string;
+  gradientTo?: string;
+  imageDarken?: number;
+  contentMode?: 'from_card' | 'custom';
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  showQr?: boolean;
+  showShare?: boolean;
+  showContactSave?: boolean;
+}
+
 export interface Card {
   cardId: string;
   ownerId: string;
@@ -430,6 +448,7 @@ export interface Card {
   ureelTimeline?: UreelTimeline;
   ureelEndCard?: UreelEndCard;
   ureelTextTemplate?: UreelTextTemplate;
+  desktopPage?: UreelDesktopPage;
   buttonSizePx?: number;
   buttonGapPx?: number;
 
