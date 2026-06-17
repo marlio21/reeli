@@ -1558,55 +1558,28 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
   const renderWerbeTextMonitor = (compact = false) => {
-    const frameType = currentTextTemplate.frame?.type || 'none';
-    const boxType = currentTextTemplate.box?.type || 'none';
-    const accent = currentTextTemplate.frame?.color || currentTextTemplate.emphasis?.color || '#E8DCC2';
-    const title = getTextLayerDraftValue('title');
-    const subtitle = getTextLayerDraftValue('subtitle');
-    const description = getTextLayerDraftValue('description');
-    const showTitle = isTextLayerVisible('title');
-    const showSubtitle = isTextLayerVisible('subtitle');
-    const showDescription = isTextLayerVisible('description');
-    const baseTitle = clampTextSize(activeCard.heroTitleSize, 30, 16, 52) * (compact ? 0.62 : 0.82);
-    const baseSubtitle = clampTextSize(activeCard.heroSubtitleSize, 12, 8, 24) * (compact ? 0.72 : 0.9);
-    const baseDescription = clampTextSize(activeCard.heroDescriptionSize, 11, 8, 22) * (compact ? 0.78 : 0.95);
-    const titleFontFamily = fontFamilyForAdStyle((activeCard as any).heroTitleFontStyle || currentTextTemplate.fontStyle);
-    const subtitleFontFamily = fontFamilyForAdStyle((activeCard as any).heroSubtitleFontStyle || currentTextTemplate.fontStyle);
-    const descriptionFontFamily = fontFamilyForAdStyle((activeCard as any).heroDescFontStyle || currentTextTemplate.fontStyle);
-    const titleLetterSpacing = letterSpacingForAdStyle((activeCard as any).heroTitleFontStyle || currentTextTemplate.fontStyle);
-    const subtitleLetterSpacing = letterSpacingForAdStyle((activeCard as any).heroSubtitleFontStyle || currentTextTemplate.fontStyle);
-    const boxStyles: React.CSSProperties = boxType === 'light'
-      ? { background: '#F5F2EA', color: '#111111', borderColor: '#E8DCC2' }
-      : boxType === 'glass'
-        ? { background: 'rgba(245,242,234,0.08)', backdropFilter: 'blur(10px)', borderColor: 'rgba(232,220,194,0.28)' }
-        : boxType === 'dark'
-          ? { background: 'rgba(7,7,7,0.86)', borderColor: 'rgba(232,220,194,0.22)' }
-          : boxType === 'transparent'
-            ? { background: 'rgba(0,0,0,0.24)', borderColor: 'rgba(232,220,194,0.12)' }
-            : { background: 'transparent', borderColor: 'transparent' };
+    // v48: the Werbe-Monitor intentionally renders the real scene card.
+    // No separate black mockup anymore: text/template preview, Szene and Live-Link
+    // all go through KonuCardCore and therefore the same text renderer.
     return (
-      <div className="w-full max-w-[280px] mx-auto rounded-[28px] border border-[#3A3732] bg-[#101010] p-3 shadow-2xl shadow-black/40">
+      <div className="w-full max-w-[300px] rounded-[28px] border border-[#3A3732] bg-[#111111] p-3 shadow-2xl shadow-black/40">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[8px] uppercase tracking-widest font-black text-[#E8DCC2]">Werbeschrift</span>
-          <span className="text-[7px] uppercase tracking-wider text-stone-500">immer sichtbar</span>
+          <span className="text-[8px] uppercase tracking-widest font-black text-[#E8DCC2]">Echte Karten-Vorschau</span>
+          <span className="text-[7px] uppercase tracking-wider text-stone-500">Renderer Sync</span>
         </div>
-        <div className="relative min-h-[330px] rounded-[24px] overflow-hidden border border-[#3A3732] bg-gradient-to-br from-[#181818] via-[#0F0F0F] to-black flex items-center justify-center p-5">
-          <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #F5F2EA 1px, transparent 0)', backgroundSize: '18px 18px' }} />
-          <div key={textAnimationSeed + '-' + currentTextTemplate.animation + '-' + adAnimationDuration} className={`relative w-full rounded-3xl border p-5 text-center ureel-ad-anim-${currentTextTemplate.animation || 'fade'}`} style={{ ...boxStyles, animationDuration: `${adAnimationDuration}s` }}>
-            {frameType === 'corner' && <><span className="absolute left-2 top-2 w-5 h-5 border-l-2 border-t-2" style={{ borderColor: accent }} /><span className="absolute right-2 top-2 w-5 h-5 border-r-2 border-t-2" style={{ borderColor: accent }} /><span className="absolute left-2 bottom-2 w-5 h-5 border-l-2 border-b-2" style={{ borderColor: accent }} /><span className="absolute right-2 bottom-2 w-5 h-5 border-r-2 border-b-2" style={{ borderColor: accent }} /></>}
-            {frameType === 'thin' && <span className="absolute inset-2 rounded-2xl border border-dashed pointer-events-none" style={{ borderColor: `${accent}66` }} />}
-            {frameType === 'side_line' && <span className="absolute left-3 top-5 bottom-5 w-1 rounded-full" style={{ background: accent }} />}
-            {frameType === 'badge' && showSubtitle && <div className="inline-flex mb-3 px-3 py-1 rounded-full border text-[8px] font-black uppercase tracking-widest" style={{ borderColor: `${accent}66`, color: accent }}>{subtitle}</div>}
-            <div className={frameType === 'side_line' ? 'pl-4' : ''}>
-              {showTitle && renderAdTextWithHighlight(title, "block font-black uppercase leading-[0.92] break-words", { fontSize: baseTitle, fontFamily: titleFontFamily, letterSpacing: titleLetterSpacing, color: (activeCard as any).heroTitleTextColor || (boxType === 'light' ? '#111111' : '#F5F2EA') })}
-              {showSubtitle && frameType !== 'badge' && <span className="block mt-3 font-black uppercase leading-tight break-words" style={{ fontSize: baseSubtitle, fontFamily: subtitleFontFamily, letterSpacing: subtitleLetterSpacing, color: (activeCard as any).heroSubtitleTextColor || (boxType === 'light' ? '#3A3732' : accent) }}>{subtitle}</span>}
-              {showDescription && <span className="block mt-3 font-semibold leading-snug break-words" style={{ fontSize: baseDescription, fontFamily: descriptionFontFamily, color: (activeCard as any).heroDescTextColor || (boxType === 'light' ? '#3A3732' : '#D8D2C5') }}>{description}</span>}
-              {!showTitle && !showSubtitle && !showDescription && <span className="block text-[11px] text-stone-500 font-bold">Alle Werbetext-Ebenen sind leer oder deaktiviert.</span>}
-              {frameType === 'underline' && <span className="block mt-4 h-1 rounded-full mx-auto w-2/3" style={{ background: accent }} />}
-            </div>
-          </div>
+        <div className="h-[430px] rounded-[26px] overflow-hidden border-[7px] border-[#F5F2EA]/85 bg-black">
+          <KonuCardCore
+            card={getPreviewCardForTimeline()}
+            lang={lang}
+            isDesktopPreview={false}
+            isPreview={true}
+            cleanPreview={true}
+            previewFocus="full"
+          />
         </div>
-        <p className="mt-2 text-[8.5px] leading-snug text-stone-500 text-center">Rahmen, Box, Schrift, Highlight und Textgrößen werden hier sofort gezeigt.</p>
+        <p className="mt-2 text-[8.5px] leading-snug text-stone-500 text-center">
+          Diese Vorschau nutzt dieselbe Karte wie Szene und Live-Link. Vorlagen, Rahmen, Textgrößen und Hintergrund werden 1:1 geprüft.
+        </p>
       </div>
     );
   };
@@ -1629,24 +1602,19 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   } as Card);
 
   const renderButtonPreviewTile = (button: CardButton, compact = false) => {
-    const Icon = getButtonActionIcon(button.actionType);
+    // v48: use the same ButtonRenderer as the real scene/live card.
+    // This keeps icon, icon color, shape, transparency, text and second line in sync.
+    const size = compact ? Math.max(44, Math.min(70, buttonSizePx)) : Math.max(58, Math.min(112, buttonSizePx + 26));
     return (
-      <div
-        key={button.id}
-        className={`relative overflow-hidden border bg-stone-900 shadow-inner flex flex-col items-center justify-center text-center transition ${radiusClassForButton(button)} ${compact ? 'aspect-square p-2' : 'aspect-square w-full max-w-[168px] mx-auto p-4'}`}
-        style={buttonPreviewStyle(button)}
-      >
-        {!button.isActive && <div className="absolute inset-0 bg-black/55 z-10 flex items-center justify-center text-[8px] font-black uppercase tracking-widest text-stone-300">Inaktiv</div>}
-        <div className={`relative z-20 flex items-center justify-center ${compact ? 'w-8 h-8' : 'w-12 h-12'} rounded-2xl bg-black/25 border border-white/10 mb-2`}>
-          <Icon size={compact ? 16 : 22} className="text-current" />
-        </div>
-        <span
-          className="relative z-20 font-black line-clamp-3 px-1"
-          style={getAutoButtonLabelStyle(button, compact)}
-        >
-          {button.title || 'Button'}
-        </span>
-        {/* Nur Button-Text anzeigen. Aktion/Ziel bleibt intern und wird nicht als zweite Schriftzeile gerendert. */}
+      <div key={button.id} className="relative flex items-center justify-center">
+        {!button.isActive && <div className="absolute inset-0 z-30 rounded-[inherit] bg-black/55 flex items-center justify-center text-[8px] font-black uppercase tracking-widest text-stone-300">Inaktiv</div>}
+        <ButtonRenderer
+          button={button}
+          mode="editor"
+          lang={lang}
+          forceSquare={true}
+          forceSizePx={size}
+        />
       </div>
     );
   };
