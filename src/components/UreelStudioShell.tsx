@@ -936,27 +936,76 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
   const desktopPage = (activeCard.desktopPage || {}) as any;
   const desktopLayout = desktopPage.layout || 'desktop_triptych';
+  // Desktop-Miniwebseite: öffentliche Desktop-Ansicht immer nebeneinander darstellen.
+  // So sieht der Nutzer im Editor dieselbe Seitenlogik wie später im Live-Link.
   const desktopPreviewGridClass = desktopLayout === 'phone_center'
-    ? 'grid-cols-1 justify-items-center text-center'
+    ? 'grid-cols-[minmax(220px,1fr)_240px_minmax(240px,1fr)]'
     : desktopLayout === 'phone_left'
-    ? 'grid-cols-1 xl:grid-cols-[0.82fr_1.08fr_1.1fr]'
+    ? 'grid-cols-[250px_minmax(240px,1fr)_minmax(240px,1fr)]'
     : desktopLayout === 'minimal'
-    ? 'grid-cols-1 xl:grid-cols-[0.95fr_1.05fr]'
-    : 'grid-cols-1 xl:grid-cols-3';
+    ? 'grid-cols-[250px_minmax(260px,1fr)]'
+    : 'grid-cols-[250px_minmax(240px,1fr)_minmax(240px,1fr)]';
+  const desktopPhoneOrder = desktopLayout === 'phone_center' ? 'order-2' : 'order-1';
+  const desktopTextOrder = desktopLayout === 'phone_center' ? 'order-1' : 'order-2';
+  const desktopButtonsOrder = desktopLayout === 'phone_center' ? 'order-3' : (desktopLayout === 'minimal' ? 'order-2' : 'order-3');
   const desktopTitle = desktopPage.contentMode === 'custom' && desktopPage.title ? desktopPage.title : (activeCard.title || 'Deine ureel');
   const desktopSubtitle = desktopPage.contentMode === 'custom' && desktopPage.subtitle ? desktopPage.subtitle : (activeCard.subtitle || 'Aus Video wird Aktion.');
   const desktopDescription = desktopPage.contentMode === 'custom' && desktopPage.description ? desktopPage.description : (activeCard.description || 'Öffne die Karte am Smartphone und starte direkt die nächste Aktion.');
   const qrPayload = currentSlugUrl || `https://ureel.me/${activeCard.slug || ''}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&data=${encodeURIComponent(qrPayload)}`;
   const contactDisplayName = `Ureel – ${activeCard.companyName || activeCard.title || profile?.displayName || 'Kontakt'}`;
-  const desktopButtonMode = desktopPage.buttonMode || 'always';
-  const desktopButtonLayout = desktopPage.buttonLayout || 'contact_box';
-  const desktopButtonsVisible = desktopButtonMode === 'timed' ? buttonsCurrentlyVisible : true;
+  const desktopButtonLayout = desktopPage.buttonLayout || 'three_col';
+  const desktopButtonsVisible = desktopPage.showActionButtons !== false;
   const desktopButtonAreaStyle: React.CSSProperties = desktopPage.buttonAreaBackgroundMode === 'image' && desktopPage.buttonAreaBackgroundImageUrl
     ? { background: `linear-gradient(rgba(0,0,0,${(desktopPage.buttonAreaDarken ?? 18)/100}), rgba(0,0,0,${(desktopPage.buttonAreaDarken ?? 18)/100})), url(${desktopPage.buttonAreaBackgroundImageUrl}) center/cover no-repeat` }
     : desktopPage.buttonAreaBackgroundMode === 'gradient'
     ? { background: `linear-gradient(135deg, ${desktopPage.buttonAreaGradientFrom || '#181818'}, ${desktopPage.buttonAreaGradientTo || '#3A3328'})` }
     : { background: 'rgba(15,15,15,0.52)' };
+  const renderDesktopButtonArea = () => {
+    if (desktopPage.showActionButtons === false || !desktopButtonsVisible || activeButtons.length === 0) {
+      return <div className="rounded-2xl border border-[#E8DCC2]/20 bg-black/30 p-4 text-center text-[10px] text-[#F5F2EA]/65">Nutzerbuttons sind für diese Desktop-Webseite ausgeblendet.</div>;
+    }
+    const desktopButtons = activeButtons.slice(0, 18);
+    const roundButton = (button: any) => ({ ...button, buttonShape: 'round', radius: 'pill', iconPosition: button.iconPosition || 'top', iconCircleBg: true });
+
+    if (desktopButtonLayout === 'circle') {
+      const positions = [
+        'left-1/2 top-0 -translate-x-1/2',
+        'right-2 top-1/4 -translate-y-1/2',
+        'right-6 bottom-8',
+        'left-1/2 bottom-0 -translate-x-1/2',
+        'left-6 bottom-8',
+        'left-2 top-1/4 -translate-y-1/2',
+      ];
+      return <div className="relative h-[285px] max-w-[285px] mx-auto rounded-full border border-[#E8DCC2]/12 bg-black/18">
+        {desktopButtons.slice(0, 6).map((button, index) => (
+          <div key={button.id} className={`absolute w-[70px] h-[70px] ${positions[index] || 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'}`}>
+            <ButtonRenderer button={roundButton(button)} mode="public" lang={lang} forceSquare={true} forceSizePx={68} />
+          </div>
+        ))}
+      </div>;
+    }
+
+    if (desktopButtonLayout === 'triangle') {
+      const rows = [desktopButtons.slice(0, 1), desktopButtons.slice(1, 3), desktopButtons.slice(3, 6), desktopButtons.slice(6, 9)];
+      return <div className="space-y-2 max-h-[290px] overflow-y-auto pr-1 scrollbar-none">
+        {rows.filter(row => row.length > 0).map((row, rowIndex) => (
+          <div key={rowIndex} className={`grid gap-2 ${row.length === 1 ? 'grid-cols-1 max-w-[76px] mx-auto' : row.length === 2 ? 'grid-cols-2 max-w-[154px] mx-auto' : 'grid-cols-3'}`}>
+            {row.map((button) => <div key={button.id} className="aspect-square"><ButtonRenderer button={roundButton(button)} mode="public" lang={lang} forceSquare={true} forceSizePx={64} /></div>)}
+          </div>
+        ))}
+      </div>;
+    }
+
+    const size = desktopButtonLayout === 'compact_grid' ? 54 : 62;
+    return <div className={`grid ${desktopButtonLayout === 'compact_grid' ? 'grid-cols-4 gap-2' : 'grid-cols-3 gap-2.5'} max-h-[290px] overflow-y-auto pr-1 scrollbar-none`}>
+      {desktopButtons.map((button) => (
+        <div key={button.id} className="aspect-square flex items-center justify-center">
+          <ButtonRenderer button={button} mode="public" lang={lang} forceSquare={true} forceSizePx={size} />
+        </div>
+      ))}
+    </div>;
+  };
   const updateDesktopPage = async (updates: Record<string, any>) => {
     await syncCardUpdate({ desktopPage: { ...(activeCard.desktopPage || {}), ...updates } as any } as any);
   };
@@ -3087,13 +3136,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Desktop-Buttonbereich</span>
                   <p className="text-[10px] text-stone-400 mt-1">Verwende die echten Nutzerbuttons aus der Smartphone-Karte auch auf der Desktop-Miniwebseite.</p>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button type="button" onClick={() => updateDesktopPage({ buttonMode: 'always' })} className={`h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${desktopButtonMode === 'always' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Immer sichtbar</button>
-                  <button type="button" onClick={() => updateDesktopPage({ buttonMode: 'timed' })} className={`h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${desktopButtonMode === 'timed' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Wie Smartphone-Timing</button>
+                <div className="rounded-xl border border-[#3A3732] bg-[#0F0F0F] p-3 text-[9px] leading-relaxed text-stone-400">
+                  Die Nutzerbuttons werden auf der Desktop-Webseite angezeigt, sobald dieser Bereich aktiv ist. Die zeitliche Smartphone-Logik bleibt nur im Smartphone-Werbespot.
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {[['contact_box','Kontaktbox'],['three_col','3er Raster'],['two_col','2 Spalten']].map(([id,label]) => (
-                    <button key={id} type="button" onClick={() => updateDesktopPage({ buttonLayout: id })} className={`h-10 rounded-xl border text-[8.5px] font-black uppercase tracking-wider ${desktopButtonLayout === id ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>{label}</button>
+                <div className="grid grid-cols-4 gap-2">
+                  {[['three_col','Geordnet'],['compact_grid','Eng'],['circle','Kreis'],['triangle','Dreieck']].map(([id,label]) => (
+                    <button key={id} type="button" onClick={() => updateDesktopPage({ buttonLayout: id })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${desktopButtonLayout === id ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>{label}</button>
                   ))}
                 </div>
                 <div className="rounded-2xl border border-[#3A3732] bg-[#0F0F0F] p-3 space-y-3">
@@ -3119,14 +3167,15 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       : `linear-gradient(135deg, ${desktopPage.gradientFrom || '#0F0F0F'}, ${desktopPage.gradientTo || '#3A3328'})`
                   }}
                 >
-                  <div className={`grid gap-5 items-stretch ${desktopPreviewGridClass}`}>
-                    <div className="flex flex-col items-center justify-center rounded-[26px] border border-white/10 bg-black/20 p-4 min-h-[360px]">
+                  <div className="overflow-x-auto pb-2">
+                    <div className={`grid gap-5 items-stretch min-w-[820px] ${desktopPreviewGridClass}`}>
+                    <div className={`${desktopPhoneOrder} flex flex-col items-center justify-center rounded-[26px] border border-white/10 bg-black/20 p-4 min-h-[360px]`}>
                       <span className="mb-3 text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Smartphone-Ansicht</span>
                       <div className="w-[150px] h-[270px] rounded-[28px] border-[7px] border-[#1A1A1A] bg-black overflow-hidden shadow-2xl mx-auto">
                         <KonuCardCore card={activeCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} previewFocus="full" />
                       </div>
                     </div>
-                    <div className={`${desktopLayout === 'minimal' ? 'hidden' : ''} rounded-[26px] border border-white/10 bg-black/25 p-5 space-y-3 min-h-[360px] flex flex-col justify-center`}>
+                    <div className={`${desktopLayout === 'minimal' ? 'hidden' : ''} ${desktopTextOrder} rounded-[26px] border border-white/10 bg-black/25 p-5 space-y-3 min-h-[360px] flex flex-col justify-center`}>
                       <div className="inline-flex self-start items-center gap-2 rounded-full border border-[#E8DCC2]/25 bg-black/25 px-3 py-1 text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Desktop Werbetext</div>
                       <h2 className="text-2xl md:text-3xl font-black text-[#F5F2EA] tracking-tight leading-tight">{desktopTitle}</h2>
                       <p className="text-sm font-bold text-[#E8DCC2]">{desktopSubtitle}</p>
@@ -3138,23 +3187,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         {(desktopPage.showContactSave ?? true) && <span className="rounded-xl border border-[#E8DCC2]/35 text-[#F5F2EA] px-3 py-2 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"><LucideIcons.ContactRound size={12}/> Kontakt</span>}
                       </div>
                     </div>
-                    <div className={`${desktopLayout === 'phone_center' ? 'w-full max-w-xl mx-auto' : ''} rounded-[26px] border border-white/10 p-4 min-h-[360px] flex flex-col justify-center overflow-hidden`} style={desktopButtonAreaStyle}>
-                      <div className="mb-3 flex items-center justify-between gap-3"><div><span className="block text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Buttonbereich</span><span className="block text-[8.5px] text-[#F5F2EA]/60 mt-0.5">Echte Nutzerbuttons neben der Smartphone-Karte.</span></div>{desktopButtonMode === 'timed' && <span className="rounded-full bg-black/35 px-2 py-1 text-[8px] font-black uppercase text-[#F5F2EA]/70">ab {visibleButtonsAt.toFixed(1)}s</span>}</div>
-                      {desktopPage.showActionButtons !== false && desktopButtonsVisible && activeButtons.length > 0 ? (
-                        <div className={`${desktopButtonLayout === 'list' ? 'space-y-2' : desktopButtonLayout === 'two_col' ? 'grid grid-cols-2 gap-2' : 'grid grid-cols-3 gap-2'} max-h-[290px] overflow-y-auto pr-1 scrollbar-none`}>
-                          {activeButtons.slice(0, 18).map((button) => (
-                            <div key={button.id} className={desktopButtonLayout === 'list' ? 'h-12' : 'aspect-square'}>
-                              <ButtonRenderer button={button} mode="public" lang={lang} forceSquare={desktopButtonLayout !== 'list'} forceSizePx={desktopButtonLayout === 'list' ? undefined : 58} />
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="rounded-2xl border border-[#E8DCC2]/20 bg-black/30 p-4 text-center text-[10px] text-[#F5F2EA]/65">Buttons sind ausgeblendet oder erscheinen erst nach dem Smartphone-Timing.</div>
-                      )}
+                    <div className={`${desktopButtonsOrder} ${desktopLayout === 'phone_center' ? 'w-full' : ''} rounded-[26px] border border-white/10 p-4 min-h-[360px] flex flex-col justify-center overflow-hidden`} style={desktopButtonAreaStyle}>
+                      <div className="mb-3 flex items-center justify-between gap-3"><div><span className="block text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Buttonbereich</span><span className="block text-[8.5px] text-[#F5F2EA]/60 mt-0.5">Echte Nutzerbuttons neben der Smartphone-Karte.</span></div><span className="rounded-full bg-black/35 px-2 py-1 text-[8px] font-black uppercase text-[#F5F2EA]/70">{desktopButtonLayout === 'circle' ? 'Kreis' : desktopButtonLayout === 'triangle' ? 'Dreieck' : desktopButtonLayout === 'compact_grid' ? 'Eng' : '3er Raster'}</span></div>
+                      {renderDesktopButtonArea()}
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
             </div>
           )}
 
