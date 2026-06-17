@@ -79,6 +79,22 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 }) => {
   const currentSlugUrl = activeCard ? getPublicCardUrl(activeCard.slug) : '';
 
+  const makeSafeSlug = (value?: string) => {
+    const cleaned = (value || 'ureel')
+      .toLowerCase()
+      .trim()
+      .replace(/ä/g, 'ae')
+      .replace(/ö/g, 'oe')
+      .replace(/ü/g, 'ue')
+      .replace(/ß/g, 'ss')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 48);
+    return cleaned || `ureel-${Date.now().toString(36).slice(-5)}`;
+  };
+
   const [activeTab, setActiveTab] = useState<MainModule>('scene');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
@@ -1012,20 +1028,29 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
 
   const ensureCurrentCardIsPublic = async () => {
-    if (!activeCard) return;
-    if (activeCard.isPublished !== true || activeCard.visibility !== 'public') {
-      await syncCardUpdate({ isPublished: true, visibility: 'public' as any });
+    if (!activeCard) return '';
+    const needsSlug = !activeCard.slug || activeCard.slug === 'undefined' || activeCard.slug === 'null';
+    const fixedSlug = needsSlug ? makeSafeSlug(activeCard.title || activeCard.heroTitle || activeCard.cardId) : activeCard.slug;
+    const updates: any = { isPublished: true, visibility: 'public' as any };
+    if (needsSlug) updates.slug = fixedSlug;
+    if (activeCard.isPublished !== true || activeCard.visibility !== 'public' || needsSlug) {
+      await syncCardUpdate(updates);
     }
+    return getPublicCardUrl(fixedSlug);
   };
 
   const openLiveLink = async () => {
-    await ensureCurrentCardIsPublic();
-    window.open(currentSlugUrl, '_blank', 'noopener,noreferrer');
+    const url = await ensureCurrentCardIsPublic();
+    if (!url) {
+      triggerToast(lang === 'de' ? 'Live-Link konnte nicht erstellt werden.' : 'Live link could not be created.', 'error');
+      return;
+    }
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const copyLiveLink = async () => {
-    await ensureCurrentCardIsPublic();
-    if (copyTextToClipboard(currentSlugUrl)) {
+    const url = await ensureCurrentCardIsPublic();
+    if (url && copyTextToClipboard(url)) {
       triggerToast(lang === 'de' ? 'Live-Link kopiert und Karte veröffentlicht.' : 'Live link copied and card published.', 'success');
     } else {
       triggerToast(lang === 'de' ? 'Link konnte nicht kopiert werden.' : 'Could not copy link.', 'error');

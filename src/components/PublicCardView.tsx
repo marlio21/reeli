@@ -579,6 +579,97 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
     }
   }
 
+  if (!isPreview) {
+    const desktopPage: any = (card as any).desktopPage || {};
+    const buttons = normalizeButtons(card.buttons || []).filter((b: any) => b && b.isActive !== false);
+    const layout = desktopPage.layout || 'three_columns';
+    const textTitle = desktopPage.contentMode === 'custom' && desktopPage.title ? desktopPage.title : (card.title || card.heroTitle || 'ureel');
+    const textSubtitle = desktopPage.contentMode === 'custom' && desktopPage.subtitle ? desktopPage.subtitle : (card.subtitle || card.heroSubtitle || 'Aus Video wird Aktion.');
+    const textDescription = desktopPage.contentMode === 'custom' && desktopPage.description ? desktopPage.description : (card.description || card.heroDescription || '');
+    const buttonArrangement = desktopPage.buttonLayout || 'ordered';
+    const pageBg = desktopPage.backgroundImageUrl
+      ? { backgroundImage: `linear-gradient(rgba(0,0,0,${(desktopPage.imageDarken ?? 28) / 100}), rgba(0,0,0,${(desktopPage.imageDarken ?? 28) / 100})), url(${desktopPage.backgroundImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+      : { background: `linear-gradient(135deg, ${desktopPage.gradientFrom || '#0F0F0F'}, ${desktopPage.gradientTo || '#3A3328'})` };
+
+    const phonePanel = (
+      <section className="h-full min-w-0 flex items-center justify-center p-4 lg:p-6 border-r border-white/10">
+        <div className="relative h-[92vh] max-h-[860px] aspect-[9/16] rounded-[34px] border-[8px] border-[#D8D2C4] bg-black shadow-2xl overflow-hidden">
+          <KonuCardCore
+            card={card}
+            lang={lang}
+            isPreview={false}
+            handleButtonClick={handleButtonClick}
+            triggerVCardDownload={triggerVCardDownload}
+            handleCtaClick={handleCtaClick}
+            setShowShareModal={setShowShareModal}
+          />
+        </div>
+      </section>
+    );
+
+    const textPanel = (
+      <section className="h-full min-w-0 flex flex-col justify-center p-6 lg:p-10 border-r border-white/10">
+        <span className="w-fit rounded-full border border-[#E8DCC2]/35 px-3 py-1 text-[10px] uppercase tracking-[0.22em] font-black text-[#E8DCC2]">ureel.me</span>
+        <h1 className="mt-5 text-4xl xl:text-5xl font-black leading-[0.95] text-[#F5F2EA] tracking-tight">{textTitle}</h1>
+        {textSubtitle && <p className="mt-5 text-lg xl:text-xl font-bold text-[#E8DCC2]">{textSubtitle}</p>}
+        {textDescription && <p className="mt-4 max-w-xl text-sm xl:text-base leading-relaxed text-[#F5F2EA]/75">{textDescription}</p>}
+        <div className="mt-8 flex flex-wrap gap-3">
+          {qrCodeUrl && (desktopPage.showQr !== false) && <button onClick={() => setShowShareDrawer(true)} className="h-11 px-5 rounded-2xl bg-[#F5F2EA] text-[#101010] text-[11px] font-black uppercase tracking-wider flex items-center gap-2"><LucideIcons.QrCode size={16}/> QR-Code</button>}
+          {desktopPage.showShare !== false && <button onClick={() => setShowShareModal(true)} className="h-11 px-5 rounded-2xl border border-[#E8DCC2]/35 text-[#F5F2EA] text-[11px] font-black uppercase tracking-wider flex items-center gap-2"><LucideIcons.Share2 size={16}/> Teilen</button>}
+          {desktopPage.showContactSave !== false && <button onClick={triggerVCardDownload} className="h-11 px-5 rounded-2xl border border-[#E8DCC2]/35 text-[#F5F2EA] text-[11px] font-black uppercase tracking-wider flex items-center gap-2"><LucideIcons.Contact size={16}/> Kontakt</button>}
+        </div>
+      </section>
+    );
+
+    const renderDesktopButtons = () => {
+      const list = buttons.slice(0, 12);
+      if (buttonArrangement === 'circle') {
+        const pos = [
+          'left-[50%] top-[6%] -translate-x-1/2', 'left-[16%] top-[26%]', 'right-[16%] top-[26%]',
+          'left-[16%] bottom-[26%]', 'right-[16%] bottom-[26%]', 'left-[50%] bottom-[6%] -translate-x-1/2'
+        ];
+        return <div className="relative h-[430px] w-full max-w-[430px] mx-auto rounded-full border border-[#E8DCC2]/15 bg-black/15">{list.slice(0,6).map((b: any, i: number) => <div key={b.id} className={`absolute ${pos[i] || pos[0]}`}><ButtonRenderer button={b} mode="public" lang={lang} forceSquare={true} forceSizePx={70}/></div>)}</div>;
+      }
+      if (buttonArrangement === 'triangle') {
+        return <div className="grid grid-cols-3 gap-5 max-w-[430px] mx-auto">{list.slice(0,6).map((b: any, i: number) => <div key={b.id} className={i === 0 ? 'col-start-2' : i === 4 ? 'col-start-1' : ''}><ButtonRenderer button={b} mode="public" lang={lang} forceSquare={true} forceSizePx={72}/></div>)}</div>;
+      }
+      return <div className="grid grid-cols-3 gap-4 max-w-[430px] mx-auto">{list.map((b: any) => <ButtonRenderer key={b.id} button={b} mode="public" lang={lang} forceSquare={true} forceSizePx={68}/>)}</div>;
+    };
+
+    const buttonsPanel = (
+      <section className="h-full min-w-0 flex flex-col justify-center p-6 lg:p-10" style={desktopPage.buttonBackgroundImageUrl ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.28), rgba(0,0,0,0.28)), url(${desktopPage.buttonBackgroundImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+        <span className="w-fit rounded-full border border-[#E8DCC2]/30 px-3 py-1 text-[10px] uppercase tracking-[0.22em] font-black text-[#E8DCC2]">Aktionen</span>
+        <h2 className="mt-5 text-2xl xl:text-3xl font-black text-[#F5F2EA]">Direkt verbinden</h2>
+        <p className="mt-2 mb-8 text-sm text-[#F5F2EA]/60">Alle wichtigen Aktionen deiner ureel auf einen Blick.</p>
+        {renderDesktopButtons()}
+      </section>
+    );
+
+    const columns = layout === 'phone_center' ? [textPanel, phonePanel, buttonsPanel] : layout === 'minimal' ? [phonePanel, buttonsPanel, textPanel] : [phonePanel, textPanel, buttonsPanel];
+
+    return (
+      <div className="h-screen w-screen overflow-hidden bg-[#0B0B0B] text-[#F5F2EA]" style={pageBg}>
+        <div className="hidden md:grid h-full w-full grid-cols-3">
+          {columns.map((col, i) => <React.Fragment key={i}>{col}</React.Fragment>)}
+        </div>
+        <div className="md:hidden h-full w-full overflow-hidden flex items-center justify-center bg-black">
+          <div className="h-full w-full max-w-md overflow-hidden">
+            <KonuCardCore
+              card={card}
+              lang={lang}
+              isPreview={false}
+              handleButtonClick={handleButtonClick}
+              triggerVCardDownload={triggerVCardDownload}
+              handleCtaClick={handleCtaClick}
+              setShowShareModal={setShowShareModal}
+            />
+          </div>
+        </div>
+        <AnimatePresence>{showShareModal && <ShareExportModal card={card} lang={lang} isOpen={showShareModal} onClose={() => setShowShareModal(false)} />}</AnimatePresence>
+      </div>
+    );
+  }
+
   return (
     <div 
       className="relative min-h-screen flex flex-col items-center justify-between text-cream overflow-x-hidden p-0 sm:p-4 md:p-6 bg-[#0B0B0B]"

@@ -912,8 +912,10 @@ export interface LibraryIcon {
   defaultActionType: string;
 }
 
-export function getPublicCardUrl(slug: string): string {
-  return window.location.origin + "/u/" + slug;
+export function getPublicCardUrl(slug?: string): string {
+  const clean = (slug || '').toString().trim();
+  if (!clean || clean === 'undefined' || clean === 'null') return '';
+  return window.location.origin + "/u/" + encodeURIComponent(clean);
 }
 
 export function normalizeProfileType(type: any): 'person' | 'business' | 'product' | 'project' | 'family' | 'club' | 'school' {

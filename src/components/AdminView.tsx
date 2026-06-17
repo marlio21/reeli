@@ -27,8 +27,18 @@ export const AdminView: React.FC<AdminViewProps> = ({ lang, onBackToPortal }) =>
   } = useFirebase();
 
   const t = TRANSLATIONS[lang];
-  const [activeTab, setActiveTab] = useState<'users' | 'cards' | 'reports'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'cards' | 'reports' | 'landing'>('users');
   const [loading, setLoading] = useState(true);
+  const [landingDraft, setLandingDraft] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('ureel_landing_admin_draft') || '{}');
+    } catch { return {}; }
+  });
+  const updateLandingDraft = (updates: any) => {
+    const next = { ...landingDraft, ...updates };
+    setLandingDraft(next);
+    try { localStorage.setItem('ureel_landing_admin_draft', JSON.stringify(next)); } catch {}
+  };
 
   // Load telemetry data on render
   useEffect(() => {
@@ -144,6 +154,12 @@ export const AdminView: React.FC<AdminViewProps> = ({ lang, onBackToPortal }) =>
           >
             {t.allReports} ({allReports.filter(r => r.status === 'pending').length} neu)
           </button>
+          <button
+            onClick={() => setActiveTab('landing')}
+            className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wide border-b-2 transition ${activeTab === 'landing' ? 'border-[#E8DCC2] text-[#E8DCC2]' : 'border-transparent text-stone-500'}`}
+          >
+            Startseite
+          </button>
         </div>
 
         {/* Loading Spanners */}
@@ -247,6 +263,33 @@ export const AdminView: React.FC<AdminViewProps> = ({ lang, onBackToPortal }) =>
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {/* ====== LANDING PAGE ADMIN TAB ====== */}
+            {activeTab === 'landing' && (
+              <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-wider font-black text-[#E8DCC2] mb-2">Hero-Titel</label>
+                    <input value={landingDraft.heroTitle || 'Aus Video wird Aktion.'} onChange={(e) => updateLandingDraft({ heroTitle: e.target.value })} className="w-full h-12 rounded-xl bg-[#1E1E1E] border border-stone-700 px-4 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-wider font-black text-[#E8DCC2] mb-2">Kurztext</label>
+                    <textarea value={landingDraft.heroText || 'Verwandle Reels, Bilder und Angebote in klickbare Smartphone-Werbekarten.'} onChange={(e) => updateLandingDraft({ heroText: e.target.value })} className="w-full h-28 rounded-xl bg-[#1E1E1E] border border-stone-700 px-4 py-3 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-wider font-black text-[#E8DCC2] mb-2">Button-Text</label>
+                    <input value={landingDraft.cta || 'Kostenlos starten'} onChange={(e) => updateLandingDraft({ cta: e.target.value })} className="w-full h-12 rounded-xl bg-[#1E1E1E] border border-stone-700 px-4 text-white" />
+                  </div>
+                  <p className="text-[11px] text-stone-500 leading-relaxed">MVP: Diese Startseiten-Einstellungen werden lokal als Admin-Draft gespeichert. Im nächsten Schritt können wir sie in Firestore anbinden, damit sie öffentlich live werden.</p>
+                </div>
+                <div className="rounded-[28px] border border-[#E8DCC2]/20 bg-[#0F0F0F] p-8 min-h-[420px] flex flex-col justify-center">
+                  <div className="w-16 h-16 rounded-2xl bg-[#F5F2EA] text-[#101010] flex items-center justify-center mb-6"><LucideIcons.Play size={24}/><span className="font-black text-2xl">U</span></div>
+                  <h2 className="text-4xl font-black text-white leading-tight">{landingDraft.heroTitle || 'Aus Video wird Aktion.'}</h2>
+                  <p className="mt-4 text-stone-300 leading-relaxed">{landingDraft.heroText || 'Verwandle Reels, Bilder und Angebote in klickbare Smartphone-Werbekarten.'}</p>
+                  <button className="mt-8 h-12 px-6 rounded-xl bg-[#E8DCC2] text-[#101010] font-black uppercase text-xs tracking-wider w-fit">{landingDraft.cta || 'Kostenlos starten'}</button>
+                </div>
               </div>
             )}
 

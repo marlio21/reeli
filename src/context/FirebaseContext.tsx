@@ -131,8 +131,8 @@ export const getKonuStarterCardTemplate = (
     backgroundImageFit: 'cover',
     overlay: 'none',
     buttons: defaultButtons,
-    isPublished: false,
-    visibility: 'draft',
+    isPublished: true,
+    visibility: 'public',
     cardBackgroundEnabled: true,
     cardBackgroundImageUrl: '',
     cardBackgroundMode: 'cover',
@@ -756,6 +756,36 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const activeLang = lang || 'de';
     const starterTemplate = getKonuStarterCardTemplate(user, profile, activeLang);
 
+    const makeSlugBase = (value: string) => {
+      const cleaned = (value || 'ureel')
+        .toLowerCase()
+        .trim()
+        .replace(/ä/g, 'ae')
+        .replace(/ö/g, 'oe')
+        .replace(/ü/g, 'ue')
+        .replace(/ß/g, 'ss')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 48);
+      return cleaned || 'ureel';
+    };
+
+    const requestedSlug = (template?.slug || '').toString().trim();
+    let uniqueSlug = requestedSlug && requestedSlug !== 'undefined' && requestedSlug !== 'null'
+      ? makeSlugBase(requestedSlug)
+      : makeSlugBase(template?.title || profile?.displayName || user?.displayName || user?.email?.split('@')[0] || 'ureel');
+    const baseSlug = uniqueSlug;
+    let slugSuffix = 2;
+    while (true) {
+      const qCheck = query(collection(db, 'cards'), where('slug', '==', uniqueSlug));
+      const queryCheckSnap = await getDocs(qCheck);
+      if (queryCheckSnap.empty) break;
+      uniqueSlug = `${baseSlug}-${slugSuffix}`;
+      slugSuffix++;
+    }
+
     const cleanCard: Card = {
       ...starterTemplate as Card,
       ownerId: user.uid,
@@ -763,6 +793,9 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       ...template,
+      slug: uniqueSlug,
+      isPublished: template?.isPublished ?? true,
+      visibility: (template?.visibility as any) ?? 'public',
       cardId // Ensure the designated cardId is never overwritten by template properties
     };
 
