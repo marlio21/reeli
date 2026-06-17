@@ -5535,6 +5535,7 @@ Jetzt kommt der KONU Admin JSON Export:`;
           onGoToAdmin={onGoToAdmin}
           onGoToRoute={onGoToRoute}
           createNewCard={createNewCard}
+          deleteCard={deleteCard}
         />
       </>
     );

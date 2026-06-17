@@ -22,6 +22,7 @@ interface UreelStudioShellProps {
   onGoToAdmin?: () => void;
   onGoToRoute?: (route: string) => void;
   createNewCard: (template?: Partial<Card>, lang?: 'de' | 'en') => Promise<Card>;
+  deleteCard?: (cardId: string) => Promise<void>;
 }
 
 const copyTextToClipboard = (text: string): boolean => {
@@ -52,7 +53,7 @@ const copyTextToClipboard = (text: string): boolean => {
   }
 };
 
-type MainModule = 'scene' | 'timeline' | 'buttons' | 'endcard' | 'design';
+type MainModule = 'scene' | 'timeline' | 'buttons' | 'endcard' | 'design' | 'cards';
 
 export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   activeCard,
@@ -69,6 +70,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   onGoToAdmin,
   onGoToRoute,
   createNewCard,
+  deleteCard,
 }) => {
   const currentSlugUrl = activeCard ? getPublicCardUrl(activeCard.slug) : '';
 
@@ -77,6 +79,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [accountPanelOpen, setAccountPanelOpen] = useState(false);
   const [teamPanelOpen, setTeamPanelOpen] = useState(false);
+  const [cardManagerOpen, setCardManagerOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [buttonPreviewMode, setButtonPreviewMode] = useState<'card' | 'button' | 'grid'>('button');
   const [textPreviewMode, setTextPreviewMode] = useState<'card' | 'text' | 'fit'>('text');
@@ -115,6 +118,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     }
     else if (activeTab === 'endcard') setActiveSubSection('endcard-general');
     else if (activeTab === 'design') setActiveSubSection('design-desktop');
+    else if (activeTab === 'cards') setActiveSubSection('cards-list');
   }, [activeTab]);
 
   useEffect(() => {
@@ -127,12 +131,42 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     }
   }, [activeCard.id, activeCard.title, activeCard.subtitle, activeCard.description, textDirty]);
 
+  const buildTextRevealConfig = (nextDraft = textDraft) => {
+    const current = activeCard.videoBackgroundConfig?.profileTextReveals || [];
+    const startMap: Record<string, number> = { title: timeline.titleAt, subtitle: timeline.subtitleAt, description: timeline.descriptionAt };
+    const valueMap: Record<string, string> = { title: nextDraft.title || '', subtitle: nextDraft.subtitle || '', description: nextDraft.description || '' };
+    return (['title', 'subtitle', 'description'] as const).map((key) => {
+      const existing = current.find((r: any) => r.fieldKey === key) || {};
+      const hasValue = valueMap[key].trim().length > 0;
+      return {
+        ...existing,
+        fieldKey: key,
+        // v32: If a user types a slogan/title/text, that layer becomes visible again.
+        // Empty fields are treated as inactive, but the text itself is never deleted.
+        enabled: hasValue,
+        startSecond: existing.startSecond ?? startMap[key],
+        fadeDuration: existing.fadeDuration ?? 0.8,
+        staysVisibleAfterSequence: existing.staysVisibleAfterSequence ?? true,
+      };
+    });
+  };
+
   const flushTextDraft = async () => {
-    setTextDirty(false);
-    await syncCardUpdate({
+    const nextDraft = {
       title: textDraft.title,
       subtitle: textDraft.subtitle,
       description: textDraft.description,
+    };
+    setTextDirty(false);
+    await syncCardUpdate({
+      ...nextDraft,
+      heroTitle: nextDraft.title,
+      heroSubtitle: nextDraft.subtitle,
+      heroDescription: nextDraft.description,
+      videoBackgroundConfig: {
+        ...(activeCard.videoBackgroundConfig || {}),
+        profileTextReveals: buildTextRevealConfig(nextDraft),
+      } as any,
     });
   };
 
@@ -431,7 +465,17 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const handleApplyStarterButtons = async () => {
     await syncCardUpdate({
       buttons: makeStarterButtonSet(),
-      buttonGridCols: 3 as any,
+      videoBackgroundConfig: {
+      profileTextReveals: [
+        { fieldKey: 'title', enabled: true, startSecond: 0.3, fadeDuration: 0.8, staysVisibleAfterSequence: true },
+        { fieldKey: 'subtitle', enabled: true, startSecond: 1.0, fadeDuration: 0.8, staysVisibleAfterSequence: true },
+        { fieldKey: 'description', enabled: true, startSecond: 1.8, fadeDuration: 0.8, staysVisibleAfterSequence: true },
+      ],
+      buttonReveal: { enabled: true, startSecond: 2.8, duration: 0.8, style: 'soft' },
+      durationSeconds: 12,
+      duration: 12,
+    } as any,
+    buttonGridCols: 3 as any,
       buttonSizePx: 52 as any,
       buttonGapPx: 10 as any,
       buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), mode: 'grid', cols: 3, square: true, buttonSizePx: 52, gapPx: 10, gap: 10 } as any,
@@ -446,6 +490,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     title: lang === 'de' ? 'Deine neue ureel-Seite' : 'Your new ureel page',
     subtitle: lang === 'de' ? 'Deine Welt. Dein Link.' : 'Your world. Your link.',
     description: lang === 'de' ? 'Telefon, Webseite, Mail, Folder, Unternehmen und Datei sind bereits vorbereitet.' : 'Phone, website, mail, folder, company and file are already prepared.',
+    heroTitle: lang === 'de' ? 'Deine neue ureel-Seite' : 'Your new ureel page',
+    heroSubtitle: lang === 'de' ? 'Deine Welt. Dein Link.' : 'Your world. Your link.',
+    heroDescription: lang === 'de' ? 'Telefon, Webseite, Mail, Folder, Unternehmen und Datei sind bereits vorbereitet.' : 'Phone, website, mail, folder, company and file are already prepared.',
     isPublished: false,
     visibility: 'draft' as any,
     backgroundType: 'gradient',
@@ -526,6 +573,49 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     triggerToast(lang === 'de' ? 'Schaltfläche hinzugefügt' : 'Button added successfully', 'success');
   };
 
+
+
+  const handleDuplicateUreel = async (cardToDuplicate: Card) => {
+    try {
+      const { cardId, ownerId, createdAt, updatedAt, slug, ...rest } = cardToDuplicate as any;
+      const nextSlugBase = (slug || cardToDuplicate.title || 'ureel').toString().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 36) || 'ureel';
+      const duplicatePayload = {
+        ...rest,
+        title: `${cardToDuplicate.title || 'ureel'} Kopie`,
+        slug: `${nextSlugBase}-kopie-${Date.now().toString(36).slice(-5)}`,
+        isPublished: false,
+        visibility: 'draft' as any,
+      } as Partial<Card>;
+      const created = await createNewCard(duplicatePayload, lang);
+      setActiveCard(created);
+      setActiveTab('scene');
+      setActiveSubSection('scene-video');
+      triggerToast(lang === 'de' ? 'ureel wurde dupliziert.' : 'ureel duplicated.', 'success');
+    } catch (err: any) {
+      triggerToast(lang === 'de' ? `Duplizieren fehlgeschlagen: ${err?.message || err}` : `Duplicate failed: ${err?.message || err}`, 'error');
+    }
+  };
+
+  const handleDeleteUreel = async (cardToDelete: Card) => {
+    if (!deleteCard) {
+      triggerToast(lang === 'de' ? 'Löschen ist hier noch nicht verbunden.' : 'Delete is not connected yet.', 'error');
+      return;
+    }
+    if (cards.length <= 1) {
+      triggerToast(lang === 'de' ? 'Mindestens eine ureel muss bestehen bleiben.' : 'At least one ureel must remain.', 'error');
+      return;
+    }
+    const ok = window.confirm(lang === 'de' ? `„${cardToDelete.title || cardToDelete.slug}“ wirklich löschen?` : `Delete “${cardToDelete.title || cardToDelete.slug}”?`);
+    if (!ok) return;
+    try {
+      await deleteCard(cardToDelete.cardId);
+      const next = cards.find((c) => c.cardId !== cardToDelete.cardId) || null;
+      setActiveCard(next);
+      triggerToast(lang === 'de' ? 'ureel wurde gelöscht.' : 'ureel deleted.', 'success');
+    } catch (err: any) {
+      triggerToast(lang === 'de' ? `Löschen fehlgeschlagen: ${err?.message || err}` : `Delete failed: ${err?.message || err}`, 'error');
+    }
+  };
 
   const handleCreateNewUreel = async () => {
     try {
@@ -1370,6 +1460,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <button onClick={() => { setAccountMenuOpen(false); handleCreateNewUreel(); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#F5F2EA]/10 text-[11px] font-bold flex items-center gap-2">
                   <LucideIcons.Plus size={14} className="text-[#E8DCC2]" /> Neue ureel erstellen
                 </button>
+                <button onClick={() => { setAccountMenuOpen(false); setCardManagerOpen(true); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-stone-900 text-[11px] font-bold flex items-center gap-2">
+                  <LucideIcons.Layers size={14} className="text-[#E8DCC2]" /> Meine ureels / Karten
+                </button>
                 <button onClick={() => { setAccountMenuOpen(false); setAccountPanelOpen(true); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-stone-900 text-[11px] font-bold flex items-center gap-2">
                   <LucideIcons.UserCog size={14} className="text-[#E8DCC2]" /> Meine Daten & Einstellungen
                 </button>
@@ -1457,7 +1550,18 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               {activeTab === 'timeline' && (lang === 'de' ? 'Texte & Timeline' : 'Texts & Timeline')}
               {activeTab === 'buttons' && (lang === 'de' ? 'Buttons & Raster' : 'Buttons & Grid')}
               {activeTab === 'endcard' && (lang === 'de' ? 'Endkarte & CTA' : 'Endcard & CTA')}
-              {activeTab === 'design' && (lang === 'de' ? 'Design & Farben' : 'Design & Presets')}
+  
+            {activeTab === 'cards' && (
+              <div className="space-y-2">
+                <button onClick={() => setCardManagerOpen(true)} className="w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left bg-[#F5F2EA] text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20">
+                  <LucideIcons.Layers size={15} className="text-[#101010]" />
+                  <span className="min-w-0 flex-1"><span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">Meine ureels</span><span className="block text-[8.5px] leading-snug mt-0.5 text-[#101010]/60">öffnen, kopieren, löschen</span></span>
+                  <LucideIcons.ChevronRight size={13} className="opacity-50" />
+                </button>
+              </div>
+            )}
+
+            {activeTab === 'design' && (lang === 'de' ? 'Design & Farben' : 'Design & Presets')}
             </span>
           </div>
 
@@ -1596,6 +1700,17 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               </>
             )}
 
+
+            {activeTab === 'cards' && (
+              <div className="space-y-2">
+                <button onClick={() => setCardManagerOpen(true)} className="w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left bg-[#F5F2EA] text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20">
+                  <LucideIcons.Layers size={15} className="text-[#101010]" />
+                  <span className="min-w-0 flex-1"><span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">Meine ureels</span><span className="block text-[8.5px] leading-snug mt-0.5 text-[#101010]/60">öffnen, kopieren, löschen</span></span>
+                  <LucideIcons.ChevronRight size={13} className="opacity-50" />
+                </button>
+              </div>
+            )}
+
             {activeTab === 'design' && (
               <div className="space-y-2">
                 {[
@@ -1651,6 +1766,13 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <LucideIcons.Plus size={14} />
             Neue ureel erstellen
           </button>
+          <button
+            onClick={() => setCardManagerOpen(true)}
+            className="w-full h-8 rounded-xl border border-[#3A3732] bg-[#181818] hover:bg-[#202020] text-[#F5F2EA] text-[9px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition"
+          >
+            <LucideIcons.Layers size={13} />
+            Karten verwalten
+          </button>
         </div>
       </div>
 
@@ -1665,14 +1787,38 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               {activeTab === 'timeline' && (activeSubSection === 'timeline-texts' ? 'Werbebotschaft' : activeSubSection === 'timeline-templates' ? 'Werbeschriften & Vorlagen' : activeSubSection === 'timeline-style' ? 'Rahmen, Schrift & Effekt' : 'Animations-Timeline')}
               {activeTab === 'buttons' && (activeSubSection === 'buttons-list' ? 'Button-Liste' : activeSubSection === 'buttons-action' ? 'Aktion & Ziel' : activeSubSection === 'buttons-design' ? 'Button-Design' : 'Raster & Vorschau')}
               {activeTab === 'endcard' && (activeSubSection === 'endcard-general' ? 'Nachspielsequenz einrichten' : 'Wasserzeichen & Branding')}
-              {activeTab === 'design' && (activeSubSection === 'design-desktop' ? 'Desktop-Seite' : activeSubSection === 'design-background' ? 'Desktop-Hintergrund' : activeSubSection === 'design-content' ? 'Desktop-Inhalt' : 'Link & Teilen')}
+  
+            {activeTab === 'cards' && (
+              <div className="space-y-2">
+                <button onClick={() => setCardManagerOpen(true)} className="w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left bg-[#F5F2EA] text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20">
+                  <LucideIcons.Layers size={15} className="text-[#101010]" />
+                  <span className="min-w-0 flex-1"><span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">Meine ureels</span><span className="block text-[8.5px] leading-snug mt-0.5 text-[#101010]/60">öffnen, kopieren, löschen</span></span>
+                  <LucideIcons.ChevronRight size={13} className="opacity-50" />
+                </button>
+              </div>
+            )}
+
+            {activeTab === 'design' && (activeSubSection === 'design-desktop' ? 'Desktop-Seite' : activeSubSection === 'design-background' ? 'Desktop-Hintergrund' : activeSubSection === 'design-content' ? 'Desktop-Inhalt' : 'Link & Teilen')}
+              {activeTab === 'cards' && 'Meine ureels / Karten'}
             </h1>
             <p className="text-[10px] text-stone-450 mt-1">
               {activeTab === 'scene' && (activeSubSection === 'scene-video' ? 'Ermöglicht das automatische Abspielen eines Videos oder Loops im Hintergrund.' : activeSubSection === 'scene-poster' ? 'Lege ein ruhiges Cover- oder Werbebild fest, falls kein Video genutzt wird.' : activeSubSection === 'scene-display' ? 'Bestimme, wie 9:16-, 16:9- und Bildinhalte innerhalb der ureel-Karte sitzen.' : activeSubSection === 'scene-endcard' ? 'Steuere den Abschluss der Karte direkt dort, wo Video, Bild und Szene entstehen.' : 'Bestimme Anthrazit-/Cremeflächen, Verläufe, Vignette und Abdunklung.')}
               {activeTab === 'timeline' && (activeSubSection === 'timeline-texts' ? 'Formuliere die Werbebotschaft, die aus Video oder Bild eine Aktion macht.' : activeSubSection === 'timeline-templates' ? 'Wähle eine professionelle Werbeschrift und fülle die Karte mit passenden Texten.' : activeSubSection === 'timeline-style' ? 'Gestalte Rahmen, Textbox, Schrift, Highlight und Animation.' : 'Reguliere millisekundengenaue Animations-Szenen wie bei professionellen Werbeanzeigen.')}
               {activeTab === 'buttons' && (activeSubSection === 'buttons-list' ? 'Jeder Button ist als eigene Karte sichtbar – inklusive Kopieren, Duplizieren und Löschen.' : activeSubSection === 'buttons-action' ? 'Bestimme, was der Button öffnet: Link, Telefon, PDF, Datei oder Formular.' : activeSubSection === 'buttons-design' ? 'Gestalte Text, Bild, Farbe, Form und Lesbarkeit des Buttons.' : 'Wechsle zwischen Karte, Button und Raster-Vorschau und passe Größe/Abstand an.')}
               {activeTab === 'endcard' && (activeSubSection === 'endcard-general' ? 'Bestimme, was abläuft, wenn das Video zu Ende abgespielt wurde.' : 'Entferne ureel-Wasserzeichen oder füge eigene Marken-Logos hinzu.')}
-              {activeTab === 'design' && (activeSubSection === 'design-desktop' ? 'Konfiguriere die Desktop-Ansicht als Miniwebseite mit echter Smartphone-Karte daneben.' : activeSubSection === 'design-background' ? 'Wähle Verlauf, Farbe oder ein eigenes Bild für die Desktop-Miniwebseite.' : activeSubSection === 'design-content' ? 'Übernimm Werbetexte oder schreibe eine eigene Desktop-Beschreibung.' : 'Bereite QR-Code, Teilen und Kontakt speichern für den Live-Link vor.')}
+  
+            {activeTab === 'cards' && (
+              <div className="space-y-2">
+                <button onClick={() => setCardManagerOpen(true)} className="w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left bg-[#F5F2EA] text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20">
+                  <LucideIcons.Layers size={15} className="text-[#101010]" />
+                  <span className="min-w-0 flex-1"><span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">Meine ureels</span><span className="block text-[8.5px] leading-snug mt-0.5 text-[#101010]/60">öffnen, kopieren, löschen</span></span>
+                  <LucideIcons.ChevronRight size={13} className="opacity-50" />
+                </button>
+              </div>
+            )}
+
+            {activeTab === 'design' && (activeSubSection === 'design-desktop' ? 'Konfiguriere die Desktop-Ansicht als Miniwebseite mit echter Smartphone-Karte daneben.' : activeSubSection === 'design-background' ? 'Wähle Verlauf, Farbe oder ein eigenes Bild für die Desktop-Miniwebseite.' : activeSubSection === 'design-content' ? 'Übernimm Werbetexte oder schreibe eine eigene Desktop-Beschreibung.' : 'Bereite QR-Code, Teilen und Kontakt speichern für den Live-Link vor.')}
+              {activeTab === 'cards' && 'Öffne, dupliziere oder lösche deine ureel-Karten.'}
             </p>
           </div>
 
@@ -3162,6 +3308,44 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
       </div>
 
+
+
+      {cardManagerOpen && (
+        <div className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-3xl max-h-[86vh] overflow-y-auto rounded-3xl border border-[#3A3732] bg-[#111111] shadow-2xl p-4 text-[#F5F2EA]">
+            <div className="flex items-start justify-between gap-3 border-b border-[#3A3732] pb-3 mb-4">
+              <div>
+                <h2 className="text-lg font-black uppercase tracking-tight">Meine ureels / Karten</h2>
+                <p className="text-[10px] text-stone-500 mt-1">Öffnen, kopieren, löschen oder eine neue Startkarte erstellen.</p>
+              </div>
+              <button onClick={() => setCardManagerOpen(false)} className="w-9 h-9 rounded-xl border border-[#3A3732] bg-[#181818] flex items-center justify-center"><LucideIcons.X size={16} /></button>
+            </div>
+            <button onClick={handleCreateNewUreel} className="mb-4 h-11 px-4 rounded-2xl bg-[#F5F2EA] text-[#101010] text-[10px] font-black uppercase tracking-wider flex items-center gap-2"><LucideIcons.Plus size={14} /> Neue ureel mit Startkarte erstellen</button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {cards.map((card) => {
+                const selected = card.cardId === activeCard.cardId;
+                return (
+                  <div key={card.cardId} className={`rounded-2xl border p-3 ${selected ? 'border-[#F5F2EA] bg-[#F5F2EA]/8' : 'border-[#3A3732] bg-[#181818]'}`}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-16 rounded-xl bg-gradient-to-br from-[#0F0F0F] to-[#3A3328] border border-[#3A3732] flex items-center justify-center text-[#E8DCC2]"><LucideIcons.Smartphone size={20} /></div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[12px] font-black truncate">{card.title || card.slug || 'Unbenannte ureel'}</p>
+                        <p className="text-[9px] text-stone-500 truncate">/{card.slug || card.cardId}</p>
+                        <p className="text-[8px] uppercase tracking-wider font-black text-[#E8DCC2] mt-1">{card.buttons?.length || 0} Buttons</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 mt-3">
+                      <button onClick={() => { setActiveCard(card); setCardManagerOpen(false); }} className="h-9 rounded-xl bg-[#F5F2EA] text-[#101010] text-[8px] font-black uppercase">Öffnen</button>
+                      <button onClick={() => handleDuplicateUreel(card)} className="h-9 rounded-xl border border-[#3A3732] bg-[#101010] text-[#F5F2EA] text-[8px] font-black uppercase">Kopieren</button>
+                      <button onClick={() => handleDeleteUreel(card)} className="h-9 rounded-xl border border-red-950/50 bg-red-950/20 text-red-300 text-[8px] font-black uppercase">Löschen</button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {accountPanelOpen && (
         <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm flex items-end md:items-center justify-center p-3">
