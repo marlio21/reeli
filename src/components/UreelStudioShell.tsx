@@ -56,6 +56,10 @@ const copyTextToClipboard = (text: string): boolean => {
 
 type MainModule = 'scene' | 'timeline' | 'buttons' | 'endcard' | 'design' | 'cards';
 
+const UREEL_ICON_CHOICES = [
+  'Phone','Smartphone','Mail','Send','MessageCircle','MessagesSquare','Globe','ExternalLink','Link','MapPin','Navigation','Calendar','Clock','User','Users','Contact','ContactRound','Building2','Briefcase','Home','Store','ShoppingBag','ShoppingCart','CreditCard','Euro','BadgePercent','Gift','Sparkles','Star','Heart','ThumbsUp','Megaphone','Play','Video','Image','Camera','Music','Mic','Headphones','FileText','File','Files','Folder','FolderOpen','Download','UploadCloud','BookOpen','Newspaper','Shield','Lock','KeyRound','QrCode','Share2','Instagram','Facebook','Linkedin','Youtube','MessageSquareText','Wrench','Utensils','Car','Plane','Train','Bike','Dumbbell','GraduationCap','Handshake','Award','Trophy','Lightbulb','Palette','Paintbrush','Zap','Rocket','Crown'
+];
+
 export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   activeCard,
   cards,
@@ -496,8 +500,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     heroTitle: lang === 'de' ? 'Deine neue ureel-Seite' : 'Your new ureel page',
     heroSubtitle: lang === 'de' ? 'Deine Welt. Dein Link.' : 'Your world. Your link.',
     heroDescription: lang === 'de' ? 'Telefon, Webseite, Mail, Folder, Unternehmen und Datei sind bereits vorbereitet.' : 'Phone, website, mail, folder, company and file are already prepared.',
-    isPublished: false,
-    visibility: 'draft' as any,
+    isPublished: true,
+    visibility: 'public' as any,
     backgroundType: 'gradient',
     backgroundColor: '#111111',
     backgroundImageUrl: '',
@@ -931,6 +935,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const buttonsCurrentlyVisible = timelineSec >= visibleButtonsAt || !isPlaying;
 
   const desktopPage = (activeCard.desktopPage || {}) as any;
+  const desktopLayout = desktopPage.layout || 'desktop_triptych';
+  const desktopPreviewGridClass = desktopLayout === 'phone_center'
+    ? 'grid-cols-1 justify-items-center text-center'
+    : desktopLayout === 'phone_left'
+    ? 'grid-cols-1 xl:grid-cols-[0.82fr_1.08fr_1.1fr]'
+    : desktopLayout === 'minimal'
+    ? 'grid-cols-1 xl:grid-cols-[0.95fr_1.05fr]'
+    : 'grid-cols-1 xl:grid-cols-3';
   const desktopTitle = desktopPage.contentMode === 'custom' && desktopPage.title ? desktopPage.title : (activeCard.title || 'Deine ureel');
   const desktopSubtitle = desktopPage.contentMode === 'custom' && desktopPage.subtitle ? desktopPage.subtitle : (activeCard.subtitle || 'Aus Video wird Aktion.');
   const desktopDescription = desktopPage.contentMode === 'custom' && desktopPage.description ? desktopPage.description : (activeCard.description || 'Öffne die Karte am Smartphone und starte direkt die nächste Aktion.');
@@ -947,6 +959,28 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     : { background: 'rgba(15,15,15,0.52)' };
   const updateDesktopPage = async (updates: Record<string, any>) => {
     await syncCardUpdate({ desktopPage: { ...(activeCard.desktopPage || {}), ...updates } as any } as any);
+  };
+
+
+  const ensureCurrentCardIsPublic = async () => {
+    if (!activeCard) return;
+    if (activeCard.isPublished !== true || activeCard.visibility !== 'public') {
+      await syncCardUpdate({ isPublished: true, visibility: 'public' as any });
+    }
+  };
+
+  const openLiveLink = async () => {
+    await ensureCurrentCardIsPublic();
+    window.open(currentSlugUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const copyLiveLink = async () => {
+    await ensureCurrentCardIsPublic();
+    if (copyTextToClipboard(currentSlugUrl)) {
+      triggerToast(lang === 'de' ? 'Live-Link kopiert und Karte veröffentlicht.' : 'Live link copied and card published.', 'success');
+    } else {
+      triggerToast(lang === 'de' ? 'Link konnte nicht kopiert werden.' : 'Could not copy link.', 'error');
+    }
   };
 
   const openWerbetexterFromDesign = async () => {
@@ -1884,15 +1918,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <a
-              href={currentSlugUrl}
-              target="_blank"
-              rel="noreferrer"
+            <button
+              type="button"
+              onClick={openLiveLink}
               className="bg-stone-900 hover:bg-stone-850 hover:text-white border border-stone-800 text-stone-300 font-extrabold px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1.5 uppercase tracking-wider text-[9.5px]"
             >
               <LucideIcons.ExternalLink size={11} className="text-[#E8DCC2]" />
               <span>Live-Link</span>
-            </a>
+            </button>
           </div>
         </div>
 
@@ -2076,6 +2109,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <div className="p-4 bg-stone-950/40 rounded-xl border border-stone-900 space-y-4">
                 <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Farbe / Verlauf</span>
                 <p className="text-[10px] text-stone-400 leading-relaxed">Farbe oder Verlauf ist eine eigene Szene. Wenn du hier eine Fläche aktivierst, werden Video und Bild automatisch entfernt, damit der Hintergrund sofort sichtbar ist.</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button type="button" onClick={() => syncCardUpdate({ cardBackgroundEnabled: true, backgroundType: activeCard.cardBackgroundGradientEnabled ? 'gradient' : 'color', ureelScene: { ...(activeCard.ureelScene || {}), mode: activeCard.cardBackgroundGradientEnabled ? 'gradient' : 'color' } as any } as any)} className={`h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${activeCard.cardBackgroundEnabled !== false && (activeCard.ureelScene?.mode === 'color' || activeCard.ureelScene?.mode === 'gradient') ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Farbfläche aktiv</button>
+                  <button type="button" onClick={() => syncCardUpdate({ cardBackgroundEnabled: false, cardBackgroundGradientEnabled: false, backgroundType: 'color', ureelScene: { ...(activeCard.ureelScene || {}), mode: 'none' } as any } as any)} className="h-10 rounded-xl border border-[#3A3732] bg-[#181818] text-stone-300 text-[9px] font-black uppercase tracking-wider">Farbfläche aus</button>
+                </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {[
                     { label: 'Creme', from: '#F5F2EA', to: '#E8DCC2' },
@@ -2890,6 +2927,25 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Rahmenfarbe</label><input type="color" value={editingButton.borderColor || '#E8DCC2'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { borderColor: e.target.value, borderEnabled: true, borderWidth: editingButton.borderWidth || 'thin' })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Eckenform</label><select value={editingButton.radius || 'rounded'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { radius: e.target.value as any })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] px-3 text-xs text-[#F5F2EA]"><option value="square">Quadrat</option><option value="rounded">Quadrat abgerundet</option><option value="pill">Kreis</option></select></div>
                       <div className="sm:col-span-2 rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
+                        <div className="flex items-center justify-between gap-2"><span className="block text-[10px] font-black uppercase tracking-wider text-[#E8DCC2]">Icon-Bereich</span><span className="text-[8px] text-stone-500">Viele Icons für Telefon, Social, Datei, Business</span></div>
+                        <div className="grid grid-cols-8 sm:grid-cols-10 gap-1.5 max-h-40 overflow-y-auto pr-1 scrollbar-none">
+                          {UREEL_ICON_CHOICES.map((iconName) => {
+                            const IconAny = (LucideIcons as any)[iconName] || LucideIcons.Sparkles;
+                            const selectedIcon = (editingButton.icon || editingButton.iconId || '') === iconName;
+                            return (
+                              <button key={iconName} type="button" title={iconName} onClick={() => handleUpdateSingleButton(editingButton.id, { icon: iconName, iconId: iconName, iconEnabled: true })} className={`h-9 rounded-xl border flex items-center justify-center transition ${selectedIcon ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#0F0F0F] text-stone-300 border-[#3A3732] hover:border-[#E8DCC2]/50'}`}>
+                                <IconAny size={15} />
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          <button type="button" onClick={() => handleUpdateSingleButton(editingButton.id, { iconPosition: 'top' as any })} className={`h-9 rounded-xl border text-[8px] font-black uppercase ${editingButton.iconPosition === 'top' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#0F0F0F] text-stone-300 border-[#3A3732]'}`}>Icon oben</button>
+                          <button type="button" onClick={() => handleUpdateSingleButton(editingButton.id, { iconPosition: 'center' as any })} className={`h-9 rounded-xl border text-[8px] font-black uppercase ${editingButton.iconPosition === 'center' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#0F0F0F] text-stone-300 border-[#3A3732]'}`}>Icon Mitte</button>
+                          <button type="button" onClick={() => handleUpdateSingleButton(editingButton.id, { iconEnabled: editingButton.iconEnabled === false })} className={`h-9 rounded-xl border text-[8px] font-black uppercase ${editingButton.iconEnabled !== false ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#0F0F0F] text-stone-300 border-[#3A3732]'}`}>{editingButton.iconEnabled !== false ? 'Icon an' : 'Icon aus'}</button>
+                        </div>
+                      </div>
+                      <div className="sm:col-span-2 rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
                         <div className="flex items-center justify-between gap-2"><span className="block text-[10px] font-black uppercase tracking-wider text-[#E8DCC2]">Buttonbild / Aktionsbild</span>{(editingButton.buttonImageUrl || editingButton.imageUrl) && <button type="button" onClick={() => handleUpdateSingleButton(editingButton.id, { buttonImageUrl: '', imageUrl: '', buttonImageFileName: '' } as any)} className="text-[8.5px] text-red-300 font-black uppercase">Entfernen</button>}</div>
                         <input type="text" value={editingButton.buttonImageUrl || editingButton.imageUrl || ''} onChange={(e) => handleUpdateSingleButton(editingButton.id, { buttonImageUrl: e.target.value, imageUrl: e.target.value })} placeholder="Bild-Link einfügen oder hochladen" className="w-full bg-[#0F0F0F] border border-[#3A3732] h-10 px-3 rounded-xl text-xs font-mono text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
                         <label className="h-10 rounded-xl bg-[#F5F2EA] hover:bg-white text-[#101010] text-[9px] uppercase font-black tracking-wider cursor-pointer flex items-center justify-center gap-1.5"><LucideIcons.ImagePlus size={14} /> Buttonbild hochladen<input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleButtonImageUpload(editingButton.id, file); e.currentTarget.value = ''; }} /></label>
@@ -3016,7 +3072,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     { id: 'phone_center', label: 'Phone mittig', hint: 'Präsentation zentriert' },
                     { id: 'minimal', label: 'Minimal', hint: 'nur Karte + Aktionen' },
                   ].map((layout) => {
-                    const selected = (desktopPage.layout || 'desktop_triptych') === layout.id;
+                    const selected = desktopLayout === layout.id;
                     return (
                       <button key={layout.id} type="button" onClick={() => updateDesktopPage({ layout: layout.id })} className={`rounded-2xl border p-3 text-left transition ${selected ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732] hover:border-[#E8DCC2]/60'}`}>
                         <span className="block text-[10px] font-black uppercase tracking-wider">{layout.label}</span>
@@ -3063,14 +3119,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       : `linear-gradient(135deg, ${desktopPage.gradientFrom || '#0F0F0F'}, ${desktopPage.gradientTo || '#3A3328'})`
                   }}
                 >
-                  <div className={`grid gap-5 items-stretch ${(desktopPage.layout || 'desktop_triptych') === 'phone_center' ? 'grid-cols-1 justify-items-center text-center' : 'grid-cols-1 xl:grid-cols-3'}`}>
+                  <div className={`grid gap-5 items-stretch ${desktopPreviewGridClass}`}>
                     <div className="flex flex-col items-center justify-center rounded-[26px] border border-white/10 bg-black/20 p-4 min-h-[360px]">
                       <span className="mb-3 text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Smartphone-Ansicht</span>
                       <div className="w-[150px] h-[270px] rounded-[28px] border-[7px] border-[#1A1A1A] bg-black overflow-hidden shadow-2xl mx-auto">
                         <KonuCardCore card={activeCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} previewFocus="full" />
                       </div>
                     </div>
-                    <div className="rounded-[26px] border border-white/10 bg-black/25 p-5 space-y-3 min-h-[360px] flex flex-col justify-center">
+                    <div className={`${desktopLayout === 'minimal' ? 'hidden' : ''} rounded-[26px] border border-white/10 bg-black/25 p-5 space-y-3 min-h-[360px] flex flex-col justify-center`}>
                       <div className="inline-flex self-start items-center gap-2 rounded-full border border-[#E8DCC2]/25 bg-black/25 px-3 py-1 text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Desktop Werbetext</div>
                       <h2 className="text-2xl md:text-3xl font-black text-[#F5F2EA] tracking-tight leading-tight">{desktopTitle}</h2>
                       <p className="text-sm font-bold text-[#E8DCC2]">{desktopSubtitle}</p>
@@ -3082,7 +3138,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         {(desktopPage.showContactSave ?? true) && <span className="rounded-xl border border-[#E8DCC2]/35 text-[#F5F2EA] px-3 py-2 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"><LucideIcons.ContactRound size={12}/> Kontakt</span>}
                       </div>
                     </div>
-                    <div className="rounded-[26px] border border-white/10 p-4 min-h-[360px] flex flex-col justify-center overflow-hidden" style={desktopButtonAreaStyle}>
+                    <div className={`${desktopLayout === 'phone_center' ? 'w-full max-w-xl mx-auto' : ''} rounded-[26px] border border-white/10 p-4 min-h-[360px] flex flex-col justify-center overflow-hidden`} style={desktopButtonAreaStyle}>
                       <div className="mb-3 flex items-center justify-between gap-3"><div><span className="block text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Buttonbereich</span><span className="block text-[8.5px] text-[#F5F2EA]/60 mt-0.5">Echte Nutzerbuttons neben der Smartphone-Karte.</span></div>{desktopButtonMode === 'timed' && <span className="rounded-full bg-black/35 px-2 py-1 text-[8px] font-black uppercase text-[#F5F2EA]/70">ab {visibleButtonsAt.toFixed(1)}s</span>}</div>
                       {desktopPage.showActionButtons !== false && desktopButtonsVisible && activeButtons.length > 0 ? (
                         <div className={`${desktopButtonLayout === 'list' ? 'space-y-2' : desktopButtonLayout === 'two_col' ? 'grid grid-cols-2 gap-2' : 'grid grid-cols-3 gap-2'} max-h-[290px] overflow-y-auto pr-1 scrollbar-none`}>
@@ -3176,7 +3232,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   <img src={qrUrl} alt="QR-Code" className="w-20 h-20 rounded-xl bg-white p-1" />
                   <div className="min-w-0"><span className="block text-[9px] uppercase font-black tracking-wider text-stone-500">Aktueller Kartenlink</span><p className="text-[10px] text-[#F5F2EA] font-mono truncate mt-1">{qrPayload}</p><p className="text-[9px] text-stone-500 mt-2">Kontaktname später: {contactDisplayName}</p></div>
                 </div>
-                <button type="button" onClick={() => { copyTextToClipboard(qrPayload); triggerToast('Live-Link kopiert.', 'success'); }} className="w-full h-10 rounded-xl bg-[#F5F2EA] text-[#101010] text-[9px] font-black uppercase tracking-wider">Link kopieren</button>
+                <button type="button" onClick={copyLiveLink} className="w-full h-10 rounded-xl bg-[#F5F2EA] text-[#101010] text-[9px] font-black uppercase tracking-wider">Link kopieren</button>
               </div>
             </div>
           )}
@@ -3409,14 +3465,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         <div className="space-y-2 pt-3 border-t border-stone-900">
           <div className="flex items-center gap-2">
             <button
-              onClick={() => {
-                const url = currentSlugUrl;
-                if (copyTextToClipboard(url)) {
-                  triggerToast(lang === 'de' ? 'Aktionslink in die Zwischenablage kopiert!' : 'Action link copied to clipboard!', 'success');
-                } else {
-                  triggerToast(lang === 'de' ? 'Nicht erfolgreich' : 'Copy unsuccessful', 'error');
-                }
-              }}
+              onClick={copyLiveLink}
               className="flex-1 bg-[#F5F2EA] hover:bg-white text-[#101010] border-0 font-extrabold py-2.5 px-3 rounded-xl transition duration-150 flex items-center justify-center gap-1 text-[9.5px] uppercase tracking-wider cursor-pointer shadow-lg shadow-black/25"
             >
               <LucideIcons.Copy size={11} className="stroke-[2.5]" />
