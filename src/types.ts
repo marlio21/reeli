@@ -238,6 +238,10 @@ export interface UreelDesktopPage {
   showQr?: boolean;
   showShare?: boolean;
   showContactSave?: boolean;
+  showActionButtons?: boolean;
+  buttonMode?: 'always' | 'timed';
+  buttonLayout?: 'contact_box' | 'three_col' | 'two_col' | 'list';
+  lastEditorSource?: 'design' | 'studio';
 }
 
 export interface Card {

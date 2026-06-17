@@ -3,6 +3,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import * as LucideIcons from 'lucide-react';
 import { Card, CardButton, UreelScene, UreelTimeline, UreelEndCard, UreelTextTemplate, getPublicCardUrl } from '../types';
 import { KonuCardCore } from './KonuCardCore';
+import { ButtonRenderer } from './ButtonRenderer';
 import { createDefaultButton, sanitizeButtonForFirestore } from '../utils/buttonUtils';
 import { UREEL_TEXT_TEMPLATES, normalizeUreelTextTemplate } from '../utils/textTemplates';
 import { storage } from '../firebase';
@@ -934,8 +935,19 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const qrPayload = currentSlugUrl || `https://ureel.me/${activeCard.slug || ''}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&data=${encodeURIComponent(qrPayload)}`;
   const contactDisplayName = `Ureel – ${activeCard.companyName || activeCard.title || profile?.displayName || 'Kontakt'}`;
+  const desktopButtonMode = desktopPage.buttonMode || 'always';
+  const desktopButtonLayout = desktopPage.buttonLayout || 'contact_box';
+  const desktopButtonsVisible = desktopButtonMode === 'timed' ? buttonsCurrentlyVisible : true;
   const updateDesktopPage = async (updates: Record<string, any>) => {
     await syncCardUpdate({ desktopPage: { ...(activeCard.desktopPage || {}), ...updates } as any } as any);
+  };
+
+  const openWerbetexterFromDesign = async () => {
+    await updateDesktopPage({ contentMode: 'from_card', lastEditorSource: 'design' });
+    setActiveTab('timeline');
+    setActiveSubSection('timeline-texts');
+    setTextPreviewMode('text');
+    triggerToast(lang === 'de' ? 'Werbetexter für die Desktop-Webseite geöffnet.' : 'Ad text editor opened for desktop page.', 'info');
   };
 
 
@@ -1716,7 +1728,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 {[
                   { id: 'design-desktop', icon: LucideIcons.MonitorSmartphone, label: 'Desktop-Seite', desc: 'Miniwebseite neben Smartphone' },
                   { id: 'design-background', icon: LucideIcons.ImagePlus, label: 'Hintergrund', desc: 'Bild, Verlauf, Abdunklung' },
-                  { id: 'design-content', icon: LucideIcons.Type, label: 'Inhalt', desc: 'Werbetexte übernehmen' },
+                  { id: 'design-content', icon: LucideIcons.Type, label: 'Werbetexte', desc: 'Vorlagen aus Editor nutzen' },
                   { id: 'design-share', icon: LucideIcons.QrCode, label: 'Link & Teilen', desc: 'QR, Teilen, Kontakt' },
                 ].map((item) => {
                   const Icon = item.icon;
@@ -1798,7 +1810,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               </div>
             )}
 
-            {activeTab === 'design' && (activeSubSection === 'design-desktop' ? 'Desktop-Seite' : activeSubSection === 'design-background' ? 'Desktop-Hintergrund' : activeSubSection === 'design-content' ? 'Desktop-Inhalt' : 'Link & Teilen')}
+            {activeTab === 'design' && (activeSubSection === 'design-desktop' ? 'Desktop-Seite' : activeSubSection === 'design-background' ? 'Desktop-Hintergrund' : activeSubSection === 'design-content' ? 'Desktop-Werbetexte' : 'Link & Teilen')}
               {activeTab === 'cards' && 'Meine ureels / Karten'}
             </h1>
             <p className="text-[10px] text-stone-450 mt-1">
@@ -1817,7 +1829,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               </div>
             )}
 
-            {activeTab === 'design' && (activeSubSection === 'design-desktop' ? 'Konfiguriere die Desktop-Ansicht als Miniwebseite mit echter Smartphone-Karte daneben.' : activeSubSection === 'design-background' ? 'Wähle Verlauf, Farbe oder ein eigenes Bild für die Desktop-Miniwebseite.' : activeSubSection === 'design-content' ? 'Übernimm Werbetexte oder schreibe eine eigene Desktop-Beschreibung.' : 'Bereite QR-Code, Teilen und Kontakt speichern für den Live-Link vor.')}
+            {activeTab === 'design' && (activeSubSection === 'design-desktop' ? 'Konfiguriere die Desktop-Ansicht als Miniwebseite mit echter Smartphone-Karte daneben.' : activeSubSection === 'design-background' ? 'Wähle Verlauf, Farbe oder ein eigenes Bild für die Desktop-Miniwebseite.' : activeSubSection === 'design-content' ? 'Springe in den Werbetexter und nutze dieselben Vorlagen für die Desktop-Miniwebseite.' : 'Bereite QR-Code, Teilen und Kontakt speichern für den Live-Link vor.')}
               {activeTab === 'cards' && 'Öffne, dupliziere oder lösche deine ureel-Karten.'}
             </p>
           </div>
@@ -2097,6 +2109,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   </div>
                   <div className="hidden md:flex items-center gap-1.5 text-[9px] uppercase tracking-widest text-stone-500 border border-[#3A3732] rounded-full px-3 py-1">Live im Preview</div>
                 </div>
+                {desktopPage.lastEditorSource === 'design' && (
+                  <div className="rounded-2xl border border-[#E8DCC2]/35 bg-[#F5F2EA]/8 p-3 flex items-center justify-between gap-3">
+                    <div><span className="text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Design-Modus</span><p className="text-[9px] text-stone-400 mt-0.5">Diese Werbetexte werden auch für die Desktop-Miniwebseite verwendet.</p></div>
+                    <button type="button" onClick={() => { setActiveTab('design'); setActiveSubSection('design-content'); }} className="h-8 px-3 rounded-xl bg-[#F5F2EA] text-[#101010] text-[8px] font-black uppercase tracking-wider">Zurück</button>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
@@ -2959,6 +2977,22 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   })}
                 </div>
               </div>
+              <div className="rounded-2xl border border-[#3A3732] bg-[#111111] p-4 space-y-3">
+                <div>
+                  <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Desktop-Buttonbereich</span>
+                  <p className="text-[10px] text-stone-400 mt-1">Verwende die echten Nutzerbuttons aus der Smartphone-Karte auch auf der Desktop-Miniwebseite.</p>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button type="button" onClick={() => updateDesktopPage({ buttonMode: 'always' })} className={`h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${desktopButtonMode === 'always' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Immer sichtbar</button>
+                  <button type="button" onClick={() => updateDesktopPage({ buttonMode: 'timed' })} className={`h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${desktopButtonMode === 'timed' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Wie Smartphone-Timing</button>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {[['contact_box','Kontaktbox'],['three_col','3er Raster'],['two_col','2 Spalten']].map(([id,label]) => (
+                    <button key={id} type="button" onClick={() => updateDesktopPage({ buttonLayout: id })} className={`h-10 rounded-xl border text-[8.5px] font-black uppercase tracking-wider ${desktopButtonLayout === id ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>{label}</button>
+                  ))}
+                </div>
+                <button type="button" onClick={() => updateDesktopPage({ showActionButtons: desktopPage.showActionButtons === false })} className={`w-full h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${desktopPage.showActionButtons !== false ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>{desktopPage.showActionButtons !== false ? 'Nutzerbuttons anzeigen' : 'Nutzerbuttons ausblenden'}</button>
+              </div>
               <div className="rounded-[28px] border border-[#3A3732] overflow-hidden bg-[#0F0F0F] shadow-2xl">
                 <div
                   className="p-4 md:p-5 min-h-[430px]"
@@ -2977,6 +3011,15 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       <h2 className="text-2xl md:text-3xl font-black text-[#F5F2EA] tracking-tight leading-tight">{desktopTitle}</h2>
                       <p className="text-sm font-bold text-[#E8DCC2]">{desktopSubtitle}</p>
                       <p className="text-xs leading-relaxed text-[#F5F2EA]/75 max-w-md">{desktopDescription}</p>
+                      {desktopPage.showActionButtons !== false && desktopButtonsVisible && activeButtons.length > 0 && (
+                        <div className={`pt-2 ${desktopButtonLayout === 'list' ? 'space-y-2' : desktopButtonLayout === 'two_col' ? 'grid grid-cols-2 gap-2 max-w-sm' : 'grid grid-cols-3 gap-2 max-w-sm'}`}>
+                          {activeButtons.slice(0, desktopButtonLayout === 'contact_box' ? 6 : 12).map((button) => (
+                            <div key={button.id} className={desktopButtonLayout === 'list' ? 'h-12' : 'aspect-square'}>
+                              <ButtonRenderer button={button} mode="public" lang={lang} forceSquare={desktopButtonLayout !== 'list'} forceSizePx={desktopButtonLayout === 'list' ? undefined : 58} />
+                            </div>
+                          ))}
+                        </div>
+                      )}
                       <div className="flex flex-wrap gap-2 pt-2">
                         {(desktopPage.showQr ?? true) && <span className="rounded-xl bg-[#F5F2EA] text-[#101010] px-3 py-2 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"><LucideIcons.QrCode size={12}/> QR-Code</span>}
                         {(desktopPage.showShare ?? true) && <span className="rounded-xl border border-[#E8DCC2]/35 text-[#F5F2EA] px-3 py-2 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"><LucideIcons.Share2 size={12}/> Teilen</span>}
@@ -3023,17 +3066,24 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <div className="space-y-4">
               <div className="rounded-2xl border border-[#3A3732] bg-[#111111] p-4 space-y-4">
                 <div>
-                  <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Desktop-Inhalt</span>
-                  <p className="text-[10px] text-stone-400 mt-1">Nutze die Werbetexte aus dem Editor oder schreibe eine eigene Desktop-Beschreibung.</p>
+                  <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Desktop-Werbetexte</span>
+                  <p className="text-[10px] text-stone-400 mt-1">Nutze den vorhandenen Werbetexter mit Vorlagen. Die App merkt sich, dass du aus dem Designbereich kommst.</p>
                 </div>
+                <button type="button" onClick={openWerbetexterFromDesign} className="w-full h-12 rounded-2xl bg-[#F5F2EA] text-[#101010] text-[10px] font-black uppercase tracking-wider inline-flex items-center justify-center gap-2"><LucideIcons.Type size={15}/> Werbetexter & Vorlagen öffnen</button>
                 <div className="grid grid-cols-2 gap-2">
-                  <button type="button" onClick={() => updateDesktopPage({ contentMode: 'from_card' })} className={`h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${(desktopPage.contentMode || 'from_card') === 'from_card' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Werbetexte</button>
+                  <button type="button" onClick={() => updateDesktopPage({ contentMode: 'from_card' })} className={`h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${(desktopPage.contentMode || 'from_card') === 'from_card' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Live aus Werbetext</button>
                   <button type="button" onClick={() => updateDesktopPage({ contentMode: 'custom' })} className={`h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${desktopPage.contentMode === 'custom' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Eigener Text</button>
+                </div>
+                <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3">
+                  <span className="block text-[9px] uppercase font-black tracking-wider text-stone-500">Aktuell aus Werbetexter</span>
+                  <p className="mt-1 text-sm font-black text-[#F5F2EA]">{activeCard.title || 'Kein Titel'}</p>
+                  {activeCard.subtitle && <p className="text-xs font-bold text-[#E8DCC2]">{activeCard.subtitle}</p>}
+                  {activeCard.description && <p className="mt-1 text-[10px] leading-relaxed text-stone-400">{activeCard.description}</p>}
                 </div>
                 <input value={desktopPage.title || ''} onChange={(e) => updateDesktopPage({ title: e.target.value, contentMode: 'custom' })} placeholder={activeCard.title || 'Titel aus Werbetext'} className="w-full h-11 rounded-xl border border-[#3A3732] bg-[#0F0F0F] px-3 text-sm text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
                 <input value={desktopPage.subtitle || ''} onChange={(e) => updateDesktopPage({ subtitle: e.target.value, contentMode: 'custom' })} placeholder={activeCard.subtitle || 'Untertitel aus Werbetext'} className="w-full h-11 rounded-xl border border-[#3A3732] bg-[#0F0F0F] px-3 text-sm text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
                 <textarea value={desktopPage.description || ''} onChange={(e) => updateDesktopPage({ description: e.target.value, contentMode: 'custom' })} placeholder={activeCard.description || 'Beschreibung aus Werbetext'} rows={4} className="w-full rounded-xl border border-[#3A3732] bg-[#0F0F0F] p-3 text-sm text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
-                <button type="button" onClick={() => updateDesktopPage({ title: activeCard.title, subtitle: activeCard.subtitle, description: activeCard.description, contentMode: 'custom' })} className="w-full h-10 rounded-xl bg-[#F5F2EA] text-[#101010] text-[9px] font-black uppercase tracking-wider">Aktuelle Werbetexte übernehmen</button>
+                <button type="button" onClick={() => updateDesktopPage({ title: activeCard.title, subtitle: activeCard.subtitle, description: activeCard.description, contentMode: 'custom' })} className="w-full h-10 rounded-xl border border-[#E8DCC2]/40 text-[#F5F2EA] text-[9px] font-black uppercase tracking-wider">Aktuelle Werbetexte als eigenen Desktop-Text kopieren</button>
               </div>
             </div>
           )}
