@@ -239,6 +239,7 @@ export interface UreelDesktopPage {
   showShare?: boolean;
   showContactSave?: boolean;
   showActionButtons?: boolean;
+  showPhoneButtons?: boolean;
   buttonMode?: 'always' | 'timed';
   buttonLayout?: 'contact_box' | 'three_col' | 'two_col' | 'list';
   buttonAreaBackgroundMode?: 'none' | 'gradient' | 'image';

@@ -3184,7 +3184,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   {desktopButtonBgUploading && <div className="h-1.5 rounded-full bg-stone-800 overflow-hidden"><div className="h-full bg-[#E8DCC2]" style={{ width: `${desktopButtonBgUploadProgress || 0}%` }} /></div>}
                   {desktopPage.buttonAreaBackgroundImageUrl && <button type="button" onClick={() => updateDesktopPage({ buttonAreaBackgroundImageUrl: '', buttonAreaBackgroundMode: 'none' })} className="w-full h-9 rounded-xl border border-[#3A3732] text-[8px] font-black uppercase tracking-wider text-stone-300">Buttonbereich-Bild entfernen</button>}
                 </div>
-                <button type="button" onClick={() => updateDesktopPage({ showActionButtons: desktopPage.showActionButtons === false })} className={`w-full h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${desktopPage.showActionButtons !== false ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>{desktopPage.showActionButtons !== false ? 'Nutzerbuttons anzeigen' : 'Nutzerbuttons ausblenden'}</button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button type="button" onClick={() => updateDesktopPage({ showPhoneButtons: desktopPage.showPhoneButtons !== true })} className={`min-h-10 rounded-xl border px-2 py-2 text-[8px] font-black uppercase tracking-wider ${desktopPage.showPhoneButtons === true ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Karten-Buttons {desktopPage.showPhoneButtons === true ? 'AN' : 'AUS'}</button>
+                  <button type="button" onClick={() => updateDesktopPage({ showActionButtons: desktopPage.showActionButtons === false })} className={`min-h-10 rounded-xl border px-2 py-2 text-[8px] font-black uppercase tracking-wider ${desktopPage.showActionButtons !== false ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Desktop-Buttons {desktopPage.showActionButtons !== false ? 'AN' : 'AUS'}</button>
+                </div>
+                <p className="text-[8.5px] leading-relaxed text-stone-500">Standard: Buttons in der Smartphone-Karte ausblenden und als schönen Desktop-Aktionsbereich daneben zeigen. Am Handy bleibt die echte Karte unverändert.</p>
               </div>
               <div className="rounded-[28px] border border-[#3A3732] overflow-hidden bg-[#0F0F0F] shadow-2xl">
                 <div
@@ -3200,7 +3204,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <div className={`${desktopPhoneOrder} flex flex-col items-center justify-center rounded-[26px] border border-white/10 bg-black/20 p-4 h-full`}>
                       <span className="mb-3 text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Smartphone-Ansicht</span>
                       <div className="w-[150px] h-[270px] rounded-[28px] border-[7px] border-[#1A1A1A] bg-black overflow-hidden shadow-2xl mx-auto">
-                        <KonuCardCore card={activeCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} previewFocus="full" />
+                        <KonuCardCore card={activeCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} previewFocus="full" hideActionButtons={desktopPage.showPhoneButtons !== true} />
                       </div>
                     </div>
                     <div className={`${desktopLayout === 'minimal' ? 'hidden' : ''} ${desktopTextOrder} rounded-[26px] border border-white/10 bg-black/25 p-5 space-y-3 h-full flex flex-col justify-center`}>

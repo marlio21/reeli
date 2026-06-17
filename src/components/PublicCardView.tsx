@@ -602,6 +602,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
             triggerVCardDownload={triggerVCardDownload}
             handleCtaClick={handleCtaClick}
             setShowShareModal={setShowShareModal}
+            hideActionButtons={desktopPage.showPhoneButtons !== true}
           />
         </div>
       </section>
@@ -622,7 +623,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
     );
 
     const renderDesktopButtons = () => {
-      const list = buttons.slice(0, 12);
+      const list = desktopPage.showActionButtons === false ? [] : buttons.slice(0, 12);
       if (buttonArrangement === 'circle') {
         const pos = [
           'left-[50%] top-[6%] -translate-x-1/2', 'left-[16%] top-[26%]', 'right-[16%] top-[26%]',
@@ -641,7 +642,9 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
         <span className="w-fit rounded-full border border-[#E8DCC2]/30 px-3 py-1 text-[10px] uppercase tracking-[0.22em] font-black text-[#E8DCC2]">Aktionen</span>
         <h2 className="mt-4 text-xl xl:text-2xl font-black text-[#F5F2EA]">Direkt verbinden</h2>
         <p className="mt-2 mb-5 text-xs text-[#F5F2EA]/60">Alle wichtigen Aktionen deiner ureel auf einen Blick.</p>
-        {renderDesktopButtons()}
+        {desktopPage.showActionButtons === false ? (
+          <div className="rounded-3xl border border-[#E8DCC2]/20 bg-black/30 p-6 text-center text-sm text-[#F5F2EA]/65">Desktop-Buttonbereich ist ausgeblendet.</div>
+        ) : renderDesktopButtons()}
       </section>
     );
 

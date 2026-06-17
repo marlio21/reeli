@@ -55,6 +55,7 @@ export interface KonuCardCoreProps {
   isDesktopPreview?: boolean;
   cleanPreview?: boolean;
   previewFocus?: 'full' | 'background';
+  hideActionButtons?: boolean;
 }
 
 export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
@@ -64,6 +65,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   isMiniPreview = false,
   cleanPreview = false,
   previewFocus = 'full',
+  hideActionButtons = false,
   videoBackgroundPreviewState,
 
   isReelView = false,
@@ -1076,7 +1078,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     return <span className={className} style={style}>{clean.slice(0, idx)}<span style={{ color: layeredAccent }}>{clean.slice(idx, idx + target.length)}</span>{clean.slice(idx + target.length)}</span>;
   };
 
-  const filteredLayeredButtons = normalizeButtons(card.buttons || [])
+  const filteredLayeredButtons = hideActionButtons ? [] : normalizeButtons(card.buttons || [])
     .filter((btn) => btn.isActive)
     .filter((btn) => {
       const label = `${btn.title || ''} ${btn.label || ''}`.toLowerCase();
