@@ -1083,9 +1083,14 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
 
   const renderLayeredYoutube = (embedUrl: string, mode: 'cover' | 'contain' | 'heroWide' | 'heroCompact') => {
     const isHero = mode === 'heroWide' || mode === 'heroCompact';
+    // YouTube embeds render the actual movie inside a 16:9 player. To make a normal
+    // 16:9 YouTube video behave like a vertical 9:16 Reel background, the iframe itself
+    // must stay 16:9 and be oversized horizontally. 316% width is the mathematically
+    // correct cover size for a 16:9 player inside a 9:16 phone frame:
+    // (16/9) / (9/16) = 256/81 ≈ 3.16.
     const frameClass = isHero
       ? 'absolute inset-0 w-full h-full'
-      : 'absolute left-1/2 top-1/2 w-[178%] h-full -translate-x-1/2 -translate-y-1/2';
+      : 'absolute left-1/2 top-1/2 w-[316%] h-full -translate-x-1/2 -translate-y-1/2';
     return (
       <iframe
         src={embedUrl}
