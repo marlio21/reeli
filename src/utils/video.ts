@@ -109,8 +109,10 @@ export const resolveUreelVideo = (videoConfig: any): ResolvedUreelVideo => {
     type = isShorts ? 'youtube_shorts' : 'youtube';
 
     const startParam = startAt > 0 ? `&start=${startAt}` : '';
-    // Build secure parameters: muted play, no controls, loops via playlist, inline play back
-    embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&playsinline=1&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3${startParam}`;
+    const endParam = duration > 0 ? `&end=${Math.max(1, Math.round(startAt + duration))}` : '';
+    // Build secure parameters: muted play, no controls, no YouTube loop. The ureel
+    // timeline overlays the endcard exactly after the configured scene duration.
+    embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=0&playsinline=1&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3${startParam}${endParam}`;
   } else if (/\.(mp4|m4v)(\?.*)?$/i.test(url)) {
     type = 'direct_mp4';
     videoSrc = url;

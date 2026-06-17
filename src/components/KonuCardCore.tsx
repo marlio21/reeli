@@ -179,7 +179,20 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   const hasTimeline = !!card.ureelTimeline;
   const hasEndCard = !!card.ureelEndCard;
 
+  // v30: in Szene mode, the configured scene-video duration is the master stop point.
+  // The endcard should start immediately after that duration, even if an older
+  // ureelTimeline.endCardAt value is still saved on the card.
+  const sceneVideoEndsAt = hasUreelScene && scene.mode === 'video'
+    ? Math.max(0.5, Number(activeSceneVideoResult.duration || 12))
+    : Math.max(0.5, Number(timelineConfig.endCardAt || 12));
+  const effectiveEndCardAt = sceneVideoEndsAt;
+
   const [elapsed, setElapsed] = React.useState(0);
+
+  React.useEffect(() => {
+    // Restart the scene timeline whenever the configured video/link/duration changes.
+    setElapsed(0);
+  }, [card.cardId, scene.mode, scene.video?.url, activeSceneVideoResult.duration]);
 
   // Track the elapsed timeline counter smoothly
   React.useEffect(() => {
@@ -187,7 +200,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     const interval = setInterval(() => {
       setElapsed(prev => {
         const next = Math.round((prev + (stepMs / 1000)) * 10) / 10;
-        const activeEndLimit = (hasEndCard && endCardConfig.enabled) ? timelineConfig.endCardAt : 30;
+        const activeEndLimit = (hasEndCard && endCardConfig.enabled) ? effectiveEndCardAt : 30;
         if (next >= activeEndLimit) {
           return activeEndLimit;
         }
@@ -196,7 +209,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     }, stepMs);
 
     return () => clearInterval(interval);
-  }, [hasEndCard, endCardConfig.enabled, timelineConfig.endCardAt]);
+  }, [hasEndCard, endCardConfig.enabled, effectiveEndCardAt]);
 
   const textRevealEnabled = React.useCallback((fieldKey: 'title' | 'subtitle' | 'description') => {
     const reveal = card.videoBackgroundConfig?.profileTextReveals?.find((item: any) => item.fieldKey === fieldKey);
@@ -207,7 +220,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   const showSubtitle = textRevealEnabled('subtitle') && (!hasTimeline || elapsed >= timelineConfig.subtitleAt);
   const showDescription = textRevealEnabled('description') && (!hasTimeline || elapsed >= timelineConfig.descriptionAt);
   const showButtons = !hasTimeline || elapsed >= timelineConfig.buttonsAt;
-  const showEndCard = hasEndCard && endCardConfig.enabled && elapsed >= timelineConfig.endCardAt;
+
+  const showEndCard = hasEndCard && endCardConfig.enabled && elapsed >= effectiveEndCardAt;
   const backgroundOnlyPreview = cleanPreview && previewFocus === 'background';
 
   const handleReplay = () => {
@@ -792,7 +806,6 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               src={videoSrcUrl}
               autoPlay
               muted
-              loop
               playsInline
               preload="metadata"
               onLoadStart={() => setVideoStatus('loading')}
@@ -1097,7 +1110,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       return (
         <div className={`${heroCompact ? 'absolute top-3 left-[6%] right-[6%] z-[8]' : 'absolute top-0 left-0 right-0 z-[8]'} aspect-video overflow-hidden ${heroCompact ? 'rounded-2xl border border-[#F5F2EA]/25 shadow-2xl' : 'rounded-none border-0'}`}>
           {isYt && embed && renderLayeredYoutube(embed, heroCompact ? 'heroCompact' : 'heroWide')}
-          {!isYt && src && <video src={src} autoPlay muted loop playsInline preload="metadata" className="absolute inset-0 w-full h-full object-cover" />}
+          {!isYt && src && <video src={src} autoPlay muted playsInline preload="metadata" className="absolute inset-0 w-full h-full object-cover" />}
         </div>
       );
     }
@@ -1105,7 +1118,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     return (
       <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
         {isYt && embed && renderLayeredYoutube(embed, 'cover')}
-        {!isYt && src && <video src={src} autoPlay muted loop playsInline preload="metadata" className="absolute inset-0 w-full h-full object-cover" />}
+        {!isYt && src && <video src={src} autoPlay muted playsInline preload="metadata" className="absolute inset-0 w-full h-full object-cover" />}
       </div>
     );
   };
