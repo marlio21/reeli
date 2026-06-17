@@ -996,7 +996,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       return <div className="relative h-[285px] max-w-[285px] mx-auto rounded-full border border-[#E8DCC2]/12 bg-black/18">
         {desktopButtons.slice(0, 6).map((button, index) => (
           <div key={button.id} className={`absolute w-[70px] h-[70px] ${positions[index] || 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'}`}>
-            <ButtonRenderer button={roundButton(button)} mode="public" lang={lang} forceSquare={true} forceSizePx={68} />
+            <ButtonRenderer button={roundButton(button)} mode="public" lang={lang} forceSquare={true} forceSizePx={60} />
           </div>
         ))}
       </div>;
@@ -1004,17 +1004,17 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
     if (desktopButtonLayout === 'triangle') {
       const rows = [desktopButtons.slice(0, 1), desktopButtons.slice(1, 3), desktopButtons.slice(3, 6), desktopButtons.slice(6, 9)];
-      return <div className="space-y-2 max-h-[290px] overflow-y-auto pr-1 scrollbar-none">
+      return <div className="space-y-2 max-h-[300px] overflow-hidden">
         {rows.filter(row => row.length > 0).map((row, rowIndex) => (
           <div key={rowIndex} className={`grid gap-2 ${row.length === 1 ? 'grid-cols-1 max-w-[76px] mx-auto' : row.length === 2 ? 'grid-cols-2 max-w-[154px] mx-auto' : 'grid-cols-3'}`}>
-            {row.map((button) => <div key={button.id} className="aspect-square"><ButtonRenderer button={roundButton(button)} mode="public" lang={lang} forceSquare={true} forceSizePx={64} /></div>)}
+            {row.map((button) => <div key={button.id} className="aspect-square"><ButtonRenderer button={roundButton(button)} mode="public" lang={lang} forceSquare={true} forceSizePx={58} /></div>)}
           </div>
         ))}
       </div>;
     }
 
     const size = desktopButtonLayout === 'compact_grid' ? 54 : 62;
-    return <div className={`grid ${desktopButtonLayout === 'compact_grid' ? 'grid-cols-4 gap-2' : 'grid-cols-3 gap-2.5'} max-h-[290px] overflow-y-auto pr-1 scrollbar-none`}>
+    return <div className={`grid ${desktopButtonLayout === 'compact_grid' ? 'grid-cols-4 gap-2' : 'grid-cols-3 gap-2.5'} max-h-[300px] overflow-hidden`}>
       {desktopButtons.map((button) => (
         <div key={button.id} className="aspect-square flex items-center justify-center">
           <ButtonRenderer button={button} mode="public" lang={lang} forceSquare={true} forceSizePx={size} />
@@ -1561,6 +1561,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       iconSize: editingButton.iconSize,
       buttonShape: editingButton.buttonShape,
       buttonSize: editingButton.buttonSize,
+      opacity: (editingButton as any).opacity,
     };
     const updatedButtons = activeCard.buttons.map((button) => button.id === editingButton.id ? button : { ...button, ...designFields });
     await syncCardUpdate({ buttons: updatedButtons });
@@ -2135,6 +2136,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         <input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleSceneImageUpload(file); e.currentTarget.value = ''; }} />
                       </label>
                       <p className="text-[9px] text-stone-500">Empfohlen: 9:16 Hochformat oder ruhiges Werbebild mit Platz für Text und Buttons.</p>
+                      {(activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl) && <button type="button" onClick={() => syncCardUpdate({ backgroundType: 'color', backgroundImageUrl: '', cardBackgroundImageUrl: '', cardBackgroundEnabled: true, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color', backgroundImageUrl: '', backgroundColor: activeCard.cardBackgroundColor || '#1A1A1A' } as any } as any)} className="w-full h-9 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 text-[8.5px] font-black uppercase tracking-wider">Bild entfernen</button>}
                     </div>
                   </div>
                 )}
@@ -2999,6 +3001,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Button-Farbe</label><input type="color" value={editingButton.bgColor || editingButton.backgroundColor || activeCard.buttonColor || '#18181B'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { bgColor: e.target.value, backgroundColor: e.target.value })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Textfarbe</label><input type="color" value={editingButton.textColor || activeCard.buttonTextColor || '#F5F2EA'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { textColor: e.target.value, iconColor: e.target.value })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Rahmenfarbe</label><input type="color" value={editingButton.borderColor || '#E8DCC2'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { borderColor: e.target.value, borderEnabled: true, borderWidth: editingButton.borderWidth || 'thin' })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
+                      <div><div className="flex items-center justify-between text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1"><span>Transparenz</span><span className="text-[#E8DCC2] font-mono">{Math.round(100 - Number((editingButton as any).opacity ?? 100))}%</span></div><input type="range" min={0} max={80} step={5} value={100 - Number((editingButton as any).opacity ?? 100)} onChange={(e) => handleUpdateSingleButton(editingButton.id, { opacity: 100 - Number(e.target.value) } as any)} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" /><span className="block mt-1 text-[8.5px] text-stone-550">0% = deckend, 80% = sehr transparent.</span></div>
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Eckenform</label><select value={editingButton.radius || 'rounded'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { radius: e.target.value as any })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] px-3 text-xs text-[#F5F2EA]"><option value="square">Quadrat</option><option value="rounded">Quadrat abgerundet</option><option value="pill">Kreis</option></select></div>
                       <div className="sm:col-span-2 rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
                         <div className="flex items-center justify-between gap-2"><span className="block text-[10px] font-black uppercase tracking-wider text-[#E8DCC2]">Icon-Bereich</span><span className="text-[8px] text-stone-500">Viele Icons für Telefon, Social, Datei, Business</span></div>
@@ -3042,7 +3045,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   </div>
                   <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
                     <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Raster-Einstellungen</span>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">{[{ id: 'list', label: '1 Spalte', desc: 'Unter-einander', cols: 1 }, { id: 'grid-2', label: '2 Spalten', desc: 'Kompakt', cols: 2 }, { id: 'grid-3', label: '3er Raster', desc: 'ureel-Standard', cols: 3 }].map((preset) => { const currentCols = activeCard.buttonGridCols || activeCard.buttonGridLayout?.cols || 3; const selected = preset.cols === currentCols; return <button key={preset.id} type="button" onClick={async () => { await syncCardUpdate({ buttonGridCols: preset.cols as any, buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), mode: preset.cols === 3 ? 'three_columns' : preset.cols === 2 ? 'two_columns' : 'one_column', cols: preset.cols as any, square: true } }); triggerToast(lang === 'de' ? 'Spalten-Wahl angepasst' : 'Grid changed', 'success'); }} className={`flex flex-col text-left p-3.5 rounded-xl border-2 transition cursor-pointer ${selected ? 'border-[#F5F2EA] bg-[#F5F2EA]/10' : 'border-[#3A3732] bg-[#181818] opacity-80 hover:opacity-100'}`}><span className="text-[10.5px] font-black text-[#F5F2EA] block uppercase tracking-wide leading-none">{preset.label}</span><span className="text-[8.5px] text-stone-500 mt-1 leading-snug">{preset.desc}</span></button>; })}</div>
+                    <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3.5"><div className="flex items-center justify-between gap-3"><div><span className="text-[10.5px] font-black text-[#F5F2EA] block uppercase tracking-wide leading-none">3er Raster</span><span className="text-[8.5px] text-stone-500 mt-1 leading-snug block">ureel-Standard: drei Buttons pro Reihe, identisch für Szene und öffentliche Karte.</span></div><button type="button" onClick={async () => { await syncCardUpdate({ buttonGridCols: 3 as any, buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), mode: 'three_columns', cols: 3 as any, square: true } }); triggerToast(lang === 'de' ? '3er Raster aktiviert' : '3-column grid active', 'success'); }} className="h-9 px-3 rounded-xl bg-[#F5F2EA] text-[#101010] text-[8px] font-black uppercase tracking-wider">Aktivieren</button></div></div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2"><div><div className="flex items-center justify-between text-[10.5px] font-bold text-stone-400 mb-2"><span>Button-Größe</span><span className="text-[#E8DCC2] font-mono">{buttonSizePx}px</span></div><input type="range" min={52} max={104} step={2} value={buttonSizePx} onChange={(e) => syncCardUpdate({ buttonSizePx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), buttonSizePx: Number(e.target.value), cols: buttonGridCols as any, square: true } })} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" /></div><div><div className="flex items-center justify-between text-[10.5px] font-bold text-stone-400 mb-2"><span>Button-Abstand</span><span className="text-[#E8DCC2] font-mono">{buttonGapPx}px</span></div><input type="range" min={4} max={22} step={1} value={buttonGapPx} onChange={(e) => syncCardUpdate({ buttonGapPx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), gapPx: Number(e.target.value), gap: Number(e.target.value), cols: buttonGridCols as any, square: true } })} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" /></div></div>
                   </div>
                 </div>
@@ -3193,14 +3196,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   }}
                 >
                   <div className="overflow-x-auto pb-2">
-                    <div className={`grid gap-5 items-stretch min-w-[820px] ${desktopPreviewGridClass}`}>
-                    <div className={`${desktopPhoneOrder} flex flex-col items-center justify-center rounded-[26px] border border-white/10 bg-black/20 p-4 min-h-[360px]`}>
+                    <div className={`grid grid-cols-3 gap-3 items-stretch h-[520px] overflow-hidden ${desktopPreviewGridClass}`}>
+                    <div className={`${desktopPhoneOrder} flex flex-col items-center justify-center rounded-[26px] border border-white/10 bg-black/20 p-4 h-full`}>
                       <span className="mb-3 text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Smartphone-Ansicht</span>
                       <div className="w-[150px] h-[270px] rounded-[28px] border-[7px] border-[#1A1A1A] bg-black overflow-hidden shadow-2xl mx-auto">
                         <KonuCardCore card={activeCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} previewFocus="full" />
                       </div>
                     </div>
-                    <div className={`${desktopLayout === 'minimal' ? 'hidden' : ''} ${desktopTextOrder} rounded-[26px] border border-white/10 bg-black/25 p-5 space-y-3 min-h-[360px] flex flex-col justify-center`}>
+                    <div className={`${desktopLayout === 'minimal' ? 'hidden' : ''} ${desktopTextOrder} rounded-[26px] border border-white/10 bg-black/25 p-5 space-y-3 h-full flex flex-col justify-center`}>
                       <div className="inline-flex self-start items-center gap-2 rounded-full border border-[#E8DCC2]/25 bg-black/25 px-3 py-1 text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Desktop Werbetext</div>
                       <h2 className="text-2xl md:text-3xl font-black text-[#F5F2EA] tracking-tight leading-tight">{desktopTitle}</h2>
                       <p className="text-sm font-bold text-[#E8DCC2]">{desktopSubtitle}</p>
@@ -3212,7 +3215,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         {(desktopPage.showContactSave ?? true) && <span className="rounded-xl border border-[#E8DCC2]/35 text-[#F5F2EA] px-3 py-2 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"><LucideIcons.ContactRound size={12}/> Kontakt</span>}
                       </div>
                     </div>
-                    <div className={`${desktopButtonsOrder} ${desktopLayout === 'phone_center' ? 'w-full' : ''} rounded-[26px] border border-white/10 p-4 min-h-[360px] flex flex-col justify-center overflow-hidden`} style={desktopButtonAreaStyle}>
+                    <div className={`${desktopButtonsOrder} ${desktopLayout === 'phone_center' ? 'w-full' : ''} rounded-[26px] border border-white/10 p-4 h-full flex flex-col justify-center overflow-hidden`} style={desktopButtonAreaStyle}>
                       <div className="mb-3 flex items-center justify-between gap-3"><div><span className="block text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Buttonbereich</span><span className="block text-[8.5px] text-[#F5F2EA]/60 mt-0.5">Echte Nutzerbuttons neben der Smartphone-Karte.</span></div><span className="rounded-full bg-black/35 px-2 py-1 text-[8px] font-black uppercase text-[#F5F2EA]/70">{desktopButtonLayout === 'circle' ? 'Kreis' : desktopButtonLayout === 'triangle' ? 'Dreieck' : desktopButtonLayout === 'compact_grid' ? 'Eng' : '3er Raster'}</span></div>
                       {renderDesktopButtonArea()}
                     </div>
@@ -3483,7 +3486,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               )}
             </div>
           ) : activeTab === 'timeline' ? (
-            <div className="w-full h-full min-h-[360px] md:min-h-0 flex items-center justify-center">
+            <div className="w-full h-full h-full md:min-h-0 flex items-center justify-center">
               {textPreviewMode === 'text' && renderWerbeTextMonitor(false)}
               {textPreviewMode === 'fit' && (
                 <div className="w-full max-w-[280px] rounded-[28px] border border-[#3A3732] bg-[#111111] p-3 shadow-2xl shadow-black/40">

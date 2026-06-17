@@ -593,7 +593,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
 
     const phonePanel = (
       <section className="h-full min-w-0 flex items-center justify-center p-4 lg:p-6 border-r border-white/10">
-        <div className="relative h-[92vh] max-h-[860px] aspect-[9/16] rounded-[34px] border-[8px] border-[#D8D2C4] bg-black shadow-2xl overflow-hidden">
+        <div className="relative h-[86vh] max-h-[760px] aspect-[9/16] rounded-[34px] border-[8px] border-[#D8D2C4] bg-black shadow-2xl overflow-hidden">
           <KonuCardCore
             card={card}
             lang={lang}
@@ -608,12 +608,12 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
     );
 
     const textPanel = (
-      <section className="h-full min-w-0 flex flex-col justify-center p-6 lg:p-10 border-r border-white/10">
+      <section className="h-full min-w-0 flex flex-col justify-center p-5 lg:p-7 border-r border-white/10 overflow-hidden">
         <span className="w-fit rounded-full border border-[#E8DCC2]/35 px-3 py-1 text-[10px] uppercase tracking-[0.22em] font-black text-[#E8DCC2]">ureel.me</span>
-        <h1 className="mt-5 text-4xl xl:text-5xl font-black leading-[0.95] text-[#F5F2EA] tracking-tight">{textTitle}</h1>
+        <h1 className="mt-4 text-3xl xl:text-4xl font-black leading-[0.98] text-[#F5F2EA] tracking-tight">{textTitle}</h1>
         {textSubtitle && <p className="mt-5 text-lg xl:text-xl font-bold text-[#E8DCC2]">{textSubtitle}</p>}
         {textDescription && <p className="mt-4 max-w-xl text-sm xl:text-base leading-relaxed text-[#F5F2EA]/75">{textDescription}</p>}
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="mt-5 flex flex-wrap gap-2">
           {qrCodeUrl && (desktopPage.showQr !== false) && <button onClick={() => setShowShareDrawer(true)} className="h-11 px-5 rounded-2xl bg-[#F5F2EA] text-[#101010] text-[11px] font-black uppercase tracking-wider flex items-center gap-2"><LucideIcons.QrCode size={16}/> QR-Code</button>}
           {desktopPage.showShare !== false && <button onClick={() => setShowShareModal(true)} className="h-11 px-5 rounded-2xl border border-[#E8DCC2]/35 text-[#F5F2EA] text-[11px] font-black uppercase tracking-wider flex items-center gap-2"><LucideIcons.Share2 size={16}/> Teilen</button>}
           {desktopPage.showContactSave !== false && <button onClick={triggerVCardDownload} className="h-11 px-5 rounded-2xl border border-[#E8DCC2]/35 text-[#F5F2EA] text-[11px] font-black uppercase tracking-wider flex items-center gap-2"><LucideIcons.Contact size={16}/> Kontakt</button>}
@@ -628,19 +628,19 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
           'left-[50%] top-[6%] -translate-x-1/2', 'left-[16%] top-[26%]', 'right-[16%] top-[26%]',
           'left-[16%] bottom-[26%]', 'right-[16%] bottom-[26%]', 'left-[50%] bottom-[6%] -translate-x-1/2'
         ];
-        return <div className="relative h-[430px] w-full max-w-[430px] mx-auto rounded-full border border-[#E8DCC2]/15 bg-black/15">{list.slice(0,6).map((b: any, i: number) => <div key={b.id} className={`absolute ${pos[i] || pos[0]}`}><ButtonRenderer button={b} mode="public" lang={lang} forceSquare={true} forceSizePx={70}/></div>)}</div>;
+        return <div className="relative h-[330px] w-full max-w-[330px] mx-auto rounded-full border border-[#E8DCC2]/15 bg-black/15">{list.slice(0,6).map((b: any, i: number) => <div key={b.id} className={`absolute ${pos[i] || pos[0]}`}><ButtonRenderer button={{...b, radius: b.radius || 'pill', buttonShape: b.buttonShape || 'round'}} mode="public" lang={lang} forceSquare={true} forceSizePx={56}/></div>)}</div>;
       }
       if (buttonArrangement === 'triangle') {
-        return <div className="grid grid-cols-3 gap-5 max-w-[430px] mx-auto">{list.slice(0,6).map((b: any, i: number) => <div key={b.id} className={i === 0 ? 'col-start-2' : i === 4 ? 'col-start-1' : ''}><ButtonRenderer button={b} mode="public" lang={lang} forceSquare={true} forceSizePx={72}/></div>)}</div>;
+        return <div className="grid grid-cols-3 gap-3 max-w-[330px] mx-auto place-items-center">{list.slice(0,6).map((b: any, i: number) => <div key={b.id} className={i === 0 ? 'col-start-2' : i === 4 ? 'col-start-1' : ''}><ButtonRenderer button={b} mode="public" lang={lang} forceSquare={true} forceSizePx={58}/></div>)}</div>;
       }
-      return <div className="grid grid-cols-3 gap-4 max-w-[430px] mx-auto">{list.map((b: any) => <ButtonRenderer key={b.id} button={b} mode="public" lang={lang} forceSquare={true} forceSizePx={68}/>)}</div>;
+      return <div className="grid grid-cols-3 gap-4 max-w-[430px] mx-auto">{list.map((b: any) => <ButtonRenderer key={b.id} button={b} mode="public" lang={lang} forceSquare={true} forceSizePx={58}/>)}</div>;
     };
 
     const buttonsPanel = (
-      <section className="h-full min-w-0 flex flex-col justify-center p-6 lg:p-10" style={desktopPage.buttonBackgroundImageUrl ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.28), rgba(0,0,0,0.28)), url(${desktopPage.buttonBackgroundImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+      <section className="h-full min-w-0 flex flex-col justify-center p-5 lg:p-7 overflow-hidden" style={(desktopPage.buttonAreaBackgroundImageUrl || desktopPage.buttonBackgroundImageUrl) ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.28), rgba(0,0,0,0.28)), url(${desktopPage.buttonAreaBackgroundImageUrl || desktopPage.buttonBackgroundImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
         <span className="w-fit rounded-full border border-[#E8DCC2]/30 px-3 py-1 text-[10px] uppercase tracking-[0.22em] font-black text-[#E8DCC2]">Aktionen</span>
-        <h2 className="mt-5 text-2xl xl:text-3xl font-black text-[#F5F2EA]">Direkt verbinden</h2>
-        <p className="mt-2 mb-8 text-sm text-[#F5F2EA]/60">Alle wichtigen Aktionen deiner ureel auf einen Blick.</p>
+        <h2 className="mt-4 text-xl xl:text-2xl font-black text-[#F5F2EA]">Direkt verbinden</h2>
+        <p className="mt-2 mb-5 text-xs text-[#F5F2EA]/60">Alle wichtigen Aktionen deiner ureel auf einen Blick.</p>
         {renderDesktopButtons()}
       </section>
     );
