@@ -1,3 +1,4 @@
-# Security notes v42
+# Security Notes v43
 
-Keine Änderungen an Firebase-Regeln. Diese Version ändert nur die Landingpage/Auth-Oberfläche.
+Die Nutzerverwaltung nutzt bestehende Firebase-Auth-Daten und speichert Profilfelder über updateUserProfile in Firestore.
+Zahlung/Stripe und echte Teamrollen sind als UI vorbereitet und benötigen serverseitige Anbindung in einem späteren Schritt.

@@ -1,12 +1,12 @@
-# ureel v42 – Startseite & Auth
+# ureel Nutzerverwaltung v43
 
-Diese Version erneuert die öffentliche Startseite mit ureel.me Branding, U-Play Icon, Marketing-Hero, Login/Registrierung und drei Beispielkarten.
+Enthält eine erweiterte Nutzerverwaltung über das ureel-Logo oben links.
 
 Änderungen:
-- Neue Landingpage im Anthrazit/Creme/Gold-Look
-- Quadratisches U-Play-Icon im Header
-- Klarer Claim: Aus Video wird Aktion
-- Login/Register-Karte mit Passwort vergessen und Google Login
-- Drei Beispielkarten: Privatperson, Unternehmen, Gastro/Event
-- Kurzer Vorteilebereich
-- Build erfolgreich geprüft
+- Nutzerverwaltung als großes separates Konto-Fenster
+- Tabs: Persönliche Daten, Plan & Zahlung, Nutzer / Team, Sicherheit
+- Profilfelder können gespeichert werden
+- Zahlungsbereich als MVP vorbereitet
+- Team-Einladung per Mail vorbereitet
+- Sicherheitsbereich für Passwort/Datenexport vorbereitet
+- Build geprüft

@@ -24,6 +24,7 @@ interface UreelStudioShellProps {
   onGoToRoute?: (route: string) => void;
   createNewCard: (template?: Partial<Card>, lang?: 'de' | 'en') => Promise<Card>;
   deleteCard?: (cardId: string) => Promise<void>;
+  updateUserProfile?: (updates: any) => Promise<void>;
 }
 
 const copyTextToClipboard = (text: string): boolean => {
@@ -76,6 +77,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   onGoToRoute,
   createNewCard,
   deleteCard,
+  updateUserProfile,
 }) => {
   const currentSlugUrl = activeCard ? getPublicCardUrl(activeCard.slug) : '';
 
@@ -102,6 +104,15 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [teamPanelOpen, setTeamPanelOpen] = useState(false);
   const [cardManagerOpen, setCardManagerOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
+  const [accountManagerTab, setAccountManagerTab] = useState<'profile' | 'billing' | 'team' | 'settings'>('profile');
+  const [profileDraft, setProfileDraft] = useState({
+    displayName: profile?.displayName || profile?.name || '',
+    companyName: profile?.companyName || '',
+    phone: profile?.phone || '',
+    website: profile?.website || '',
+    city: profile?.city || '',
+    country: profile?.country || '',
+  });
   const [buttonPreviewMode, setButtonPreviewMode] = useState<'card' | 'button' | 'grid'>('button');
   const [textPreviewMode, setTextPreviewMode] = useState<'card' | 'text' | 'fit'>('text');
   const [textAnimationSeed, setTextAnimationSeed] = useState(0);
@@ -143,6 +154,39 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     else if (activeTab === 'design') setActiveSubSection('design-desktop');
     else if (activeTab === 'cards') setActiveSubSection('cards-list');
   }, [activeTab]);
+
+  useEffect(() => {
+    setProfileDraft({
+      displayName: profile?.displayName || profile?.name || '',
+      companyName: profile?.companyName || '',
+      phone: profile?.phone || '',
+      website: profile?.website || '',
+      city: profile?.city || '',
+      country: profile?.country || '',
+    });
+  }, [profile?.displayName, profile?.name, profile?.companyName, profile?.phone, profile?.website, profile?.city, profile?.country]);
+
+  const saveProfileDraft = async () => {
+    if (!updateUserProfile) {
+      triggerToast('Profil-Speicherung ist in dieser Version nicht verbunden.', 'info');
+      return;
+    }
+    try {
+      await updateUserProfile({
+        displayName: profileDraft.displayName,
+        name: profileDraft.displayName,
+        companyName: profileDraft.companyName,
+        phone: profileDraft.phone,
+        website: profileDraft.website,
+        city: profileDraft.city,
+        country: profileDraft.country,
+      });
+      triggerToast('Nutzerdaten gespeichert.', 'success');
+    } catch (e) {
+      console.error(e);
+      triggerToast('Nutzerdaten konnten nicht gespeichert werden.', 'error');
+    }
+  };
 
   useEffect(() => {
     if (!textDirty) {
@@ -3586,22 +3630,103 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         </div>
       )}
 
-      {accountPanelOpen && (
+      {(accountPanelOpen || teamPanelOpen) && (
         <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm flex items-end md:items-center justify-center p-3">
-          <div className="absolute inset-0" onClick={() => setAccountPanelOpen(false)} />
-          <div className="relative w-full max-w-md rounded-t-3xl md:rounded-3xl border border-[#3A3732] bg-[#111111] p-5 shadow-2xl text-[#F5F2EA]">
-            <div className="flex items-center justify-between gap-3 mb-4"><div><span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2]">Mein Konto</span><h3 className="text-lg font-black">Meine Daten</h3></div><button onClick={() => setAccountPanelOpen(false)} className="w-10 h-10 rounded-xl border border-[#3A3732] bg-[#181818] flex items-center justify-center"><LucideIcons.X size={16} /></button></div>
-            <div className="space-y-3 text-sm"><div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4"><span className="block text-[9px] uppercase font-black text-stone-500 tracking-wider">E-Mail</span><span className="block text-[#F5F2EA] font-bold truncate">{user?.email || 'Nicht verfügbar'}</span></div><div className="grid grid-cols-2 gap-3"><div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4"><span className="block text-[9px] uppercase font-black text-stone-500 tracking-wider">Plan</span><span className="block font-black">{effectivePlanId || profile?.plan || 'starter'}</span></div><div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4"><span className="block text-[9px] uppercase font-black text-stone-500 tracking-wider">ureels</span><span className="block font-black">{cards.length}</span></div></div><button onClick={logout} className="w-full h-11 rounded-2xl border border-red-950/50 bg-red-950/20 text-red-200 font-black uppercase text-[10px] tracking-wider flex items-center justify-center gap-2"><LucideIcons.LogOut size={14} /> Abmelden</button></div>
-          </div>
-        </div>
-      )}
+          <div className="absolute inset-0" onClick={() => { setAccountPanelOpen(false); setTeamPanelOpen(false); }} />
+          <div className="relative w-full max-w-5xl max-h-[92dvh] overflow-hidden rounded-t-3xl md:rounded-3xl border border-[#3A3732] bg-[#111111] shadow-2xl text-[#F5F2EA]">
+            <div className="flex items-center justify-between gap-3 border-b border-[#3A3732] px-5 py-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-11 h-11 rounded-2xl bg-[#F5F2EA] text-[#101010] flex items-center justify-center font-black text-lg">{(profile?.displayName || user?.email || 'U').slice(0,1).toUpperCase()}</div>
+                <div className="min-w-0">
+                  <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2]">Nutzerverwaltung</span>
+                  <h3 className="text-lg font-black truncate">Konto, Team & Zahlung</h3>
+                </div>
+              </div>
+              <button onClick={() => { setAccountPanelOpen(false); setTeamPanelOpen(false); }} className="w-10 h-10 rounded-xl border border-[#3A3732] bg-[#181818] flex items-center justify-center hover:bg-[#252525]"><LucideIcons.X size={16} /></button>
+            </div>
 
-      {teamPanelOpen && (
-        <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm flex items-end md:items-center justify-center p-3">
-          <div className="absolute inset-0" onClick={() => setTeamPanelOpen(false)} />
-          <div className="relative w-full max-w-lg rounded-t-3xl md:rounded-3xl border border-[#3A3732] bg-[#111111] p-5 shadow-2xl text-[#F5F2EA]">
-            <div className="flex items-center justify-between gap-3 mb-4"><div><span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2]">Nutzerverwaltung</span><h3 className="text-lg font-black">Team & Zugriff</h3></div><button onClick={() => setTeamPanelOpen(false)} className="w-10 h-10 rounded-xl border border-[#3A3732] bg-[#181818] flex items-center justify-center"><LucideIcons.X size={16} /></button></div>
-            <div className="space-y-4"><div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4 flex items-center gap-3"><div className="w-11 h-11 rounded-2xl bg-[#F5F2EA] text-[#101010] flex items-center justify-center font-black">{(profile?.displayName || user?.email || 'U').slice(0,1).toUpperCase()}</div><div className="min-w-0 flex-1"><span className="block text-[12px] font-black truncate">{profile?.displayName || user?.displayName || 'Inhaber'}</span><span className="block text-[10px] text-stone-500 truncate">{user?.email}</span></div><span className="px-2.5 py-1 rounded-full border border-[#E8DCC2]/30 bg-[#E8DCC2]/10 text-[#E8DCC2] text-[9px] font-black uppercase">Inhaber</span></div><div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4 space-y-3"><span className="block text-[10px] uppercase font-black tracking-wider text-[#E8DCC2]">Mitarbeiter einladen</span><div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2"><input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} type="email" placeholder="name@firma.de" className="h-11 rounded-xl border border-[#3A3732] bg-[#0F0F0F] px-3 text-sm text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" /><button type="button" onClick={() => { if (!inviteEmail.includes('@')) { triggerToast('Bitte eine gültige E-Mail eingeben.', 'error'); return; } const subject = 'Einladung zu ureel.me'; const body = `Du wurdest eingeladen, an einer ureel.me Karte mitzuarbeiten.\n\nProjekt: ${activeCard?.title || activeCard?.slug || 'ureel'}\nLink: ${currentSlugUrl}`; window.location.href = `mailto:${encodeURIComponent(inviteEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; triggerToast('Einladungs-Mail geöffnet.', 'success'); }} className="h-11 px-4 rounded-xl bg-[#F5F2EA] text-[#101010] font-black text-[10px] uppercase tracking-wider">Einladen</button></div><p className="text-[10px] text-stone-500 leading-relaxed">MVP: Die Einladung öffnet dein Mailprogramm. Rollen & echte Teamrechte können danach an Firestore-Regeln/Company-Accounts angebunden werden.</p></div></div>
+            <div className="grid grid-cols-1 md:grid-cols-[230px_1fr] max-h-[calc(92dvh-80px)] overflow-hidden">
+              <div className="border-b md:border-b-0 md:border-r border-[#3A3732] bg-[#0F0F0F] p-4 space-y-2">
+                {[
+                  { id: 'profile', label: 'Persönliche Daten', icon: LucideIcons.UserCog, hint: 'Profil & Kontakt' },
+                  { id: 'billing', label: 'Plan & Zahlung', icon: LucideIcons.CreditCard, hint: 'Abo, Rechnung, Speicher' },
+                  { id: 'team', label: 'Nutzer / Team', icon: LucideIcons.Users, hint: 'Mitarbeiter & Rollen' },
+                  { id: 'settings', label: 'Sicherheit', icon: LucideIcons.Shield, hint: 'Login, Datenschutz' },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  const active = accountManagerTab === item.id;
+                  return (
+                    <button key={item.id} onClick={() => setAccountManagerTab(item.id as any)} className={`w-full rounded-2xl border px-3 py-3 text-left flex items-center gap-3 transition ${active ? 'bg-[#F5F2EA] text-[#111] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732] hover:bg-[#222]'}`}>
+                      <Icon size={16} />
+                      <span className="min-w-0"><span className="block text-[11px] font-black uppercase tracking-wider truncate">{item.label}</span><span className={`block text-[9px] ${active ? 'text-[#111]/60' : 'text-stone-500'} truncate`}>{item.hint}</span></span>
+                    </button>
+                  );
+                })}
+                <button onClick={logout} className="mt-4 w-full h-11 rounded-2xl border border-red-950/50 bg-red-950/20 text-red-200 font-black uppercase text-[10px] tracking-wider flex items-center justify-center gap-2"><LucideIcons.LogOut size={14} /> Abmelden</button>
+              </div>
+
+              <div className="overflow-y-auto p-5">
+                {accountManagerTab === 'profile' && (
+                  <div className="space-y-5">
+                    <div>
+                      <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2]">Meine Daten</span>
+                      <h4 className="text-2xl font-black mt-1">Profil & Kontakt</h4>
+                      <p className="text-sm text-stone-400 mt-1">Diese Daten verwenden wir später für Kontakt speichern, Rechnung und deine ureel-Profile.</p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {[
+                        ['displayName', 'Name / Anzeigename'], ['companyName', 'Firma / Projekt'], ['phone', 'Telefon'], ['website', 'Webseite'], ['city', 'Ort'], ['country', 'Land']
+                      ].map(([key, label]) => (
+                        <label key={key} className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 block">
+                          <span className="block text-[9px] uppercase font-black tracking-wider text-stone-500 mb-2">{label}</span>
+                          <input value={(profileDraft as any)[key] || ''} onChange={(e) => setProfileDraft((prev) => ({ ...prev, [key]: e.target.value }))} className="w-full h-10 rounded-xl bg-[#0F0F0F] border border-[#3A3732] px-3 text-sm text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
+                        </label>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4"><span className="block text-[9px] uppercase font-black text-stone-500 tracking-wider">E-Mail</span><span className="block text-[#F5F2EA] font-bold truncate mt-1">{user?.email || 'Nicht verfügbar'}</span></div>
+                      <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4"><span className="block text-[9px] uppercase font-black text-stone-500 tracking-wider">Plan</span><span className="block font-black mt-1">{effectivePlanId || profile?.plan || 'starter'}</span></div>
+                      <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4"><span className="block text-[9px] uppercase font-black text-stone-500 tracking-wider">ureels</span><span className="block font-black mt-1">{cards.length}</span></div>
+                    </div>
+                    <button onClick={saveProfileDraft} className="h-12 px-5 rounded-2xl bg-[#F5F2EA] text-[#101010] font-black uppercase text-[10px] tracking-wider flex items-center gap-2"><LucideIcons.Save size={15} /> Daten speichern</button>
+                  </div>
+                )}
+
+                {accountManagerTab === 'billing' && (
+                  <div className="space-y-5">
+                    <div><span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2]">Plan & Zahlung</span><h4 className="text-2xl font-black mt-1">Abo, Speicher & Rechnungen</h4><p className="text-sm text-stone-400 mt-1">MVP: Die Zahlungsanbindung ist vorbereitet. Stripe/Payment kommt im nächsten Schritt.</p></div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      {[
+                        ['Starter', 'Zum Testen', '1 ureel / Basisfunktionen'],
+                        ['Pro', 'Für aktive Nutzung', 'mehr Karten, Branding, Sharing'],
+                        ['Business', 'Für Teams', 'Nutzerverwaltung, Rechnungen, Rollen'],
+                      ].map(([name, sub, text]) => (
+                        <div key={name} className={`rounded-3xl border p-4 ${String(name).toLowerCase() === String(effectivePlanId).toLowerCase() ? 'border-[#F5F2EA] bg-[#F5F2EA]/10' : 'border-[#3A3732] bg-[#181818]'}`}>
+                          <h5 className="text-lg font-black">{name}</h5><p className="text-xs text-[#E8DCC2] font-bold mt-1">{sub}</p><p className="text-xs text-stone-400 mt-3 leading-relaxed">{text}</p><button onClick={() => triggerToast('Zahlung/Upgrade wird mit Stripe im nächsten Schritt verbunden.', 'info')} className="mt-4 w-full h-10 rounded-xl bg-[#F5F2EA] text-[#101010] font-black text-[10px] uppercase">Auswählen</button>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="rounded-3xl border border-[#3A3732] bg-[#181818] p-4"><span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2]">Rechnungsdaten</span><p className="text-sm text-stone-400 mt-2">Firma, Adresse und UID können im Profil gepflegt werden. Rechnungen werden nach Zahlungsanbindung hier angezeigt.</p></div>
+                  </div>
+                )}
+
+                {accountManagerTab === 'team' && (
+                  <div className="space-y-5">
+                    <div><span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2]">Nutzer / Team</span><h4 className="text-2xl font-black mt-1">Mitarbeiter & Rollen</h4><p className="text-sm text-stone-400 mt-1">Lade später Mitarbeiter ein, die Karten bearbeiten, ansehen oder verwalten dürfen.</p></div>
+                    <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4 flex items-center gap-3"><div className="w-11 h-11 rounded-2xl bg-[#F5F2EA] text-[#101010] flex items-center justify-center font-black">{(profile?.displayName || user?.email || 'U').slice(0,1).toUpperCase()}</div><div className="min-w-0 flex-1"><span className="block text-[12px] font-black truncate">{profile?.displayName || user?.displayName || 'Inhaber'}</span><span className="block text-[10px] text-stone-500 truncate">{user?.email}</span></div><span className="px-2.5 py-1 rounded-full border border-[#E8DCC2]/30 bg-[#E8DCC2]/10 text-[#E8DCC2] text-[9px] font-black uppercase">Inhaber</span></div>
+                    <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4 space-y-3"><span className="block text-[10px] uppercase font-black tracking-wider text-[#E8DCC2]">Mitarbeiter einladen</span><div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2"><input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} type="email" placeholder="name@firma.de" className="h-11 rounded-xl border border-[#3A3732] bg-[#0F0F0F] px-3 text-sm text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" /><button type="button" onClick={() => { if (!inviteEmail.includes('@')) { triggerToast('Bitte eine gültige E-Mail eingeben.', 'error'); return; } const subject = 'Einladung zu ureel.me'; const body = `Du wurdest eingeladen, an einer ureel.me Karte mitzuarbeiten.\n\nProjekt: ${activeCard?.title || activeCard?.slug || 'ureel'}\nLink: ${currentSlugUrl}`; window.location.href = `mailto:${encodeURIComponent(inviteEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; triggerToast('Einladungs-Mail geöffnet.', 'success'); }} className="h-11 px-4 rounded-xl bg-[#F5F2EA] text-[#101010] font-black text-[10px] uppercase tracking-wider">Einladen</button></div><p className="text-[10px] text-stone-500 leading-relaxed">MVP: Die Einladung öffnet dein Mailprogramm. Echte Rollenrechte werden später an Firestore-Regeln und Business-Pläne gebunden.</p></div>
+                  </div>
+                )}
+
+                {accountManagerTab === 'settings' && (
+                  <div className="space-y-5">
+                    <div><span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2]">Sicherheit</span><h4 className="text-2xl font-black mt-1">Login & Datenschutz</h4><p className="text-sm text-stone-400 mt-1">Hier sammeln wir die wichtigen Kontofunktionen für den Nutzer.</p></div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3"><button onClick={() => triggerToast('Passwort ändern wird mit Firebase Password Reset verbunden.', 'info')} className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4 text-left"><LucideIcons.KeyRound size={18} className="text-[#E8DCC2] mb-3"/><span className="block font-black">Passwort ändern</span><span className="text-xs text-stone-500">Reset-Link per E-Mail senden.</span></button><button onClick={() => triggerToast('Datenexport wird später als Download bereitgestellt.', 'info')} className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4 text-left"><LucideIcons.Download size={18} className="text-[#E8DCC2] mb-3"/><span className="block font-black">Daten exportieren</span><span className="text-xs text-stone-500">Profil, Karten und Rechnungen.</span></button></div>
+                    <div className="rounded-3xl border border-red-950/50 bg-red-950/15 p-4"><span className="text-[10px] uppercase font-black tracking-wider text-red-200">Gefahrenbereich</span><p className="text-sm text-red-100/75 mt-2">Konto löschen wird erst aktiviert, wenn Backups, Zahlungen und Kartenbesitz sauber geregelt sind.</p></div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}
