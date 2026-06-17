@@ -402,18 +402,18 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     imageDarken: 0 as any,
     iconEnabled: true,
     iconPosition: 'top',
-    iconSize: 17,
+    iconSize: 15,
     iconCircleBg: true as any,
     iconCircleColor: 'rgba(26,26,26,0.18)' as any,
     fontFamily: 'Inter',
-    fontSize: 9.5,
+    fontSize: 8.5,
     fontWeight: 'bold',
     letterSpacing: 0,
     textWrap: 'multi',
     textAlign: 'center',
     textPosition: 'bottom',
     labelPosition: 'bottom',
-    buttonSize: { preset: 'standard', scale: 1 } as any,
+    buttonSize: { preset: 'standard', scale: 0.82 } as any,
     animation: 'none',
   });
 
@@ -430,9 +430,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     await syncCardUpdate({
       buttons: makeStarterButtonSet(),
       buttonGridCols: 3 as any,
-      buttonSizePx: 78 as any,
+      buttonSizePx: 54 as any,
       buttonGapPx: 10 as any,
-      buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), cols: 3, square: true, buttonSizePx: 78, gapPx: 10 } as any,
+      buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), mode: 'grid', cols: 3, square: true, buttonSizePx: 54, gapPx: 10, gap: 10 } as any,
     });
     setEditingBtnId('phone');
     setActiveTab('buttons');
@@ -456,10 +456,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     cardBackgroundDarken: 0,
     cardBackgroundSaturation: 105,
     buttonGridCols: 3 as any,
-    buttonSizePx: 78 as any,
+    buttonSizePx: 54 as any,
     buttonGapPx: 10 as any,
     buttonColor: '#F5F2EA',
     buttonTextColor: '#1A1A1A',
+    buttonGridLayout: { mode: 'grid', cols: 3, square: true, buttonSizePx: 54, gapPx: 10, gap: 10, align: 'center' } as any,
     heroTextColor: 'dark' as any,
     heroTitleSize: 26 as any,
     heroSubtitleSize: 13 as any,
