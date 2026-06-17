@@ -2106,16 +2106,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <LucideIcons.Video size={18} className="text-[#E8DCC2] shrink-0 mt-0.5" />
                     <div className="space-y-2">
                       <p className="text-[11px] font-black uppercase text-[#F5F2EA]">Video ist aktiv</p>
-                      <p className="text-[10px] text-stone-400 leading-relaxed">Solange ein Videolink aktiv ist, kann kein Hintergrundbild hochgeladen werden. Entferne zuerst das Video im Bereich „Video / Reel“.</p>
+                      <p className="text-[10px] text-stone-400 leading-relaxed">Solange ein Videolink aktiv ist, kann kein Hintergrundbild hochgeladen werden. Wechsle zum Bereich „Video / Reel“, um den Link zu ändern oder zu entfernen.</p>
                       <button
                         type="button"
-                        onClick={() => syncCardUpdate({
-                          backgroundType: activeCard.cardBackgroundImageUrl ? 'image' : 'color',
-                          videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any,
-                          ureelScene: { ...(activeCard.ureelScene || {}), mode: activeCard.cardBackgroundImageUrl ? 'image' : 'color', video: { type: 'none', url: '', duration: activeCard.ureelScene?.video?.duration || 12, displayMode: 'contain', placement: 'background', startAt: 0 } } as any,
-                        } as any)}
+                        onClick={() => setActiveSubSection('scene-video')}
                         className="h-9 px-3 rounded-xl bg-[#F5F2EA] text-[#101010] text-[9px] uppercase font-black tracking-wider"
-                      >Video entfernen</button>
+                      >Zum Video wechseln</button>
                     </div>
                   </div>
                 ) : (
@@ -3191,15 +3187,16 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <p className="text-[8.5px] leading-relaxed text-stone-500">Standard: Buttons in der Smartphone-Karte ausblenden und als schönen Desktop-Aktionsbereich daneben zeigen. Am Handy bleibt die echte Karte unverändert.</p>
               </div>
               <div className="rounded-[28px] border border-[#3A3732] overflow-hidden bg-[#0F0F0F] shadow-2xl">
+                <div className="px-4 pt-4 text-[9px] font-black uppercase tracking-[0.18em] text-[#E8DCC2]">Live-Desktop-Vorschau</div>
                 <div
-                  className="p-4 md:p-5 min-h-[430px]"
+                  className="p-3 md:p-4 min-h-[430px]"
                   style={{
                     background: desktopPage.backgroundMode === 'image' && desktopPage.backgroundImageUrl
                       ? `linear-gradient(rgba(0,0,0,${(desktopPage.imageDarken ?? 34)/100}), rgba(0,0,0,${(desktopPage.imageDarken ?? 34)/100})), url(${desktopPage.backgroundImageUrl}) center/cover no-repeat`
                       : `linear-gradient(135deg, ${desktopPage.gradientFrom || '#0F0F0F'}, ${desktopPage.gradientTo || '#3A3328'})`
                   }}
                 >
-                  <div className="overflow-x-auto pb-2">
+                  <div className="overflow-hidden pb-2">
                     <div className={`grid grid-cols-3 gap-3 items-stretch h-[520px] overflow-hidden ${desktopPreviewGridClass}`}>
                     <div className={`${desktopPhoneOrder} flex flex-col items-center justify-center rounded-[26px] border border-white/10 bg-black/20 p-4 h-full`}>
                       <span className="mb-3 text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Smartphone-Ansicht</span>

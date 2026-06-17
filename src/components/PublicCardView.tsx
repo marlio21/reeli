@@ -652,11 +652,11 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
 
     return (
       <div className="h-screen w-screen overflow-hidden bg-[#0B0B0B] text-[#F5F2EA]" style={pageBg}>
-        <div className="hidden md:grid h-full w-full grid-cols-3">
+        <div className="hidden lg:grid h-full w-full grid-cols-3">
           {columns.map((col, i) => <React.Fragment key={i}>{col}</React.Fragment>)}
         </div>
-        <div className="md:hidden h-full w-full overflow-hidden flex items-center justify-center bg-black">
-          <div className="h-full w-full max-w-md overflow-hidden">
+        <div className="lg:hidden h-[100svh] w-full overflow-hidden flex items-center justify-center bg-black">
+          <div className="h-[100svh] w-full max-w-md overflow-hidden">
             <KonuCardCore
               card={card}
               lang={lang}
