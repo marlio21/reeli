@@ -1212,6 +1212,23 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
 
+  const removeSceneImage = async () => {
+    const hasVideo = !!(activeCard.videoBackgroundConfig?.enabled || activeCard.ureelScene?.mode === 'video' || activeCard.backgroundType === 'video');
+    await syncCardUpdate({
+      backgroundImageUrl: '',
+      cardBackgroundImageUrl: '',
+      cardBackgroundEnabled: true,
+      backgroundType: hasVideo ? 'video' : 'color',
+      ureelScene: {
+        ...(activeCard.ureelScene || {}),
+        mode: hasVideo ? 'video' : 'color',
+        backgroundImageUrl: '',
+        backgroundColor: activeCard.cardBackgroundColor || activeCard.ureelScene?.backgroundColor || '#1A1A1A',
+      } as any,
+    } as any);
+    triggerToast(lang === 'de' ? 'Szenenbild entfernt.' : 'Scene image removed.', 'success');
+  };
+
   const handleDesktopBackgroundUpload = async (file: File) => {
     if (!activeCard || !user) {
       triggerToast(lang === 'de' ? 'Bitte einloggen, bevor du ein Desktop-Hintergrundbild hochlädst.' : 'Please log in before uploading a desktop background.', 'error');
@@ -1233,6 +1250,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     try {
       setDesktopBgUploading(true);
       setDesktopBgUploadProgress(0);
+      await updateDesktopPage({ backgroundImageUrl: '', backgroundMode: 'image' });
       const storageRef = ref(storage, storagePath);
       const downloadUrl = await new Promise<string>((resolve, reject) => {
         const task = uploadBytesResumable(storageRef, file, { contentType: file.type || 'image/jpeg' });
@@ -1275,6 +1293,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     try {
       setDesktopButtonBgUploading(true);
       setDesktopButtonBgUploadProgress(0);
+      await updateDesktopPage({ buttonAreaBackgroundImageUrl: '', buttonAreaBackgroundMode: 'image' as any } as any);
       const storageRef = ref(storage, storagePath);
       const downloadUrl = await new Promise<string>((resolve, reject) => {
         const task = uploadBytesResumable(storageRef, file, { contentType: file.type || 'image/jpeg' });
@@ -1641,7 +1660,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     <div className="flex flex-col md:flex-row min-h-[100dvh] md:h-screen w-full max-w-[100vw] bg-[#09090B] text-stone-200 overflow-x-hidden md:overflow-hidden overflow-y-auto font-sans antialiased text-xs">
       
       {/* COLUMN 1: LINKE HAUPTNAVIGATION (SIDEBAR) */}
-      <div className="order-1 md:order-none sticky top-0 z-40 md:static w-full md:w-[76px] bg-[#0E0E11] border-b md:border-b-0 md:border-r border-stone-900 flex flex-row md:flex-col justify-between items-center gap-3 px-3 md:px-0 py-2 md:py-4 shrink-0 overflow-x-auto">
+      <div className="order-1 md:order-none sticky top-0 z-40 md:static w-full md:w-[76px] bg-[#0E0E11]/95 backdrop-blur-xl border-b md:border-b-0 md:border-r border-stone-900 flex flex-row md:flex-col justify-between items-center gap-3 px-3 md:px-0 py-2 md:py-4 shrink-0 overflow-x-auto">
         
         {/* Top Logo */}
         <div className="relative shrink-0">
@@ -1696,7 +1715,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         </div>
 
         {/* Mid Navigation Tabs */}
-        <div className="flex flex-row md:flex-col gap-2 md:gap-2.5 w-auto md:w-full px-0 md:px-2 overflow-x-auto">
+        <div className="flex flex-row md:flex-col gap-2 md:gap-2.5 w-auto md:w-full px-0 md:px-2 overflow-x-auto snap-x">
           {[
             { id: 'scene', label: lang === 'de' ? 'Szene' : 'Scene', icon: LucideIcons.Tv },
             { id: 'timeline', label: lang === 'de' ? 'Timeline' : 'Timeline', icon: LucideIcons.Milestone },
@@ -1713,7 +1732,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-list', design: 'design-desktop' };
                   if (defaults[item.id]) setActiveSubSection(defaults[item.id]);
                 }}
-                className={`min-w-[60px] md:min-w-0 flex flex-col items-center justify-center py-2.5 px-2 md:px-0 rounded-xl transition duration-150 relative cursor-pointer ${
+                className={`min-w-[74px] md:min-w-0 flex flex-col snap-start items-center justify-center py-2.5 px-2 md:px-0 rounded-xl transition duration-150 relative cursor-pointer ${
                   active 
                     ? 'text-[#E8DCC2] bg-[#F5F2EA]/10 shadow-inner border border-[#E8DCC2]/25 font-bold' 
                     : 'text-stone-400 hover:text-stone-150 hover:bg-stone-900/40 font-medium'
@@ -1991,7 +2010,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       </div>
 
       {/* COLUMN 3: AKTIVES DETAILPANEL (FORM CONTROLS) */}
-      <div className="order-4 md:order-none flex-1 min-w-0 bg-[#141419] p-4 md:p-6 overflow-y-auto space-y-6 pb-24 md:pb-6">
+      <div className="order-4 md:order-none flex-1 min-w-0 bg-[#141419] p-4 md:p-6 overflow-y-auto ureel-detail-panel space-y-6 pb-24 md:pb-6">
         
         {/* Module Header block */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-900 pb-4">
@@ -2060,20 +2079,31 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Video / Reel</span>
                     <p className="text-[10px] text-stone-400 mt-1">Ein Videolink macht die Szene zum Reel-Hintergrund. Bild und Farbe werden dabei automatisch deaktiviert.</p>
                   </div>
-                  {(activeCard.backgroundType === 'video' || activeCard.videoBackgroundConfig?.enabled || activeCard.ureelScene?.mode === 'video') && (
-                    <button
-                      type="button"
-                      onClick={() => syncCardUpdate({
-                        backgroundType: activeCard.cardBackgroundImageUrl ? 'image' : 'color',
-                        cardBackgroundEnabled: true,
-                        videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any,
-                        ureelScene: { ...(activeCard.ureelScene || {}), mode: activeCard.cardBackgroundImageUrl ? 'image' : 'color', video: { type: 'none', url: '', duration: activeCard.ureelScene?.video?.duration || 12, displayMode: activeCard.ureelScene?.video?.displayMode || 'cover', placement: 'background', startAt: 0 } } as any,
-                      } as any)}
-                      className="h-9 px-3 rounded-xl border border-red-900/40 bg-red-950/30 text-red-200 text-[9px] uppercase font-black tracking-wider hover:bg-red-900/40"
-                    >
-                      Video entfernen
-                    </button>
-                  )}
+                  <div className="flex flex-wrap gap-2 justify-end">
+                    {(activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl) && (
+                      <button
+                        type="button"
+                        onClick={removeSceneImage}
+                        className="h-9 px-3 rounded-xl border border-[#3A3732] bg-[#181818] text-[#F5F2EA] text-[9px] uppercase font-black tracking-wider hover:bg-[#242424]"
+                      >
+                        Bild entfernen
+                      </button>
+                    )}
+                    {(activeCard.backgroundType === 'video' || activeCard.videoBackgroundConfig?.enabled || activeCard.ureelScene?.mode === 'video') && (
+                      <button
+                        type="button"
+                        onClick={() => syncCardUpdate({
+                          backgroundType: activeCard.cardBackgroundImageUrl ? 'image' : 'color',
+                          cardBackgroundEnabled: true,
+                          videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any,
+                          ureelScene: { ...(activeCard.ureelScene || {}), mode: activeCard.cardBackgroundImageUrl ? 'image' : 'color', video: { type: 'none', url: '', duration: activeCard.ureelScene?.video?.duration || 12, displayMode: activeCard.ureelScene?.video?.displayMode || 'cover', placement: 'background', startAt: 0 } } as any,
+                        } as any)}
+                        className="h-9 px-3 rounded-xl border border-red-900/40 bg-red-950/30 text-red-200 text-[9px] uppercase font-black tracking-wider hover:bg-red-900/40"
+                      >
+                        Video entfernen
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div>
@@ -2151,11 +2181,20 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <div className="space-y-2">
                       <p className="text-[11px] font-black uppercase text-[#F5F2EA]">Video ist aktiv</p>
                       <p className="text-[10px] text-stone-400 leading-relaxed">Solange ein Videolink aktiv ist, kann kein Hintergrundbild hochgeladen werden. Wechsle zum Bereich „Video / Reel“, um den Link zu ändern oder zu entfernen.</p>
-                      <button
-                        type="button"
-                        onClick={() => setActiveSubSection('scene-video')}
-                        className="h-9 px-3 rounded-xl bg-[#F5F2EA] text-[#101010] text-[9px] uppercase font-black tracking-wider"
-                      >Zum Video wechseln</button>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setActiveSubSection('scene-video')}
+                          className="h-9 px-3 rounded-xl bg-[#F5F2EA] text-[#101010] text-[9px] uppercase font-black tracking-wider"
+                        >Zum Video wechseln</button>
+                        {(activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl) && (
+                          <button
+                            type="button"
+                            onClick={removeSceneImage}
+                            className="h-9 px-3 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 text-[9px] uppercase font-black tracking-wider"
+                          >Bild entfernen</button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -2176,7 +2215,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         <input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleSceneImageUpload(file); e.currentTarget.value = ''; }} />
                       </label>
                       <p className="text-[9px] text-stone-500">Empfohlen: 9:16 Hochformat oder ruhiges Werbebild mit Platz für Text und Buttons.</p>
-                      {(activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl) && <button type="button" onClick={() => syncCardUpdate({ backgroundType: 'color', backgroundImageUrl: '', cardBackgroundImageUrl: '', cardBackgroundEnabled: true, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color', backgroundImageUrl: '', backgroundColor: activeCard.cardBackgroundColor || '#1A1A1A' } as any } as any)} className="w-full h-9 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 text-[8.5px] font-black uppercase tracking-wider">Bild entfernen</button>}
+                      {(activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl) && <button type="button" onClick={removeSceneImage} className="w-full h-9 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 text-[8.5px] font-black uppercase tracking-wider">Bild entfernen</button>}
                     </div>
                   </div>
                 )}
@@ -3039,7 +3078,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   <div className="grid grid-cols-1 xl:grid-cols-[1fr_190px] gap-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Button-Farbe</label><input type="color" value={editingButton.bgColor || editingButton.backgroundColor || activeCard.buttonColor || '#18181B'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { bgColor: e.target.value, backgroundColor: e.target.value })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
-                      <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Textfarbe</label><input type="color" value={editingButton.textColor || activeCard.buttonTextColor || '#F5F2EA'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { textColor: e.target.value, iconColor: e.target.value })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
+                      <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Textfarbe</label><input type="color" value={editingButton.textColor || activeCard.buttonTextColor || '#111111'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { textColor: e.target.value })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
+                      <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Iconfarbe</label><input type="color" value={editingButton.iconColor || editingButton.textColor || '#111111'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { iconColor: e.target.value })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Rahmenfarbe</label><input type="color" value={editingButton.borderColor || '#E8DCC2'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { borderColor: e.target.value, borderEnabled: true, borderWidth: editingButton.borderWidth || 'thin' })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
                       <div><div className="flex items-center justify-between text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1"><span>Transparenz</span><span className="text-[#E8DCC2] font-mono">{Math.round(100 - Number((editingButton as any).opacity ?? 100))}%</span></div><input type="range" min={0} max={80} step={5} value={100 - Number((editingButton as any).opacity ?? 100)} onChange={(e) => handleUpdateSingleButton(editingButton.id, { opacity: 100 - Number(e.target.value) } as any)} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" /><span className="block mt-1 text-[8.5px] text-stone-550">0% = deckend, 80% = sehr transparent.</span></div>
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Eckenform</label><select value={editingButton.radius || 'rounded'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { radius: e.target.value as any })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] px-3 text-xs text-[#F5F2EA]"><option value="square">Quadrat</option><option value="rounded">Quadrat abgerundet</option><option value="pill">Kreis</option></select></div>

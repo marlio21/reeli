@@ -143,3 +143,27 @@ body {
   from { opacity: 0; filter: blur(6px); }
   to { opacity: 1; filter: blur(0); }
 }
+
+/* v44: klarere Editor-Flächen, Mobile-Navigation und Live-Desktop-Vorschau */
+.ureel-detail-panel > *:nth-child(odd) [class*="bg-\[\#111111\]"] {
+  background-image: linear-gradient(145deg, rgba(245,242,234,0.025), rgba(232,220,194,0.012));
+}
+.ureel-detail-panel > *:nth-child(even) [class*="bg-\[\#111111\]"] {
+  background-image: linear-gradient(145deg, rgba(58,55,50,0.35), rgba(15,15,15,0.1));
+}
+.ureel-live-desktop-preview {
+  min-height: clamp(390px, 52vh, 560px);
+}
+@media (min-width: 900px) {
+  .ureel-live-desktop-preview {
+    aspect-ratio: 16 / 8.4;
+  }
+}
+@media (max-width: 767px) {
+  .ureel-detail-panel {
+    background: linear-gradient(180deg, #17171a, #101014);
+  }
+  .ureel-detail-panel [class*="rounded-2xl"][class*="border"] {
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.035), 0 12px 28px rgba(0,0,0,0.20);
+  }
+}
