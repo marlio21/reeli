@@ -337,6 +337,20 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const iconColor = btn.iconColor || '#1E1E1E';
   const iconSize = Math.round((btn.iconSize || 18) * iconScale);
 
+
+  // Visible button text: exactly what is entered in Button-Text.
+  // A second line is allowed only via a manual line break in this field.
+  // Action type / action label is never rendered as visible text.
+  const rawVisibleTitle = (btn.title || '').toString().replace(/\r/g, '').trim();
+  const buttonTextLines = (rawVisibleTitle ? rawVisibleTitle.split('\n') : [lang === 'en' ? 'Untitled' : 'Ohne Titel'])
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .slice(0, 2);
+  if (buttonTextLines.length === 0) {
+    buttonTextLines.push(lang === 'en' ? 'Untitled' : 'Ohne Titel');
+  }
+  const hasSecondButtonLine = buttonTextLines.length > 1;
+
   // Render Image Layer
   const buttonImageUrlToUse = btn.buttonImageUrl || btn.imageUrl || '';
   const hasBackgroundImg = !!buttonImageUrlToUse;
@@ -471,9 +485,12 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
           {btn.iconPosition === 'left' && renderIconOrImage()}
 
           <span
-            className={`font-semibold z-10 ${getTextWrapClass()} pointer-events-none`}
+            className={`font-semibold z-10 ${hasSecondButtonLine ? '' : getTextWrapClass()} pointer-events-none`}
             style={{
-              display: 'inline-block',
+              display: 'inline-flex',
+              flexDirection: 'column',
+              alignItems: btn.textAlign === 'left' ? 'flex-start' : btn.textAlign === 'right' ? 'flex-end' : 'center',
+              maxWidth: '100%',
               transform: btn.textFineTuneEnabled === true
                 ? `translate(${Number(btn.textOffsetX ?? 0)}px, ${Number(btn.textOffsetY ?? 0)}px)`
                 : undefined,
@@ -482,13 +499,22 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
               letterSpacing: btn.letterSpacing ? `${btn.letterSpacing}px` : undefined,
               textShadow: textShadowVal,
               color: textColor,
-              lineHeight: 1.08,
+              lineHeight: hasSecondButtonLine ? 1.02 : 1.08,
               overflowWrap: 'anywhere',
               wordBreak: 'break-word',
               hyphens: 'auto',
             }}
           >
-            {btn.title || (lang === 'en' ? 'Untitled' : 'Ohne Titel')}
+            {hasSecondButtonLine ? (
+              <>
+                <span className="block max-w-full truncate">{buttonTextLines[0]}</span>
+                <span className="block max-w-full truncate opacity-85" style={{ fontSize: `calc(${sizeStyle} * 0.72)`, fontWeight: 700 }}>
+                  {buttonTextLines[1]}
+                </span>
+              </>
+            ) : (
+              buttonTextLines[0]
+            )}
           </span>
 
           {btn.iconPosition === 'right' && renderIconOrImage()}

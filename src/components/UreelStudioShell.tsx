@@ -1646,11 +1646,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         >
           {button.title || 'Button'}
         </span>
-        {!compact && (
-          <span className="relative z-20 mt-1 text-[8px] uppercase tracking-widest opacity-70">
-            {actionOptions.find((option) => option.value === button.actionType)?.label || button.actionType || 'Aktion'}
-          </span>
-        )}
+        {/* Nur Button-Text anzeigen. Aktion/Ziel bleibt intern und wird nicht als zweite Schriftzeile gerendert. */}
       </div>
     );
   };
@@ -3130,7 +3126,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   <div><span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Design & Buttonbild</span><p className="text-[9.5px] text-stone-500 mt-1">Der Text skaliert automatisch zur Buttongröße und bricht sauber um.</p></div>
                   <div className="grid grid-cols-1 xl:grid-cols-[1fr_190px] gap-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                      <div className="sm:col-span-2"><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Button-Text</label><input type="text" value={editingButton.title || ''} onChange={(e) => handleUpdateSingleButton(editingButton.id, { title: e.target.value })} className="w-full bg-[#181818] border border-[#3A3732] h-10 px-3 rounded-xl text-xs font-bold text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" placeholder="z. B. Telefon, Webseite, Datei" /></div>
+                      <div className="sm:col-span-2"><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Button-Text</label><textarea value={editingButton.title || ''} rows={2} maxLength={42} onChange={(e) => handleUpdateSingleButton(editingButton.id, { title: e.target.value })} className="w-full bg-[#181818] border border-[#3A3732] px-3 py-2 rounded-xl text-xs font-bold text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA] resize-none leading-snug" placeholder={'z. B. Telefon\nDirekt anrufen'} /><p className="mt-1 text-[8.5px] text-stone-500 font-semibold">Zweite Zeile nur hier über Enter. Aktion/Ziel wird nicht auf dem Button angezeigt.</p></div>
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Button-Farbe</label><input type="color" value={editingButton.bgColor || editingButton.backgroundColor || activeCard.buttonColor || '#18181B'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { bgColor: e.target.value, backgroundColor: e.target.value })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Textfarbe</label><input type="color" value={editingButton.textColor || activeCard.buttonTextColor || '#111111'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { textColor: e.target.value })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Iconfarbe</label><input type="color" value={editingButton.iconColor || '#111111'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { iconColor: e.target.value })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>

@@ -37,14 +37,18 @@ export const ButtonTextTab: React.FC<ButtonTextTabProps> = ({
           <label className="block text-[10px] uppercase font-black text-stone-400 tracking-wider mb-2">
           {lang === 'de' ? 'Button-Text / Beschriftung' : 'Button Text / Label'}
         </label>
-        <input
-          type="text"
+        <textarea
           value={localButton.title || ''}
           onChange={(e) => updateButton({ title: e.target.value })}
-          placeholder={lang === 'de' ? 'z.B. Jetzt anrufen, Website besuchen...' : 'e.g. Call us, Visit website...'}
-          className="w-full bg-[#161616] border border-stone-800 rounded-xl px-3.5 py-2.5 text-xs text-stone-200 focus:outline-[#A855F7]"
+          placeholder={lang === 'de' ? 'z.B. Telefon\nDirekt anrufen' : 'e.g. Phone\nCall directly'}
+          rows={2}
+          maxLength={42}
+          className="w-full bg-[#161616] border border-stone-800 rounded-xl px-3.5 py-2.5 text-xs text-stone-200 focus:outline-[#A855F7] resize-none leading-snug"
           id="button-text-title-input"
         />
+        <p className="mt-1.5 text-[9px] text-stone-500 font-semibold">
+          {lang === 'de' ? 'Zweite Zeile ist erlaubt – aber nur hier im Buttontextfeld. Die Aktion/Zieladresse wird nie als sichtbarer Text angezeigt.' : 'A second line is allowed here only. The action/target is never shown as button text.'}
+        </p>
       </div>
       )}
 

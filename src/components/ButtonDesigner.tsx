@@ -129,6 +129,7 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
   const [btnShadowColor, setBtnShadowColor] = useState('rgba(0,0,0,0.15)');
   const [btnGlow, setBtnGlow] = useState<'none' | 'gold' | 'light'>('none');
   const [btnAnimation, setBtnAnimation] = useState<'none' | 'scale' | 'pulse' | 'wiggle'>('none');
+  const [btnButtonShape, setBtnButtonShape] = useState<string>('classic');
 
   // Passcodes lock states
   const [btnProtected, setBtnProtected] = useState(false);
@@ -225,6 +226,7 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
       setBtnBorderWidth(b.borderWidth || 'none');
       setBtnBorderStyle(b.borderStyle || 'solid');
       setBtnRadius(b.radius || 'rounded');
+      setBtnButtonShape(b.buttonShape || (b.radius === 'pill' ? 'round' : b.radius === 'square' ? 'square' : 'classic'));
 
       setBtnShadow(b.shadow || 'none');
       setBtnShadowColor(b.shadowColor || 'rgba(0,0,0,0.15)');
@@ -338,6 +340,7 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
     availabilityBackupContact: btnAvailabilityBackupContact,
     locationRouteProvider: btnLocationRouteProvider as any,
     buttonSize: btnSize,
+    buttonShape: btnButtonShape,
   };
 
   const previewRadiusClass = localButton.radius === 'square' ? 'rounded-none' : localButton.radius === 'pill' ? 'rounded-full' : 'rounded-[22px]';
@@ -412,6 +415,7 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
     if (updates.borderWidth !== undefined) setBtnBorderWidth(updates.borderWidth);
     if (updates.borderStyle !== undefined) setBtnBorderStyle(updates.borderStyle);
     if (updates.radius !== undefined) setBtnRadius(updates.radius);
+    if (updates.buttonShape !== undefined) setBtnButtonShape(updates.buttonShape);
 
     if (updates.shadow !== undefined) setBtnShadow(updates.shadow);
     if (updates.shadowColor !== undefined) setBtnShadowColor(updates.shadowColor);

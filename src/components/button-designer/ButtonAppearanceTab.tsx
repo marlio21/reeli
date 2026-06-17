@@ -154,8 +154,10 @@ export const ButtonAppearanceTab: React.FC<ButtonAppearanceTabProps> = ({
                   {[
                     { id: 'contact', de: 'Kontakt', en: 'Contact' },
                     { id: 'social', de: 'Social', en: 'Social' },
+                    { id: 'files', de: 'Dateien', en: 'Files' },
                     { id: 'business', de: 'Business', en: 'Business' },
-                    { id: 'general', de: 'Allgemein', en: 'General' },
+                    { id: 'media', de: 'Medien', en: 'Media' },
+                    { id: 'action', de: 'Aktion', en: 'Action' },
                   ].map((cat) => {
                     const isActive = selectedCategory === cat.id;
                     return (
@@ -189,30 +191,12 @@ export const ButtonAppearanceTab: React.FC<ButtonAppearanceTabProps> = ({
                       const seen = new Set<string>();
                       const term = iconSearchTerm.toLowerCase();
                       const mapping: Record<string, string[]> = {
-                        contact: [
-                          'Phone', 'Mail', 'MessageSquare', 'MessageCircle', 'Contact', 'UserPlus', 
-                          'MapPin', 'Home', 'Calendar', 'Clock', 'Globe', 'Compass', 'User', 'Users', 
-                          'PhoneCall', 'MailOpen', 'AtSign', 'Map'
-                        ],
-                        social: [
-                          'Instagram', 'Facebook', 'Linkedin', 'Youtube', 'Twitter', 'Send',
-                          'QrCode', 'Share2', 'Tv', 'ArrowUpRight', 'ExternalLink', 'Github', 
-                          'Twitch', 'Slack', 'Video', 'Volume2', 'Megaphone', 'Camera'
-                        ],
-                        business: [
-                          'Store', 'ShoppingBag', 'ShoppingCart', 'Clock', 'Percent', 'Tag', 
-                          'Award', 'Download', 'Upload', 'Briefcase', 'FolderOpen', 'Star', 
-                          'Map', 'Menu', 'BookOpen', 'Bookmark', 'HeartHandshake', 'CheckSquare',
-                          'FileText', 'DollarSign', 'CreditCard', 'Coins', 'TrendingUp', 'Activity', 
-                          'ShieldCheck', 'Zap', 'Target'
-                        ],
-                        general: [
-                          'Link', 'Heart', 'Info', 'Play', 'Camera', 'Image', 'Images', 'Music', 
-                          'File', 'FileText', 'Lock', 'Shield', 'CheckCircle', 'Plus', 'Sparkles', 
-                          'ArrowRight', 'ChevronRight', 'Settings', 'Sliders', 'Globe', 'HelpCircle', 
-                          'Filter', 'Search', 'Bell', 'ThumbsUp', 'Flame', 'Coffee', 'Gift', 'Crown', 
-                          'Lightbulb', 'Smile'
-                        ]
+                        contact: ['Phone', 'PhoneCall', 'Mail', 'MailOpen', 'AtSign', 'MessageCircle', 'MessageSquare', 'Contact', 'User', 'Users', 'UserPlus', 'MapPin', 'Map', 'Home', 'Calendar', 'Clock'],
+                        social: ['Instagram', 'Facebook', 'Linkedin', 'Youtube', 'Twitter', 'Send', 'Share2', 'QrCode', 'ExternalLink', 'Globe', 'Github', 'Twitch', 'Slack', 'Megaphone'],
+                        files: ['File', 'FileText', 'Folder', 'FolderOpen', 'Download', 'Upload', 'BookOpen', 'Bookmark', 'Clipboard', 'ClipboardList', 'Paperclip', 'Image', 'Images'],
+                        business: ['Store', 'Briefcase', 'Building2', 'ShoppingBag', 'ShoppingCart', 'CreditCard', 'Coins', 'Euro', 'DollarSign', 'Percent', 'Tag', 'Award', 'TrendingUp', 'Activity', 'ShieldCheck', 'Target'],
+                        media: ['Video', 'Play', 'Tv', 'Camera', 'Image', 'Music', 'Mic', 'Headphones', 'Volume2', 'Radio', 'Film', 'Podcast'],
+                        action: ['Link', 'Heart', 'Star', 'Gift', 'Sparkles', 'Zap', 'CheckCircle', 'Plus', 'ArrowRight', 'ChevronRight', 'Settings', 'Sliders', 'Search', 'Bell', 'ThumbsUp', 'Flame', 'Coffee', 'Crown', 'Lightbulb', 'Smile']
                       };
 
                       Object.values(mapping).forEach((iconsArr) => {
@@ -264,30 +248,12 @@ export const ButtonAppearanceTab: React.FC<ButtonAppearanceTabProps> = ({
                   <div>
                     {(() => {
                       const mapping: Record<string, string[]> = {
-                        contact: [
-                          'Phone', 'Mail', 'MessageSquare', 'MessageCircle', 'Contact', 'UserPlus', 
-                          'MapPin', 'Home', 'Calendar', 'Clock', 'Globe', 'Compass', 'User', 'Users', 
-                          'PhoneCall', 'MailOpen', 'AtSign', 'Map'
-                        ],
-                        social: [
-                          'Instagram', 'Facebook', 'Linkedin', 'Youtube', 'Twitter', 'Send',
-                          'QrCode', 'Share2', 'Tv', 'ArrowUpRight', 'ExternalLink', 'Github', 
-                          'Twitch', 'Slack', 'Video', 'Volume2', 'Megaphone', 'Camera'
-                        ],
-                        business: [
-                          'Store', 'ShoppingBag', 'ShoppingCart', 'Clock', 'Percent', 'Tag', 
-                          'Award', 'Download', 'Upload', 'Briefcase', 'FolderOpen', 'Star', 
-                          'Map', 'Menu', 'BookOpen', 'Bookmark', 'HeartHandshake', 'CheckSquare',
-                          'FileText', 'DollarSign', 'CreditCard', 'Coins', 'TrendingUp', 'Activity', 
-                          'ShieldCheck', 'Zap', 'Target'
-                        ],
-                        general: [
-                          'Link', 'Heart', 'Info', 'Play', 'Camera', 'Image', 'Images', 'Music', 
-                          'File', 'FileText', 'Lock', 'Shield', 'CheckCircle', 'Plus', 'Sparkles', 
-                          'ArrowRight', 'ChevronRight', 'Settings', 'Sliders', 'Globe', 'HelpCircle', 
-                          'Filter', 'Search', 'Bell', 'ThumbsUp', 'Flame', 'Coffee', 'Gift', 'Crown', 
-                          'Lightbulb', 'Smile'
-                        ]
+                        contact: ['Phone', 'PhoneCall', 'Mail', 'MailOpen', 'AtSign', 'MessageCircle', 'MessageSquare', 'Contact', 'User', 'Users', 'UserPlus', 'MapPin', 'Map', 'Home', 'Calendar', 'Clock'],
+                        social: ['Instagram', 'Facebook', 'Linkedin', 'Youtube', 'Twitter', 'Send', 'Share2', 'QrCode', 'ExternalLink', 'Globe', 'Github', 'Twitch', 'Slack', 'Megaphone'],
+                        files: ['File', 'FileText', 'Folder', 'FolderOpen', 'Download', 'Upload', 'BookOpen', 'Bookmark', 'Clipboard', 'ClipboardList', 'Paperclip', 'Image', 'Images'],
+                        business: ['Store', 'Briefcase', 'Building2', 'ShoppingBag', 'ShoppingCart', 'CreditCard', 'Coins', 'Euro', 'DollarSign', 'Percent', 'Tag', 'Award', 'TrendingUp', 'Activity', 'ShieldCheck', 'Target'],
+                        media: ['Video', 'Play', 'Tv', 'Camera', 'Image', 'Music', 'Mic', 'Headphones', 'Volume2', 'Radio', 'Film', 'Podcast'],
+                        action: ['Link', 'Heart', 'Star', 'Gift', 'Sparkles', 'Zap', 'CheckCircle', 'Plus', 'ArrowRight', 'ChevronRight', 'Settings', 'Sliders', 'Search', 'Bell', 'ThumbsUp', 'Flame', 'Coffee', 'Crown', 'Lightbulb', 'Smile']
                       };
                       const activeIcons = mapping[selectedCategory] || [];
                       return (
