@@ -1,12 +1,12 @@
-# ureel v26 – Scene full preview restored
+# ureel v29 – Karte stabilisieren
 
-Diese Version korrigiert v25:
+Diese Version stabilisiert die fertige Smartphone-Karte:
 
-- Szene → Darstellung zeigt wieder die komplette bereits konfigurierte Karte im Smartphone-Monitor.
-- Der Darstellungsbereich ist nicht mehr nur Hintergrund-Vorschau.
-- Vorschau bleibt: Hintergrund + Werbetexte/Vorlagen + Buttons + Endkarte/Ablauf.
-- Endkarte blendet ruhiger ein: ca. 2 Sekunden.
-- Startbutton-Look aus v25 bleibt erhalten.
+- Startkarte mit Anthrazit-/Creme-Verlauf statt zufälligem Bild
+- 6 vorkonfigurierte echte Startbuttons im einheitlichen Buttoneditor-Look
+- Button-Größe und Text/Icon-Skalierung für die Szenenvorschau synchronisiert
+- Endkartenbild wird als eigene Abschluss-Ebene über Video/Hintergrund gelegt
+- Optionales Endkarten-Video 16:9 bleibt über dem Endkartenbild, nicht als Reel
+- Werbetext-Zone bleibt oberhalb der Button-Ebene und wird bei sichtbaren Buttons kompakter
 
-Commit-Vorschlag:
-Restore full scene preview and set endcard fade to 2s
+Upload: ZIP entpacken, kompletten Inhalt ins GitHub-Repo hochladen, keine alten ZIPs mischen.

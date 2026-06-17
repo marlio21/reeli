@@ -233,7 +233,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       transition: 'opacity 2s ease-in-out',
     };
 
-    if (endCardConfig.source === 'image' && endCardConfig.imageUrl) {
+    if (endCardConfig.imageUrl) {
+      // Endcard image is an independent closing layer. It can sit under an optional 16:9 endcard video.
       style.backgroundImage = `url(${endCardConfig.imageUrl})`;
       style.backgroundSize = 'cover';
       style.backgroundPosition = 'center';
@@ -1120,13 +1121,19 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
 
     const buttonsVisible = showButtons && filteredLayeredButtons.length > 0;
     const isHero = activeSceneVideoResult.placement === 'hero' && scene.mode === 'video';
-    const heroTop = isHero ? (activeSceneVideoResult.heroSize === 'compact' ? '29%' : '33.5%') : (buttonsVisible ? '9%' : '14%');
-    const safeBottom = buttonsVisible ? (filteredLayeredButtons.length > 6 ? '44%' : '38%') : '7%';
-    const widthClass = layeredFrameType === 'badge' ? 'max-w-[78%]' : 'max-w-[84%]';
-    const compactRatio = buttonsVisible ? (isHero ? 0.62 : 0.72) : 0.92;
-    const titleSize = Math.max(13, Math.min(buttonsVisible ? 24 : 38, Number((card as any).heroTitleSize || 30) * compactRatio));
-    const subtitleSize = Math.max(7, Math.min(buttonsVisible ? 12 : 18, Number((card as any).heroSubtitleSize || 12) * (buttonsVisible ? 0.72 : 0.95)));
-    const descriptionSize = Math.max(7, Math.min(buttonsVisible ? 10 : 15, Number((card as any).heroDescriptionSize || 11) * (buttonsVisible ? 0.74 : 1)));
+    const endcardVideoActive = showEndCard && !!((endCardConfig as any).videoUrl || '').trim();
+    const endcardVideoCompact = endcardVideoActive && ((endCardConfig as any).videoDisplayMode || 'wide') === 'compact';
+    const heroTop = endcardVideoActive
+      ? (endcardVideoCompact ? '30%' : '22%')
+      : isHero
+      ? (activeSceneVideoResult.heroSize === 'compact' ? '29%' : '33.5%')
+      : (buttonsVisible ? '8%' : '14%');
+    const safeBottom = buttonsVisible ? (filteredLayeredButtons.length > 6 ? '48%' : '42%') : '7%';
+    const widthClass = layeredFrameType === 'badge' ? 'max-w-[78%]' : 'max-w-[82%]';
+    const compactRatio = buttonsVisible ? (isHero || endcardVideoActive ? 0.50 : 0.62) : 0.92;
+    const titleSize = Math.max(12, Math.min(buttonsVisible ? 20 : 38, Number((card as any).heroTitleSize || 30) * compactRatio));
+    const subtitleSize = Math.max(6.5, Math.min(buttonsVisible ? 10 : 18, Number((card as any).heroSubtitleSize || 12) * (buttonsVisible ? 0.62 : 0.95)));
+    const descriptionSize = Math.max(6.2, Math.min(buttonsVisible ? 8 : 15, Number((card as any).heroDescriptionSize || 11) * (buttonsVisible ? 0.58 : 1)));
     const boxStyle = layeredTextBoxStyle();
     const textZoneStyle: React.CSSProperties = {
       top: heroTop,
@@ -1138,15 +1145,15 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
 
     return (
       <div className={`absolute left-1/2 -translate-x-1/2 ${widthClass} z-[12] overflow-hidden pointer-events-none transition-all duration-500`} style={textZoneStyle}>
-        <div className={`relative w-full max-h-full overflow-hidden rounded-3xl border ${buttonsVisible ? 'px-4 py-3' : 'px-5 py-5'} text-center shadow-2xl shadow-black/20 ureel-ad-anim-${layeredTemplate.animation || 'fade'}`} style={{ ...boxStyle, animationDuration: `${Number((card as any).adAnimationDuration || 1.2)}s` }}>
+        <div className={`relative w-full max-h-full overflow-hidden rounded-3xl border ${buttonsVisible ? 'px-3 py-2' : 'px-5 py-5'} text-center shadow-2xl shadow-black/20 ureel-ad-anim-${layeredTemplate.animation || 'fade'}`} style={{ ...boxStyle, animationDuration: `${Number((card as any).adAnimationDuration || 1.2)}s` }}>
           {layeredFrameType === 'corner' && <><span className="absolute left-2 top-2 w-5 h-5 border-l-2 border-t-2" style={{ borderColor: layeredAccent }} /><span className="absolute right-2 top-2 w-5 h-5 border-r-2 border-t-2" style={{ borderColor: layeredAccent }} /><span className="absolute left-2 bottom-2 w-5 h-5 border-l-2 border-b-2" style={{ borderColor: layeredAccent }} /><span className="absolute right-2 bottom-2 w-5 h-5 border-r-2 border-b-2" style={{ borderColor: layeredAccent }} /></>}
           {layeredFrameType === 'thin' && <span className="absolute inset-2 rounded-2xl border border-dashed pointer-events-none" style={{ borderColor: `${layeredAccent}77` }} />}
           {layeredFrameType === 'side_line' && <span className="absolute left-3 top-5 bottom-5 w-1 rounded-full" style={{ background: layeredAccent }} />}
           {layeredFrameType === 'badge' && visibleSubtitle && <div className="inline-flex mb-2 px-3 py-1 rounded-full border text-[8px] font-black uppercase tracking-widest" style={{ borderColor: `${layeredAccent}66`, color: layeredAccent }}>{subtitle}</div>}
           <div className={layeredFrameType === 'side_line' ? 'pl-4' : ''}>
             {visibleTitle && layerTextWithHighlight(title, 'block font-black uppercase leading-[0.92] break-words', { fontSize: titleSize, fontFamily: layeredFont, letterSpacing: layeredTemplate.fontStyle === 'elegant' ? '0.10em' : layeredTemplate.fontStyle === 'condensed' ? '0.02em' : '-0.03em', color: (card as any).heroTitleTextColor || (layeredBoxType === 'light' ? '#151515' : '#F5F2EA') })}
-            {visibleSubtitle && layeredFrameType !== 'badge' && <span className="block mt-3 font-black uppercase leading-tight break-words" style={{ fontSize: subtitleSize, fontFamily: layeredFont, color: (card as any).heroSubtitleTextColor || (layeredBoxType === 'light' ? '#3A3732' : layeredAccent), letterSpacing: '0.06em' }}>{subtitle}</span>}
-            {visibleDescription && <span className="block mt-3 font-semibold leading-snug break-words" style={{ fontSize: descriptionSize, fontFamily: layeredFont, color: (card as any).heroDescTextColor || (layeredBoxType === 'light' ? '#3A3732' : '#E8DCC2') }}>{description}</span>}
+            {visibleSubtitle && layeredFrameType !== 'badge' && <span className="block mt-2 font-black uppercase leading-tight break-words" style={{ fontSize: subtitleSize, fontFamily: layeredFont, color: (card as any).heroSubtitleTextColor || (layeredBoxType === 'light' ? '#3A3732' : layeredAccent), letterSpacing: '0.06em' }}>{subtitle}</span>}
+            {visibleDescription && <span className="block mt-2 font-semibold leading-snug break-words" style={{ fontSize: descriptionSize, fontFamily: layeredFont, color: (card as any).heroDescTextColor || (layeredBoxType === 'light' ? '#3A3732' : '#E8DCC2') }}>{description}</span>}
             {layeredFrameType === 'underline' && <span className="block mt-4 h-1 rounded-full mx-auto w-2/3" style={{ background: layeredAccent }} />}
           </div>
         </div>
@@ -1155,7 +1162,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   };
 
   if (useLayeredUreelCard) {
-    const buttonDockMaxHeight = filteredLayeredButtons.length > 6 ? 'max-h-[38%]' : 'max-h-[34%]';
+    const buttonDockMaxHeight = filteredLayeredButtons.length > 6 ? 'max-h-[40%]' : 'max-h-[36%]';
     return (
       <div
         onClick={() => {

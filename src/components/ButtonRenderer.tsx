@@ -198,21 +198,23 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   }
 
   // Padding & Text properties
+  const forcedPx = typeof forceSizePx === 'number' ? forceSizePx : undefined;
+  const isTinyTile = !!forcedPx && forcedPx <= 58;
   const isExtremeShape = shape === 'round';
   const paddingStyle = isExtremeShape 
-    ? '15% 15%' 
+    ? (isTinyTile ? '9% 8%' : '15% 15%') 
     : (paddingYStyle && paddingXStyle 
         ? `${paddingYStyle} ${paddingXStyle}` 
         : (btn.textPadding !== undefined ? `${Math.round(btn.textPadding * scaleFactor)}px` : `${Math.round(10 * scaleFactor)}px`));
 
   // Proportional lightweight scaling for text & icons
-  const fontScale = Math.min(scaleFactor, 1.12);
-  const iconScale = Math.min(scaleFactor, 1.15);
+  const fontScale = Math.min(scaleFactor, isTinyTile ? 1.0 : 1.12);
+  const iconScale = Math.min(scaleFactor, isTinyTile ? 0.92 : 1.15);
 
   const labelLength = (btn.title || '').trim().length;
   const baseFontSize = btn.fontSize !== undefined ? btn.fontSize : 12;
   const lengthPenalty = labelLength > 28 ? 4 : labelLength > 20 ? 3 : labelLength > 14 ? 1.8 : labelLength > 10 ? 0.8 : 0;
-  const autoFitFontSize = Math.max(7, Math.round((baseFontSize * fontScale) - lengthPenalty));
+  const autoFitFontSize = Math.max(isTinyTile ? 6.2 : 7, Math.round((baseFontSize * fontScale) - lengthPenalty));
   const sizeStyle = `${autoFitFontSize}px`;
 
   const fontWeights: any = {
@@ -262,8 +264,8 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
 
     const circleBg = (btn as any).iconCircleBg || (btn as any).iconBackground === 'circle';
     const circleStyle: React.CSSProperties = circleBg ? {
-      width: Math.max(22, iconSize + 14),
-      height: Math.max(22, iconSize + 14),
+      width: Math.max(isTinyTile ? 18 : 22, iconSize + (isTinyTile ? 8 : 14)),
+      height: Math.max(isTinyTile ? 18 : 22, iconSize + (isTinyTile ? 8 : 14)),
       borderRadius: 999,
       background: (btn as any).iconCircleColor || 'rgba(26,26,26,0.16)',
       boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.35)',
@@ -460,7 +462,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
         <div 
           className={`flex ${(btn.iconPosition === 'top' || btn.iconPosition === 'bottom' || btn.iconPosition === 'center') ? 'flex-col' : 'flex-row'} items-center max-w-full ${getTextAlignClass()} pointer-events-none`}
           style={{
-            gap: `${Math.round(((btn.iconPosition === 'top' || btn.iconPosition === 'bottom' || btn.iconPosition === 'center') ? 4 : 6) * scaleFactor)}px`
+            gap: `${Math.round(((btn.iconPosition === 'top' || btn.iconPosition === 'bottom' || btn.iconPosition === 'center') ? (isTinyTile ? 2 : 4) : 6) * scaleFactor)}px`
           }}
         >
           
