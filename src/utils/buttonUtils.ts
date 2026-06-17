@@ -71,7 +71,7 @@ function normalizeButtonWithRaw(rawButton: any): CardButton {
     shadowColor: rawButton.shadowColor || 'rgba(0,0,0,0.15)',
     glow: rawButton.glow || 'none',
 
-    iconColor: rawButton.iconColor || rawButton.textColor || '#F5EFE3',
+    iconColor: rawButton.iconColor || rawButton.iconColour || '#1E1E1E',
     iconSize: typeof rawButton.iconSize === 'number' ? rawButton.iconSize : 28,
     iconPosition,
     iconOffsetX: typeof rawButton.iconOffsetX === 'number' ? rawButton.iconOffsetX : 0,

@@ -723,6 +723,24 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     triggerToast(lang === 'de' ? 'Schaltfläche dupliziert' : 'Button duplicated', 'success');
   };
 
+  // Move button order in the button list and keep positions clean
+  const handleMoveButtonLocal = async (btnId: string, direction: -1 | 1) => {
+    if (!activeCard) return;
+    const sorted = [...(activeCard.buttons || [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+    const currentIndex = sorted.findIndex((b) => b.id === btnId);
+    if (currentIndex < 0) return;
+    const targetIndex = currentIndex + direction;
+    if (targetIndex < 0 || targetIndex >= sorted.length) return;
+    const next = [...sorted];
+    const temp = next[currentIndex];
+    next[currentIndex] = next[targetIndex];
+    next[targetIndex] = temp;
+    const reordered = next.map((b, index) => ({ ...b, position: index }));
+    await syncCardUpdate({ buttons: reordered });
+    setEditingBtnId(btnId);
+    triggerToast(lang === 'de' ? 'Button-Reihenfolge aktualisiert.' : 'Button order updated.', 'success');
+  };
+
   // Toggle buttons group lock or hide
   const handleToggleElementInReelLocal = (elementKey: string) => {
     const config = activeCard.reelExportConfig || {};
@@ -3000,7 +3018,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {(activeCard.buttons || []).map((button, index) => {
+                      {[...(activeCard.buttons || [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0)).map((button, index) => {
                         const selected = editingBtnId === button.id;
                         const actionLabel = actionOptions.find((option) => option.value === button.actionType)?.label || button.actionType || 'Aktion';
                         return (
@@ -3020,14 +3038,20 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                               </div>
                               <LucideIcons.ChevronRight size={14} className="text-stone-500" />
                             </button>
-                            <div className="grid grid-cols-3 gap-2 mt-3">
-                              <button type="button" onClick={() => handleCopyButtonLocal(button)} className="h-8 rounded-xl border border-[#3A3732] bg-[#101010] text-[#F5F2EA] text-[8.5px] font-black uppercase flex items-center justify-center gap-1">
-                                <LucideIcons.Copy size={10} /> Kopieren
+                            <div className="grid grid-cols-5 gap-2 mt-3">
+                              <button type="button" disabled={index === 0} onClick={() => handleMoveButtonLocal(button.id, -1)} className="h-8 rounded-xl border border-[#3A3732] bg-[#101010] text-[#F5F2EA] disabled:opacity-30 text-[8px] font-black uppercase flex items-center justify-center gap-1" title="Nach oben verschieben">
+                                <LucideIcons.ArrowUp size={10} /> Hoch
                               </button>
-                              <button type="button" onClick={() => handleDuplicateButtonLocal(button)} className="h-8 rounded-xl border border-[#3A3732] bg-[#101010] text-[#F5F2EA] text-[8.5px] font-black uppercase flex items-center justify-center gap-1">
-                                <LucideIcons.CopyPlus size={10} /> Duplizieren
+                              <button type="button" disabled={index === (activeCard.buttons || []).length - 1} onClick={() => handleMoveButtonLocal(button.id, 1)} className="h-8 rounded-xl border border-[#3A3732] bg-[#101010] text-[#F5F2EA] disabled:opacity-30 text-[8px] font-black uppercase flex items-center justify-center gap-1" title="Nach unten verschieben">
+                                <LucideIcons.ArrowDown size={10} /> Runter
                               </button>
-                              <button type="button" onClick={() => handleDeleteButtonLocal(button.id)} className="h-8 rounded-xl border border-red-950/50 bg-red-950/20 text-red-300 text-[8.5px] font-black uppercase flex items-center justify-center gap-1">
+                              <button type="button" onClick={() => handleCopyButtonLocal(button)} className="h-8 rounded-xl border border-[#3A3732] bg-[#101010] text-[#F5F2EA] text-[8px] font-black uppercase flex items-center justify-center gap-1">
+                                <LucideIcons.Copy size={10} /> Kopie
+                              </button>
+                              <button type="button" onClick={() => handleDuplicateButtonLocal(button)} className="h-8 rounded-xl border border-[#3A3732] bg-[#101010] text-[#F5F2EA] text-[8px] font-black uppercase flex items-center justify-center gap-1">
+                                <LucideIcons.CopyPlus size={10} /> Dupl.
+                              </button>
+                              <button type="button" onClick={() => handleDeleteButtonLocal(button.id)} className="h-8 rounded-xl border border-red-950/50 bg-red-950/20 text-red-300 text-[8px] font-black uppercase flex items-center justify-center gap-1">
                                 <LucideIcons.Trash2 size={10} /> Löschen
                               </button>
                             </div>
@@ -3054,11 +3078,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     </button>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    <div>
-                      <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Beschriftung</label>
-                      <input type="text" value={editingButton.title || ''} onChange={(e) => handleUpdateSingleButton(editingButton.id, { title: e.target.value })} className="w-full bg-[#181818] border border-[#3A3732] h-10 px-3 rounded-xl text-xs font-bold text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
+                    <div className="sm:col-span-2 rounded-xl border border-[#3A3732] bg-[#181818] p-3 text-[9.5px] text-stone-400 leading-relaxed">
+                      Die Button-Beschriftung wird nur noch im Menü <b className="text-[#F5F2EA]">Design</b> geändert. Hier stellst du nur Aktion und Ziel ein, damit keine zwei Textfelder gegeneinander arbeiten.
                     </div>
-                    <div>
+                    <div className="sm:col-span-2">
                       <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Aktions-Typ</label>
                       <select value={editingButton.actionType || 'url'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { actionType: e.target.value })} className="w-full bg-[#181818] border border-[#3A3732] h-10 px-3 rounded-xl text-xs font-semibold text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]">
                         {actionOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
@@ -3107,12 +3130,13 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   <div><span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Design & Buttonbild</span><p className="text-[9.5px] text-stone-500 mt-1">Der Text skaliert automatisch zur Buttongröße und bricht sauber um.</p></div>
                   <div className="grid grid-cols-1 xl:grid-cols-[1fr_190px] gap-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <div className="sm:col-span-2"><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Button-Text</label><input type="text" value={editingButton.title || ''} onChange={(e) => handleUpdateSingleButton(editingButton.id, { title: e.target.value })} className="w-full bg-[#181818] border border-[#3A3732] h-10 px-3 rounded-xl text-xs font-bold text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" placeholder="z. B. Telefon, Webseite, Datei" /></div>
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Button-Farbe</label><input type="color" value={editingButton.bgColor || editingButton.backgroundColor || activeCard.buttonColor || '#18181B'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { bgColor: e.target.value, backgroundColor: e.target.value })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Textfarbe</label><input type="color" value={editingButton.textColor || activeCard.buttonTextColor || '#111111'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { textColor: e.target.value })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
-                      <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Iconfarbe</label><input type="color" value={editingButton.iconColor || editingButton.textColor || '#111111'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { iconColor: e.target.value })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
+                      <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Iconfarbe</label><input type="color" value={editingButton.iconColor || '#111111'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { iconColor: e.target.value })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Rahmenfarbe</label><input type="color" value={editingButton.borderColor || '#E8DCC2'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { borderColor: e.target.value, borderEnabled: true, borderWidth: editingButton.borderWidth || 'thin' })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
                       <div><div className="flex items-center justify-between text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1"><span>Transparenz</span><span className="text-[#E8DCC2] font-mono">{Math.round(100 - Number((editingButton as any).opacity ?? 100))}%</span></div><input type="range" min={0} max={80} step={5} value={100 - Number((editingButton as any).opacity ?? 100)} onChange={(e) => handleUpdateSingleButton(editingButton.id, { opacity: 100 - Number(e.target.value) } as any)} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" /><span className="block mt-1 text-[8.5px] text-stone-550">0% = deckend, 80% = sehr transparent.</span></div>
-                      <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Eckenform</label><select value={editingButton.radius || 'rounded'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { radius: e.target.value as any })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] px-3 text-xs text-[#F5F2EA]"><option value="square">Quadrat</option><option value="rounded">Quadrat abgerundet</option><option value="pill">Kreis</option></select></div>
+                      <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Eckenform</label><select value={editingButton.radius || 'rounded'} onChange={(e) => { const radius = e.target.value as any; handleUpdateSingleButton(editingButton.id, { radius, buttonShape: radius === 'pill' ? 'round' : radius === 'square' ? 'square' : 'rounded' } as any); }} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] px-3 text-xs text-[#F5F2EA]"><option value="square">Quadrat</option><option value="rounded">Quadrat abgerundet</option><option value="pill">Kreis</option></select></div>
                       <div className="sm:col-span-2 rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
                         <div className="flex items-center justify-between gap-2"><span className="block text-[10px] font-black uppercase tracking-wider text-[#E8DCC2]">Icon-Bereich</span><span className="text-[8px] text-stone-500">Viele Icons für Telefon, Social, Datei, Business</span></div>
                         <div className="grid grid-cols-8 sm:grid-cols-10 gap-1.5 max-h-40 overflow-y-auto pr-1 scrollbar-none">
