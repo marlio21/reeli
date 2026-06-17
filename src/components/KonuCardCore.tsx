@@ -54,6 +54,7 @@ export interface KonuCardCoreProps {
   onButtonActionClick?: (action: any, value: any) => Promise<void>;
   isDesktopPreview?: boolean;
   cleanPreview?: boolean;
+  previewFocus?: 'full' | 'background';
 }
 
 export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
@@ -62,6 +63,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   isPreview = false,
   isMiniPreview = false,
   cleanPreview = false,
+  previewFocus = 'full',
   videoBackgroundPreviewState,
 
   isReelView = false,
@@ -206,6 +208,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   const showDescription = textRevealEnabled('description') && (!hasTimeline || elapsed >= timelineConfig.descriptionAt);
   const showButtons = !hasTimeline || elapsed >= timelineConfig.buttonsAt;
   const showEndCard = hasEndCard && endCardConfig.enabled && elapsed >= timelineConfig.endCardAt;
+  const backgroundOnlyPreview = cleanPreview && previewFocus === 'background';
 
   const handleReplay = () => {
     setElapsed(0);
@@ -227,7 +230,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       position: 'absolute',
       inset: 0,
       zIndex: 9, // covers scene/video softly at the end but sits below text/buttons/replay
-      transition: 'opacity 0.6s ease-in-out',
+      transition: 'opacity 2s ease-in-out',
     };
 
     if (endCardConfig.source === 'image' && endCardConfig.imageUrl) {
@@ -256,7 +259,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         {/* The elegant Endcard Background cover */}
         <div 
           className="absolute inset-0 z-[9] pointer-events-none animate-fadeIn"
-          style={getEndCardStyle()}
+          style={{ ...getEndCardStyle(), animationDuration: '2s' }}
         />
 
         {/* Replay Button overlay (fully interactive pointer-events-auto) */}
@@ -1131,13 +1134,13 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             }}
           />
         )}
-        {renderEndCardOverlay()}
+        {!backgroundOnlyPreview && renderEndCardOverlay()}
 
         {/* Layer 2: Werbetext / template area. It can use the full card before buttons and compacts automatically when buttons appear. */}
-        {renderLayeredAdText()}
+        {!backgroundOnlyPreview && renderLayeredAdText()}
 
         {/* Layer 3: timed action dock. More than six buttons scroll inside the phone, the background remains fixed behind it. */}
-        {showButtons && filteredLayeredButtons.length > 0 && (
+        {!backgroundOnlyPreview && showButtons && filteredLayeredButtons.length > 0 && (
           <div
             className={`absolute left-3 right-3 bottom-3 z-[20] ${buttonDockMaxHeight} overflow-y-auto overflow-x-hidden scrollbar-none rounded-[24px] p-1 transition-all duration-500`}
             style={buttonRevealStyle}
@@ -1520,7 +1523,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
           </div>
 
           {/* Endcard HTML/CSS Overlay */}
-          {renderEndCardOverlay()}
+          {!backgroundOnlyPreview && renderEndCardOverlay()}
 
           {/* INTERACTIVE SORT MODE ALERT BOX inside Card Shell */}
           {isPreview && !cleanPreview && isSortingMode && (
@@ -2031,7 +2034,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       </div>
 
       {/* Endcard HTML/CSS Overlay */}
-      {renderEndCardOverlay()}
+      {!backgroundOnlyPreview && renderEndCardOverlay()}
 
       {/* INTERACTIVE SORT MODE ALERT BOX inside Card Shell */}
       {isPreview && !cleanPreview && isSortingMode && (

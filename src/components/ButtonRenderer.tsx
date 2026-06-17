@@ -260,8 +260,17 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
       ...extraStyle,
     };
 
+    const circleBg = (btn as any).iconCircleBg || (btn as any).iconBackground === 'circle';
+    const circleStyle: React.CSSProperties = circleBg ? {
+      width: Math.max(22, iconSize + 14),
+      height: Math.max(22, iconSize + 14),
+      borderRadius: 999,
+      background: (btn as any).iconCircleColor || 'rgba(26,26,26,0.16)',
+      boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.35)',
+    } : {};
+
     return (
-      <div style={finalStyle} className="pointer-events-none shrink-0 flex items-center justify-center">
+      <div style={{ ...finalStyle, ...circleStyle }} className="pointer-events-none shrink-0 flex items-center justify-center">
         {renderIcon(btn.icon, iconColor, iconSize)}
       </div>
     );

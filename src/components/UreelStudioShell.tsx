@@ -383,23 +383,25 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     bgColor: '#F5F2EA',
     backgroundColor: '#F5F2EA',
     textColor: '#1A1A1A',
-    iconColor: '#9A7B45',
+    iconColor: '#1A1A1A',
     borderColor: '#E8DCC2',
     borderEnabled: true,
     borderWidth: 'thin',
     shadow: 'soft',
-    shadowColor: 'rgba(0,0,0,0.28)',
+    shadowColor: 'rgba(0,0,0,0.22)',
     glow: 'none',
-    buttonImageUrl: '/ureel-button-cream.svg',
-    imageUrl: '/ureel-button-cream.svg',
+    buttonImageUrl: '',
+    imageUrl: '',
     buttonImageFit: 'cover',
     imageMode: 'cover',
     buttonImageOverlay: false,
     imageOverlay: 'none',
     iconPosition: 'top',
-    iconSize: 18,
+    iconSize: 17,
+    iconCircleBg: true as any,
+    iconCircleColor: 'rgba(26,26,26,0.18)' as any,
     fontFamily: 'Inter',
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: 'bold',
     letterSpacing: 0,
     textWrap: 'multi',
@@ -458,12 +460,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       blockMode: true,
     } as any,
     buttons: [
-      makeStarterButton('phone', lang === 'de' ? 'Telefon hinzufügen' : 'Add phone', 'phone', '', 'Phone', 0),
-      makeStarterButton('website', lang === 'de' ? 'Webseite hinzufügen' : 'Add website', 'url', '', 'Globe', 1),
-      makeStarterButton('mail', lang === 'de' ? 'Mail hinzufügen' : 'Add mail', 'email', '', 'Mail', 2),
-      makeStarterButton('whatsapp', lang === 'de' ? 'WhatsApp hinzufügen' : 'Add WhatsApp', 'whatsapp', '', 'MessageCircle', 3),
-      makeStarterButton('company', lang === 'de' ? 'Unternehmen hinzufügen' : 'Add company', 'contact_form', '', 'Building2', 4),
-      makeStarterButton('file', lang === 'de' ? 'Datei hinzufügen' : 'Add file', 'pdf_link', '', 'FileText', 5),
+      makeStarterButton('phone', lang === 'de' ? 'Telefon' : 'Phone', 'phone', '', 'Phone', 0),
+      makeStarterButton('website', lang === 'de' ? 'Webseite' : 'Website', 'url', '', 'ExternalLink', 1),
+      makeStarterButton('mail', lang === 'de' ? 'Mail' : 'Mail', 'email', '', 'Mail', 2),
+      makeStarterButton('folder', lang === 'de' ? 'Folder' : 'Folder', 'external_file_link', '', 'FolderOpen', 3),
+      makeStarterButton('company', lang === 'de' ? 'Unternehmen' : 'Company', 'contact_form', '', 'Building2', 4),
+      makeStarterButton('file', lang === 'de' ? 'Datei' : 'File', 'pdf_link', '', 'FileText', 5),
     ],
   });
 
@@ -2595,7 +2597,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div className="space-y-4">
                   <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div><span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Vorschau wechseln</span><p className="text-[9.5px] text-stone-500 mt-1">Im Buttoneditor siehst du Karte, Einzelbutton oder Raster – unabhängig von der Timeline.</p></div><div className="grid grid-cols-3 gap-1 rounded-2xl border border-[#3A3732] bg-[#0F0F0F] p-1 text-[9px] font-black uppercase">{(['card','button','grid'] as const).map((mode) => <button key={mode} type="button" onClick={() => setButtonPreviewMode(mode)} className={`h-9 rounded-xl px-2 ${buttonPreviewMode === mode ? 'bg-[#F5F2EA] text-[#101010]' : 'text-stone-400 hover:text-[#F5F2EA]'}`}>{mode === 'card' ? 'Karte' : mode === 'button' ? 'Button' : 'Raster'}</button>)}</div></div>
-                    {buttonPreviewMode === 'card' && <div className="rounded-3xl border border-[#3A3732] bg-[#0B0B0B] p-3 max-w-[260px] mx-auto"><div className="h-[430px] rounded-[28px] overflow-hidden border-[8px] border-[#1C1C1C] bg-black"><KonuCardCore card={monitorCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} /></div></div>}
+                    {buttonPreviewMode === 'card' && <div className="rounded-3xl border border-[#3A3732] bg-[#0B0B0B] p-3 max-w-[260px] mx-auto"><div className="h-[430px] rounded-[28px] overflow-hidden border-[8px] border-[#1C1C1C] bg-black"><KonuCardCore card={monitorCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} previewFocus="full" /></div></div>}
                     {buttonPreviewMode === 'button' && editingButton && <div className="max-w-[240px] mx-auto">{renderButtonPreviewTile(editingButton)}</div>}
                     {buttonPreviewMode === 'grid' && <div className="grid max-w-sm mx-auto" style={{ gridTemplateColumns: `repeat(${buttonGridCols}, minmax(0, 1fr))`, gap: `${buttonGapPx}px` }}>{(activeButtons.length ? activeButtons : activeCard.buttons || []).map((button) => renderButtonPreviewTile(button, true))}</div>}
                     <div className="rounded-xl border border-[#3A3732] bg-[#181818] p-3 text-[9px] leading-relaxed text-[#F5F2EA]/80"><b>Timeline-Hinweis:</b> In der Live-Karte erscheinen Buttons ab <b>{visibleButtonsAt.toFixed(1)}s</b>. Die Button-Vorschau bleibt hier immer sichtbar.</div>
@@ -2862,7 +2864,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div className="relative mx-auto w-[150px] h-[308px] sm:w-[180px] sm:h-[370px] md:w-[230px] md:h-[472px] bg-black rounded-[30px] md:rounded-[36px] border-[8px] border-[#F5F2EA]/80 shadow-2xl overflow-hidden flex flex-col justify-between ring-4 ring-[#E8DCC2]/10">
                   <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-black rounded-b-xl z-25" />
                   <div className="w-full h-full overflow-y-auto select-none bg-[#09090B] text-stone-200 scrollbar-none flex flex-col justify-between relative pt-5">
-                    <KonuCardCore card={monitorCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} />
+                    <KonuCardCore card={monitorCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} previewFocus="full" />
                   </div>
                 </div>
               )}
@@ -2903,7 +2905,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <span>100% 🔋</span>
               </div>
               <div className="w-full h-full overflow-y-auto select-none bg-[#09090B] text-stone-200 scrollbar-none flex flex-col justify-between relative pt-5">
-                <KonuCardCore card={monitorCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} />
+                <KonuCardCore card={monitorCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} previewFocus="full" />
               </div>
               {isPlaying && (
                 <div className="absolute bottom-1.5 left-2 right-2 bg-black/80 border border-[#E8DCC2]/30 p-1.5 rounded-lg flex items-center justify-between text-[7.5px] z-30 font-mono text-[#E8DCC2]">
