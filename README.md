@@ -1,14 +1,12 @@
-# ureel v39 – Buttondesign, Desktoplayout und Bild entfernen
+# ureel v42 – Startseite & Auth
 
-Diese Version fokussiert Buttondesign, Desktop-Webseite und Szenenbild-Verwaltung.
+Diese Version erneuert die öffentliche Startseite mit ureel.me Branding, U-Play Icon, Marketing-Hero, Login/Registrierung und drei Beispielkarten.
 
-## Änderungen
-- Transparenz-Regler im Buttondesigner unter Design
-- Raster-Vorschau reduziert auf 3er Raster
-- Bild entfernen im Szene-Modul unter Bild / Poster
-- Desktop-Vorschau stärker als 3-Spalten-Ansicht ohne unnötiges Scrollen
-- Button-Anordnungen Kreis/Dreieck enger und geordneter
-- Buttonbereich-Hintergrundbild wird auch öffentlich berücksichtigt
-
-## Build
-`npm run build` wurde erfolgreich geprüft.
+Änderungen:
+- Neue Landingpage im Anthrazit/Creme/Gold-Look
+- Quadratisches U-Play-Icon im Header
+- Klarer Claim: Aus Video wird Aktion
+- Login/Register-Karte mit Passwort vergessen und Google Login
+- Drei Beispielkarten: Privatperson, Unternehmen, Gastro/Event
+- Kurzer Vorteilebereich
+- Build erfolgreich geprüft

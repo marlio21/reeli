@@ -1,6 +1,3 @@
-# Security Notes v39
+# Security notes v42
 
-- Keine Secrets im Repository.
-- Firebase-Uploads bleiben unter users/{uid}/cards/{cardId}/...
-- Desktop- und Buttonbereich-Hintergrundbilder verwenden bestehende Storage-Uploadlogik.
-- Live-Link Veröffentlichung bleibt über isPublished/visibility public vorbereitet.
+Keine Änderungen an Firebase-Regeln. Diese Version ändert nur die Landingpage/Auth-Oberfläche.
