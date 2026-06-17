@@ -371,6 +371,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const makeStarterButton = (id: string, title: string, actionType: string, actionValue: string, icon: string, position: number): CardButton => ({
     id,
     title,
+    label: title,
     actionType,
     actionValue,
     icon,
@@ -380,6 +381,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     radius: 'rounded',
     buttonShape: 'rounded' as any,
     styleVariant: 'filled',
+    bgMode: 'solid' as any,
     bgColor: '#F5F2EA',
     backgroundColor: '#F5F2EA',
     textColor: '#1A1A1A',
@@ -387,6 +389,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     borderColor: '#E8DCC2',
     borderEnabled: true,
     borderWidth: 'thin',
+    borderStyle: 'solid',
     shadow: 'soft',
     shadowColor: 'rgba(0,0,0,0.22)',
     glow: 'none',
@@ -396,6 +399,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     imageMode: 'cover',
     buttonImageOverlay: false,
     imageOverlay: 'none',
+    imageDarken: 0 as any,
+    iconEnabled: true,
     iconPosition: 'top',
     iconSize: 17,
     iconCircleBg: true as any,
@@ -408,8 +413,32 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     textAlign: 'center',
     textPosition: 'bottom',
     labelPosition: 'bottom',
+    buttonSize: { preset: 'standard', scale: 1 } as any,
     animation: 'none',
   });
+
+  const makeStarterButtonSet = (): CardButton[] => [
+    makeStarterButton('phone', lang === 'de' ? 'Telefon' : 'Phone', 'phone', '', 'Phone', 0),
+    makeStarterButton('website', lang === 'de' ? 'Webseite' : 'Website', 'url', '', 'ExternalLink', 1),
+    makeStarterButton('mail', lang === 'de' ? 'Mail' : 'Mail', 'email', '', 'Mail', 2),
+    makeStarterButton('folder', lang === 'de' ? 'Folder' : 'Folder', 'external_file_link', '', 'FolderOpen', 3),
+    makeStarterButton('company', lang === 'de' ? 'Unternehmen' : 'Company', 'contact_form', '', 'Building2', 4),
+    makeStarterButton('file', lang === 'de' ? 'Datei' : 'File', 'pdf_link', '', 'FileText', 5),
+  ];
+
+  const handleApplyStarterButtons = async () => {
+    await syncCardUpdate({
+      buttons: makeStarterButtonSet(),
+      buttonGridCols: 3 as any,
+      buttonSizePx: 78 as any,
+      buttonGapPx: 10 as any,
+      buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), cols: 3, square: true, buttonSizePx: 78, gapPx: 10 } as any,
+    });
+    setEditingBtnId('phone');
+    setActiveTab('buttons');
+    setActiveSubSection('buttons-list');
+    triggerToast(lang === 'de' ? 'Die 6 vorkonfigurierten ureel-Startbuttons wurden eingesetzt.' : 'Starter buttons applied.', 'success');
+  };
 
   const createStarterUreelTemplate = (): Partial<Card> => ({
     title: lang === 'de' ? 'Deine neue ureel-Seite' : 'Your new ureel page',
@@ -459,14 +488,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       emphasis: { mode: 'last_word', color: '#E8DCC2' },
       blockMode: true,
     } as any,
-    buttons: [
-      makeStarterButton('phone', lang === 'de' ? 'Telefon' : 'Phone', 'phone', '', 'Phone', 0),
-      makeStarterButton('website', lang === 'de' ? 'Webseite' : 'Website', 'url', '', 'ExternalLink', 1),
-      makeStarterButton('mail', lang === 'de' ? 'Mail' : 'Mail', 'email', '', 'Mail', 2),
-      makeStarterButton('folder', lang === 'de' ? 'Folder' : 'Folder', 'external_file_link', '', 'FolderOpen', 3),
-      makeStarterButton('company', lang === 'de' ? 'Unternehmen' : 'Company', 'contact_form', '', 'Building2', 4),
-      makeStarterButton('file', lang === 'de' ? 'Datei' : 'File', 'pdf_link', '', 'FileText', 5),
-    ],
+    buttons: makeStarterButtonSet(),
   });
 
   // Helper to add button
@@ -2465,9 +2487,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Button-Liste</span>
                         <p className="text-[9.5px] text-stone-500 mt-1">Jeder Button ist selbst eine kleine Karte. Aktionen sitzen direkt auf der Karte.</p>
                       </div>
-                      <button onClick={handleAddButtonLocal} className="h-10 px-3 rounded-xl bg-[#F5F2EA] text-[#101010] text-[10px] font-black uppercase tracking-wider flex items-center gap-2">
-                        <LucideIcons.Plus size={14} /> Neu
-                      </button>
+                      <div className="flex flex-wrap gap-2 justify-end">
+                        <button onClick={handleApplyStarterButtons} className="h-10 px-3 rounded-xl border border-[#E8DCC2]/40 bg-[#181818] text-[#F5F2EA] text-[9px] font-black uppercase tracking-wider flex items-center gap-2">
+                          <LucideIcons.LayoutGrid size={13} /> 6 Startbuttons
+                        </button>
+                        <button onClick={handleAddButtonLocal} className="h-10 px-3 rounded-xl bg-[#F5F2EA] text-[#101010] text-[10px] font-black uppercase tracking-wider flex items-center gap-2">
+                          <LucideIcons.Plus size={14} /> Neu
+                        </button>
+                      </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {(activeCard.buttons || []).map((button, index) => {
@@ -2616,7 +2643,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           {((activeTab === 'endcard' && activeSubSection === 'endcard-general') || (activeTab === 'scene' && activeSubSection === 'scene-endcard')) && (
             <div className="space-y-4">
               <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-4">
-                <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Dauerhafte Endkarte (CTA Banner)</span>
+                <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Dauerhafte Endkarte</span>
                 <p className="text-[9.5px] text-stone-400">Blenden Sie am Ende des Videos eine ruhige Endkarte ein. Wenn keine Endkarte aktiv ist, bleibt die aktuelle Szene als Abschluss stehen.</p>
 
                 <div className="rounded-xl border border-[#E8DCC2]/15 bg-stone-900/55 p-3 space-y-2">
@@ -2634,39 +2661,36 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   {endCard.imageUrl && <div className="h-24 rounded-xl overflow-hidden border border-stone-800 bg-stone-950"><img src={endCard.imageUrl} alt="Endkarte" className="w-full h-full object-cover" /></div>}
                 </div>
 
-                <div className="space-y-3 pt-2">
-                  <div className="flex items-center justify-between p-2.5 bg-stone-900 rounded-lg">
+                <div className="rounded-xl border border-[#E8DCC2]/15 bg-stone-900/55 p-3 space-y-3">
+                  <div className="flex items-start justify-between gap-3">
                     <div>
-                      <span className="block font-bold text-[10.5px]">Aktionsbanner am Ende einblenden</span>
-                      <span className="block text-[8px] text-stone-500 mt-0.5">Zusammenfassung und Weiterleitung anbieten.</span>
+                      <span className="block text-[10px] uppercase font-black tracking-wider text-[#F5F2EA]">Endkarten-Video 16:9</span>
+                      <span className="block text-[8.5px] text-stone-400 mt-0.5">Optionales 16:9-Video oben auf der Endkarte. Kein Reel, kein Vollbild-Hintergrund.</span>
                     </div>
-                    <button
-                      onClick={() => handleToggleElementInReelLocal('includeCta')}
-                      className={`p-1 w-9 rounded-full transition-colors flex ${
-                        activeCard.reelExportConfig?.includeCta !== false ? 'bg-[#F5F2EA] justify-end' : 'bg-stone-800 justify-start'
-                      } cursor-pointer`}
-                    >
-                      <span className="w-3.5 h-3.5 rounded-full bg-stone-950 block shadow-md" />
-                    </button>
+                    {((endCard as any).videoUrl || (endCard as any).source === 'video') && (
+                      <button type="button" onClick={() => setEndCard({ source: 'scene' as any, videoUrl: '', videoDisplayMode: 'wide' } as any)} className="shrink-0 px-3 py-2 rounded-lg border border-red-900/40 bg-red-950/20 text-red-200 text-[8.5px] font-black uppercase">Video entfernen</button>
+                    )}
                   </div>
-
-                  <div>
-                    <label className="block text-[9.5px] uppercase font-bold text-stone-400 tracking-wider mb-1.5">Banner-Beschriftung</label>
-                    <input
-                      type="text"
-                      value={activeCard.reelExportConfig?.ctaText || 'Jetzt Angebot sichern'}
-                      onChange={(e) => {
-                        syncCardUpdate({
-                          reelExportConfig: {
-                            ...(activeCard.reelExportConfig || {}),
-                            ctaText: e.target.value
-                          }
-                        });
-                      }}
-                      className="w-full bg-stone-900 border border-stone-800 h-9 px-3 rounded-xl text-xs text-white focus:outline-none focus:border-[#F5F2EA]"
-                    />
+                  <input
+                    type="text"
+                    value={(endCard as any).videoUrl || ''}
+                    onChange={(e) => setEndCard({ enabled: true, source: e.target.value.trim() ? 'video' as any : endCard.source, videoUrl: e.target.value } as any)}
+                    placeholder="YouTube- oder Videolink für die Endkarte"
+                    className="w-full bg-[#0F0F0F] border border-[#3A3732] h-10 px-3 rounded-xl text-xs font-mono text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]"
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { id: 'wide', label: 'Ganz oben', desc: '16:9 volle Breite an Oberkante' },
+                      { id: 'compact', label: 'Video-Bildschirm', desc: '16:9 kompakt oben mit Abstand' },
+                    ].map((mode) => (
+                      <button key={mode.id} type="button" onClick={() => setEndCard({ enabled: true, source: 'video' as any, videoDisplayMode: mode.id as any } as any)} className={`min-h-[54px] rounded-xl border px-3 py-2 text-left transition ${((endCard as any).videoDisplayMode || 'wide') === mode.id ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#0F0F0F] border-[#3A3732] text-[#F5F2EA]'}`}>
+                        <span className="block text-[9.5px] font-black uppercase tracking-wider">{mode.label}</span>
+                        <span className="block text-[8px] opacity-70 mt-0.5 leading-snug">{mode.desc}</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
+
               </div>
             </div>
           )}

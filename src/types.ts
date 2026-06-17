@@ -480,8 +480,10 @@ export interface UreelTimeline {
 
 export interface UreelEndCard {
   enabled: boolean;
-  source: 'scene' | 'poster' | 'image' | 'color' | 'gradient';
+  source: 'scene' | 'poster' | 'image' | 'color' | 'gradient' | 'video';
   imageUrl?: string;
+  videoUrl?: string;
+  videoDisplayMode?: 'wide' | 'compact';
   backgroundColor?: string;
   gradient?: {
     from: string;

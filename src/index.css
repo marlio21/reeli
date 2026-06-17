@@ -138,3 +138,8 @@ body {
 .ureel-ad-anim-slide_up { animation: ureelAdSlideUp .65s cubic-bezier(.2,.8,.2,1) both; }
 .ureel-ad-anim-reveal { animation: ureelAdReveal .8s cubic-bezier(.2,.8,.2,1) both; }
 .ureel-ad-anim-focus { animation: ureelAdFocus .85s ease both; }
+
+@keyframes ureelEndcardFade {
+  from { opacity: 0; filter: blur(6px); }
+  to { opacity: 1; filter: blur(0); }
+}

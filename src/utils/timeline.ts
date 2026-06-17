@@ -665,6 +665,8 @@ export function normalizeUreelEndCard(card: Partial<Card> | undefined): Required
     enabled: false,
     source: 'scene',
     imageUrl: '',
+    videoUrl: '',
+    videoDisplayMode: 'wide',
     backgroundColor: '#1c1b1a',
     gradient: {
       from: '#1c1b1a',
@@ -681,6 +683,8 @@ export function normalizeUreelEndCard(card: Partial<Card> | undefined): Required
     enabled: !!ec.enabled,
     source: ec.source || 'scene',
     imageUrl: ec.imageUrl || '',
+    videoUrl: (ec as any).videoUrl || '',
+    videoDisplayMode: (ec as any).videoDisplayMode || 'wide',
     backgroundColor: ec.backgroundColor || '#1c1b1a',
     gradient: {
       from: ec.gradient?.from || '#1c1b1a',

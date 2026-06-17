@@ -251,20 +251,62 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     return style;
   };
 
+  const renderEndCardVideo = () => {
+    const videoUrl = ((endCardConfig as any).videoUrl || '').trim();
+    if (endCardConfig.source !== 'video' || !videoUrl) return null;
+
+    const parsed = parseVideoUrl(videoUrl);
+    const displayMode = ((endCardConfig as any).videoDisplayMode || 'wide') as 'wide' | 'compact';
+    const wrapClass = displayMode === 'compact'
+      ? 'absolute top-3 left-[6%] right-[6%] z-[11] aspect-video overflow-hidden rounded-2xl border border-[#F5F2EA]/25 shadow-2xl bg-black'
+      : 'absolute top-0 left-0 right-0 z-[11] aspect-video overflow-hidden rounded-none border-0 bg-black';
+
+    if (parsed.type === 'unsupported') return null;
+
+    return (
+      <div className={wrapClass}>
+        {(parsed.type === 'youtube' || parsed.type === 'vimeo') && (
+          <iframe
+            src={parsed.url}
+            className="absolute inset-0 w-full h-full"
+            frameBorder="0"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            title="Endkarten-Video"
+            style={{ pointerEvents: 'none' }}
+          />
+        )}
+        {parsed.type === 'direct' && (
+          <video
+            src={parsed.url}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        )}
+      </div>
+    );
+  };
+
   const renderEndCardOverlay = () => {
     if (!showEndCard) return null;
 
     return (
       <React.Fragment>
         {/* The elegant Endcard Background cover */}
-        <div 
-          className="absolute inset-0 z-[9] pointer-events-none animate-fadeIn"
-          style={{ ...getEndCardStyle(), animationDuration: '2s' }}
+        <div
+          className="absolute inset-0 z-[9] pointer-events-none"
+          style={{ ...getEndCardStyle(), animation: 'ureelEndcardFade 2s ease-in-out both' }}
         />
+
+        {/* Optional 16:9 endcard video. It is intentionally not a Reel/full-screen layer. */}
+        {renderEndCardVideo()}
 
         {/* Replay Button overlay (fully interactive pointer-events-auto) */}
         {endCardConfig.replayButton && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none animate-fadeIn">
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none" style={{ animation: 'ureelEndcardFade 2s ease-in-out both' }}>
             <button
               onClick={(e) => {
                 e.stopPropagation();
