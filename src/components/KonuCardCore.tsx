@@ -188,6 +188,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   const effectiveEndCardAt = sceneVideoEndsAt;
 
   const [elapsed, setElapsed] = React.useState(0);
+  const [replaySeed, setReplaySeed] = React.useState(0);
 
   React.useEffect(() => {
     // Restart the scene timeline whenever the configured video/link/duration changes.
@@ -225,6 +226,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   const backgroundOnlyPreview = cleanPreview && previewFocus === 'background';
 
   const handleReplay = () => {
+    setReplaySeed((seed) => seed + 1);
     setElapsed(0);
     setCurrentTime(0);
     if (videoRef.current) {
@@ -1093,6 +1095,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       : 'absolute left-1/2 top-1/2 w-[316%] h-full -translate-x-1/2 -translate-y-1/2';
     return (
       <iframe
+        key={`yt-${replaySeed}-${embedUrl}`}
         src={embedUrl}
         className={frameClass}
         frameBorder="0"
@@ -1115,7 +1118,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       return (
         <div className={`${heroCompact ? 'absolute top-3 left-[6%] right-[6%] z-[8]' : 'absolute top-0 left-0 right-0 z-[8]'} aspect-video overflow-hidden ${heroCompact ? 'rounded-2xl border border-[#F5F2EA]/25 shadow-2xl' : 'rounded-none border-0'}`}>
           {isYt && embed && renderLayeredYoutube(embed, heroCompact ? 'heroCompact' : 'heroWide')}
-          {!isYt && src && <video src={src} autoPlay muted playsInline preload="metadata" className="absolute inset-0 w-full h-full object-cover" />}
+          {!isYt && src && <video key={`scene-video-${replaySeed}-${src}`} src={src} autoPlay muted playsInline preload="metadata" className="absolute inset-0 w-full h-full object-cover" />}
         </div>
       );
     }
@@ -1123,7 +1126,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     return (
       <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
         {isYt && embed && renderLayeredYoutube(embed, 'cover')}
-        {!isYt && src && <video src={src} autoPlay muted playsInline preload="metadata" className="absolute inset-0 w-full h-full object-cover" />}
+        {!isYt && src && <video key={`scene-video-${replaySeed}-${src}`} src={src} autoPlay muted playsInline preload="metadata" className="absolute inset-0 w-full h-full object-cover" />}
       </div>
     );
   };
@@ -1227,8 +1230,35 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                   forceSizePx={gridLayout.buttonSizePx}
                 />
               ))}
-            </div>
-          </div>
+              {!backgroundOnlyPreview && elapsed >= effectiveEndCardAt && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); handleReplay(); }}
+            className="absolute right-4 top-4 z-[35] rounded-full border border-[#F5F2EA]/35 bg-black/55 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-[#F5F2EA] backdrop-blur hover:bg-black/75"
+          >
+            Spot neu starten
+          </button>
+        )}
+      </div>
+            {!backgroundOnlyPreview && elapsed >= effectiveEndCardAt && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); handleReplay(); }}
+            className="absolute right-4 top-4 z-[35] rounded-full border border-[#F5F2EA]/35 bg-black/55 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-[#F5F2EA] backdrop-blur hover:bg-black/75"
+          >
+            Spot neu starten
+          </button>
+        )}
+      </div>
+        )}
+        {!backgroundOnlyPreview && elapsed >= effectiveEndCardAt && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); handleReplay(); }}
+            className="absolute right-4 top-4 z-[35] rounded-full border border-[#F5F2EA]/35 bg-black/55 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-[#F5F2EA] backdrop-blur hover:bg-black/75"
+          >
+            Spot neu starten
+          </button>
         )}
       </div>
     );

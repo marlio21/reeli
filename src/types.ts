@@ -241,6 +241,11 @@ export interface UreelDesktopPage {
   showActionButtons?: boolean;
   buttonMode?: 'always' | 'timed';
   buttonLayout?: 'contact_box' | 'three_col' | 'two_col' | 'list';
+  buttonAreaBackgroundMode?: 'none' | 'gradient' | 'image';
+  buttonAreaBackgroundImageUrl?: string;
+  buttonAreaGradientFrom?: string;
+  buttonAreaGradientTo?: string;
+  buttonAreaDarken?: number;
   lastEditorSource?: 'design' | 'studio';
 }
 

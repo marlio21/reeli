@@ -99,6 +99,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [endCardImageUploading, setEndCardImageUploading] = useState(false);
   const [desktopBgUploadProgress, setDesktopBgUploadProgress] = useState<number | null>(null);
   const [desktopBgUploading, setDesktopBgUploading] = useState(false);
+  const [desktopButtonBgUploadProgress, setDesktopButtonBgUploadProgress] = useState<number | null>(null);
+  const [desktopButtonBgUploading, setDesktopButtonBgUploading] = useState(false);
   
   // Timeline/Video playback simulation states for Vorschau column
   const [timelineSec, setTimelineSec] = useState<number>(0);
@@ -938,6 +940,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const desktopButtonMode = desktopPage.buttonMode || 'always';
   const desktopButtonLayout = desktopPage.buttonLayout || 'contact_box';
   const desktopButtonsVisible = desktopButtonMode === 'timed' ? buttonsCurrentlyVisible : true;
+  const desktopButtonAreaStyle: React.CSSProperties = desktopPage.buttonAreaBackgroundMode === 'image' && desktopPage.buttonAreaBackgroundImageUrl
+    ? { background: `linear-gradient(rgba(0,0,0,${(desktopPage.buttonAreaDarken ?? 18)/100}), rgba(0,0,0,${(desktopPage.buttonAreaDarken ?? 18)/100})), url(${desktopPage.buttonAreaBackgroundImageUrl}) center/cover no-repeat` }
+    : desktopPage.buttonAreaBackgroundMode === 'gradient'
+    ? { background: `linear-gradient(135deg, ${desktopPage.buttonAreaGradientFrom || '#181818'}, ${desktopPage.buttonAreaGradientTo || '#3A3328'})` }
+    : { background: 'rgba(15,15,15,0.52)' };
   const updateDesktopPage = async (updates: Record<string, any>) => {
     await syncCardUpdate({ desktopPage: { ...(activeCard.desktopPage || {}), ...updates } as any } as any);
   };
@@ -1091,6 +1098,48 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     } finally {
       setDesktopBgUploading(false);
       setTimeout(() => setDesktopBgUploadProgress(null), 1200);
+    }
+  };
+
+
+  const handleDesktopButtonBackgroundUpload = async (file: File) => {
+    if (!activeCard || !user) {
+      triggerToast(lang === 'de' ? 'Bitte einloggen, bevor du ein Buttonbereich-Bild hochlädst.' : 'Please log in before uploading a button area image.', 'error');
+      return;
+    }
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      triggerToast(lang === 'de' ? 'Bitte eine Bilddatei auswählen.' : 'Please choose an image file.', 'error');
+      return;
+    }
+    const maxMb = 10;
+    if (file.size > maxMb * 1024 * 1024) {
+      triggerToast(lang === 'de' ? `Buttonbereich-Bild ist zu groß. Maximal ${maxMb} MB.` : `Button area image is too large. Max ${maxMb} MB.`, 'error');
+      return;
+    }
+    const cleanName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '')}`;
+    const cardStorageId = activeCard.cardId || (activeCard as any).id || activeCard.slug || 'draft';
+    const storagePath = `users/${user.uid}/cards/${cardStorageId}/desktop-button-backgrounds/${cleanName}`;
+    try {
+      setDesktopButtonBgUploading(true);
+      setDesktopButtonBgUploadProgress(0);
+      const storageRef = ref(storage, storagePath);
+      const downloadUrl = await new Promise<string>((resolve, reject) => {
+        const task = uploadBytesResumable(storageRef, file, { contentType: file.type || 'image/jpeg' });
+        task.on('state_changed',
+          (snap) => setDesktopButtonBgUploadProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
+          reject,
+          async () => resolve(await getDownloadURL(task.snapshot.ref))
+        );
+      });
+      await updateDesktopPage({ buttonAreaBackgroundMode: 'image' as any, buttonAreaBackgroundImageUrl: downloadUrl } as any);
+      triggerToast(lang === 'de' ? 'Buttonbereich-Bild hochgeladen.' : 'Button area image uploaded.', 'success');
+    } catch (err: any) {
+      console.error('Desktop button background upload failed', err);
+      triggerToast(lang === 'de' ? `Buttonbereich-Upload fehlgeschlagen: ${err?.message || err}` : `Button area upload failed: ${err?.message || err}`, 'error');
+    } finally {
+      setDesktopButtonBgUploading(false);
+      setTimeout(() => setDesktopButtonBgUploadProgress(null), 1200);
     }
   };
 
@@ -2962,12 +3011,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   {[
+                    { id: 'desktop_triptych', label: '3 Bereiche', hint: 'Phone · Text · Buttons' },
                     { id: 'phone_left', label: 'Phone links', hint: 'Karte links, Inhalt rechts' },
                     { id: 'phone_center', label: 'Phone mittig', hint: 'Präsentation zentriert' },
-                    { id: 'premium_landing', label: 'Premium', hint: 'großzügige Landingpage' },
                     { id: 'minimal', label: 'Minimal', hint: 'nur Karte + Aktionen' },
                   ].map((layout) => {
-                    const selected = (desktopPage.layout || 'phone_left') === layout.id;
+                    const selected = (desktopPage.layout || 'desktop_triptych') === layout.id;
                     return (
                       <button key={layout.id} type="button" onClick={() => updateDesktopPage({ layout: layout.id })} className={`rounded-2xl border p-3 text-left transition ${selected ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732] hover:border-[#E8DCC2]/60'}`}>
                         <span className="block text-[10px] font-black uppercase tracking-wider">{layout.label}</span>
@@ -2991,6 +3040,18 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <button key={id} type="button" onClick={() => updateDesktopPage({ buttonLayout: id })} className={`h-10 rounded-xl border text-[8.5px] font-black uppercase tracking-wider ${desktopButtonLayout === id ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>{label}</button>
                   ))}
                 </div>
+                <div className="rounded-2xl border border-[#3A3732] bg-[#0F0F0F] p-3 space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div><span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Buttonbereich-Hintergrund</span><span className="block text-[8.5px] text-stone-500 mt-0.5">Nur für den rechten Desktop-Buttonbereich.</span></div>
+                    <label className="px-3 py-2 rounded-xl bg-[#F5F2EA] text-[#101010] text-[8.5px] font-black uppercase cursor-pointer">Bild hochladen<input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleDesktopButtonBackgroundUpload(file); e.currentTarget.value = ''; }} /></label>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[['none','Ohne'],['gradient','Verlauf'],['image','Bild']].map(([id,label]) => <button key={id} type="button" onClick={() => updateDesktopPage({ buttonAreaBackgroundMode: id })} className={`h-9 rounded-xl border text-[8px] font-black uppercase tracking-wider ${(desktopPage.buttonAreaBackgroundMode || 'none') === id ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>{label}</button>)}
+                  </div>
+                  {desktopPage.buttonAreaBackgroundMode === 'gradient' && <div className="grid grid-cols-2 gap-2"><input type="color" value={desktopPage.buttonAreaGradientFrom || '#181818'} onChange={(e) => updateDesktopPage({ buttonAreaGradientFrom: e.target.value, buttonAreaBackgroundMode: 'gradient' })} className="w-full h-9 rounded-xl border border-[#3A3732] bg-[#181818]" /><input type="color" value={desktopPage.buttonAreaGradientTo || '#3A3328'} onChange={(e) => updateDesktopPage({ buttonAreaGradientTo: e.target.value, buttonAreaBackgroundMode: 'gradient' })} className="w-full h-9 rounded-xl border border-[#3A3732] bg-[#181818]" /></div>}
+                  {desktopButtonBgUploading && <div className="h-1.5 rounded-full bg-stone-800 overflow-hidden"><div className="h-full bg-[#E8DCC2]" style={{ width: `${desktopButtonBgUploadProgress || 0}%` }} /></div>}
+                  {desktopPage.buttonAreaBackgroundImageUrl && <button type="button" onClick={() => updateDesktopPage({ buttonAreaBackgroundImageUrl: '', buttonAreaBackgroundMode: 'none' })} className="w-full h-9 rounded-xl border border-[#3A3732] text-[8px] font-black uppercase tracking-wider text-stone-300">Buttonbereich-Bild entfernen</button>}
+                </div>
                 <button type="button" onClick={() => updateDesktopPage({ showActionButtons: desktopPage.showActionButtons === false })} className={`w-full h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${desktopPage.showActionButtons !== false ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>{desktopPage.showActionButtons !== false ? 'Nutzerbuttons anzeigen' : 'Nutzerbuttons ausblenden'}</button>
               </div>
               <div className="rounded-[28px] border border-[#3A3732] overflow-hidden bg-[#0F0F0F] shadow-2xl">
@@ -3002,29 +3063,38 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       : `linear-gradient(135deg, ${desktopPage.gradientFrom || '#0F0F0F'}, ${desktopPage.gradientTo || '#3A3328'})`
                   }}
                 >
-                  <div className={`grid gap-5 items-center ${(desktopPage.layout || 'phone_left') === 'phone_center' ? 'grid-cols-1 justify-items-center text-center' : 'grid-cols-1 lg:grid-cols-[190px_1fr]'}`}>
-                    <div className="w-[150px] h-[270px] rounded-[28px] border-[7px] border-[#1A1A1A] bg-black overflow-hidden shadow-2xl mx-auto">
-                      <KonuCardCore card={activeCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} previewFocus="full" />
+                  <div className={`grid gap-5 items-stretch ${(desktopPage.layout || 'desktop_triptych') === 'phone_center' ? 'grid-cols-1 justify-items-center text-center' : 'grid-cols-1 xl:grid-cols-3'}`}>
+                    <div className="flex flex-col items-center justify-center rounded-[26px] border border-white/10 bg-black/20 p-4 min-h-[360px]">
+                      <span className="mb-3 text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Smartphone-Ansicht</span>
+                      <div className="w-[150px] h-[270px] rounded-[28px] border-[7px] border-[#1A1A1A] bg-black overflow-hidden shadow-2xl mx-auto">
+                        <KonuCardCore card={activeCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} previewFocus="full" />
+                      </div>
                     </div>
-                    <div className="space-y-3 min-w-0">
-                      <div className="inline-flex items-center gap-2 rounded-full border border-[#E8DCC2]/25 bg-black/25 px-3 py-1 text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">ureel.me Desktop</div>
+                    <div className="rounded-[26px] border border-white/10 bg-black/25 p-5 space-y-3 min-h-[360px] flex flex-col justify-center">
+                      <div className="inline-flex self-start items-center gap-2 rounded-full border border-[#E8DCC2]/25 bg-black/25 px-3 py-1 text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Desktop Werbetext</div>
                       <h2 className="text-2xl md:text-3xl font-black text-[#F5F2EA] tracking-tight leading-tight">{desktopTitle}</h2>
                       <p className="text-sm font-bold text-[#E8DCC2]">{desktopSubtitle}</p>
                       <p className="text-xs leading-relaxed text-[#F5F2EA]/75 max-w-md">{desktopDescription}</p>
-                      {desktopPage.showActionButtons !== false && desktopButtonsVisible && activeButtons.length > 0 && (
-                        <div className={`pt-2 ${desktopButtonLayout === 'list' ? 'space-y-2' : desktopButtonLayout === 'two_col' ? 'grid grid-cols-2 gap-2 max-w-sm' : 'grid grid-cols-3 gap-2 max-w-sm'}`}>
-                          {activeButtons.slice(0, desktopButtonLayout === 'contact_box' ? 6 : 12).map((button) => (
-                            <div key={button.id} className={desktopButtonLayout === 'list' ? 'h-12' : 'aspect-square'}>
-                              <ButtonRenderer button={button} mode="public" lang={lang} forceSquare={desktopButtonLayout !== 'list'} forceSizePx={desktopButtonLayout === 'list' ? undefined : 58} />
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                      <button type="button" onClick={openWerbetexterFromDesign} className="mt-2 h-10 rounded-xl border border-[#E8DCC2]/35 bg-[#181818]/80 px-3 text-[9px] font-black uppercase tracking-wider text-[#F5F2EA] inline-flex items-center justify-center gap-2 self-start"><LucideIcons.Type size={12}/> Werbetexte bearbeiten</button>
                       <div className="flex flex-wrap gap-2 pt-2">
                         {(desktopPage.showQr ?? true) && <span className="rounded-xl bg-[#F5F2EA] text-[#101010] px-3 py-2 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"><LucideIcons.QrCode size={12}/> QR-Code</span>}
                         {(desktopPage.showShare ?? true) && <span className="rounded-xl border border-[#E8DCC2]/35 text-[#F5F2EA] px-3 py-2 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"><LucideIcons.Share2 size={12}/> Teilen</span>}
                         {(desktopPage.showContactSave ?? true) && <span className="rounded-xl border border-[#E8DCC2]/35 text-[#F5F2EA] px-3 py-2 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"><LucideIcons.ContactRound size={12}/> Kontakt</span>}
                       </div>
+                    </div>
+                    <div className="rounded-[26px] border border-white/10 p-4 min-h-[360px] flex flex-col justify-center overflow-hidden" style={desktopButtonAreaStyle}>
+                      <div className="mb-3 flex items-center justify-between gap-3"><div><span className="block text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Buttonbereich</span><span className="block text-[8.5px] text-[#F5F2EA]/60 mt-0.5">Echte Nutzerbuttons neben der Smartphone-Karte.</span></div>{desktopButtonMode === 'timed' && <span className="rounded-full bg-black/35 px-2 py-1 text-[8px] font-black uppercase text-[#F5F2EA]/70">ab {visibleButtonsAt.toFixed(1)}s</span>}</div>
+                      {desktopPage.showActionButtons !== false && desktopButtonsVisible && activeButtons.length > 0 ? (
+                        <div className={`${desktopButtonLayout === 'list' ? 'space-y-2' : desktopButtonLayout === 'two_col' ? 'grid grid-cols-2 gap-2' : 'grid grid-cols-3 gap-2'} max-h-[290px] overflow-y-auto pr-1 scrollbar-none`}>
+                          {activeButtons.slice(0, 18).map((button) => (
+                            <div key={button.id} className={desktopButtonLayout === 'list' ? 'h-12' : 'aspect-square'}>
+                              <ButtonRenderer button={button} mode="public" lang={lang} forceSquare={desktopButtonLayout !== 'list'} forceSizePx={desktopButtonLayout === 'list' ? undefined : 58} />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="rounded-2xl border border-[#E8DCC2]/20 bg-black/30 p-4 text-center text-[10px] text-[#F5F2EA]/65">Buttons sind ausgeblendet oder erscheinen erst nach dem Smartphone-Timing.</div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -3361,8 +3431,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
 
       {cardManagerOpen && (
-        <div className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-3xl max-h-[86vh] overflow-y-auto rounded-3xl border border-[#3A3732] bg-[#111111] shadow-2xl p-4 text-[#F5F2EA]">
+        <div className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setCardManagerOpen(false)}>
+          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-3xl max-h-[86vh] overflow-y-auto rounded-3xl border border-[#3A3732] bg-[#111111] shadow-2xl p-4 text-[#F5F2EA]">
             <div className="flex items-start justify-between gap-3 border-b border-[#3A3732] pb-3 mb-4">
               <div>
                 <h2 className="text-lg font-black uppercase tracking-tight">Meine ureels / Karten</h2>
@@ -3393,6 +3463,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 );
               })}
             </div>
+            <button onClick={() => setCardManagerOpen(false)} className="mt-4 w-full h-11 rounded-2xl border border-[#3A3732] bg-[#181818] text-[#F5F2EA] text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-2"><LucideIcons.X size={14}/> Fenster schließen</button>
           </div>
         </div>
       )}
