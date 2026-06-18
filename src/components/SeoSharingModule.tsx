@@ -445,7 +445,7 @@ export function SeoSharingModule({
         .split(',')
         .map((k) => k.trim())
         .filter((k) => k.length > 0);
-      const uniqueKeywords = Array.from(new Set(parsedKeywords)).slice(0, 30);
+      const uniqueKeywords: string[] = Array.from(new Set<string>(parsedKeywords)).slice(0, 30);
       updates.keywords = uniqueKeywords;
 
       // 3. Process Hashtags: split, trim, strip #, compact, unique, cap at 15
@@ -453,7 +453,7 @@ export function SeoSharingModule({
         .split(',')
         .map((h) => h.trim().replace(/^#+/, ''))
         .filter((h) => h.length > 0);
-      const uniqueHashtags = Array.from(new Set(parsedHashtags)).slice(0, 15);
+      const uniqueHashtags: string[] = Array.from(new Set<string>(parsedHashtags)).slice(0, 15);
       updates.hashtags = uniqueHashtags;
 
       // Call parent update

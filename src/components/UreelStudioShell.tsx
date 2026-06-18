@@ -585,9 +585,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     heroSubtitleSize: 13 as any,
     heroDescriptionSize: 10.5 as any,
     heroFontFamily: 'Inter' as any,
-    heroTitleColor: '#F5F2EA' as any,
-    heroSubtitleColor: '#E8DCC2' as any,
-    heroDescriptionColor: '#F5F2EA' as any,
+    heroTitleTextColor: 'cream' as any,
+    heroSubtitleTextColor: 'cream' as any,
+    heroDescTextColor: 'cream' as any,
     ureelScene: {
       mode: 'gradient',
       backgroundImageUrl: '',
