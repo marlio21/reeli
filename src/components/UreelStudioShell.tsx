@@ -1732,7 +1732,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         </div>
 
         {/* Mid Navigation Tabs */}
-        <div className="flex flex-row md:flex-col gap-2 md:gap-2.5 w-auto md:w-full px-0 md:px-2 overflow-x-auto snap-x">
+        <div className="ureel-mobile-main-nav flex flex-row md:flex-col gap-2 md:gap-2.5 w-auto md:w-full px-0 md:px-2 overflow-x-auto snap-x">
           {[
             { id: 'scene', label: lang === 'de' ? 'Szene' : 'Scene', icon: LucideIcons.Tv },
             { id: 'timeline', label: lang === 'de' ? 'Timeline' : 'Timeline', icon: LucideIcons.Milestone },
@@ -2622,6 +2622,36 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Werbeschriften</span>
                   <p className="text-[10px] text-stone-400 mt-1">Eine Vorlage steuert Schrift, Rahmen, Box, Animation und empfohlene Wirkung.</p>
                 </div>
+
+                <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Vorlagen-Größe</span>
+                      <p className="text-[9px] text-stone-500 mt-1">Passe die gewählte Vorlage leicht an, damit sie auf Video, Bild und Buttons besser wirkt.</p>
+                    </div>
+                    <span className="text-[8px] uppercase font-mono text-stone-500">{adTextSizePreset()}</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(['compact','balanced','poster'] as const).map((preset) => (
+                      <button key={preset} type="button" onClick={() => applyAdTextSizePreset(preset)} className={`h-10 rounded-xl border text-[10px] font-black uppercase transition ${adTextSizePreset() === preset ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#111111] text-[#F5F2EA] border-[#3A3732] hover:border-[#E8DCC2]/70'}`}>
+                        {preset === 'compact' ? 'Kompakt' : preset === 'balanced' ? 'Balance' : 'Poster'}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {[
+                      { key: 'heroTitleSize', label: 'Headline', min: 16, max: 52, fallback: 30 },
+                      { key: 'heroSubtitleSize', label: 'Slogan', min: 8, max: 24, fallback: 12 },
+                      { key: 'heroDescriptionSize', label: 'Beschreibung', min: 8, max: 22, fallback: 11 },
+                    ].map((item) => (
+                      <div key={item.key}>
+                        <div className="flex justify-between text-[9px] uppercase font-bold text-stone-400 mb-1"><span>{item.label}</span><span>{clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max).toFixed(0)}px</span></div>
+                        <input type="range" min={item.min} max={item.max} step="1" value={clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max)} onChange={(e) => syncCardUpdate({ [item.key]: Number(e.target.value) } as any)} className="w-full accent-[#E8DCC2]" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <button
                     onClick={() => applyTextTemplatePreset('none')}
