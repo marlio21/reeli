@@ -120,6 +120,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [textDraft, setTextDraft] = useState({ title: activeCard.title || '', subtitle: activeCard.subtitle || '', description: activeCard.description || '' });
   const [textDirty, setTextDirty] = useState(false);
   const [activeSubSection, setActiveSubSection] = useState<string>('scene-video');
+  const [mobileOrbitOpen, setMobileOrbitOpen] = useState(false);
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   
   // Local state for actively selected button being edited
   const [editingBtnId, setEditingBtnId] = useState<string | null>(null);
@@ -145,8 +147,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     else if (activeTab === 'buttons') {
       setActiveSubSection('buttons-list');
       // Auto-select first button if exists
-      if (activeCard?.buttons?.length > 0) {
-        setEditingBtnId(activeCard.buttons[0].id);
+      if ((activeCard?.buttons?.length || 0) > 0) {
+        setEditingBtnId(activeCard.buttons?.[0]?.id || null);
       } else {
         setEditingBtnId(null);
       }
@@ -1686,6 +1688,117 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
   const monitorCard = getCleanMonitorCard(activeCard);
 
+  const getDefaultSubSectionForModule = (module: MainModule): string => {
+    const defaults: Partial<Record<MainModule, string>> = {
+      scene: 'scene-video',
+      timeline: 'timeline-texts',
+      buttons: 'buttons-list',
+      design: 'design-desktop',
+      cards: 'cards-list',
+      endcard: 'endcard-general',
+    };
+    return defaults[module] || 'scene-video';
+  };
+
+  const mobileMainModules: Array<{ id: MainModule; label: string; orbitClass: string }> = [
+    { id: 'scene', label: 'Szene', orbitClass: 'orbit-scene' },
+    { id: 'buttons', label: 'Buttons', orbitClass: 'orbit-buttons' },
+    { id: 'design', label: 'Design', orbitClass: 'orbit-design' },
+    { id: 'timeline', label: 'Text', orbitClass: 'orbit-text' },
+  ];
+
+  const getMobileSubMenuItems = (module: MainModule): Array<{ id: string; label: string }> => {
+    if (module === 'scene') {
+      return [
+        { id: 'scene-video', label: 'Video' },
+        { id: 'scene-poster', label: 'Bild' },
+        { id: 'scene-color', label: 'Farbe' },
+        { id: 'scene-display', label: 'Darstellung' },
+        { id: 'scene-endcard', label: 'Endkarte' },
+      ];
+    }
+    if (module === 'timeline') {
+      return [
+        { id: 'timeline-texts', label: 'Text' },
+        { id: 'timeline-templates', label: 'Vorlagen' },
+        { id: 'timeline-style', label: 'Look' },
+        { id: 'timeline-times', label: 'Timing' },
+      ];
+    }
+    if (module === 'buttons') {
+      return [
+        { id: 'buttons-list', label: 'Liste' },
+        { id: 'buttons-action', label: 'Aktion' },
+        { id: 'buttons-design', label: 'Design' },
+        { id: 'buttons-preview', label: 'Vorschau' },
+      ];
+    }
+    if (module === 'design') {
+      return [
+        { id: 'design-desktop', label: 'Desktop' },
+        { id: 'design-background', label: 'Hintergrund' },
+        { id: 'design-content', label: 'Texte' },
+        { id: 'design-share', label: 'Teilen' },
+      ];
+    }
+    return [];
+  };
+
+  const openMobileModule = (module: MainModule) => {
+    setActiveTab(module);
+    setActiveSubSection(getDefaultSubSectionForModule(module));
+    setMobileOrbitOpen(false);
+    setMobileSheetOpen(true);
+    if (module === 'buttons' && (activeCard?.buttons?.length || 0) > 0 && !editingBtnId) {
+      setEditingBtnId(activeCard.buttons?.[0]?.id || null);
+    }
+  };
+
+  const renderMobileOrbitOverlay = () => (
+    <div className="ureel-mobile-orbit-layer md:hidden">
+      {!mobileOrbitOpen && !mobileSheetOpen && (
+        <button
+          type="button"
+          onClick={() => setMobileOrbitOpen(true)}
+          className="ureel-orbit-center-button ureel-orbit-center-button--start"
+          aria-label="Studio öffnen"
+        >
+          <span className="ureel-orbit-dot" />
+          <span>Studio</span>
+        </button>
+      )}
+
+      {mobileSheetOpen && !mobileOrbitOpen && (
+        <button
+          type="button"
+          onClick={() => setMobileSheetOpen(false)}
+          className="ureel-orbit-center-button ureel-orbit-center-button--preview"
+          aria-label="Vorschau frei machen"
+        >
+          <span className="ureel-orbit-dot" />
+          <span>Vorschau frei</span>
+        </button>
+      )}
+
+      {mobileOrbitOpen && (
+        <div className="ureel-orbit-menu" role="navigation" aria-label="ureel Studio Orbit">
+          <button type="button" className="ureel-orbit-close" onClick={() => setMobileOrbitOpen(false)}>Schließen</button>
+          <button type="button" className="ureel-orbit-center" onClick={() => setMobileOrbitOpen(false)}>●</button>
+          {mobileMainModules.map((item) => (
+            <button
+              type="button"
+              key={item.id}
+              onClick={() => openMobileModule(item.id)}
+              className={`ureel-orbit-quadrant ${item.orbitClass} ${activeTab === item.id ? 'is-active' : ''}`}
+            >
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="flex flex-col md:flex-row min-h-[100dvh] md:h-screen w-full max-w-[100vw] bg-[#09090B] text-stone-200 overflow-x-hidden md:overflow-hidden overflow-y-auto font-sans antialiased text-xs">
       
@@ -2040,7 +2153,29 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       </div>
 
       {/* COLUMN 3: AKTIVES DETAILPANEL (FORM CONTROLS) */}
-      <div className="order-4 md:order-none flex-1 min-w-0 bg-[#141419] p-4 md:p-6 overflow-y-auto ureel-detail-panel space-y-6 pb-24 md:pb-6">
+      <div className={`order-4 md:order-none flex-1 min-w-0 bg-[#141419] p-4 md:p-6 overflow-y-auto ureel-detail-panel space-y-6 pb-24 md:pb-6 ${mobileSheetOpen ? 'ureel-mobile-sheet-open' : 'ureel-mobile-sheet-closed'}`}>
+        <div className="ureel-mobile-sheet-head md:hidden">
+          <div className="ureel-mobile-sheet-grip" />
+          <div className="ureel-mobile-sheet-actions">
+            <button type="button" onClick={() => setMobileSheetOpen(false)} className="ureel-mobile-preview-free">● Vorschau frei</button>
+            <button type="button" onClick={() => setMobileOrbitOpen(true)} className="ureel-mobile-main-menu">Hauptmenü</button>
+          </div>
+          <div className="ureel-mobile-subring" aria-label="Untermenü">
+            {getMobileSubMenuItems(activeTab).map((item) => {
+              const selected = activeSubSection === item.id;
+              return (
+                <button
+                  type="button"
+                  key={item.id}
+                  onClick={() => setActiveSubSection(item.id)}
+                  className={`ureel-orbit-ring-segment ${selected ? 'is-active' : ''}`}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
         
         {/* Module Header block */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-900 pb-4">
@@ -3525,7 +3660,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       </div>
 
       {/* COLUMN 4: RECHTE PERMANENTE SMARTPHONE-VORSCHAU */}
-      <div className="order-2 md:order-none w-full md:w-[330px] md:max-h-none ureel-studio-preview-panel overflow-visible md:overflow-visible bg-[#0E0E11] border-b md:border-b-0 md:border-l border-stone-900 flex flex-col justify-between shrink-0 p-3 md:p-4">
+      <div className="order-2 md:order-none w-full md:w-[330px] md:max-h-none ureel-studio-preview-panel overflow-visible md:overflow-visible bg-[#0E0E11] border-b md:border-b-0 md:border-l border-stone-900 flex flex-col justify-between shrink-0 p-3 md:p-4 relative">
         
         {/* Preview Title bar */}
         <div className="flex items-center justify-between border-b border-stone-900 pb-3 gap-2">
@@ -3679,6 +3814,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             </div>
           )}
         </div>
+
+        {renderMobileOrbitOverlay()}
 
         {/* Share buttons or actions below preview */}
         <div className="space-y-2 pt-3 border-t border-stone-900">
