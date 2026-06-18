@@ -468,3 +468,255 @@ body {
     color: #7B5E28 !important;
   }
 }
+
+/* v51.6 – Mobile Studio Structure Redesign
+   Ziel: Das mobile Studio soll wie eine klare Bedien-App wirken.
+   Der öffentliche Live-Link bleibt unverändert. */
+@media (max-width: 767px) {
+  /* Gesamtbild heller und ruhiger: nur die Vorschau bleibt dunkel. */
+  .min-h-\[100dvh\] {
+    background: #F5F2EA !important;
+  }
+
+  /* Obere Hauptnavigation: alle 4 Module müssen sichtbar sein. */
+  .ureel-studio-topbar {
+    display: grid !important;
+    grid-template-columns: 56px minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 8px 10px !important;
+    overflow: visible !important;
+    background: #111113 !important;
+    border-bottom: 1px solid rgba(245,242,234,.14) !important;
+  }
+  .ureel-studio-logo-button {
+    width: 52px !important;
+    gap: 3px !important;
+    justify-content: center !important;
+  }
+  .ureel-studio-logo-icon {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 12px !important;
+  }
+  .ureel-studio-logo-button span {
+    font-size: 8px !important;
+    letter-spacing: .08em !important;
+  }
+  .ureel-mobile-main-nav {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    gap: 5px !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+  .ureel-mobile-main-nav button {
+    min-width: 0 !important;
+    width: 100% !important;
+    min-height: 48px !important;
+    padding: 6px 3px !important;
+    border-radius: 14px !important;
+    background: #1D1D20 !important;
+    border: 1px solid rgba(245,242,234,.18) !important;
+    color: rgba(245,242,234,.72) !important;
+    box-shadow: none !important;
+  }
+  .ureel-mobile-main-nav button span {
+    display: block !important;
+    font-size: 9.5px !important;
+    line-height: 1 !important;
+    letter-spacing: 0 !important;
+    white-space: nowrap !important;
+  }
+  .ureel-mobile-main-nav button svg {
+    width: 17px !important;
+    height: 17px !important;
+  }
+  .ureel-mobile-main-nav button[class*="bg-\[\#F5F2EA\]"],
+  .ureel-mobile-main-nav button[class*="text-\[\#E8DCC2\]"] {
+    background: #F5F2EA !important;
+    color: #111111 !important;
+    border-color: #F5F2EA !important;
+    font-weight: 900 !important;
+  }
+  .ureel-mobile-main-nav button > div,
+  .ureel-mobile-main-nav button .absolute {
+    display: none !important;
+  }
+
+  /* Vorschau kompakter: gut sichtbar, aber nicht der ganze Bildschirm. */
+  .ureel-studio-preview-panel {
+    background: #101012 !important;
+    padding: 12px 10px 10px !important;
+    border-bottom: 1px solid rgba(245,242,234,.12) !important;
+  }
+  .ureel-studio-preview-panel > div:first-child {
+    padding-bottom: 8px !important;
+  }
+  .ureel-studio-preview-stage {
+    max-height: 430px !important;
+    overflow: hidden !important;
+    padding: 8px 0 !important;
+    align-items: flex-start !important;
+    background: #101012 !important;
+  }
+  .ureel-studio-phone-frame {
+    width: min(62vw, 245px) !important;
+    height: min(124vw, 490px) !important;
+    border-width: 4px !important;
+    border-radius: 28px !important;
+    box-shadow: 0 14px 34px rgba(0,0,0,.35) !important;
+  }
+  .ureel-studio-preview-panel .space-y-2.pt-3 {
+    padding-top: 8px !important;
+    border-top-color: rgba(245,242,234,.14) !important;
+  }
+  .ureel-studio-preview-panel .space-y-2.pt-3 button {
+    min-height: 44px !important;
+    border-radius: 16px !important;
+    font-size: 11px !important;
+  }
+  .ureel-studio-preview-panel .space-y-2.pt-3 span {
+    font-size: 9px !important;
+  }
+
+  /* Bearbeitungsmodus direkt darunter: heller, klarer, mit Chip-Leiste. */
+  .ureel-subnav-panel {
+    position: sticky !important;
+    top: 65px !important;
+    z-index: 35 !important;
+    background: #F5F2EA !important;
+    color: #111111 !important;
+    padding: 8px 0 !important;
+    border-top: 0 !important;
+    border-bottom: 1px solid #D8CDB7 !important;
+  }
+  .ureel-subnav-panel .p-2.space-y-1 {
+    padding: 0 10px !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+  }
+  .ureel-subnav-panel .p-2.space-y-1::-webkit-scrollbar {
+    display: none !important;
+  }
+  .ureel-subnav-panel .p-2.space-y-1 > div {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 7px !important;
+    min-width: max-content !important;
+  }
+  .ureel-subnav-panel .p-2.space-y-1 button {
+    min-width: 92px !important;
+    max-width: 118px !important;
+    min-height: 44px !important;
+    padding: 8px 9px !important;
+    border-radius: 14px !important;
+    background: #FFFFFF !important;
+    color: #181818 !important;
+    border: 1px solid #D8CDB7 !important;
+    box-shadow: none !important;
+  }
+  .ureel-subnav-panel .p-2.space-y-1 button svg {
+    width: 15px !important;
+    height: 15px !important;
+    color: #8A6A2E !important;
+    flex-shrink: 0 !important;
+  }
+  .ureel-subnav-panel .p-2.space-y-1 button span span:first-child {
+    color: #181818 !important;
+    font-size: 10.5px !important;
+    line-height: 1.05 !important;
+    letter-spacing: .02em !important;
+  }
+  .ureel-subnav-panel .p-2.space-y-1 button span span:last-child,
+  .ureel-subnav-panel .p-2.space-y-1 button svg:last-child {
+    display: none !important;
+  }
+  .ureel-subnav-panel .p-2.space-y-1 button[class*="bg-\[\#F5F2EA\]"],
+  .ureel-subnav-panel .p-2.space-y-1 button[class*="text-\[\#101010\]"] {
+    background: #111111 !important;
+    color: #F5F2EA !important;
+    border-color: #111111 !important;
+  }
+  .ureel-subnav-panel .p-2.space-y-1 button[class*="bg-\[\#F5F2EA\]"] span span:first-child,
+  .ureel-subnav-panel .p-2.space-y-1 button[class*="text-\[\#101010\]"] span span:first-child,
+  .ureel-subnav-panel .p-2.space-y-1 button[class*="bg-\[\#F5F2EA\]"] svg,
+  .ureel-subnav-panel .p-2.space-y-1 button[class*="text-\[\#101010\]"] svg {
+    color: #F5F2EA !important;
+  }
+
+  /* Detailbereich: nicht mehr dunkle Fläche, sondern klare Arbeitskarte. */
+  .ureel-detail-panel {
+    background: #F5F2EA !important;
+    color: #121212 !important;
+    padding: 14px 12px 96px !important;
+    gap: 14px !important;
+  }
+  .ureel-detail-panel > div:first-child {
+    background: #F5F2EA !important;
+    border-bottom: 1px solid #D8CDB7 !important;
+    padding: 4px 0 12px !important;
+    margin: 0 !important;
+  }
+  .ureel-detail-panel > div:first-child h1 {
+    color: #121212 !important;
+    font-size: 20px !important;
+    line-height: 1.1 !important;
+    letter-spacing: -.02em !important;
+  }
+  .ureel-detail-panel > div:first-child p {
+    color: #5F5A50 !important;
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+  }
+  .ureel-detail-panel > div:first-child button {
+    background: #FFFFFF !important;
+    color: #121212 !important;
+    border: 1px solid #D8CDB7 !important;
+    min-height: 42px !important;
+    border-radius: 14px !important;
+  }
+  .ureel-detail-panel > div:last-child,
+  .ureel-detail-panel > div:last-child > div {
+    color: #121212 !important;
+  }
+  .ureel-detail-panel > div:last-child [class*="bg-\[\#111111\]"],
+  .ureel-detail-panel > div:last-child [class*="bg-stone"],
+  .ureel-detail-panel > div:last-child [class*="bg-\[\#0F0F0F\]"],
+  .ureel-detail-panel > div:last-child [class*="bg-\[\#181818\]"] {
+    background: #FFFDF8 !important;
+  }
+  .ureel-detail-panel > div:last-child [class*="border-stone"],
+  .ureel-detail-panel > div:last-child [class*="border-\[\#3A3732\]"] {
+    border-color: #D8CDB7 !important;
+  }
+  .ureel-detail-panel > div:last-child .text-white,
+  .ureel-detail-panel > div:last-child .text-\[\#F5F2EA\],
+  .ureel-detail-panel > div:last-child .text-stone-200,
+  .ureel-detail-panel > div:last-child .text-stone-300,
+  .ureel-detail-panel > div:last-child .text-stone-400,
+  .ureel-detail-panel > div:last-child .text-stone-450,
+  .ureel-detail-panel > div:last-child .text-stone-500 {
+    color: #121212 !important;
+  }
+  .ureel-detail-panel input:not([type="color"]):not([type="range"]),
+  .ureel-detail-panel textarea,
+  .ureel-detail-panel select {
+    background: #FFFFFF !important;
+    color: #111111 !important;
+    border: 1px solid #D8CDB7 !important;
+    border-radius: 14px !important;
+    min-height: 48px !important;
+    font-size: 16px !important;
+  }
+  .ureel-detail-panel input[type="range"] {
+    accent-color: #9C7A2E !important;
+  }
+
+  /* Im mobilen Fluss ist die Kartenverwaltung im Footer weiterhin störend. */
+  .ureel-subnav-panel > div:last-child {
+    display: none !important;
+  }
+}

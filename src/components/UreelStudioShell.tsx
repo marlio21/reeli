@@ -1690,17 +1690,17 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     <div className="flex flex-col md:flex-row min-h-[100dvh] md:h-screen w-full max-w-[100vw] bg-[#09090B] text-stone-200 overflow-x-hidden md:overflow-hidden overflow-y-auto font-sans antialiased text-xs">
       
       {/* COLUMN 1: LINKE HAUPTNAVIGATION (SIDEBAR) */}
-      <div className="order-1 md:order-none sticky top-0 z-40 md:static w-full md:w-[76px] bg-[#0E0E11]/95 backdrop-blur-xl border-b md:border-b-0 md:border-r border-stone-900 flex flex-row md:flex-col justify-between items-center gap-3 px-3 md:px-0 py-2 md:py-4 shrink-0 overflow-x-auto">
+      <div className="ureel-studio-topbar order-1 md:order-none sticky top-0 z-40 md:static w-full md:w-[76px] bg-[#0E0E11]/95 backdrop-blur-xl border-b md:border-b-0 md:border-r border-stone-900 flex flex-row md:flex-col justify-between items-center gap-3 px-3 md:px-0 py-2 md:py-4 shrink-0 overflow-x-auto">
         
         {/* Top Logo */}
         <div className="relative shrink-0">
           <button
             type="button"
-            className="flex flex-row md:flex-col items-center gap-1.5 cursor-pointer"
+            className="ureel-studio-logo-button flex flex-row md:flex-col items-center gap-1.5 cursor-pointer"
             onClick={() => setAccountMenuOpen((open) => !open)}
             title={lang === 'de' ? 'Menü öffnen' : 'Open menu'}
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#262626] to-[#3A3732] p-0.5 flex items-center justify-center shadow-lg shadow-black/40">
+            <div className="ureel-studio-logo-icon w-9 h-9 rounded-xl bg-gradient-to-tr from-[#262626] to-[#3A3732] p-0.5 flex items-center justify-center shadow-lg shadow-black/40">
               <LucideIcons.Tv className="text-white w-5 h-5 stroke-[2.2]" />
             </div>
             <span className="font-black text-[9px] tracking-widest text-[#E8DCC2] uppercase select-none">ureel</span>
