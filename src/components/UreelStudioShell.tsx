@@ -122,6 +122,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [activeSubSection, setActiveSubSection] = useState<string>('scene-video');
   const [mobileOrbitOpen, setMobileOrbitOpen] = useState(false);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
+  const [mobileOrbitModule, setMobileOrbitModule] = useState<MainModule | null>(null);
   
   // Local state for actively selected button being edited
   const [editingBtnId, setEditingBtnId] = useState<string | null>(null);
@@ -1707,6 +1708,21 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     { id: 'timeline', label: 'Text', orbitClass: 'orbit-text' },
   ];
 
+  const mobileModuleLabels: Partial<Record<MainModule, string>> = {
+    scene: 'Szene',
+    timeline: 'Text',
+    buttons: 'Buttons',
+    design: 'Design',
+  };
+
+  const getMobileModuleHelp = (module: MainModule): string => {
+    if (module === 'scene') return 'Wähle zuerst, welchen Teil deiner Bühne du bearbeiten möchtest.';
+    if (module === 'timeline') return 'Wähle, ob du Inhalt, Timing oder Look deiner Werbebotschaft ändern möchtest.';
+    if (module === 'buttons') return 'Wähle, ob du Buttons ordnen, Aktionen setzen oder den Look bearbeiten möchtest.';
+    if (module === 'design') return 'Wähle den Bereich der öffentlichen Desktop-Miniwebseite.';
+    return 'Wähle einen Bereich zum Bearbeiten.';
+  };
+
   const getMobileSubMenuItems = (module: MainModule): Array<{ id: string; label: string }> => {
     if (module === 'scene') {
       return [
@@ -1747,7 +1763,19 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const openMobileModule = (module: MainModule) => {
     setActiveTab(module);
     setActiveSubSection(getDefaultSubSectionForModule(module));
+    setMobileOrbitModule(module);
+    setMobileOrbitOpen(true);
+    setMobileSheetOpen(false);
+    if (module === 'buttons' && (activeCard?.buttons?.length || 0) > 0 && !editingBtnId) {
+      setEditingBtnId(activeCard.buttons?.[0]?.id || null);
+    }
+  };
+
+  const openMobileSubSection = (module: MainModule, subsectionId: string) => {
+    setActiveTab(module);
+    setActiveSubSection(subsectionId);
     setMobileOrbitOpen(false);
+    setMobileOrbitModule(null);
     setMobileSheetOpen(true);
     if (module === 'buttons' && (activeCard?.buttons?.length || 0) > 0 && !editingBtnId) {
       setEditingBtnId(activeCard.buttons?.[0]?.id || null);
@@ -1759,7 +1787,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       {!mobileOrbitOpen && !mobileSheetOpen && (
         <button
           type="button"
-          onClick={() => setMobileOrbitOpen(true)}
+          onClick={() => { setMobileOrbitModule(null); setMobileOrbitOpen(true); }}
           className="ureel-orbit-center-button ureel-orbit-center-button--start"
           aria-label="Studio öffnen"
         >
@@ -1780,10 +1808,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         </button>
       )}
 
-      {mobileOrbitOpen && (
+      {mobileOrbitOpen && !mobileOrbitModule && (
         <div className="ureel-orbit-menu" role="navigation" aria-label="ureel Studio Orbit">
-          <button type="button" className="ureel-orbit-close" onClick={() => setMobileOrbitOpen(false)}>Schließen</button>
-          <button type="button" className="ureel-orbit-center" onClick={() => setMobileOrbitOpen(false)}>●</button>
+          <button type="button" className="ureel-orbit-close" onClick={() => { setMobileOrbitOpen(false); setMobileOrbitModule(null); }}>Schließen</button>
+          <button type="button" className="ureel-orbit-center" onClick={() => { setMobileOrbitOpen(false); setMobileOrbitModule(null); }}>●</button>
           {mobileMainModules.map((item) => (
             <button
               type="button"
@@ -1794,6 +1822,29 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <span>{item.label}</span>
             </button>
           ))}
+        </div>
+      )}
+
+      {mobileOrbitOpen && mobileOrbitModule && (
+        <div className={`ureel-orbit-submenu ureel-orbit-submenu--${mobileOrbitModule}`} role="navigation" aria-label={`${mobileModuleLabels[mobileOrbitModule] || 'Modul'} Untermenü`}>
+          <div className="ureel-orbit-submenu-title">
+            <span>{mobileModuleLabels[mobileOrbitModule]}</span>
+            <small>{getMobileModuleHelp(mobileOrbitModule)}</small>
+          </div>
+          <button type="button" className="ureel-orbit-submenu-back" onClick={() => setMobileOrbitModule(null)}>Hauptmenü</button>
+          <button type="button" className="ureel-orbit-submenu-center" onClick={() => { setMobileOrbitOpen(false); setMobileOrbitModule(null); }}>●</button>
+          <div className="ureel-orbit-submenu-ring">
+            {getMobileSubMenuItems(mobileOrbitModule).map((item, index) => (
+              <button
+                type="button"
+                key={item.id}
+                onClick={() => openMobileSubSection(mobileOrbitModule, item.id)}
+                className={`ureel-orbit-sub-segment ureel-orbit-sub-segment--${index} ${activeSubSection === item.id ? 'is-active' : ''}`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -2158,22 +2209,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           <div className="ureel-mobile-sheet-grip" />
           <div className="ureel-mobile-sheet-actions">
             <button type="button" onClick={() => setMobileSheetOpen(false)} className="ureel-mobile-preview-free">● Vorschau frei</button>
-            <button type="button" onClick={() => setMobileOrbitOpen(true)} className="ureel-mobile-main-menu">Hauptmenü</button>
+            <button type="button" onClick={() => { setMobileOrbitModule(activeTab); setMobileOrbitOpen(true); setMobileSheetOpen(false); }} className="ureel-mobile-main-menu">Untermenü</button>
           </div>
-          <div className="ureel-mobile-subring" aria-label="Untermenü">
-            {getMobileSubMenuItems(activeTab).map((item) => {
-              const selected = activeSubSection === item.id;
-              return (
-                <button
-                  type="button"
-                  key={item.id}
-                  onClick={() => setActiveSubSection(item.id)}
-                  className={`ureel-orbit-ring-segment ${selected ? 'is-active' : ''}`}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
+          <div className={`ureel-mobile-config-context ureel-mobile-config-context--${activeTab}`}>
+            <span>{mobileModuleLabels[activeTab] || 'Studio'}</span>
+            <strong>{getMobileSubMenuItems(activeTab).find((item) => item.id === activeSubSection)?.label || 'Bearbeiten'}</strong>
           </div>
         </div>
         

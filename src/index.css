@@ -1096,3 +1096,211 @@ body {
     font-size: 15px !important;
   }
 }
+
+/* v52.0.1 – Orbit Submenu Flow Cleanup: nur Mobile Studio */
+@media (max-width: 767px) {
+  .ureel-orbit-submenu {
+    position: absolute;
+    left: 50%;
+    bottom: 74px;
+    width: min(90vw, 360px);
+    height: min(78vw, 310px);
+    transform: translateX(-50%);
+    border-radius: 999px 999px 46px 46px;
+    border: 1px solid rgba(245,242,234,.24);
+    box-shadow: 0 20px 56px rgba(0,0,0,.54), inset 0 0 36px rgba(255,255,255,.045);
+    backdrop-filter: blur(12px);
+    pointer-events: auto;
+    overflow: hidden;
+    animation: ureelOrbitIn .22s ease-out both;
+  }
+
+  .ureel-orbit-submenu--scene {
+    background: radial-gradient(circle at 50% 44%, rgba(232,220,194,.08) 0 28%, rgba(178,132,35,.24) 29% 100%);
+  }
+
+  .ureel-orbit-submenu--timeline {
+    background: radial-gradient(circle at 50% 44%, rgba(245,242,234,.07) 0 28%, rgba(170,112,190,.22) 29% 100%);
+  }
+
+  .ureel-orbit-submenu--buttons {
+    background: radial-gradient(circle at 50% 44%, rgba(245,242,234,.07) 0 28%, rgba(109,184,154,.22) 29% 100%);
+  }
+
+  .ureel-orbit-submenu--design {
+    background: radial-gradient(circle at 50% 44%, rgba(245,242,234,.07) 0 28%, rgba(90,145,170,.22) 29% 100%);
+  }
+
+  .ureel-orbit-submenu-title {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    top: 20px;
+    text-align: center;
+    color: #F5F2EA;
+    text-shadow: 0 2px 6px rgba(0,0,0,.55);
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .ureel-orbit-submenu-title span {
+    display: block;
+    font-size: 18px;
+    font-weight: 950;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .ureel-orbit-submenu-title small {
+    display: block;
+    max-width: 260px;
+    margin: 5px auto 0;
+    font-size: 11px;
+    line-height: 1.25;
+    font-weight: 700;
+    color: rgba(245,242,234,.78);
+    letter-spacing: .01em;
+    text-transform: none;
+  }
+
+  .ureel-orbit-submenu-back {
+    position: absolute;
+    left: 18px;
+    bottom: 18px;
+    min-width: 112px;
+    min-height: 40px;
+    border-radius: 999px;
+    border: 1px solid rgba(245,242,234,.28);
+    background: rgba(10,10,12,.48);
+    color: rgba(245,242,234,.88);
+    font-size: 11px;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    z-index: 4;
+  }
+
+  .ureel-orbit-submenu-center {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    transform: translate(-50%, -50%);
+    width: 72px;
+    height: 72px;
+    border-radius: 999px;
+    border: 1px solid rgba(245,242,234,.36);
+    background: rgba(8,8,10,.55);
+    color: #F5F2EA;
+    font-size: 20px;
+    box-shadow: 0 12px 28px rgba(0,0,0,.30), inset 0 0 28px rgba(245,242,234,.08);
+    z-index: 3;
+  }
+
+  .ureel-orbit-submenu-ring {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+
+  .ureel-orbit-sub-segment {
+    position: absolute;
+    min-width: 108px;
+    min-height: 52px;
+    padding: 0 13px;
+    border: 1px solid rgba(245,242,234,.34);
+    background: rgba(245,242,234,.18);
+    color: #F5F2EA;
+    backdrop-filter: blur(8px);
+    font-size: 13px;
+    line-height: 1.05;
+    font-weight: 950;
+    letter-spacing: .045em;
+    text-transform: uppercase;
+    text-shadow: 0 2px 5px rgba(0,0,0,.55);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 8px 20px rgba(0,0,0,.18);
+    clip-path: polygon(7% 0%, 100% 0%, 93% 100%, 0% 100%);
+  }
+
+  .ureel-orbit-sub-segment.is-active,
+  .ureel-orbit-sub-segment:active {
+    background: rgba(245,242,234,.38);
+    border-color: rgba(245,242,234,.72);
+    color: #FFFFFF;
+  }
+
+  .ureel-orbit-sub-segment--0 { left: 50%; top: 78px; transform: translateX(-50%); }
+  .ureel-orbit-sub-segment--1 { left: 22px; top: 126px; transform: rotate(-6deg); }
+  .ureel-orbit-sub-segment--2 { right: 22px; top: 126px; transform: rotate(6deg); }
+  .ureel-orbit-sub-segment--3 { left: 48px; top: 188px; transform: rotate(-10deg); }
+  .ureel-orbit-sub-segment--4 { right: 48px; top: 188px; transform: rotate(10deg); }
+  .ureel-orbit-sub-segment--5 { left: 50%; top: 220px; transform: translateX(-50%); }
+
+  .ureel-detail-panel {
+    height: min(46dvh, 430px) !important;
+    max-height: min(46dvh, 430px) !important;
+    padding: 10px 14px 22px !important;
+  }
+
+  .ureel-mobile-sheet-head {
+    padding-bottom: 10px !important;
+  }
+
+  .ureel-mobile-config-context {
+    display: grid;
+    gap: 3px;
+    padding: 10px 12px;
+    border-radius: 18px;
+    border: 1px solid rgba(216,205,183,.95);
+    background: rgba(255,253,248,.78);
+    color: #111111;
+  }
+
+  .ureel-mobile-config-context span {
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: #8A6B24;
+  }
+
+  .ureel-mobile-config-context strong {
+    font-size: 20px;
+    line-height: 1.05;
+    font-weight: 950;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+  }
+
+  .ureel-detail-panel > div:nth-child(2) h1 {
+    font-size: 22px !important;
+    line-height: 1.08 !important;
+    color: #111111 !important;
+  }
+
+  .ureel-detail-panel > div:nth-child(2) p {
+    font-size: 15px !important;
+    line-height: 1.35 !important;
+    color: #33302A !important;
+  }
+
+  .ureel-detail-panel button,
+  .ureel-detail-panel input:not([type="color"]):not([type="range"]),
+  .ureel-detail-panel select,
+  .ureel-detail-panel textarea {
+    min-height: 50px !important;
+    font-size: 17px !important;
+  }
+
+  .ureel-detail-panel label,
+  .ureel-detail-panel .text-\[10px\],
+  .ureel-detail-panel .text-\[10\.5px\],
+  .ureel-detail-panel .text-\[11px\] {
+    font-size: 13px !important;
+    line-height: 1.25 !important;
+  }
+
+  .ureel-studio-preview-panel:has(+ * .ureel-mobile-sheet-open) .ureel-device-frame,
+  .ureel-studio-preview-panel:has(~ .ureel-mobile-sheet-open) .ureel-device-frame {
+    max-height: calc(100dvh - 390px) !important;
+  }
+}
