@@ -250,7 +250,7 @@ export interface UreelDesktopPage {
   showActionButtons?: boolean;
   showPhoneButtons?: boolean;
   buttonMode?: 'always' | 'timed';
-  buttonLayout?: 'contact_box' | 'three_col' | 'two_col' | 'list';
+  buttonLayout?: 'contact_box' | 'three_col' | 'two_col' | 'list' | 'ordered' | 'compact_grid' | 'circle' | 'triangle';
   buttonAreaBackgroundMode?: 'none' | 'gradient' | 'image';
   buttonAreaBackgroundImageUrl?: string;
   buttonAreaGradientFrom?: string;

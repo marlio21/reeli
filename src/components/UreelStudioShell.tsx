@@ -4,6 +4,7 @@ import * as LucideIcons from 'lucide-react';
 import { Card, CardButton, UreelScene, UreelTimeline, UreelEndCard, UreelTextTemplate, getPublicCardUrl } from '../types';
 import { KonuCardCore } from './KonuCardCore';
 import { ButtonRenderer } from './ButtonRenderer';
+import { PublicDesktopPageRenderer } from './PublicDesktopPageRenderer';
 import { createDefaultButton, sanitizeButtonForFirestore } from '../utils/buttonUtils';
 import { UREEL_TEXT_TEMPLATES, normalizeUreelTextTemplate } from '../utils/textTemplates';
 import { storage } from '../firebase';
@@ -3361,44 +3362,17 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               </div>
               <div className="rounded-[28px] border border-[#3A3732] overflow-hidden bg-[#0F0F0F] shadow-2xl">
                 <div className="px-4 pt-4 text-[9px] font-black uppercase tracking-[0.18em] text-[#E8DCC2]">Live-Desktop-Vorschau</div>
-                <div
-                  className="p-3 md:p-4 min-h-[430px]"
-                  style={{
-                    background: desktopPage.backgroundMode === 'image' && desktopPage.backgroundImageUrl
-                      ? `linear-gradient(rgba(0,0,0,${(desktopPage.imageDarken ?? 34)/100}), rgba(0,0,0,${(desktopPage.imageDarken ?? 34)/100})), url(${desktopPage.backgroundImageUrl}) center/cover no-repeat`
-                      : `linear-gradient(135deg, ${desktopPage.gradientFrom || '#0F0F0F'}, ${desktopPage.gradientTo || '#3A3328'})`
-                  }}
-                >
-                  <div className="overflow-hidden pb-2">
-                    <div className={`grid grid-cols-3 gap-3 items-stretch h-[520px] overflow-hidden ${desktopPreviewGridClass}`}>
-                    <div className={`${desktopPhoneOrder} flex flex-col items-center justify-center rounded-[26px] border border-white/10 bg-black/20 p-3 h-full overflow-hidden`}>
-                      <span className="mb-3 text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Smartphone-Ansicht</span>
-                      <div className="relative w-[174px] h-[310px] overflow-hidden rounded-[30px] border-[7px] border-[#1A1A1A] bg-black shadow-2xl mx-auto">
-                        <div className="absolute left-0 top-0 w-[330px] h-[586px] origin-top-left scale-[0.527]">
-                          <KonuCardCore card={activeCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} previewFocus="full" hideActionButtons={desktopPage.showPhoneButtons !== true} />
-                        </div>
-                      </div>
-                      <span className="mt-3 max-w-[190px] text-center text-[8px] leading-tight text-[#F5F2EA]/45">Skalierte Live-Karte ohne Text-Neuumbruch</span>
-                    </div>
-                    <div className={`${desktopLayout === 'minimal' ? 'hidden' : ''} ${desktopTextOrder} rounded-[26px] border border-white/10 bg-black/25 p-5 space-y-3 h-full flex flex-col justify-center`}>
-                      <div className="inline-flex self-start items-center gap-2 rounded-full border border-[#E8DCC2]/25 bg-black/25 px-3 py-1 text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Desktop Werbetext</div>
-                      <h2 className="text-2xl md:text-3xl font-black text-[#F5F2EA] tracking-tight leading-tight">{desktopTitle}</h2>
-                      <p className="text-sm font-bold text-[#E8DCC2]">{desktopSubtitle}</p>
-                      <p className="text-xs leading-relaxed text-[#F5F2EA]/75 max-w-md">{desktopDescription}</p>
-                      <button type="button" onClick={openWerbetexterFromDesign} className="mt-2 h-10 rounded-xl border border-[#E8DCC2]/35 bg-[#181818]/80 px-3 text-[9px] font-black uppercase tracking-wider text-[#F5F2EA] inline-flex items-center justify-center gap-2 self-start"><LucideIcons.Type size={12}/> Werbetexte bearbeiten</button>
-                      <div className="flex flex-wrap gap-2 pt-2">
-                        {(desktopPage.showQr ?? true) && <span className="rounded-xl bg-[#F5F2EA] text-[#101010] px-3 py-2 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"><LucideIcons.QrCode size={12}/> QR-Code</span>}
-                        {(desktopPage.showShare ?? true) && <span className="rounded-xl border border-[#E8DCC2]/35 text-[#F5F2EA] px-3 py-2 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"><LucideIcons.Share2 size={12}/> Teilen</span>}
-                        {(desktopPage.showContactSave ?? true) && <span className="rounded-xl border border-[#E8DCC2]/35 text-[#F5F2EA] px-3 py-2 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"><LucideIcons.ContactRound size={12}/> Kontakt</span>}
-                      </div>
-                    </div>
-                    <div className={`${desktopButtonsOrder} ${desktopLayout === 'phone_center' ? 'w-full' : ''} rounded-[26px] border border-white/10 p-4 h-full flex flex-col justify-center overflow-hidden`} style={desktopButtonAreaStyle}>
-                      <div className="mb-3 flex items-center justify-between gap-3"><div><span className="block text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Buttonbereich</span><span className="block text-[8.5px] text-[#F5F2EA]/60 mt-0.5">Echte Nutzerbuttons neben der Smartphone-Karte.</span></div><span className="rounded-full bg-black/35 px-2 py-1 text-[8px] font-black uppercase text-[#F5F2EA]/70">{desktopButtonLayout === 'circle' ? 'Kreis' : desktopButtonLayout === 'triangle' ? 'Dreieck' : desktopButtonLayout === 'compact_grid' ? 'Eng' : '3er Raster'}</span></div>
-                      {renderDesktopButtonArea()}
-                    </div>
+                <div className="p-3 md:p-4 min-h-[430px]">
+                  <div className="h-[520px] overflow-hidden rounded-[26px] border border-white/10">
+                    <PublicDesktopPageRenderer
+                      card={activeCard}
+                      lang={lang}
+                      mode="studio-preview"
+                      qrCodeUrl={qrPayload}
+                      onEditText={openWerbetexterFromDesign}
+                    />
                   </div>
                 </div>
-              </div>
             </div>
             </div>
           )}

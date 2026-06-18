@@ -18,6 +18,7 @@ import { downloadVCardFileFromCard } from '../utils/vcard-wrapper';
 import { ShareExportModal } from './ShareExportModal';
 import { KonuLogo } from './KonuLogo';
 import { ButtonRenderer } from './ButtonRenderer';
+import { PublicDesktopPageRenderer } from './PublicDesktopPageRenderer';
 import QRCode from 'qrcode';
 import { parseVideoUrl } from '../utils/video';
 import { executeButtonAction as runButtonAction, normalizeButtons, buildButtonActionUrl } from '../utils/buttonUtils';
@@ -580,96 +581,20 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
   }
 
   if (!isPreview) {
-    const desktopPage: any = (card as any).desktopPage || {};
-    const buttons = normalizeButtons(card.buttons || []).filter((b: any) => b && b.isActive !== false);
-    const layout = desktopPage.layout || 'three_columns';
-    const textTitle = desktopPage.contentMode === 'custom' && desktopPage.title ? desktopPage.title : (card.title || card.heroTitle || 'ureel');
-    const textSubtitle = desktopPage.contentMode === 'custom' && desktopPage.subtitle ? desktopPage.subtitle : (card.subtitle || card.heroSubtitle || 'Aus Video wird Aktion.');
-    const textDescription = desktopPage.contentMode === 'custom' && desktopPage.description ? desktopPage.description : (card.description || card.heroDescription || '');
-    const buttonArrangement = desktopPage.buttonLayout || 'ordered';
-    const pageBg = desktopPage.backgroundImageUrl
-      ? { backgroundImage: `linear-gradient(rgba(0,0,0,${(desktopPage.imageDarken ?? 28) / 100}), rgba(0,0,0,${(desktopPage.imageDarken ?? 28) / 100})), url(${desktopPage.backgroundImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-      : { background: `linear-gradient(135deg, ${desktopPage.gradientFrom || '#0F0F0F'}, ${desktopPage.gradientTo || '#3A3328'})` };
-
-    const phonePanel = (
-      <section className="h-full min-w-0 flex items-center justify-center p-4 lg:p-6 border-r border-white/10">
-        <div className="relative h-[86vh] max-h-[760px] aspect-[9/16] rounded-[34px] border-[8px] border-[#D8D2C4] bg-black shadow-2xl overflow-hidden">
-          <KonuCardCore
-            card={card}
-            lang={lang}
-            isPreview={false}
-            handleButtonClick={handleButtonClick}
-            triggerVCardDownload={triggerVCardDownload}
-            handleCtaClick={handleCtaClick}
-            setShowShareModal={setShowShareModal}
-            hideActionButtons={desktopPage.showPhoneButtons !== true}
-          />
-        </div>
-      </section>
-    );
-
-    const textPanel = (
-      <section className="h-full min-w-0 flex flex-col justify-center p-5 lg:p-7 border-r border-white/10 overflow-hidden">
-        <span className="w-fit rounded-full border border-[#E8DCC2]/35 px-3 py-1 text-[10px] uppercase tracking-[0.22em] font-black text-[#E8DCC2]">ureel.me</span>
-        <h1 className="mt-4 text-3xl xl:text-4xl font-black leading-[0.98] text-[#F5F2EA] tracking-tight">{textTitle}</h1>
-        {textSubtitle && <p className="mt-5 text-lg xl:text-xl font-bold text-[#E8DCC2]">{textSubtitle}</p>}
-        {textDescription && <p className="mt-4 max-w-xl text-sm xl:text-base leading-relaxed text-[#F5F2EA]/75">{textDescription}</p>}
-        <div className="mt-5 flex flex-wrap gap-2">
-          {qrCodeUrl && (desktopPage.showQr !== false) && <button onClick={() => setShowShareDrawer(true)} className="h-11 px-5 rounded-2xl bg-[#F5F2EA] text-[#101010] text-[11px] font-black uppercase tracking-wider flex items-center gap-2"><LucideIcons.QrCode size={16}/> QR-Code</button>}
-          {desktopPage.showShare !== false && <button onClick={() => setShowShareModal(true)} className="h-11 px-5 rounded-2xl border border-[#E8DCC2]/35 text-[#F5F2EA] text-[11px] font-black uppercase tracking-wider flex items-center gap-2"><LucideIcons.Share2 size={16}/> Teilen</button>}
-          {desktopPage.showContactSave !== false && <button onClick={triggerVCardDownload} className="h-11 px-5 rounded-2xl border border-[#E8DCC2]/35 text-[#F5F2EA] text-[11px] font-black uppercase tracking-wider flex items-center gap-2"><LucideIcons.Contact size={16}/> Kontakt</button>}
-        </div>
-      </section>
-    );
-
-    const renderDesktopButtons = () => {
-      const list = desktopPage.showActionButtons === false ? [] : buttons.slice(0, 12);
-      if (buttonArrangement === 'circle') {
-        const pos = [
-          'left-[50%] top-[6%] -translate-x-1/2', 'left-[16%] top-[26%]', 'right-[16%] top-[26%]',
-          'left-[16%] bottom-[26%]', 'right-[16%] bottom-[26%]', 'left-[50%] bottom-[6%] -translate-x-1/2'
-        ];
-        return <div className="relative h-[330px] w-full max-w-[330px] mx-auto rounded-full border border-[#E8DCC2]/15 bg-black/15">{list.slice(0,6).map((b: any, i: number) => <div key={b.id} className={`absolute ${pos[i] || pos[0]}`}><ButtonRenderer button={{...b, radius: b.radius || 'pill', buttonShape: b.buttonShape || 'round'}} mode="public" lang={lang} forceSquare={true} forceSizePx={56}/></div>)}</div>;
-      }
-      if (buttonArrangement === 'triangle') {
-        return <div className="grid grid-cols-3 gap-3 max-w-[330px] mx-auto place-items-center">{list.slice(0,6).map((b: any, i: number) => <div key={b.id} className={i === 0 ? 'col-start-2' : i === 4 ? 'col-start-1' : ''}><ButtonRenderer button={b} mode="public" lang={lang} forceSquare={true} forceSizePx={58}/></div>)}</div>;
-      }
-      return <div className="grid grid-cols-3 gap-4 max-w-[430px] mx-auto">{list.map((b: any) => <ButtonRenderer key={b.id} button={b} mode="public" lang={lang} forceSquare={true} forceSizePx={58}/>)}</div>;
-    };
-
-    const buttonsPanel = (
-      <section className="h-full min-w-0 flex flex-col justify-center p-5 lg:p-7 overflow-hidden" style={(desktopPage.buttonAreaBackgroundMode === 'image' && desktopPage.buttonAreaBackgroundImageUrl && desktopPage.buttonAreaBackgroundImageUrl !== desktopPage.backgroundImageUrl) ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.28), rgba(0,0,0,0.28)), url(${desktopPage.buttonAreaBackgroundImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
-        <span className="w-fit rounded-full border border-[#E8DCC2]/30 px-3 py-1 text-[10px] uppercase tracking-[0.22em] font-black text-[#E8DCC2]">Aktionen</span>
-        <h2 className="mt-4 text-xl xl:text-2xl font-black text-[#F5F2EA]">Direkt verbinden</h2>
-        <p className="mt-2 mb-5 text-xs text-[#F5F2EA]/60">Alle wichtigen Aktionen deiner ureel auf einen Blick.</p>
-        {desktopPage.showActionButtons === false ? (
-          <div className="rounded-3xl border border-[#E8DCC2]/20 bg-black/30 p-6 text-center text-sm text-[#F5F2EA]/65">Desktop-Buttonbereich ist ausgeblendet.</div>
-        ) : renderDesktopButtons()}
-      </section>
-    );
-
-    const columns = layout === 'phone_center' ? [textPanel, phonePanel, buttonsPanel] : layout === 'minimal' ? [textPanel, phonePanel, buttonsPanel] : [phonePanel, textPanel, buttonsPanel];
-
     return (
-      <div className="h-screen w-screen overflow-hidden bg-[#0B0B0B] text-[#F5F2EA]" style={pageBg}>
-        <div className="hidden lg:grid h-full w-full grid-cols-3">
-          {columns.map((col, i) => <React.Fragment key={i}>{col}</React.Fragment>)}
-        </div>
-        <div className="lg:hidden h-[100svh] w-full overflow-hidden flex items-center justify-center bg-black">
-          <div className="h-[100svh] w-full max-w-md overflow-hidden">
-            <KonuCardCore
-              card={card}
-              lang={lang}
-              isPreview={false}
-              handleButtonClick={handleButtonClick}
-              triggerVCardDownload={triggerVCardDownload}
-              handleCtaClick={handleCtaClick}
-              setShowShareModal={setShowShareModal}
-            />
-          </div>
-        </div>
+      <>
+        <PublicDesktopPageRenderer
+          card={card}
+          lang={lang}
+          mode="public"
+          qrCodeUrl={qrCodeUrl}
+          onButtonClick={handleButtonClick}
+          onContactSave={triggerVCardDownload}
+          onShare={() => setShowShareModal(true)}
+          onQrClick={() => setShowShareDrawer(true)}
+        />
         <AnimatePresence>{showShareModal && <ShareExportModal card={card} lang={lang} isOpen={showShareModal} onClose={() => setShowShareModal(false)} />}</AnimatePresence>
-      </div>
+      </>
     );
   }
 
