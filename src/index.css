@@ -329,3 +329,142 @@ body {
     font-size: 14px !important;
   }
 }
+
+/* v51.5.1 – Mobile Studio Hard Layout Fix
+   Deutlicher Eingriff nur im mobilen Studio: weniger vertikale Menüs,
+   bessere Header-Lesbarkeit, schnellere Bedienung. Public Live-Link bleibt unverändert. */
+@media (max-width: 767px) {
+  /* Studio-Grundlayout: Bearbeiten soll wie eine App wirken, nicht wie vier Spalten untereinander. */
+  .ureel-detail-panel {
+    background: #101012 !important;
+    padding: 14px 12px 96px !important;
+    space-y: 0 !important;
+  }
+
+  /* Der Detail-Header war durch frühere Hell/Dunkel-Regeln teilweise fast unsichtbar. */
+  .ureel-detail-panel > div:first-child {
+    background: #101012 !important;
+    border-color: rgba(245,242,234,0.22) !important;
+    padding: 12px 2px 14px !important;
+    margin-bottom: 8px !important;
+  }
+  .ureel-detail-panel > div:first-child h1,
+  .ureel-detail-panel > div:first-child .text-white {
+    color: #F5F2EA !important;
+  }
+  .ureel-detail-panel > div:first-child p,
+  .ureel-detail-panel > div:first-child .text-stone-450,
+  .ureel-detail-panel > div:first-child .text-stone-500 {
+    color: rgba(245,242,234,0.62) !important;
+  }
+  .ureel-detail-panel > div:first-child button {
+    background: #1D1D1F !important;
+    color: #F5F2EA !important;
+    border-color: rgba(245,242,234,0.24) !important;
+    min-height: 40px !important;
+  }
+
+  /* Untermenü wird auf Mobile zur horizontalen Chip-Leiste statt langer Kartenliste. */
+  .ureel-subnav-panel {
+    position: sticky !important;
+    top: 74px !important;
+    z-index: 35 !important;
+    background: #0D0D0F !important;
+    border-top: 1px solid rgba(245,242,234,0.16) !important;
+    border-bottom: 1px solid rgba(245,242,234,0.16) !important;
+    padding: 8px 0 !important;
+  }
+  .ureel-subnav-panel > div:first-child > div:first-child {
+    display: none !important;
+  }
+  .ureel-subnav-panel .p-2.space-y-1 {
+    padding: 0 12px !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+  }
+  .ureel-subnav-panel .p-2.space-y-1::-webkit-scrollbar {
+    display: none !important;
+  }
+  .ureel-subnav-panel .p-2.space-y-1 > div {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+    padding-top: 0 !important;
+    min-width: max-content !important;
+  }
+  .ureel-subnav-panel .p-2.space-y-1 > div > div:first-child {
+    display: none !important;
+  }
+  .ureel-subnav-panel .p-2.space-y-1 button {
+    width: auto !important;
+    min-width: 126px !important;
+    max-width: 156px !important;
+    min-height: 54px !important;
+    padding: 10px 12px !important;
+    border-radius: 18px !important;
+    background: #19191B !important;
+    color: #F5F2EA !important;
+    border: 1px solid rgba(245,242,234,0.18) !important;
+    box-shadow: none !important;
+  }
+  .ureel-subnav-panel .p-2.space-y-1 button[class*="bg-\[\#F5F2EA\]"],
+  .ureel-subnav-panel .p-2.space-y-1 button[class*="text-\[\#101010\]"] {
+    background: #F5F2EA !important;
+    color: #101010 !important;
+    border-color: #F5F2EA !important;
+  }
+  .ureel-subnav-panel .p-2.space-y-1 button span span:first-child {
+    font-size: 11px !important;
+    line-height: 1.1 !important;
+    white-space: normal !important;
+  }
+  .ureel-subnav-panel .p-2.space-y-1 button span span:last-child,
+  .ureel-subnav-panel .p-2.space-y-1 button svg:last-child {
+    display: none !important;
+  }
+
+  /* Kartenverwaltung im Subnav-Footer nimmt auf Mobile zu viel Platz weg; sie bleibt über das Kontomenü erreichbar. */
+  .ureel-subnav-panel > div:last-child {
+    display: none !important;
+  }
+
+  /* Vorschau: etwas größerer echter Inhalt, weniger dekorativer Rahmen. */
+  .ureel-studio-preview-panel {
+    padding: 10px 10px 12px !important;
+  }
+  .ureel-studio-preview-stage {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+  .ureel-studio-phone-frame {
+    width: min(78vw, 315px) !important;
+    height: min(160vw, 646px) !important;
+    border-width: 4px !important;
+    border-radius: 30px !important;
+    ring-width: 0 !important;
+  }
+  .ureel-studio-phone-frame > div:first-child,
+  .ureel-studio-phone-frame > div:nth-child(2):not(:last-child) {
+    opacity: .35 !important;
+  }
+
+  /* Formular-Karten: hell, aber ohne den Header zu verdunkeln. */
+  .ureel-detail-panel > div:last-child [class*="rounded-2xl"][class*="border"],
+  .ureel-detail-panel > div:last-child [class*="rounded-3xl"][class*="border"] {
+    background: #F5F2EA !important;
+    color: #111111 !important;
+    border-color: #D8CDB7 !important;
+  }
+  .ureel-detail-panel > div:last-child .text-white,
+  .ureel-detail-panel > div:last-child .text-\[\#F5F2EA\],
+  .ureel-detail-panel > div:last-child .text-stone-200,
+  .ureel-detail-panel > div:last-child .text-stone-300,
+  .ureel-detail-panel > div:last-child .text-stone-400,
+  .ureel-detail-panel > div:last-child .text-stone-450,
+  .ureel-detail-panel > div:last-child .text-stone-500 {
+    color: #181818 !important;
+  }
+  .ureel-detail-panel > div:last-child .text-\[\#E8DCC2\] {
+    color: #7B5E28 !important;
+  }
+}
