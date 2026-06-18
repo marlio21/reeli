@@ -81,3 +81,7 @@ Diese Version stabilisiert die Design-Vorschau und verhindert, dass die Smartpho
 5. Szene-Vorschau bleibt die Detail-Wahrheit für die Karte.
 
 Build geprüft: `npm run build` erfolgreich.
+
+## v52.0.3 – Orbit Arc Submenus & Direct Text Edit
+
+Mobile Studio Feinschliff: Untermenüs erscheinen als transparenter Halbkreis-/Teilring statt rechter Seitenliste. Konfiguration öffnet als größeres Glass-Overlay über Vorschau und Menüführung. Im Textmodus sind Titel/Slogan/Beschreibung in der mobilen Vorschau als direkte Hotspots anwählbar. Public Link und Desktop bleiben unverändert.

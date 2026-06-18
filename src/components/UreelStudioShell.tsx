@@ -123,6 +123,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [mobileOrbitOpen, setMobileOrbitOpen] = useState(false);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const [mobileOrbitModule, setMobileOrbitModule] = useState<MainModule | null>(null);
+  const [mobileActiveTextLayer, setMobileActiveTextLayer] = useState<'title' | 'subtitle' | 'description' | null>(null);
   
   // Local state for actively selected button being edited
   const [editingBtnId, setEditingBtnId] = useState<string | null>(null);
@@ -1583,7 +1584,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           <span className="text-[8px] uppercase tracking-widest font-black text-[#E8DCC2]">Echte Karten-Vorschau</span>
           <span className="text-[7px] uppercase tracking-wider text-stone-500">Renderer Sync</span>
         </div>
-        <div className="h-[430px] rounded-[26px] overflow-hidden border-[7px] border-[#F5F2EA]/85 bg-black">
+        <div className="relative h-[430px] rounded-[26px] overflow-hidden border-[7px] border-[#F5F2EA]/85 bg-black">
           <KonuCardCore
             card={getPreviewCardForTimeline()}
             lang={lang}
@@ -1592,6 +1593,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             cleanPreview={true}
             previewFocus="full"
           />
+          {renderMobileTextHotspots()}
         </div>
         <p className="mt-2 text-[8.5px] leading-snug text-stone-500 text-center">
           Diese Vorschau nutzt dieselbe Karte wie Szene und Live-Link. Vorlagen, Rahmen, Textgrößen und Hintergrund werden 1:1 geprüft.
@@ -1774,14 +1776,50 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const openMobileSubSection = (module: MainModule, subsectionId: string) => {
     setActiveTab(module);
     setActiveSubSection(subsectionId);
-    // v52.0.2: keep the transparent orbit controls visible while the glass input overlay opens.
-    // This removes the old back-and-forth flow: Hauptmenü -> Untermenü -> Fenster -> Zurück.
+    // v52.0.3: Untermenü bleibt als transparenter Orbit-Halbring sichtbar;
+    // das Eingabe-Overlay öffnet sich eigenständig darüber.
     setMobileOrbitOpen(true);
     setMobileOrbitModule(module);
     setMobileSheetOpen(true);
+    if (module !== 'timeline') {
+      setMobileActiveTextLayer(null);
+    }
     if (module === 'buttons' && (activeCard?.buttons?.length || 0) > 0 && !editingBtnId) {
       setEditingBtnId(activeCard.buttons?.[0]?.id || null);
     }
+  };
+
+  const openMobileTextLayerEditor = (fieldKey: 'title' | 'subtitle' | 'description') => {
+    setActiveTab('timeline');
+    setActiveSubSection('timeline-texts');
+    setMobileOrbitOpen(true);
+    setMobileOrbitModule('timeline');
+    setMobileSheetOpen(true);
+    setMobileActiveTextLayer(fieldKey);
+    setTextPreviewMode('text');
+  };
+
+  const renderMobileTextHotspots = () => {
+    if (activeTab !== 'timeline') return null;
+    const hotspots: Array<{ key: 'title' | 'subtitle' | 'description'; label: string; className: string }> = [
+      { key: 'title', label: 'Titel bearbeiten', className: 'ureel-mobile-text-hotspot--title' },
+      { key: 'subtitle', label: 'Slogan bearbeiten', className: 'ureel-mobile-text-hotspot--subtitle' },
+      { key: 'description', label: 'Text bearbeiten', className: 'ureel-mobile-text-hotspot--description' },
+    ];
+    return (
+      <div className="ureel-mobile-text-hotspots md:hidden" aria-label="Werbetext direkt bearbeiten">
+        {hotspots.map((hotspot) => (
+          <button
+            key={hotspot.key}
+            type="button"
+            className={`ureel-mobile-text-hotspot ${hotspot.className} ${mobileActiveTextLayer === hotspot.key ? 'is-active' : ''}`}
+            onClick={() => openMobileTextLayerEditor(hotspot.key)}
+          >
+            {hotspot.label}
+          </button>
+        ))}
+      </div>
+    );
   };
 
   const renderMobileOrbitOverlay = () => (
