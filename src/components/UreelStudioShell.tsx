@@ -1780,7 +1780,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         </div>
 
         {/* Bottom Profile Details or Exit */}
-        <div className="flex flex-row md:flex-col items-center gap-2 shrink-0">
+        <div className="flex flex-row md:flex-col items-center gap-2 shrink-0 ureel-mobile-utility-actions">
           <button
             onClick={() => { setAccountManagerTab('team'); setAccountPanelOpen(true); setTeamPanelOpen(false); }}
             className="p-2 text-stone-500 hover:text-[#F5F2EA] transition duration-150 hover:bg-stone-900 rounded-lg cursor-pointer"
@@ -1803,7 +1803,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       </div>
 
       {/* COLUMN 2: LINKES MODULPANEL (SUB NAV / SUB OPTIONS) */}
-      <div className="order-3 md:order-none w-full md:w-[220px] bg-[#111115] md:max-h-screen overflow-y-visible md:overflow-visible border-b md:border-b-0 md:border-r border-stone-900 flex flex-col justify-between shrink-0">
+      <div className="order-3 md:order-none w-full md:w-[220px] bg-[#111115] md:max-h-screen ureel-subnav-panel overflow-y-visible md:overflow-visible border-b md:border-b-0 md:border-r border-stone-900 flex flex-col justify-between shrink-0">
         <div>
           {/* Active Module Title */}
           <div className="p-4 border-b border-stone-850/60">
@@ -3525,7 +3525,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       </div>
 
       {/* COLUMN 4: RECHTE PERMANENTE SMARTPHONE-VORSCHAU */}
-      <div className="order-2 md:order-none w-full md:w-[330px] md:max-h-none overflow-visible md:overflow-visible bg-[#0E0E11] border-b md:border-b-0 md:border-l border-stone-900 flex flex-col justify-between shrink-0 p-3 md:p-4">
+      <div className="order-2 md:order-none w-full md:w-[330px] md:max-h-none ureel-studio-preview-panel overflow-visible md:overflow-visible bg-[#0E0E11] border-b md:border-b-0 md:border-l border-stone-900 flex flex-col justify-between shrink-0 p-3 md:p-4">
         
         {/* Preview Title bar */}
         <div className="flex items-center justify-between border-b border-stone-900 pb-3 gap-2">
@@ -3585,7 +3585,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         </div>
 
         {/* Smart preview / Button monitor */}
-        <div className="flex-none md:flex-1 flex items-center justify-center py-2 md:py-4 bg-stone-950/20 overflow-visible md:overflow-hidden">
+        <div className="flex-none md:flex-1 flex items-center justify-center py-2 md:py-4 bg-stone-950/20 overflow-visible md:overflow-hidden ureel-studio-preview-stage">
           {activeTab === 'buttons' ? (
             <div className="w-full h-full min-h-[230px] md:min-h-0 flex items-center justify-center">
               {buttonPreviewMode === 'button' && editingButton && (
@@ -3621,7 +3621,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 </div>
               )}
               {buttonPreviewMode === 'card' && (
-                <div className="relative mx-auto w-[150px] h-[308px] sm:w-[180px] sm:h-[370px] md:w-[230px] md:h-[472px] bg-black rounded-[30px] md:rounded-[36px] border-[8px] border-[#F5F2EA]/80 shadow-2xl overflow-hidden flex flex-col justify-between ring-4 ring-[#E8DCC2]/10">
+                <div className="ureel-studio-phone-frame relative mx-auto w-[150px] h-[308px] sm:w-[180px] sm:h-[370px] md:w-[230px] md:h-[472px] bg-black rounded-[30px] md:rounded-[36px] border-[8px] border-[#F5F2EA]/80 shadow-2xl overflow-hidden flex flex-col justify-between ring-4 ring-[#E8DCC2]/10">
                   <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-black rounded-b-xl z-25" />
                   <div className="w-full h-full overflow-y-auto select-none bg-[#09090B] text-stone-200 scrollbar-none flex flex-col justify-between relative pt-5">
                     <KonuCardCore card={monitorCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} previewFocus="full" />
@@ -3642,14 +3642,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               {textPreviewMode === 'fit' && (
                 <div className="w-full max-w-[280px] rounded-[28px] border border-[#3A3732] bg-[#111111] p-3 shadow-2xl shadow-black/40">
                   <div className="flex items-center justify-between mb-2"><span className="text-[8px] uppercase tracking-widest font-black text-[#E8DCC2]">Fit-Vorschau</span><span className="text-[7px] text-stone-500">kleine Karte</span></div>
-                  <div className="h-[390px] rounded-[26px] overflow-hidden border-[7px] border-[#F5F2EA]/85 bg-black">
+                  <div className="ureel-studio-fit-preview h-[390px] rounded-[26px] overflow-hidden border-[7px] border-[#F5F2EA]/85 bg-black">
                     <KonuCardCore card={getPreviewCardForTimeline()} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} />
                   </div>
                   <p className="mt-2 text-[8.5px] leading-snug text-stone-500 text-center">Alle Texte werden unabhängig vom Timing eingeblendet, damit Größe und Rahmen prüfbar sind.</p>
                 </div>
               )}
               {textPreviewMode === 'card' && (
-                <div className="relative mx-auto w-[150px] h-[308px] sm:w-[180px] sm:h-[370px] md:w-[230px] md:h-[472px] bg-black rounded-[30px] md:rounded-[36px] border-[8px] border-[#F5F2EA]/80 shadow-2xl overflow-hidden flex flex-col justify-between ring-4 ring-[#E8DCC2]/10">
+                <div className="ureel-studio-phone-frame relative mx-auto w-[150px] h-[308px] sm:w-[180px] sm:h-[370px] md:w-[230px] md:h-[472px] bg-black rounded-[30px] md:rounded-[36px] border-[8px] border-[#F5F2EA]/80 shadow-2xl overflow-hidden flex flex-col justify-between ring-4 ring-[#E8DCC2]/10">
                   <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-black rounded-b-xl z-25" />
                   <div className="w-full h-full overflow-y-auto select-none bg-[#09090B] text-stone-200 scrollbar-none flex flex-col justify-between relative pt-5">
                     <KonuCardCore card={getPreviewCardForTimeline()} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} />
@@ -3658,7 +3658,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               )}
             </div>
           ) : (
-            <div className="relative mx-auto w-[150px] h-[308px] sm:w-[180px] sm:h-[370px] md:w-[256px] md:h-[526px] bg-black rounded-[30px] md:rounded-[38px] border-[8px] border-[#F5F2EA]/80 shadow-2xl overflow-hidden flex flex-col justify-between ring-4 ring-[#E8DCC2]/10">
+            <div className="ureel-studio-phone-frame relative mx-auto w-[150px] h-[308px] sm:w-[180px] sm:h-[370px] md:w-[256px] md:h-[526px] bg-black rounded-[30px] md:rounded-[38px] border-[8px] border-[#F5F2EA]/80 shadow-2xl overflow-hidden flex flex-col justify-between ring-4 ring-[#E8DCC2]/10">
               <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-black rounded-b-xl z-25 flex items-center justify-center" />
               <div className="absolute top-0.5 left-0 right-0 px-5 flex justify-between text-[7px] text-stone-500 z-20 font-bold font-mono">
                 <span>09:41</span>
