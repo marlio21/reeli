@@ -1774,8 +1774,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const openMobileSubSection = (module: MainModule, subsectionId: string) => {
     setActiveTab(module);
     setActiveSubSection(subsectionId);
-    setMobileOrbitOpen(false);
-    setMobileOrbitModule(null);
+    // v52.0.2: keep the transparent orbit controls visible while the glass input overlay opens.
+    // This removes the old back-and-forth flow: Hauptmenü -> Untermenü -> Fenster -> Zurück.
+    setMobileOrbitOpen(true);
+    setMobileOrbitModule(module);
     setMobileSheetOpen(true);
     if (module === 'buttons' && (activeCard?.buttons?.length || 0) > 0 && !editingBtnId) {
       setEditingBtnId(activeCard.buttons?.[0]?.id || null);
@@ -1808,8 +1810,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         </button>
       )}
 
-      {mobileOrbitOpen && !mobileOrbitModule && (
-        <div className="ureel-orbit-menu" role="navigation" aria-label="ureel Studio Orbit">
+      {mobileOrbitOpen && (
+        <div className={`ureel-orbit-menu ${mobileOrbitModule ? 'ureel-orbit-menu--compact' : ''}`} role="navigation" aria-label="ureel Studio Orbit">
           <button type="button" className="ureel-orbit-close" onClick={() => { setMobileOrbitOpen(false); setMobileOrbitModule(null); }}>Schließen</button>
           <button type="button" className="ureel-orbit-center" onClick={() => { setMobileOrbitOpen(false); setMobileOrbitModule(null); }}>●</button>
           {mobileMainModules.map((item) => (
@@ -1832,7 +1834,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <small>{getMobileModuleHelp(mobileOrbitModule)}</small>
           </div>
           <button type="button" className="ureel-orbit-submenu-back" onClick={() => setMobileOrbitModule(null)}>Hauptmenü</button>
-          <button type="button" className="ureel-orbit-submenu-center" onClick={() => { setMobileOrbitOpen(false); setMobileOrbitModule(null); }}>●</button>
+          <button type="button" className="ureel-orbit-submenu-center" onClick={() => { setMobileSheetOpen(false); setMobileOrbitOpen(false); setMobileOrbitModule(null); }}>●</button>
           <div className="ureel-orbit-submenu-ring">
             {getMobileSubMenuItems(mobileOrbitModule).map((item, index) => (
               <button
@@ -1845,6 +1847,13 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               </button>
             ))}
           </div>
+        </div>
+      )}
+
+      {activeTab === 'buttons' && mobileSheetOpen && editingButton && (
+        <div className="ureel-mobile-button-spotlight" aria-label="Button Vorschau groß">
+          <span className="ureel-mobile-button-spotlight-label">Button-Vorschau</span>
+          <ButtonRenderer button={editingButton} mode="designer" lang={lang} forceSquare={false} previewScale={1.16} />
         </div>
       )}
     </div>

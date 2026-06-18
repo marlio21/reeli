@@ -1304,3 +1304,295 @@ body {
     max-height: calc(100dvh - 390px) !important;
   }
 }
+
+/* v52.0.2 – Transparent Direct Edit Overlay: nur mobiles Studio */
+@media (max-width: 767px) {
+  .ureel-mobile-orbit-layer {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 78 !important;
+    pointer-events: none !important;
+  }
+
+  .ureel-orbit-menu {
+    bottom: 36px !important;
+    width: min(76vw, 292px) !important;
+    height: min(76vw, 292px) !important;
+    background: radial-gradient(circle, rgba(8,8,10,.20) 0 27%, rgba(245,242,234,.035) 28% 100%) !important;
+    border-color: rgba(245,242,234,.16) !important;
+    backdrop-filter: blur(7px) !important;
+    transition: transform .22s ease, opacity .18s ease, filter .18s ease !important;
+  }
+
+  .ureel-orbit-menu--compact {
+    transform: translateX(-50%) translateY(34px) scale(.66) !important;
+    opacity: .92 !important;
+    filter: saturate(.95) !important;
+  }
+
+  .ureel-orbit-menu--compact .ureel-orbit-close {
+    display: none !important;
+  }
+
+  .ureel-orbit-menu--compact .ureel-orbit-center {
+    width: 58px !important;
+    height: 58px !important;
+    font-size: 18px !important;
+  }
+
+  .ureel-orbit-menu--compact .ureel-orbit-quadrant {
+    font-size: 13px !important;
+  }
+
+  .ureel-orbit-quadrant.is-active {
+    background: linear-gradient(145deg, rgba(245,242,234,.34), rgba(232,220,194,.12)) !important;
+    border-color: rgba(245,242,234,.62) !important;
+    box-shadow: inset 0 0 24px rgba(245,242,234,.10), 0 0 20px rgba(245,242,234,.10) !important;
+  }
+
+  /* Untermenüs liegen nicht mehr als schweres Sheet unten, sondern als transparente Randflächen. */
+  .ureel-orbit-submenu {
+    left: auto !important;
+    right: 9px !important;
+    top: 88px !important;
+    bottom: auto !important;
+    width: 122px !important;
+    height: auto !important;
+    max-height: calc(100dvh - 205px) !important;
+    transform: none !important;
+    border-radius: 28px !important;
+    border: 1px solid rgba(245,242,234,.22) !important;
+    box-shadow: 0 16px 40px rgba(0,0,0,.34), inset 0 0 24px rgba(255,255,255,.035) !important;
+    padding: 10px 8px !important;
+    overflow: visible !important;
+    pointer-events: auto !important;
+    backdrop-filter: blur(11px) !important;
+    animation: ureelSideControlsIn .2s ease-out both !important;
+  }
+
+  @keyframes ureelSideControlsIn {
+    from { opacity: 0; transform: translateX(14px) scale(.97); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
+  }
+
+  .ureel-orbit-submenu--scene { background: rgba(178,132,35,.20) !important; }
+  .ureel-orbit-submenu--timeline { background: rgba(170,112,190,.19) !important; }
+  .ureel-orbit-submenu--buttons { background: rgba(109,184,154,.20) !important; }
+  .ureel-orbit-submenu--design { background: rgba(90,145,170,.20) !important; }
+
+  .ureel-orbit-submenu-title {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    text-align: left !important;
+    margin: 2px 4px 8px !important;
+  }
+
+  .ureel-orbit-submenu-title span {
+    font-size: 12px !important;
+    line-height: 1 !important;
+  }
+
+  .ureel-orbit-submenu-title small {
+    display: none !important;
+  }
+
+  .ureel-orbit-submenu-back,
+  .ureel-orbit-submenu-center {
+    display: none !important;
+  }
+
+  .ureel-orbit-submenu-ring {
+    position: relative !important;
+    inset: auto !important;
+    display: grid !important;
+    gap: 7px !important;
+    z-index: 2 !important;
+  }
+
+  .ureel-orbit-sub-segment,
+  .ureel-orbit-sub-segment--0,
+  .ureel-orbit-sub-segment--1,
+  .ureel-orbit-sub-segment--2,
+  .ureel-orbit-sub-segment--3,
+  .ureel-orbit-sub-segment--4,
+  .ureel-orbit-sub-segment--5 {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    transform: none !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    min-height: 52px !important;
+    padding: 0 9px !important;
+    border-radius: 14px !important;
+    clip-path: none !important;
+    background: rgba(245,242,234,.14) !important;
+    border: 1px solid rgba(245,242,234,.24) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 8px 18px rgba(0,0,0,.14) !important;
+    color: #F5F2EA !important;
+    font-size: 11.5px !important;
+    text-align: center !important;
+  }
+
+  .ureel-orbit-sub-segment.is-active {
+    background: rgba(245,242,234,.34) !important;
+    border-color: rgba(245,242,234,.68) !important;
+    color: #FFFFFF !important;
+  }
+
+  /* Konfiguration ist jetzt ein transparentes Glass-Overlay über der Vorschau, kein massives Formular-Sheet. */
+  .ureel-detail-panel {
+    left: 12px !important;
+    right: 142px !important;
+    bottom: 92px !important;
+    z-index: 66 !important;
+    height: auto !important;
+    max-height: min(42dvh, 380px) !important;
+    padding: 12px 12px 18px !important;
+    border-radius: 26px !important;
+    border: 1px solid rgba(245,242,234,.28) !important;
+    background: linear-gradient(180deg, rgba(12,12,14,.72), rgba(12,12,14,.52)) !important;
+    box-shadow: 0 20px 56px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.08) !important;
+    backdrop-filter: blur(18px) saturate(1.08) !important;
+    color: #F5F2EA !important;
+    overflow-y: auto !important;
+    transform: translateY(calc(100% + 130px)) scale(.96) !important;
+    opacity: 0 !important;
+  }
+
+  .ureel-detail-panel.ureel-mobile-sheet-open {
+    transform: translateY(0) scale(1) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  .ureel-detail-panel.ureel-mobile-sheet-closed {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .ureel-mobile-sheet-head {
+    position: sticky !important;
+    top: -12px !important;
+    z-index: 5 !important;
+    margin: -12px -12px 12px !important;
+    padding: 10px 10px 10px !important;
+    border-radius: 26px 26px 18px 18px !important;
+    border-bottom: 1px solid rgba(245,242,234,.18) !important;
+    background: linear-gradient(180deg, rgba(8,8,10,.78), rgba(8,8,10,.34)) !important;
+    backdrop-filter: blur(14px) !important;
+  }
+
+  .ureel-mobile-sheet-grip {
+    background: rgba(245,242,234,.32) !important;
+  }
+
+  .ureel-mobile-sheet-actions {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 7px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .ureel-mobile-preview-free,
+  .ureel-mobile-main-menu {
+    min-height: 40px !important;
+    border-radius: 16px !important;
+    font-size: 11px !important;
+    background: rgba(245,242,234,.14) !important;
+    color: #F5F2EA !important;
+    border: 1px solid rgba(245,242,234,.22) !important;
+  }
+
+  .ureel-mobile-config-context {
+    border-color: rgba(245,242,234,.18) !important;
+    background: rgba(245,242,234,.09) !important;
+    color: #F5F2EA !important;
+  }
+
+  .ureel-mobile-config-context span {
+    color: rgba(245,242,234,.72) !important;
+    font-size: 11px !important;
+  }
+
+  .ureel-mobile-config-context strong {
+    color: #FFFFFF !important;
+    font-size: 18px !important;
+  }
+
+  .ureel-detail-panel > div:nth-child(2) {
+    border-bottom-color: rgba(245,242,234,.14) !important;
+  }
+
+  .ureel-detail-panel > div:nth-child(2) h1 {
+    color: #FFFFFF !important;
+    font-size: 21px !important;
+    text-shadow: 0 2px 8px rgba(0,0,0,.35) !important;
+  }
+
+  .ureel-detail-panel > div:nth-child(2) p {
+    color: rgba(245,242,234,.82) !important;
+    font-size: 15px !important;
+  }
+
+  .ureel-detail-panel label,
+  .ureel-detail-panel .text-stone-500,
+  .ureel-detail-panel .text-stone-450,
+  .ureel-detail-panel .text-stone-400 {
+    color: rgba(245,242,234,.74) !important;
+  }
+
+  .ureel-detail-panel input:not([type="color"]):not([type="range"]),
+  .ureel-detail-panel select,
+  .ureel-detail-panel textarea {
+    background: rgba(255,255,255,.10) !important;
+    border-color: rgba(245,242,234,.24) !important;
+    color: #FFFFFF !important;
+  }
+
+  .ureel-detail-panel button {
+    border-color: rgba(245,242,234,.22) !important;
+  }
+
+  .ureel-detail-panel input::placeholder,
+  .ureel-detail-panel textarea::placeholder {
+    color: rgba(245,242,234,.52) !important;
+  }
+
+  .ureel-mobile-button-spotlight {
+    position: fixed;
+    left: 50%;
+    top: 112px;
+    transform: translateX(-50%);
+    width: min(62vw, 260px);
+    min-height: 118px;
+    border-radius: 30px;
+    border: 1px solid rgba(109,184,154,.36);
+    background: radial-gradient(circle at 50% 20%, rgba(109,184,154,.20), rgba(10,12,12,.52));
+    backdrop-filter: blur(16px);
+    box-shadow: 0 20px 54px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.12);
+    padding: 14px;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .ureel-mobile-button-spotlight-label {
+    text-align: center;
+    color: rgba(245,242,234,.82);
+    font-size: 10px;
+    font-weight: 950;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+  }
+
+  .ureel-mobile-button-spotlight .ureel-card-button,
+  .ureel-mobile-button-spotlight button,
+  .ureel-mobile-button-spotlight a {
+    pointer-events: none !important;
+  }
+}
