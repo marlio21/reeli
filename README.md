@@ -62,3 +62,22 @@ Diese Version ist eine Stabilisierungsrunde. Ziel ist nicht ein neues Großfeatu
 ## Commit-Vorschlag
 
 `Stabilize mobile editor panels and ad template sizing`
+
+## v51 – Clean Preview Stabilization
+
+Diese Version stabilisiert die Design-Vorschau und verhindert, dass die Smartphone-Karte in der Desktop-Vorschau intern neu umbricht.
+
+### Fokus
+- Keine neuen Funktionen.
+- Design-Vorschau bleibt bei der 3-Spalten-Logik: Smartphone-Karte | Werbetext | Buttonbereich.
+- Die Smartphone-Karte wird in der Design-Vorschau als skalierte echte Karte angezeigt, nicht als neu berechnete Mini-Karte.
+- Dadurch brechen Werbetexte in der kleinen Design-Vorschau nicht mehr in einzelne Buchstaben auseinander.
+
+### Prüfpunkte
+1. Designbereich öffnen.
+2. Live-Desktop-Vorschau prüfen.
+3. Smartphone-Karte darf nicht mehr extrem vertikal umbrechen.
+4. Live-Link und Design-Vorschau vergleichen.
+5. Szene-Vorschau bleibt die Detail-Wahrheit für die Karte.
+
+Build geprüft: `npm run build` erfolgreich.

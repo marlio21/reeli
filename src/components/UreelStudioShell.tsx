@@ -3359,11 +3359,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 >
                   <div className="overflow-hidden pb-2">
                     <div className={`grid grid-cols-3 gap-3 items-stretch h-[520px] overflow-hidden ${desktopPreviewGridClass}`}>
-                    <div className={`${desktopPhoneOrder} flex flex-col items-center justify-center rounded-[26px] border border-white/10 bg-black/20 p-4 h-full`}>
+                    <div className={`${desktopPhoneOrder} flex flex-col items-center justify-center rounded-[26px] border border-white/10 bg-black/20 p-3 h-full overflow-hidden`}>
                       <span className="mb-3 text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Smartphone-Ansicht</span>
-                      <div className="w-[150px] h-[270px] rounded-[28px] border-[7px] border-[#1A1A1A] bg-black overflow-hidden shadow-2xl mx-auto">
-                        <KonuCardCore card={activeCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} previewFocus="full" hideActionButtons={desktopPage.showPhoneButtons !== true} />
+                      <div className="relative w-[174px] h-[310px] overflow-hidden rounded-[30px] border-[7px] border-[#1A1A1A] bg-black shadow-2xl mx-auto">
+                        <div className="absolute left-0 top-0 w-[330px] h-[586px] origin-top-left scale-[0.527]">
+                          <KonuCardCore card={activeCard} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} previewFocus="full" hideActionButtons={desktopPage.showPhoneButtons !== true} />
+                        </div>
                       </div>
+                      <span className="mt-3 max-w-[190px] text-center text-[8px] leading-tight text-[#F5F2EA]/45">Skalierte Live-Karte ohne Text-Neuumbruch</span>
                     </div>
                     <div className={`${desktopLayout === 'minimal' ? 'hidden' : ''} ${desktopTextOrder} rounded-[26px] border border-white/10 bg-black/25 p-5 space-y-3 h-full flex flex-col justify-center`}>
                       <div className="inline-flex self-start items-center gap-2 rounded-full border border-[#E8DCC2]/25 bg-black/25 px-3 py-1 text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]">Desktop Werbetext</div>
