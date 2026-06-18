@@ -8,6 +8,7 @@ import * as LucideIcons from 'lucide-react';
 import { Card, CardButton } from '../types';
 import { KonuCardCore } from './KonuCardCore';
 import { ButtonRenderer } from './ButtonRenderer';
+import { PublicMobileCardRenderer } from './PublicMobileCardRenderer';
 import { normalizeButtons } from '../utils/buttonUtils';
 
 interface PublicDesktopPageRendererProps {
@@ -196,18 +197,14 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
       <div className="hidden lg:grid h-full w-full grid-cols-3">
         {columns.map((col, i) => <React.Fragment key={i}>{col}</React.Fragment>)}
       </div>
-      <div className="lg:hidden h-[100svh] w-full overflow-hidden flex items-center justify-center bg-black">
-        <div className="h-[100svh] w-full max-w-md overflow-hidden">
-          <KonuCardCore
-            card={card}
-            lang={lang}
-            isPreview={false}
-            handleButtonClick={onButtonClick}
-            triggerVCardDownload={onContactSave}
-            handleCtaClick={onShare}
-            setShowShareModal={(show) => { if (show) onShare?.(); }}
-          />
-        </div>
+      <div className="lg:hidden">
+        <PublicMobileCardRenderer
+          card={card}
+          lang={lang}
+          onButtonClick={onButtonClick}
+          onContactSave={onContactSave}
+          onShare={onShare}
+        />
       </div>
     </div>
   );
