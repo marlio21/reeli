@@ -1081,7 +1081,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   const filteredLayeredButtons = hideActionButtons ? [] : normalizeButtons(card.buttons || [])
     .filter((btn) => btn.isActive)
     .filter((btn) => {
-      const label = `${btn.title || ''} ${btn.label || ''}`.toLowerCase();
+      const label = `${btn.title || ''}`.toLowerCase();
       return !/(editor|timeline|vorschau|bearbeiten|ureel live|konu live|texte)/i.test(label);
     });
 

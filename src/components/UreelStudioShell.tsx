@@ -474,7 +474,6 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const makeStarterButton = (id: string, title: string, actionType: string, actionValue: string, icon: string, position: number): CardButton => ({
     id,
     title,
-    label: title,
     actionType,
     actionValue,
     icon,
@@ -706,6 +705,19 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       setEditingBtnId(remaining[0]?.id || null);
     }
     triggerToast(lang === 'de' ? 'Schaltfläche gelöscht' : 'Button removed successfully', 'success');
+  };
+
+  // Copy button text/config to clipboard without changing the card.
+  const handleCopyButtonLocal = (btn: CardButton) => {
+    const cleanButton = sanitizeButtonForFirestore(btn);
+    const payload = JSON.stringify(cleanButton, null, 2);
+    const ok = copyTextToClipboard(payload);
+    triggerToast(
+      ok
+        ? (lang === 'de' ? 'Button-Konfiguration kopiert.' : 'Button configuration copied.')
+        : (lang === 'de' ? 'Kopieren nicht möglich.' : 'Copy failed.'),
+      ok ? 'success' : 'error'
+    );
   };
 
   // Duplicate button

@@ -44,7 +44,7 @@ function normalizeButtonWithRaw(rawButton: any): CardButton {
   return {
     ...rawButton,
     id: rawButton.id || Math.random().toString(36).substring(2, 11),
-    title: rawButton.title || '',
+    title: rawButton.title || rawButton.text || rawButton.label || '',
     actionType,
     actionValue,
     icon,
@@ -362,7 +362,14 @@ export function sanitizeButtonForFirestore(button: CardButton): CardButton {
     'passwordDraft',
     'tempPassword',
     'uploadFile',
-    'localPreviewUrl'
+    'localPreviewUrl',
+    // legacy visible/action labels are migrated into title/actionType/actionValue only
+    'label',
+    'text',
+    'actionLabel',
+    'type',
+    'url',
+    'value'
   ];
 
   Object.keys(normalized).forEach((key) => {

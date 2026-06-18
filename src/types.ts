@@ -7,7 +7,7 @@ export type PlanType = 'free' | 'fun' | 'pro' | 'business' | 'starter' | 'premiu
 export type CardType = 'person' | 'company' | 'product' | 'project' | 'family' | 'team' | 'event' | 'club';
 export type VisibilityType = 'public' | 'privateLink' | 'passwordProtected' | 'draft';
 export type OverlayType = 'none' | 'light' | 'dark';
-export type BackgroundType = 'color' | 'image' | 'video';
+export type BackgroundType = 'color' | 'image' | 'video' | 'gradient';
 
 export interface UserProfile {
   userId: string;
@@ -56,7 +56,14 @@ export interface ButtonAction {
 
 export interface CardButton {
   id: string;
+  /**
+   * Unified visible button text. New rendering must use only this field.
+   * Legacy fields below are typed only for imports/migrations and are ignored by renderers.
+   */
   title: string;
+  label?: string;
+  text?: string;
+  actionLabel?: string;
 
   actionType: string;
   actionValue: string;
@@ -69,6 +76,8 @@ export interface CardButton {
   iconOffsetX?: number;
   iconOffsetY?: number;
   iconEnabled?: boolean;
+  iconCircleBg?: boolean;
+  iconCircleColor?: string;
 
   bgColor?: string;
   backgroundColor?: string; // Legacy compatibility
@@ -87,7 +96,7 @@ export interface CardButton {
   buttonImageUrl?: string;
   buttonImageFit?: 'cover' | 'contain';
   buttonImageOverlay?: boolean;
-  imageStyle?: 'icon' | 'background'; // Legacy compatibility
+  imageStyle?: 'none' | 'icon' | 'background'; // Legacy compatibility
   imagePath?: string; // Legacy
   imagePosition?: 'center' | 'top' | 'bottom' | 'left' | 'right';
   imageDarken?: number;

@@ -71,7 +71,6 @@ export const getKonuStarterCardTemplate = (
   const starterButton = (suffix: string, title: string, actionType: string, icon: string, position: number): CardButton => ({
     id: `btn_${suffix}_${d}`,
     title,
-    label: title,
     actionType,
     actionValue: '',
     icon,
@@ -91,7 +90,7 @@ export const getKonuStarterCardTemplate = (
     shadowColor: 'rgba(0,0,0,0.22)',
     isActive: true,
     position,
-    imageStyle: 'none',
+    imageStyle: 'icon',
     iconPosition: 'top',
     iconSize: 13,
     iconCircleBg: true as any,
