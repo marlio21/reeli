@@ -1226,7 +1226,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                   key={btn.id}
                   button={btn}
                   mode="public"
-                  onClick={() => handleButtonClick && handleButtonClick(btn)}
+                  onClick={!isPreview && handleButtonClick ? () => handleButtonClick(btn) : undefined}
                   lang={lang}
                   forceSquare={gridLayout.square}
                   forceSizePx={gridLayout.buttonSizePx}
@@ -1782,7 +1782,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                     key={btn.id}
                     button={btn}
                     mode="public"
-                    onClick={() => handleButtonClick && handleButtonClick(btn)}
+                    onClick={!isPreview && handleButtonClick ? () => handleButtonClick(btn) : undefined}
                     lang={lang}
                   />
                 );
@@ -2295,7 +2295,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                 key={btn.id}
                 button={btn}
                 mode="public"
-                onClick={() => handleButtonClick && handleButtonClick(btn)}
+                onClick={!isPreview && handleButtonClick ? () => handleButtonClick(btn) : undefined}
                 lang={lang}
                 forceSquare={gridLayout.square}
                 forceSizePx={gridLayout.buttonSizePx}

@@ -1716,7 +1716,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <button onClick={() => { setAccountMenuOpen(false); setAccountPanelOpen(true); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-stone-900 text-[11px] font-bold flex items-center gap-2">
                   <LucideIcons.UserCog size={14} className="text-[#E8DCC2]" /> Meine Daten & Einstellungen
                 </button>
-                <button onClick={() => { setAccountMenuOpen(false); setTeamPanelOpen(true); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-stone-900 text-[11px] font-bold flex items-center gap-2">
+                <button onClick={() => { setAccountMenuOpen(false); setAccountManagerTab('team'); setAccountPanelOpen(true); setTeamPanelOpen(false); }} className="w-full text-left px-3 py-2 rounded-xl hover:bg-stone-900 text-[11px] font-bold flex items-center gap-2">
                   <LucideIcons.Users size={14} className="text-[#E8DCC2]" /> Nutzerverwaltung / Team
                 </button>
                 <div className="px-3 py-2 rounded-xl bg-stone-950/50 border border-stone-850">
@@ -1769,7 +1769,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         {/* Bottom Profile Details or Exit */}
         <div className="flex flex-row md:flex-col items-center gap-2 shrink-0">
           <button
-            onClick={() => setTeamPanelOpen(true)}
+            onClick={() => { setAccountManagerTab('team'); setAccountPanelOpen(true); setTeamPanelOpen(false); }}
             className="p-2 text-stone-500 hover:text-[#F5F2EA] transition duration-150 hover:bg-stone-900 rounded-lg cursor-pointer"
             title={lang === 'de' ? 'Nutzerverwaltung' : 'Team management'}
           >
@@ -2255,7 +2255,36 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       <button
                         key={mode.id}
                         type="button"
-                        onClick={() => syncCardUpdate({ videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), videoFitMode: mode.id === 'cover' ? 'cover' : 'contain' } as any, ureelScene: { ...(activeCard.ureelScene || { mode: 'video' as const }), video: { ...(activeCard.ureelScene?.video || { type: 'none' as const, duration: 12 }), displayMode: mode.id === 'cover' ? 'cover' : 'contain', placement: mode.id === 'cover' ? 'background' : 'hero', heroSize: mode.id === 'hero' ? 'compact' : 'wide' } } as any })}
+                        onClick={() => {
+                          const currentVideo = activeCard.ureelScene?.video || {};
+                          const currentUrl = (currentVideo as any).url || activeCard.videoBackgroundConfig?.youtubeUrl || activeCard.videoBackgroundConfig?.url || '';
+                          const duration = activeCard.ureelScene?.video?.duration || activeCard.videoBackgroundConfig?.durationSeconds || 12;
+                          syncCardUpdate({
+                            backgroundType: 'video',
+                            videoBackgroundConfig: {
+                              ...(activeCard.videoBackgroundConfig || {}),
+                              enabled: !!currentUrl,
+                              mediaMode: currentUrl ? 'youtube' : (activeCard.videoBackgroundConfig?.mediaMode || 'none'),
+                              youtubeUrl: currentUrl,
+                              durationSeconds: duration,
+                              videoFitMode: mode.id === 'cover' ? 'cover' : 'contain',
+                            } as any,
+                            ureelScene: {
+                              ...(activeCard.ureelScene || {}),
+                              mode: 'video' as const,
+                              video: {
+                                ...currentVideo,
+                                type: (currentVideo as any).type || (currentUrl ? 'youtube' : 'none'),
+                                url: currentUrl,
+                                duration,
+                                displayMode: mode.id === 'cover' ? 'cover' : 'contain',
+                                placement: mode.id === 'cover' ? 'background' : 'hero',
+                                heroSize: mode.id === 'hero' ? 'compact' : 'wide',
+                                startAt: (currentVideo as any).startAt || 0,
+                              }
+                            } as any
+                          });
+                        }}
                         className={`min-h-[102px] rounded-2xl border p-4 text-left transition ${selected ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732] hover:border-[#F5F2EA]/60'}`}
                       >
                         <span className="block text-[11px] font-black uppercase">{mode.label}</span>
@@ -3689,7 +3718,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       )}
 
       {(accountPanelOpen || teamPanelOpen) && (
-        <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm flex items-end md:items-center justify-center p-3">
+        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-end md:items-center justify-center p-3">
           <div className="absolute inset-0" onClick={() => { setAccountPanelOpen(false); setTeamPanelOpen(false); }} />
           <div className="relative w-full max-w-5xl max-h-[92dvh] overflow-hidden rounded-t-3xl md:rounded-3xl border border-[#3A3732] bg-[#111111] shadow-2xl text-[#F5F2EA]">
             <div className="flex items-center justify-between gap-3 border-b border-[#3A3732] px-5 py-4">
