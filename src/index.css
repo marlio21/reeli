@@ -2977,3 +2977,508 @@ body {
     font-size: 15.5px !important;
   }
 }
+
+
+/* v52.2.3 – Visible Simple Studio Controls
+   Forces the simple controls to be visible directly below the compact 9:16 preview.
+   Public/live renderers are untouched. */
+@media (max-width: 767px) {
+  .ureel-subnav-panel {
+    display: none !important;
+  }
+
+  .ureel-studio-preview-stage {
+    height: min(30dvh, 258px) !important;
+    max-height: min(30dvh, 258px) !important;
+    min-height: 222px !important;
+    padding: 0 0 4px !important;
+  }
+
+  .ureel-studio-phone-frame {
+    width: min(46vw, 168px) !important;
+    height: auto !important;
+    aspect-ratio: 9 / 16 !important;
+    max-height: min(29dvh, 248px) !important;
+    border-width: 5px !important;
+    border-radius: 25px !important;
+  }
+
+  .ureel-visible-simple-controls {
+    order: 3 !important;
+    display: block !important;
+    width: 100% !important;
+    flex: 0 0 auto !important;
+    background: #F5F2EA !important;
+    color: #111111 !important;
+    border-top: 1px solid #D8CDB7 !important;
+    border-bottom: 1px solid #D8CDB7 !important;
+    padding: 8px 10px 9px !important;
+    box-shadow: 0 10px 24px rgba(0,0,0,.14) !important;
+  }
+
+  .ureel-visible-main-tabs,
+  .ureel-visible-sub-tabs,
+  .ureel-visible-button-strip {
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .ureel-visible-main-tabs::-webkit-scrollbar,
+  .ureel-visible-sub-tabs::-webkit-scrollbar,
+  .ureel-visible-button-strip::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .ureel-visible-main-tabs button,
+  .ureel-visible-sub-tabs button {
+    flex: 0 0 auto !important;
+    min-height: 38px !important;
+    border-radius: 15px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #FFFDF8 !important;
+    color: #111111 !important;
+    font-weight: 950 !important;
+    letter-spacing: .04em !important;
+    text-transform: uppercase !important;
+    box-shadow: none !important;
+  }
+
+  .ureel-visible-main-tabs button {
+    min-width: 76px !important;
+    padding: 7px 11px !important;
+    font-size: 11px !important;
+  }
+
+  .ureel-visible-sub-tabs {
+    margin-top: 7px !important;
+    padding-bottom: 1px !important;
+  }
+
+  .ureel-visible-sub-tabs button {
+    min-width: 82px !important;
+    padding: 6px 10px !important;
+    font-size: 9.6px !important;
+  }
+
+  .ureel-visible-main-tabs button.is-active,
+  .ureel-visible-sub-tabs button.is-active {
+    background: #111111 !important;
+    color: #F5F2EA !important;
+    border-color: #111111 !important;
+  }
+
+  .ureel-visible-big-button {
+    margin-top: 9px !important;
+    padding: 10px !important;
+    border-radius: 20px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #FFFDF8 !important;
+  }
+
+  .ureel-visible-big-button-title {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    margin-bottom: 7px !important;
+  }
+
+  .ureel-visible-big-button-title span {
+    color: #8A6B24 !important;
+    font-size: 9px !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .08em !important;
+  }
+
+  .ureel-visible-big-button-title strong {
+    min-width: 0 !important;
+    color: #111111 !important;
+    font-size: 11px !important;
+    font-weight: 950 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .ureel-visible-big-button-stage {
+    min-height: 108px !important;
+    border-radius: 18px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: linear-gradient(180deg, #F7F2E8 0%, #EEE4D2 100%) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    padding: 10px !important;
+  }
+
+  .ureel-visible-big-button-stage .ureel-button-preview-tile--large {
+    transform: scale(.98) !important;
+    transform-origin: center !important;
+  }
+
+  .ureel-visible-button-strip {
+    margin-top: 8px !important;
+  }
+
+  .ureel-visible-button-strip button {
+    flex: 0 0 auto !important;
+    min-width: 72px !important;
+    max-width: 98px !important;
+    min-height: 38px !important;
+    padding: 5px 8px !important;
+    border-radius: 14px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #F7F2E8 !important;
+    color: #111111 !important;
+    text-align: left !important;
+  }
+
+  .ureel-visible-button-strip button.is-active {
+    background: #111111 !important;
+    color: #F5F2EA !important;
+    border-color: #111111 !important;
+  }
+
+  .ureel-visible-button-strip button span {
+    display: block !important;
+    font-size: 7.5px !important;
+    opacity: .55 !important;
+    margin-bottom: 1px !important;
+  }
+
+  .ureel-visible-button-strip button b {
+    display: block !important;
+    font-size: 9.5px !important;
+    line-height: 1 !important;
+    font-weight: 950 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .ureel-detail-panel,
+  .ureel-detail-panel.ureel-mobile-sheet-open,
+  .ureel-detail-panel.ureel-mobile-sheet-closed {
+    order: 4 !important;
+    padding-top: 8px !important;
+    min-height: 210px !important;
+  }
+
+  .ureel-detail-panel .ureel-mobile-big-button-editor {
+    display: none !important;
+  }
+
+  .ureel-simple-mobile-context {
+    padding: 8px 10px !important;
+    margin-bottom: 7px !important;
+  }
+
+  .ureel-simple-mobile-title,
+  .ureel-detail-panel > div:nth-child(2) h1 {
+    font-size: 14.5px !important;
+  }
+}
+
+/* v52.3 – Simple Card Builder
+   Mobile studio is now edited like a digital card: preview + clear blocks. */
+@media (max-width: 767px) {
+  .ureel-visible-simple-controls {
+    display: none !important;
+  }
+
+  .ureel-detail-panel,
+  .ureel-detail-panel.ureel-mobile-sheet-open,
+  .ureel-detail-panel.ureel-mobile-sheet-closed {
+    display: none !important;
+  }
+
+  .ureel-preview-monitor {
+    min-height: 0 !important;
+    padding-bottom: 10px !important;
+  }
+
+  .ureel-mobile-compact-preview,
+  .ureel-preview-monitor .ureel-mobile-compact-preview {
+    width: min(55vw, 230px) !important;
+    height: auto !important;
+    aspect-ratio: 9 / 16 !important;
+    max-height: 34dvh !important;
+    margin: 0 auto !important;
+  }
+
+  .ureel-simple-card-builder {
+    order: 3 !important;
+    display: block !important;
+    width: 100% !important;
+    padding: 12px 14px 30px !important;
+    background: #F5F2EA !important;
+    color: #111111 !important;
+    border-top: 1px solid #D8CDB7 !important;
+  }
+
+  .ureel-builder-intro,
+  .ureel-builder-block {
+    width: 100% !important;
+    border-radius: 24px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #FFFDF8 !important;
+    box-shadow: 0 10px 32px rgba(24, 18, 10, .08) !important;
+  }
+
+  .ureel-builder-intro {
+    padding: 14px 15px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .ureel-builder-intro span,
+  .ureel-builder-small-title,
+  .ureel-builder-block-head span,
+  .ureel-builder-label {
+    display: block !important;
+    color: #8A6B24 !important;
+    font-size: 9px !important;
+    line-height: 1.1 !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .09em !important;
+  }
+
+  .ureel-builder-intro h2 {
+    margin: 4px 0 5px !important;
+    color: #111111 !important;
+    font-size: 18px !important;
+    line-height: 1.08 !important;
+    font-weight: 950 !important;
+    letter-spacing: -.04em !important;
+  }
+
+  .ureel-builder-intro p,
+  .ureel-builder-block p {
+    color: #4A4034 !important;
+    font-size: 12.5px !important;
+    line-height: 1.38 !important;
+    margin: 0 !important;
+  }
+
+  .ureel-builder-block {
+    padding: 14px !important;
+    margin-bottom: 13px !important;
+  }
+
+  .ureel-builder-block-head {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .ureel-builder-block-head h3 {
+    margin: 2px 0 0 !important;
+    color: #111111 !important;
+    font-size: 18px !important;
+    line-height: 1 !important;
+    font-weight: 950 !important;
+    letter-spacing: -.035em !important;
+  }
+
+  .ureel-builder-block-head svg {
+    color: #8A6B24 !important;
+    flex: 0 0 auto !important;
+  }
+
+  .ureel-builder-label {
+    margin: 12px 0 6px !important;
+  }
+
+  .ureel-builder-input,
+  .ureel-builder-textarea,
+  .ureel-builder-block select {
+    width: 100% !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #FFFFFF !important;
+    color: #111111 !important;
+    border-radius: 17px !important;
+    padding: 12px 13px !important;
+    font-size: 14.5px !important;
+    line-height: 1.2 !important;
+    font-weight: 750 !important;
+    outline: none !important;
+  }
+
+  .ureel-builder-textarea {
+    resize: vertical !important;
+    min-height: 74px !important;
+  }
+
+  .ureel-builder-input:focus,
+  .ureel-builder-textarea:focus,
+  .ureel-builder-block select:focus {
+    border-color: #A8842D !important;
+    box-shadow: 0 0 0 3px rgba(168, 132, 45, .15) !important;
+  }
+
+  .ureel-builder-row {
+    margin-top: 12px !important;
+  }
+
+  .ureel-builder-row label {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    color: #111111 !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    margin-bottom: 7px !important;
+  }
+
+  .ureel-builder-row b {
+    color: #8A6B24 !important;
+    font-size: 15px !important;
+  }
+
+  .ureel-builder-row input[type='range'] {
+    width: 100% !important;
+    accent-color: #A8842D !important;
+  }
+
+  .ureel-builder-actions-line,
+  .ureel-builder-chip-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-top: 12px !important;
+  }
+
+  .ureel-builder-actions-line button,
+  .ureel-builder-chip-row button {
+    flex: 0 0 auto !important;
+    min-height: 40px !important;
+    padding: 0 14px !important;
+    border-radius: 999px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #F7F2E8 !important;
+    color: #111111 !important;
+    font-size: 11px !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .035em !important;
+  }
+
+  .ureel-builder-chip-row button.is-active,
+  .ureel-builder-actions-line button:active {
+    background: #111111 !important;
+    color: #F5F2EA !important;
+    border-color: #111111 !important;
+  }
+
+  .ureel-builder-action-cards {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 9px !important;
+    margin-top: 12px !important;
+  }
+
+  .ureel-builder-action-card {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 74px 1fr !important;
+    align-items: center !important;
+    gap: 11px !important;
+    min-height: 86px !important;
+    padding: 10px !important;
+    border-radius: 22px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #F7F2E8 !important;
+    color: #111111 !important;
+    text-align: left !important;
+  }
+
+  .ureel-builder-action-card.is-active {
+    border-color: #111111 !important;
+    background: linear-gradient(135deg, #FFFFFF 0%, #EDE3D0 100%) !important;
+    box-shadow: inset 0 0 0 2px #111111 !important;
+  }
+
+  .ureel-builder-action-preview {
+    width: 70px !important;
+    height: 70px !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #111111 !important;
+  }
+
+  .ureel-builder-action-card strong {
+    display: block !important;
+    font-size: 15px !important;
+    line-height: 1.1 !important;
+    font-weight: 950 !important;
+    color: #111111 !important;
+  }
+
+  .ureel-builder-action-card span {
+    display: block !important;
+    margin-top: 4px !important;
+    color: #6A5B48 !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+  }
+
+  .ureel-builder-button-editor {
+    margin-top: 13px !important;
+    padding: 13px !important;
+    border-radius: 24px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #F7F2E8 !important;
+  }
+
+  .ureel-builder-big-button-stage {
+    min-height: 132px !important;
+    margin: 8px 0 12px !important;
+    border-radius: 22px !important;
+    background: linear-gradient(180deg, #EDE4D1 0%, #FFFDF8 100%) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+  }
+
+  .ureel-builder-two-col {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  .ureel-builder-color {
+    width: 100% !important;
+    height: 46px !important;
+    border: 1px solid #D8CDB7 !important;
+    border-radius: 16px !important;
+    background: #FFFFFF !important;
+    padding: 4px !important;
+  }
+
+  .ureel-builder-empty,
+  .ureel-builder-live-link {
+    margin-top: 12px !important;
+    border-radius: 17px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #F7F2E8 !important;
+    padding: 12px !important;
+    color: #4A4034 !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    overflow-wrap: anywhere !important;
+  }
+}

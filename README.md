@@ -99,3 +99,12 @@ Repair release for v52.2. The simple mobile Studio layout is forced into a top-d
 ## v52.2.2 – Compact 9:16 Preview & Big Button Editor
 
 This polish release keeps the simple mobile studio direction, tightens the Studio preview to a compact true 9:16 card, and improves the Button Studio with a large active button workspace plus a horizontal button selector. Public Link and Desktop renderers remain untouched.
+
+
+## v52.2.3 – Visible Simple Studio Controls
+
+Mobile-Studio-Sichtbarkeitsfix: Hauptmenü, Untermenü und großer Button werden direkt unter der kompakten 9:16-Vorschau sichtbar erzwungen. Public Link unverändert.
+
+## v52.3 – Simple Card Builder
+
+Mobile Studio reset toward a block-based editor inspired by digital business cards: compact 9:16 preview, then Video/Szene, Werbetext, Aktionen/Buttons, Design, Teilen/QR as clear editing blocks. Buttons appear as large editable action cards. Public Link and desktop remain unchanged.

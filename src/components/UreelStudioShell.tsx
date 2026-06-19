@@ -4212,6 +4212,182 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
       </div>
 
+      {/* v52.3 – Simple Card Builder: mobile-only block editor inspired by digital card apps */}
+      <div className="ureel-simple-card-builder md:hidden" aria-label="Einfacher ureel Card Builder">
+        <section className="ureel-builder-intro">
+          <span>ureel Card Builder</span>
+          <h2>Bearbeite deine Aktionskarte direkt in klaren Blöcken.</h2>
+          <p>Keine versteckten Menüs: Video, Werbetext, Aktionen, Design und Teilen bleiben untereinander sichtbar.</p>
+        </section>
+
+        <section className="ureel-builder-block ureel-builder-block--scene">
+          <div className="ureel-builder-block-head">
+            <div><span>01</span><h3>Video / Szene</h3></div>
+            <LucideIcons.Video size={18} />
+          </div>
+          <p>Das Video oder Bild ist die Bühne deiner ureel. Wenn ein Video aktiv ist, steht es im Vordergrund.</p>
+          <label className="ureel-builder-label">Videolink</label>
+          <input
+            className="ureel-builder-input"
+            value={activeCard.videoBackgroundConfig?.youtubeUrl || activeCard.ureelScene?.video?.url || ''}
+            placeholder="YouTube, Shorts oder Videolink einfügen"
+            onChange={(e) => syncCardUpdate({
+              videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: !!e.target.value, youtubeUrl: e.target.value, mediaMode: e.target.value ? 'video' : 'none' } as any,
+              ureelScene: { ...(activeCard.ureelScene || {}), mode: e.target.value ? 'video' : (activeCard.ureelScene?.mode || 'none'), video: { ...(activeCard.ureelScene?.video || {}), type: e.target.value ? 'youtube' : 'none', url: e.target.value, duration: activeCard.videoBackgroundConfig?.durationSeconds || activeCard.ureelScene?.video?.duration || 12, displayMode: activeCard.ureelScene?.video?.displayMode || 'cover', placement: 'background', startAt: activeCard.ureelScene?.video?.startAt || 0 } } as any,
+            } as any)}
+          />
+          <div className="ureel-builder-row">
+            <label>Maximale Dauer <b>{activeCard.videoBackgroundConfig?.durationSeconds || activeCard.ureelScene?.video?.duration || 12}s</b></label>
+            <input
+              type="range"
+              min={5}
+              max={30}
+              step={1}
+              value={activeCard.videoBackgroundConfig?.durationSeconds || activeCard.ureelScene?.video?.duration || 12}
+              onChange={(e) => syncCardUpdate({
+                videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), durationSeconds: Number(e.target.value) } as any,
+                ureelScene: { ...(activeCard.ureelScene || {}), video: { ...(activeCard.ureelScene?.video || {}), duration: Number(e.target.value) } } as any,
+              } as any)}
+            />
+          </div>
+          <div className="ureel-builder-actions-line">
+            <button type="button" onClick={() => syncCardUpdate({ videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'none', video: { ...(activeCard.ureelScene?.video || {}), type: 'none', url: '' } } as any } as any)}>Video entfernen</button>
+            <button type="button" onClick={() => { setIsPlaying(true); setTimelineSec(0); }}>Simulation starten</button>
+          </div>
+        </section>
+
+        <section className="ureel-builder-block ureel-builder-block--text">
+          <div className="ureel-builder-block-head">
+            <div><span>02</span><h3>Werbetext</h3></div>
+            <LucideIcons.Type size={18} />
+          </div>
+          <p>Diese Texte erscheinen auf deiner ureel-Karte. Kurz, klar und handlungsorientiert wirkt am besten.</p>
+          <label className="ureel-builder-label">Titel</label>
+          <input className="ureel-builder-input" value={activeCard.title || ''} placeholder="z. B. Tischlerei Hager" onChange={(e) => syncCardUpdate({ title: e.target.value })} />
+          <label className="ureel-builder-label">Untertitel</label>
+          <input className="ureel-builder-input" value={activeCard.subtitle || ''} placeholder="z. B. Von Hand gefertigt" onChange={(e) => syncCardUpdate({ subtitle: e.target.value })} />
+          <label className="ureel-builder-label">Beschreibung</label>
+          <textarea className="ureel-builder-textarea" rows={3} value={activeCard.description || ''} placeholder="Kurzer Erklärungstext oder Angebot" onChange={(e) => syncCardUpdate({ description: e.target.value })} />
+          <div className="ureel-builder-chip-row">
+            {[
+              { id: 'business_clean', label: 'Business' },
+              { id: 'social_reel', label: 'Social' },
+              { id: 'premium_product', label: 'Premium' },
+              { id: 'offer_action', label: 'Angebot' },
+            ].map((tpl) => (
+              <button key={tpl.id} type="button" onClick={() => applyTextTemplatePreset(tpl.id)} className={currentTextTemplate.style === tpl.id ? 'is-active' : ''}>{tpl.label}</button>
+            ))}
+          </div>
+        </section>
+
+        <section className="ureel-builder-block ureel-builder-block--actions">
+          <div className="ureel-builder-block-head">
+            <div><span>03</span><h3>Aktionen / Buttons</h3></div>
+            <LucideIcons.MousePointerClick size={18} />
+          </div>
+          <p>Jede Aktion ist ein großer Button. Tippe eine Karte an und bearbeite Text, Ziel und Aussehen direkt darunter.</p>
+          <div className="ureel-builder-action-cards">
+            {[...(activeCard.buttons || [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0)).slice(0, 9).map((button, index) => {
+              const selected = (editingBtnId || activeCard.buttons?.[0]?.id) === button.id;
+              const actionLabel = actionOptions.find((option) => option.value === button.actionType)?.label || button.actionType || 'Aktion';
+              return (
+                <button
+                  key={button.id || index}
+                  type="button"
+                  onClick={() => { setEditingBtnId(button.id); setActiveTab('buttons'); setActiveSubSection('buttons-action'); }}
+                  className={`ureel-builder-action-card ${selected ? 'is-active' : ''}`}
+                >
+                  <div className="ureel-builder-action-preview">{renderButtonPreviewTile(button, true)}</div>
+                  <div><strong>{button.title || `Button ${index + 1}`}</strong><span>{actionLabel}</span></div>
+                </button>
+              );
+            })}
+          </div>
+          {(() => {
+            const currentButton = editingButton || activeCard.buttons?.[0] || null;
+            if (!currentButton) return <div className="ureel-builder-empty">Noch kein Button vorhanden.</div>;
+            const meta = getActionInputMeta(currentButton.actionType);
+            return (
+              <div className="ureel-builder-button-editor">
+                <span className="ureel-builder-small-title">Aktiver Button</span>
+                <div className="ureel-builder-big-button-stage">{renderButtonPreviewTile(currentButton)}</div>
+                <label className="ureel-builder-label">Buttontext</label>
+                <input className="ureel-builder-input" value={currentButton.title || ''} placeholder="z. B. Anrufen" onChange={(e) => handleUpdateSingleButton(currentButton.id, { title: e.target.value })} />
+                <label className="ureel-builder-label">Zweite Zeile</label>
+                <input className="ureel-builder-input" value={(currentButton as any).subtitle || ''} placeholder="optional" onChange={(e) => handleUpdateSingleButton(currentButton.id, { subtitle: e.target.value } as any)} />
+                <label className="ureel-builder-label">Was soll passieren?</label>
+                <select className="ureel-builder-input" value={currentButton.actionType || 'url'} onChange={(e) => handleUpdateSingleButton(currentButton.id, { actionType: e.target.value })}>
+                  {actionOptions.filter((option) => ['url','phone','email','whatsapp','pdf_link','external_file_link','vcard','maps','video_replay'].includes(option.value)).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                </select>
+                {!['video_replay','vcard','contact_form','inquiry_form'].includes(currentButton.actionType || '') && (
+                  <>
+                    <label className="ureel-builder-label">{meta.label}</label>
+                    <input className="ureel-builder-input" value={currentButton.actionValue || ''} placeholder={meta.placeholder} onChange={(e) => handleUpdateSingleButton(currentButton.id, { actionValue: e.target.value })} />
+                  </>
+                )}
+                <div className="ureel-builder-two-col">
+                  <div>
+                    <label className="ureel-builder-label">Farbe</label>
+                    <input type="color" className="ureel-builder-color" value={currentButton.bgColor || currentButton.backgroundColor || '#F5F2EA'} onChange={(e) => handleUpdateSingleButton(currentButton.id, { bgColor: e.target.value, backgroundColor: e.target.value } as any)} />
+                  </div>
+                  <div>
+                    <label className="ureel-builder-label">Textfarbe</label>
+                    <input type="color" className="ureel-builder-color" value={currentButton.textColor || '#101010'} onChange={(e) => handleUpdateSingleButton(currentButton.id, { textColor: e.target.value } as any)} />
+                  </div>
+                </div>
+                <div className="ureel-builder-actions-line">
+                  <button type="button" onClick={() => handleUpdateSingleButton(currentButton.id, { isActive: currentButton.isActive === false })}>{currentButton.isActive !== false ? 'Button aktiv' : 'Button aktivieren'}</button>
+                  <button type="button" onClick={async () => {
+                    const designFields: Partial<CardButton> = {
+                      bgColor: currentButton.bgColor,
+                      backgroundColor: currentButton.backgroundColor,
+                      textColor: currentButton.textColor,
+                      borderColor: currentButton.borderColor,
+                      styleVariant: currentButton.styleVariant,
+                      radius: currentButton.radius,
+                      buttonShape: currentButton.buttonShape,
+                      icon: currentButton.icon,
+                      iconColor: currentButton.iconColor,
+                      iconSize: currentButton.iconSize,
+                    };
+                    await syncCardUpdate({ buttons: (activeCard.buttons || []).map((button) => button.id === currentButton.id ? button : { ...button, ...designFields }) });
+                    triggerToast('Button-Design übertragen.', 'success');
+                  }}>Design auf alle</button>
+                </div>
+              </div>
+            );
+          })()}
+        </section>
+
+        <section className="ureel-builder-block ureel-builder-block--design">
+          <div className="ureel-builder-block-head">
+            <div><span>04</span><h3>Design</h3></div>
+            <LucideIcons.Palette size={18} />
+          </div>
+          <p>Wähle einen einfachen Look. Feindesign kann später wieder ergänzt werden.</p>
+          <div className="ureel-builder-chip-row">
+            <button type="button" onClick={() => syncCardUpdate({ cardBackgroundEnabled: true, cardBackgroundColor: '#111111', cardBackgroundGradientEnabled: false, backgroundType: 'color' } as any)}>Dunkel</button>
+            <button type="button" onClick={() => syncCardUpdate({ cardBackgroundEnabled: true, cardBackgroundColor: '#F5F2EA', cardBackgroundGradientEnabled: false, backgroundType: 'color' } as any)}>Hell</button>
+            <button type="button" onClick={() => syncCardUpdate({ cardBackgroundEnabled: true, cardBackgroundColor: '#1B1328', cardBackgroundGradientEnabled: true, cardBackgroundGradientColor: '#8B5CF6', backgroundType: 'gradient' } as any)}>Premium</button>
+            <button type="button" onClick={() => syncCardUpdate({ buttonGridCols: 3 as any, buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), mode: 'three_columns', cols: 3 as any, square: true } })}>3er Raster</button>
+          </div>
+        </section>
+
+        <section className="ureel-builder-block ureel-builder-block--share">
+          <div className="ureel-builder-block-head">
+            <div><span>05</span><h3>Teilen / QR</h3></div>
+            <LucideIcons.Share2 size={18} />
+          </div>
+          <p>Wenn die Karte passt, kopierst du den Live-Link oder prüfst die öffentliche Ansicht.</p>
+          <div className="ureel-builder-live-link">{currentSlugUrl || 'Noch kein Live-Link'}</div>
+          <div className="ureel-builder-actions-line">
+            <button type="button" onClick={copyLiveLink}>Live-Link kopieren</button>
+            <button type="button" onClick={() => window.open(currentSlugUrl, '_blank')}>Live öffnen</button>
+          </div>
+        </section>
+      </div>
+
+
 
 
       {cardManagerOpen && (
