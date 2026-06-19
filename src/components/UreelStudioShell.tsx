@@ -2473,6 +2473,18 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <p>{getMobilePanelHelp()}</p>
           </div>
         </div>
+
+        <div className="ureel-simple-mobile-context md:hidden">
+          <div className="ureel-simple-mobile-kicker">Einfaches Studio</div>
+          <div className="ureel-simple-mobile-title">
+            {activeTab === 'scene' && 'Szene bearbeiten'}
+            {activeTab === 'timeline' && 'Text bearbeiten'}
+            {activeTab === 'buttons' && 'Buttons bearbeiten'}
+            {activeTab === 'design' && 'Design bearbeiten'}
+            {activeTab === 'cards' && 'Meine ureels'}
+          </div>
+          <p>{getMobilePanelHelp()}</p>
+        </div>
         
         {/* Module Header block */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-900 pb-4">
@@ -4156,7 +4168,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           )}
         </div>
 
-        {renderMobileOrbitOverlay()}
+        {/* v52.2: Orbit experiment disabled for the simple mobile dashboard. */}
 
         {/* Share buttons or actions below preview */}
         <div className="space-y-2 pt-3 border-t border-stone-900">

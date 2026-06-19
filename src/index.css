@@ -2347,3 +2347,277 @@ body {
     background: linear-gradient(180deg, rgba(255,255,255,.15), var(--orbit-accent-soft));
   }
 }
+
+/* v52.2 – Simple Mobile Studio Dashboard
+   Mobile only: disables all orbit experiments and returns to a clear, simple editor.
+   Public renderer remains untouched. */
+@media (max-width: 767px) {
+  .ureel-mobile-orbit-layer,
+  .ureel-step-orbit,
+  .ureel-three-orbit,
+  .ureel-orbit-menu,
+  .ureel-orbit-submenu,
+  .ureel-mobile-text-hotspots {
+    display: none !important;
+  }
+
+  body {
+    background: #09090B !important;
+  }
+
+  .ureel-studio-topbar {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 60 !important;
+    background: rgba(12,12,14,.96) !important;
+    backdrop-filter: blur(16px) !important;
+    border-bottom: 1px solid rgba(232,220,194,.16) !important;
+  }
+
+  .ureel-mobile-main-nav {
+    gap: 8px !important;
+  }
+
+  .ureel-mobile-main-nav button {
+    min-width: 76px !important;
+    min-height: 52px !important;
+    border-radius: 17px !important;
+    background: rgba(245,242,234,.06) !important;
+    border: 1px solid rgba(232,220,194,.18) !important;
+    color: rgba(245,242,234,.76) !important;
+  }
+
+  .ureel-mobile-main-nav button[class*="bg-\[\#F5F2EA\]"],
+  .ureel-mobile-main-nav button[class*="text-\[\#E8DCC2\]"] {
+    background: #F5F2EA !important;
+    color: #111111 !important;
+    border-color: #F5F2EA !important;
+  }
+
+  .ureel-studio-preview-panel {
+    order: 2 !important;
+    padding: 10px 10px 12px !important;
+    background: radial-gradient(circle at 50% 0%, rgba(232,220,194,.10), #0D0D0F 56%) !important;
+    border-bottom: 1px solid rgba(232,220,194,.16) !important;
+  }
+
+  .ureel-studio-preview-panel > div:first-child {
+    padding-bottom: 8px !important;
+  }
+
+  .ureel-studio-preview-stage {
+    min-height: 260px !important;
+    max-height: 48dvh !important;
+    padding: 8px 0 !important;
+    overflow: hidden !important;
+  }
+
+  .ureel-studio-phone-frame {
+    width: min(62vw, 238px) !important;
+    height: min(126vw, 488px) !important;
+    max-height: 46dvh !important;
+    border-width: 6px !important;
+    border-radius: 31px !important;
+  }
+
+  .ureel-subnav-panel {
+    order: 3 !important;
+    position: sticky !important;
+    top: 70px !important;
+    z-index: 50 !important;
+    width: 100% !important;
+    background: #F5F2EA !important;
+    color: #111111 !important;
+    border-top: 1px solid #D8CDB7 !important;
+    border-bottom: 1px solid #D8CDB7 !important;
+    padding: 8px 0 !important;
+  }
+
+  .ureel-subnav-panel > div:first-child > div:first-child,
+  .ureel-subnav-panel > div:last-child {
+    display: none !important;
+  }
+
+  .ureel-subnav-panel .p-2.space-y-1 {
+    padding: 0 10px !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+  }
+
+  .ureel-subnav-panel .p-2.space-y-1::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .ureel-subnav-panel .p-2.space-y-1 > div {
+    display: flex !important;
+    gap: 8px !important;
+    min-width: max-content !important;
+  }
+
+  .ureel-subnav-panel .p-2.space-y-1 > div > div:first-child {
+    display: none !important;
+  }
+
+  .ureel-subnav-panel .p-2.space-y-1 button {
+    width: auto !important;
+    min-width: 116px !important;
+    max-width: 148px !important;
+    min-height: 48px !important;
+    padding: 8px 11px !important;
+    border-radius: 16px !important;
+    background: #FFFDF8 !important;
+    color: #191919 !important;
+    border: 1px solid #D8CDB7 !important;
+    box-shadow: none !important;
+  }
+
+  .ureel-subnav-panel .p-2.space-y-1 button[class*="bg-\[\#F5F2EA\]"],
+  .ureel-subnav-panel .p-2.space-y-1 button[class*="text-\[\#101010\]"] {
+    background: #111111 !important;
+    color: #F5F2EA !important;
+    border-color: #111111 !important;
+  }
+
+  .ureel-subnav-panel .p-2.space-y-1 button span span:first-child {
+    font-size: 10.5px !important;
+    line-height: 1.05 !important;
+  }
+
+  .ureel-subnav-panel .p-2.space-y-1 button span span:last-child,
+  .ureel-subnav-panel .p-2.space-y-1 button svg:last-child {
+    display: none !important;
+  }
+
+  .ureel-detail-panel,
+  .ureel-detail-panel.ureel-mobile-sheet-open,
+  .ureel-detail-panel.ureel-mobile-sheet-closed {
+    order: 4 !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    top: auto !important;
+    z-index: 1 !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: auto !important;
+    transform: none !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    overflow-y: visible !important;
+    padding: 12px 12px calc(34px + env(safe-area-inset-bottom)) !important;
+    border-radius: 0 !important;
+    border: 0 !important;
+    background: #F7F2E8 !important;
+    color: #121212 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .ureel-mobile-sheet-head {
+    display: none !important;
+  }
+
+  .ureel-simple-mobile-context {
+    display: block !important;
+    margin: 0 0 12px !important;
+    padding: 12px 13px !important;
+    border-radius: 20px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #FFFDF8 !important;
+    color: #111111 !important;
+  }
+
+  .ureel-simple-mobile-kicker {
+    font-size: 9px !important;
+    line-height: 1 !important;
+    font-weight: 950 !important;
+    letter-spacing: .09em !important;
+    text-transform: uppercase !important;
+    color: #8A6B24 !important;
+    margin-bottom: 4px !important;
+  }
+
+  .ureel-simple-mobile-title {
+    font-size: 17px !important;
+    line-height: 1.1 !important;
+    font-weight: 950 !important;
+    color: #111111 !important;
+  }
+
+  .ureel-simple-mobile-context p {
+    margin-top: 5px !important;
+    font-size: 12.5px !important;
+    line-height: 1.35 !important;
+    color: #4A4336 !important;
+    font-weight: 650 !important;
+  }
+
+  .ureel-detail-panel > div:nth-child(2) {
+    background: transparent !important;
+    border-color: #D8CDB7 !important;
+    padding: 0 0 12px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .ureel-detail-panel > div:nth-child(2) h1 {
+    color: #111111 !important;
+    font-size: 18px !important;
+    line-height: 1.12 !important;
+  }
+
+  .ureel-detail-panel > div:nth-child(2) p {
+    color: #4A4336 !important;
+    font-size: 12.5px !important;
+    line-height: 1.35 !important;
+  }
+
+  .ureel-detail-panel [class*="bg-\[\#111111\]"],
+  .ureel-detail-panel [class*="bg-\[\#181818\]"],
+  .ureel-detail-panel [class*="bg-\[\#101010\]"],
+  .ureel-detail-panel [class*="bg-stone"] {
+    background: #FFFDF8 !important;
+    color: #111111 !important;
+    border-color: #D8CDB7 !important;
+  }
+
+  .ureel-detail-panel .text-white,
+  .ureel-detail-panel .text-\[\#F5F2EA\],
+  .ureel-detail-panel .text-stone-200,
+  .ureel-detail-panel .text-stone-300,
+  .ureel-detail-panel .text-stone-400,
+  .ureel-detail-panel .text-stone-450,
+  .ureel-detail-panel .text-stone-500 {
+    color: #191919 !important;
+  }
+
+  .ureel-detail-panel .text-\[\#E8DCC2\] {
+    color: #8A6B24 !important;
+  }
+
+  .ureel-detail-panel input:not([type="color"]):not([type="range"]),
+  .ureel-detail-panel textarea,
+  .ureel-detail-panel select {
+    min-height: 44px !important;
+    font-size: 15px !important;
+    border-radius: 14px !important;
+    background: #FFFFFF !important;
+    color: #111111 !important;
+    border: 1px solid #D8CDB7 !important;
+  }
+
+  .ureel-detail-panel button {
+    min-height: 42px !important;
+    font-size: 13px !important;
+    border-radius: 14px !important;
+  }
+
+  .ureel-detail-panel label,
+  .ureel-detail-panel .text-\[10px\],
+  .ureel-detail-panel .text-\[10\.5px\],
+  .ureel-detail-panel .text-\[11px\] {
+    font-size: 11.5px !important;
+    line-height: 1.25 !important;
+  }
+}
