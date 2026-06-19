@@ -86,6 +86,7 @@ Build geprüft: `npm run build` erfolgreich.
 
 Mobile Studio Feinschliff: Untermenüs erscheinen als transparenter Halbkreis-/Teilring statt rechter Seitenliste. Konfiguration öffnet als größeres Glass-Overlay über Vorschau und Menüführung. Im Textmodus sind Titel/Slogan/Beschreibung in der mobilen Vorschau als direkte Hotspots anwählbar. Public Link und Desktop bleiben unverändert.
 
-## v52.1 – Three Ring Orbit Cockpit Foundation
 
-Mobile-Studio-Prototyp mit Drei-Ring-Navigation, Mini-Editor im Zentrum und hellem Full-Width-Bedienfeld. Public Link und Desktop bleiben unverändert.
+## v52.1.1 – Single Orbit Step Ring Cleanup
+
+Korrektur des Drei-Ring-Prototyps: Im mobilen Studio ist jetzt immer nur ein Orbit-Ring sichtbar. Hauptmenü, Untermenü und Einstellung ersetzen sich stufenweise. Unten bleibt ein helles, vollbreites Bedienfeld für echte Eingaben. Public Link und Desktop bleiben unverändert.

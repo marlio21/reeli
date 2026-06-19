@@ -125,6 +125,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [mobileOrbitModule, setMobileOrbitModule] = useState<MainModule | null>(null);
   const [mobileActiveTextLayer, setMobileActiveTextLayer] = useState<'title' | 'subtitle' | 'description' | null>(null);
   const [mobileActiveSetting, setMobileActiveSetting] = useState<string | null>(null);
+  const [mobileOrbitLevel, setMobileOrbitLevel] = useState<'main' | 'sub' | 'setting'>('main');
   
   // Local state for actively selected button being edited
   const [editingBtnId, setEditingBtnId] = useState<string | null>(null);
@@ -1887,6 +1888,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     setMobileOrbitModule(module);
     setMobileActiveSetting(null);
     setMobileOrbitOpen(true);
+    setMobileOrbitLevel('sub');
     setMobileSheetOpen(false);
     if (module === 'buttons' && (activeCard?.buttons?.length || 0) > 0 && !editingBtnId) {
       setEditingBtnId(activeCard.buttons?.[0]?.id || null);
@@ -1898,9 +1900,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     setActiveSubSection(subsectionId);
     setMobileOrbitOpen(true);
     setMobileOrbitModule(module);
+    setMobileOrbitLevel('setting');
     setMobileSheetOpen(false);
-    const firstSetting = getMobileSettingItems(module, subsectionId)[0]?.id || null;
-    setMobileActiveSetting(firstSetting);
+    setMobileActiveSetting(null);
     if (module !== 'timeline') {
       setMobileActiveTextLayer(null);
     }
@@ -1910,6 +1912,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
   const openMobileSetting = (settingId: string, opensPanel = true) => {
+    setMobileOrbitLevel('setting');
     setMobileActiveSetting(settingId);
     setMobileSheetOpen(opensPanel);
     if (settingId === 'text-title') setMobileActiveTextLayer('title');
@@ -1922,6 +1925,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     setActiveSubSection('timeline-texts');
     setMobileOrbitOpen(true);
     setMobileOrbitModule('timeline');
+    setMobileOrbitLevel('setting');
     setMobileSheetOpen(true);
     setMobileActiveTextLayer(fieldKey);
     setMobileActiveSetting(fieldKey === 'title' ? 'text-title' : fieldKey === 'subtitle' ? 'text-subtitle' : 'text-description');
@@ -1999,13 +2003,58 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     const activeSubLabel = getMobileSubMenuItems(activeTab).find((item) => item.id === activeSubSection)?.label || 'Bearbeiten';
     const activeSettingLabel = getMobileActiveSettingLabel();
     const settings = mobileOrbitModule ? getMobileSettingItems(mobileOrbitModule, activeSubSection) : [];
+    const currentModuleLabel = mobileOrbitModule ? mobileModuleLabels[mobileOrbitModule] : 'Studio';
+
+    const ringItems = !mobileOrbitModule
+      ? mobileMainModules.map((item) => ({ id: item.id, label: item.label, active: activeTab === item.id, onClick: () => openMobileModule(item.id) }))
+      : mobileOrbitLevel === 'sub'
+        ? getMobileSubMenuItems(mobileOrbitModule).map((item) => ({ id: item.id, label: item.label, active: activeSubSection === item.id, onClick: () => openMobileSubSection(mobileOrbitModule, item.id) }))
+        : settings.map((item) => ({ id: item.id, label: item.label, active: mobileActiveSetting === item.id, onClick: () => openMobileSetting(item.id, item.opensPanel !== false) }));
+
+    const orbitTitle = !mobileOrbitModule
+      ? 'Hauptmenü'
+      : mobileOrbitLevel === 'sub'
+        ? currentModuleLabel
+        : `${currentModuleLabel} › ${activeSubLabel}`;
+
+    const orbitPath = !mobileOrbitModule
+      ? 'Wähle einen Bereich'
+      : mobileOrbitLevel === 'sub'
+        ? 'Wähle ein Untermenü'
+        : activeSettingLabel ? `${activeSubLabel} › ${activeSettingLabel}` : 'Wähle eine Einstellung';
+
+    const goBackOneOrbitStep = () => {
+      if (!mobileOrbitModule) {
+        setMobileOrbitOpen(false);
+        setMobileSheetOpen(false);
+        return;
+      }
+      if (mobileOrbitLevel === 'setting') {
+        setMobileActiveSetting(null);
+        setMobileSheetOpen(false);
+        setMobileOrbitLevel('sub');
+        return;
+      }
+      setMobileOrbitModule(null);
+      setMobileActiveSetting(null);
+      setMobileSheetOpen(false);
+      setMobileOrbitLevel('main');
+    };
+
+    const goToMainOrbit = () => {
+      setMobileOrbitModule(null);
+      setMobileActiveSetting(null);
+      setMobileSheetOpen(false);
+      setMobileOrbitLevel('main');
+      setMobileOrbitOpen(true);
+    };
 
     return (
       <div className="ureel-mobile-orbit-layer md:hidden">
         {!mobileOrbitOpen && !mobileSheetOpen && (
           <button
             type="button"
-            onClick={() => { setMobileOrbitModule(null); setMobileOrbitOpen(true); }}
+            onClick={() => { setMobileOrbitModule(null); setMobileOrbitLevel('main'); setMobileOrbitOpen(true); }}
             className="ureel-orbit-center-button ureel-orbit-center-button--start"
             aria-label="Studio öffnen"
           >
@@ -2015,71 +2064,39 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         )}
 
         {mobileOrbitOpen && (
-          <div className={`ureel-three-orbit ${mobileOrbitModule ? 'is-module-active' : 'is-main-open'} ureel-three-orbit--${mobileOrbitModule || 'main'}`} role="navigation" aria-label="ureel Three Ring Orbit Cockpit">
+          <div className={`ureel-step-orbit ureel-step-orbit--${mobileOrbitModule || 'main'} ureel-step-orbit--level-${mobileOrbitLevel}`} role="navigation" aria-label="ureel Single Orbit Step Ring">
             <button type="button" className="ureel-orbit-utility ureel-orbit-utility--preview" onClick={() => { setMobileSheetOpen(false); setMobileOrbitOpen(false); }}>
-              Vorschau voll
+              Vorschau
             </button>
-            <button type="button" className="ureel-orbit-utility ureel-orbit-utility--timing" onClick={() => { setActiveTab('timeline'); setActiveSubSection('timeline-times'); setMobileOrbitModule('timeline'); setMobileActiveSetting('timing-title'); setMobileSheetOpen(true); }}>
+            <button type="button" className="ureel-orbit-utility ureel-orbit-utility--timing" onClick={() => { setActiveTab('timeline'); setActiveSubSection('timeline-times'); setMobileOrbitModule('timeline'); setMobileOrbitLevel('setting'); setMobileActiveSetting('timing-title'); setMobileSheetOpen(true); }}>
               Timing
             </button>
-            <button type="button" className="ureel-orbit-utility ureel-orbit-utility--studio" onClick={() => {
-              if (mobileOrbitModule) {
-                setMobileOrbitModule(null);
-                setMobileActiveSetting(null);
-                setMobileSheetOpen(false);
-              } else {
-                setMobileOrbitOpen(false);
-              }
-            }}>
+            <button type="button" className="ureel-orbit-utility ureel-orbit-utility--back" onClick={goBackOneOrbitStep}>
+              Zurück
+            </button>
+            <button type="button" className="ureel-orbit-utility ureel-orbit-utility--studio" onClick={goToMainOrbit}>
               Studio
             </button>
 
-            <div className="ureel-three-orbit-ring ureel-three-orbit-ring--main" aria-label="Hauptmenü">
-              {mobileMainModules.map((item, index) => (
+            <div className="ureel-step-orbit-label">
+              <strong>{orbitTitle}</strong>
+              <span>{orbitPath}</span>
+            </div>
+
+            <div className="ureel-step-orbit-ring" aria-label={orbitTitle}>
+              {ringItems.map((item, index) => (
                 <button
                   type="button"
                   key={item.id}
-                  onClick={() => openMobileModule(item.id)}
-                  className={`ureel-three-segment ureel-three-segment--main ureel-three-segment--${index} ${activeTab === item.id ? 'is-active' : ''}`}
+                  onClick={item.onClick}
+                  className={`ureel-step-segment ureel-step-segment--${ringItems.length} ureel-step-segment--${index} ${item.active ? 'is-active' : ''}`}
                 >
-                  {item.label}
+                  <span>{item.label}</span>
                 </button>
               ))}
             </div>
 
-            {mobileOrbitModule && (
-              <div className="ureel-three-orbit-ring ureel-three-orbit-ring--sub" aria-label="Untermenü">
-                <span className="ureel-three-ring-label">{mobileModuleLabels[mobileOrbitModule]}</span>
-                {getMobileSubMenuItems(mobileOrbitModule).map((item, index) => (
-                  <button
-                    type="button"
-                    key={item.id}
-                    onClick={() => openMobileSubSection(mobileOrbitModule, item.id)}
-                    className={`ureel-three-segment ureel-three-segment--sub ureel-three-segment--sub-${index} ${activeSubSection === item.id ? 'is-active' : ''}`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {mobileOrbitModule && settings.length > 0 && (
-              <div className="ureel-three-orbit-ring ureel-three-orbit-ring--tools" aria-label="Einstellungen">
-                <span className="ureel-three-ring-label ureel-three-ring-label--tools">{activeSubLabel}</span>
-                {settings.map((item, index) => (
-                  <button
-                    type="button"
-                    key={item.id}
-                    onClick={() => openMobileSetting(item.id, item.opensPanel !== false)}
-                    className={`ureel-three-segment ureel-three-segment--tool ureel-three-segment--tool-${index} ${mobileActiveSetting === item.id ? 'is-active' : ''}`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <div className="ureel-three-orbit-center" aria-label="Aktiver Mini-Editor">
+            <div className="ureel-step-orbit-center" aria-label="Aktiver Bereich">
               {renderMobileCenterPreview()}
               {mobileOrbitModule && activeSettingLabel && <span className="ureel-three-orbit-current">{activeSettingLabel}</span>}
             </div>
