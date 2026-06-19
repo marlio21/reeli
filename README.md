@@ -90,3 +90,7 @@ Mobile Studio Feinschliff: Untermenüs erscheinen als transparenter Halbkreis-/T
 ## v52.1.1 – Single Orbit Step Ring Cleanup
 
 Korrektur des Drei-Ring-Prototyps: Im mobilen Studio ist jetzt immer nur ein Orbit-Ring sichtbar. Hauptmenü, Untermenü und Einstellung ersetzen sich stufenweise. Unten bleibt ein helles, vollbreites Bedienfeld für echte Eingaben. Public Link und Desktop bleiben unverändert.
+
+## v52.2.1 – Simple Studio Layout Fix
+
+Repair release for v52.2. The simple mobile Studio layout is forced into a top-down mobile flow: compact topbar, preview directly below it, subsection chips, then the light full-width editing panel. Public Link and public renderers remain untouched.
