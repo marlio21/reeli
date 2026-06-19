@@ -94,3 +94,8 @@ Korrektur des Drei-Ring-Prototyps: Im mobilen Studio ist jetzt immer nur ein Orb
 ## v52.2.1 – Simple Studio Layout Fix
 
 Repair release for v52.2. The simple mobile Studio layout is forced into a top-down mobile flow: compact topbar, preview directly below it, subsection chips, then the light full-width editing panel. Public Link and public renderers remain untouched.
+
+
+## v52.2.2 – Compact 9:16 Preview & Big Button Editor
+
+This polish release keeps the simple mobile studio direction, tightens the Studio preview to a compact true 9:16 card, and improves the Button Studio with a large active button workspace plus a horizontal button selector. Public Link and Desktop renderers remain untouched.

@@ -2818,3 +2818,162 @@ body {
     border-radius: 13px !important;
   }
 }
+
+/* v52.2.2 – Compact 9:16 Preview & Big Button Editor
+   Mobile only polish: Studio preview is a true compact 9:16 card; Button Studio gets a real large active button. */
+@media (max-width: 767px) {
+  .ureel-studio-preview-stage {
+    height: min(34dvh, 292px) !important;
+    max-height: min(34dvh, 292px) !important;
+    min-height: 252px !important;
+    padding-top: 2px !important;
+    padding-bottom: 6px !important;
+    align-items: center !important;
+  }
+
+  .ureel-studio-phone-frame {
+    width: min(50vw, 184px) !important;
+    aspect-ratio: 9 / 16 !important;
+    height: auto !important;
+    max-height: min(32dvh, 276px) !important;
+    border-width: 5px !important;
+    border-radius: 27px !important;
+  }
+
+  .ureel-studio-preview-panel {
+    padding-bottom: 6px !important;
+  }
+
+  .ureel-studio-preview-panel > div:first-child {
+    min-height: 30px !important;
+    padding-bottom: 4px !important;
+  }
+
+  .ureel-subnav-panel {
+    max-height: 70px !important;
+    min-height: 58px !important;
+    padding: 6px 0 7px !important;
+  }
+
+  .ureel-subnav-panel .p-2.space-y-1 button {
+    min-width: 96px !important;
+    max-width: 122px !important;
+    min-height: 40px !important;
+    padding: 6px 8px !important;
+  }
+
+  .ureel-subnav-panel .p-2.space-y-1 button span span:first-child {
+    font-size: 9.2px !important;
+    letter-spacing: .045em !important;
+  }
+
+  .ureel-mobile-big-button-editor {
+    display: block !important;
+    margin: 0 0 12px !important;
+    padding: 12px !important;
+    border-radius: 22px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #FFFDF8 !important;
+    color: #111111 !important;
+  }
+
+  .ureel-mobile-big-button-head {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .ureel-mobile-big-button-head span {
+    font-size: 10px !important;
+    font-weight: 950 !important;
+    letter-spacing: .08em !important;
+    text-transform: uppercase !important;
+    color: #8A6B24 !important;
+  }
+
+  .ureel-mobile-big-button-head strong {
+    font-size: 11px !important;
+    font-weight: 950 !important;
+    color: #111111 !important;
+  }
+
+  .ureel-mobile-big-button-stage {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 150px !important;
+    padding: 12px !important;
+    border-radius: 22px !important;
+    background: linear-gradient(180deg, #F7F2E8 0%, #EEE4D2 100%) !important;
+    border: 1px solid #D8CDB7 !important;
+    overflow: hidden !important;
+  }
+
+  .ureel-mobile-big-button-stage .ureel-button-preview-tile--large {
+    transform: scale(1.08) !important;
+    transform-origin: center !important;
+  }
+
+  .ureel-mobile-button-strip {
+    margin-top: 10px !important;
+    display: flex !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    padding-bottom: 2px !important;
+    scrollbar-width: none !important;
+  }
+  .ureel-mobile-button-strip::-webkit-scrollbar { display: none !important; }
+
+  .ureel-mobile-button-strip button {
+    flex: 0 0 auto !important;
+    min-width: 74px !important;
+    max-width: 98px !important;
+    min-height: 42px !important;
+    padding: 6px 9px !important;
+    border-radius: 15px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #F7F2E8 !important;
+    color: #111111 !important;
+    text-align: left !important;
+  }
+
+  .ureel-mobile-button-strip button.is-active {
+    background: #111111 !important;
+    color: #F5F2EA !important;
+    border-color: #111111 !important;
+  }
+
+  .ureel-mobile-button-strip button span {
+    display: block !important;
+    font-size: 8px !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    opacity: .62 !important;
+    margin-bottom: 2px !important;
+  }
+
+  .ureel-mobile-button-strip button b {
+    display: block !important;
+    font-size: 10px !important;
+    line-height: 1.05 !important;
+    font-weight: 950 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .ureel-detail-panel {
+    padding-top: 9px !important;
+  }
+
+  .ureel-simple-mobile-context {
+    padding: 9px 11px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .ureel-simple-mobile-title,
+  .ureel-detail-panel > div:nth-child(2) h1 {
+    font-size: 15.5px !important;
+  }
+}

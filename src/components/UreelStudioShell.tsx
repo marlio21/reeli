@@ -1624,9 +1624,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const renderButtonPreviewTile = (button: CardButton, compact = false) => {
     // v48: use the same ButtonRenderer as the real scene/live card.
     // This keeps icon, icon color, shape, transparency, text and second line in sync.
-    const size = compact ? Math.max(44, Math.min(70, buttonSizePx)) : Math.max(58, Math.min(112, buttonSizePx + 26));
+    const size = compact ? Math.max(44, Math.min(70, buttonSizePx)) : Math.max(86, Math.min(154, buttonSizePx + 54));
     return (
-      <div key={button.id} className="relative flex items-center justify-center">
+      <div key={button.id} className={`relative flex items-center justify-center ${compact ? 'ureel-button-preview-tile--compact' : 'ureel-button-preview-tile--large'}`}>
         {!button.isActive && <div className="absolute inset-0 z-30 rounded-[inherit] bg-black/55 flex items-center justify-center text-[8px] font-black uppercase tracking-widest text-stone-300">Inaktiv</div>}
         <ButtonRenderer
           button={button}
@@ -2326,10 +2326,13 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   </button>
                 </div>
                 {[
-                  { id: 'buttons-list', icon: LucideIcons.ListChecks, label: 'Button-Liste', desc: 'Auswählen, kopieren, duplizieren' },
+                  { id: 'buttons-list', icon: LucideIcons.ListChecks, label: 'Button wählen', desc: 'Auswählen, kopieren, duplizieren' },
+                  { id: 'buttons-text', icon: LucideIcons.Type, label: 'Text', desc: 'Hauptzeile, zweite Zeile' },
                   { id: 'buttons-action', icon: LucideIcons.MousePointerClick, label: 'Aktion', desc: 'Telefon, Link, PDF, Kontakt' },
-                  { id: 'buttons-design', icon: LucideIcons.ImagePlus, label: 'Design', desc: 'Bild, Text, Farben, Form' },
-                  { id: 'buttons-preview', icon: LucideIcons.LayoutGrid, label: 'Raster & Vorschau', desc: 'Karte, Button, Raster' },
+                  { id: 'buttons-design', icon: LucideIcons.Paintbrush, label: 'Look', desc: 'Farbe, Form, Rahmen' },
+                  { id: 'buttons-icon', icon: LucideIcons.Sparkles, label: 'Icon', desc: 'Symbol und Position' },
+                  { id: 'buttons-size', icon: LucideIcons.Maximize2, label: 'Größe', desc: 'Button und Raster' },
+                  { id: 'buttons-transfer', icon: LucideIcons.CopyCheck, label: 'Übertragen', desc: 'Look auf alle anwenden' },
                 ].map((item) => {
                   const Icon = item.icon;
                   const selected = activeSubSection === item.id;
@@ -3477,6 +3480,29 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   <button onClick={handleAddButtonLocal} className="mt-4 h-10 px-4 rounded-xl bg-[#F5F2EA] text-[#101010] font-black text-[10px] uppercase tracking-wider inline-flex items-center gap-2">
                     <LucideIcons.Plus size={14} /> Button hinzufügen
                   </button>
+                </div>
+              )}
+
+              {editingButton && (
+                <div className="ureel-mobile-big-button-editor md:hidden">
+                  <div className="ureel-mobile-big-button-head">
+                    <span>Aktueller Button</span>
+                    <strong>#{Math.max(1, (activeCard.buttons || []).findIndex(b => b.id === editingButton.id) + 1)}</strong>
+                  </div>
+                  <div className="ureel-mobile-big-button-stage">
+                    {renderButtonPreviewTile(editingButton)}
+                  </div>
+                  <div className="ureel-mobile-button-strip">
+                    {[...(activeCard.buttons || [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0)).slice(0, 9).map((button, index) => {
+                      const selected = editingBtnId === button.id;
+                      return (
+                        <button key={button.id || index} type="button" onClick={() => setEditingBtnId(button.id)} className={selected ? 'is-active' : ''}>
+                          <span>#{index + 1}</span>
+                          <b>{button.title || 'Button'}</b>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
