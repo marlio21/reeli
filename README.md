@@ -85,3 +85,7 @@ Build geprüft: `npm run build` erfolgreich.
 ## v52.0.3 – Orbit Arc Submenus & Direct Text Edit
 
 Mobile Studio Feinschliff: Untermenüs erscheinen als transparenter Halbkreis-/Teilring statt rechter Seitenliste. Konfiguration öffnet als größeres Glass-Overlay über Vorschau und Menüführung. Im Textmodus sind Titel/Slogan/Beschreibung in der mobilen Vorschau als direkte Hotspots anwählbar. Public Link und Desktop bleiben unverändert.
+
+## v52.1 – Three Ring Orbit Cockpit Foundation
+
+Mobile-Studio-Prototyp mit Drei-Ring-Navigation, Mini-Editor im Zentrum und hellem Full-Width-Bedienfeld. Public Link und Desktop bleiben unverändert.

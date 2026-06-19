@@ -124,6 +124,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const [mobileOrbitModule, setMobileOrbitModule] = useState<MainModule | null>(null);
   const [mobileActiveTextLayer, setMobileActiveTextLayer] = useState<'title' | 'subtitle' | 'description' | null>(null);
+  const [mobileActiveSetting, setMobileActiveSetting] = useState<string | null>(null);
   
   // Local state for actively selected button being edited
   const [editingBtnId, setEditingBtnId] = useState<string | null>(null);
@@ -1737,35 +1738,154 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     }
     if (module === 'timeline') {
       return [
-        { id: 'timeline-texts', label: 'Text' },
+        { id: 'timeline-texts', label: 'Inhalt' },
         { id: 'timeline-templates', label: 'Vorlagen' },
-        { id: 'timeline-style', label: 'Look' },
+        { id: 'timeline-style', label: 'Größe / Farbe' },
         { id: 'timeline-times', label: 'Timing' },
+        { id: 'timeline-animation', label: 'Animation' },
       ];
     }
     if (module === 'buttons') {
       return [
-        { id: 'buttons-list', label: 'Liste' },
+        { id: 'buttons-list', label: 'Buttonliste' },
+        { id: 'buttons-text', label: 'Text' },
         { id: 'buttons-action', label: 'Aktion' },
-        { id: 'buttons-design', label: 'Design' },
-        { id: 'buttons-preview', label: 'Vorschau' },
+        { id: 'buttons-icon', label: 'Icon' },
+        { id: 'buttons-design', label: 'Look' },
+        { id: 'buttons-size', label: 'Größe' },
+        { id: 'buttons-transfer', label: 'Design übertragen' },
       ];
     }
     if (module === 'design') {
       return [
-        { id: 'design-desktop', label: 'Desktop' },
+        { id: 'design-desktop', label: 'Desktopseite' },
         { id: 'design-background', label: 'Hintergrund' },
-        { id: 'design-content', label: 'Texte' },
-        { id: 'design-share', label: 'Teilen' },
+        { id: 'design-content', label: 'Kartenlook' },
+        { id: 'design-buttons', label: 'Buttonbereich' },
+        { id: 'design-share', label: 'Teilen / QR' },
       ];
     }
     return [];
   };
 
+  const getMobileSettingItems = (module: MainModule, subsectionId: string): Array<{ id: string; label: string; opensPanel?: boolean }> => {
+    if (module === 'scene') {
+      if (subsectionId === 'scene-video') return [
+        { id: 'video-link', label: 'Link', opensPanel: true },
+        { id: 'video-duration', label: 'Dauer', opensPanel: true },
+        { id: 'video-remove', label: 'Entfernen', opensPanel: true },
+        { id: 'video-replay', label: 'Replay', opensPanel: true },
+      ];
+      if (subsectionId === 'scene-poster') return [
+        { id: 'poster-upload', label: 'Hochladen', opensPanel: true },
+        { id: 'poster-remove', label: 'Entfernen', opensPanel: true },
+        { id: 'poster-replace', label: 'Ersetzen', opensPanel: true },
+        { id: 'poster-position', label: 'Position', opensPanel: true },
+      ];
+      if (subsectionId === 'scene-endcard') return [
+        { id: 'endcard-image', label: 'Bild', opensPanel: true },
+        { id: 'endcard-video', label: 'Video', opensPanel: true },
+        { id: 'endcard-cta', label: 'CTA', opensPanel: true },
+        { id: 'endcard-replay', label: 'Replay', opensPanel: true },
+      ];
+      return [
+        { id: 'scene-primary', label: 'Option', opensPanel: true },
+        { id: 'scene-reset', label: 'Zurücksetzen', opensPanel: true },
+      ];
+    }
+    if (module === 'timeline') {
+      if (subsectionId === 'timeline-texts') return [
+        { id: 'text-title', label: 'Titel', opensPanel: true },
+        { id: 'text-subtitle', label: 'Untertitel', opensPanel: true },
+        { id: 'text-description', label: 'Beschreibung', opensPanel: true },
+      ];
+      if (subsectionId === 'timeline-templates') return [
+        { id: 'template-bold', label: 'Bold' },
+        { id: 'template-elegant', label: 'Elegant' },
+        { id: 'template-minimal', label: 'Minimal' },
+        { id: 'template-reel', label: 'Reel' },
+        { id: 'template-premium', label: 'Premium' },
+      ];
+      if (subsectionId === 'timeline-style') return [
+        { id: 'text-size', label: 'Größe', opensPanel: true },
+        { id: 'text-color', label: 'Farbe', opensPanel: true },
+        { id: 'text-frame', label: 'Rahmen', opensPanel: true },
+      ];
+      return [
+        { id: 'timing-title', label: 'Titel', opensPanel: true },
+        { id: 'timing-subtitle', label: 'Untertitel', opensPanel: true },
+        { id: 'timing-description', label: 'Beschreibung', opensPanel: true },
+        { id: 'timing-buttons', label: 'Buttons', opensPanel: true },
+      ];
+    }
+    if (module === 'buttons') {
+      if (subsectionId === 'buttons-list') return [
+        { id: 'button-open', label: 'Öffnen', opensPanel: true },
+        { id: 'button-copy', label: 'Kopieren', opensPanel: true },
+        { id: 'button-duplicate', label: 'Duplizieren', opensPanel: true },
+        { id: 'button-delete', label: 'Löschen', opensPanel: true },
+      ];
+      if (subsectionId === 'buttons-action') return [
+        { id: 'action-phone', label: 'Telefon', opensPanel: true },
+        { id: 'action-web', label: 'Website', opensPanel: true },
+        { id: 'action-mail', label: 'Mail', opensPanel: true },
+        { id: 'action-whatsapp', label: 'WhatsApp', opensPanel: true },
+        { id: 'action-file', label: 'Datei', opensPanel: true },
+      ];
+      if (subsectionId === 'buttons-design') return [
+        { id: 'look-color', label: 'Farbe', opensPanel: true },
+        { id: 'look-textcolor', label: 'Textfarbe', opensPanel: true },
+        { id: 'look-form', label: 'Form', opensPanel: true },
+        { id: 'look-border', label: 'Rahmen', opensPanel: true },
+      ];
+      if (subsectionId === 'buttons-transfer') return [
+        { id: 'transfer-all', label: 'Auf alle', opensPanel: true },
+        { id: 'transfer-color', label: 'Nur Farbe', opensPanel: true },
+        { id: 'transfer-form', label: 'Nur Form', opensPanel: true },
+        { id: 'transfer-icon', label: 'Nur Icon', opensPanel: true },
+      ];
+      return [
+        { id: 'button-text-main', label: 'Haupttext', opensPanel: true },
+        { id: 'button-text-sub', label: 'Zweite Zeile', opensPanel: true },
+        { id: 'button-icon', label: 'Icon', opensPanel: true },
+        { id: 'button-size', label: 'Größe', opensPanel: true },
+      ];
+    }
+    if (module === 'design') {
+      return [
+        { id: 'design-layout', label: 'Layout', opensPanel: true },
+        { id: 'design-bg', label: 'Farbe / Bild', opensPanel: true },
+        { id: 'design-qr', label: 'QR', opensPanel: true },
+        { id: 'design-link', label: 'Link', opensPanel: true },
+      ];
+    }
+    return [];
+  };
+
+  const getMobileActiveSettingLabel = () => {
+    if (!mobileOrbitModule || !mobileActiveSetting) return null;
+    return getMobileSettingItems(mobileOrbitModule, activeSubSection).find((item) => item.id === mobileActiveSetting)?.label || null;
+  };
+
+  const getMobilePanelHelp = () => {
+    if (activeTab === 'buttons' && activeSubSection === 'buttons-action') return 'Hier bestimmst du, was beim Tippen auf den ausgewählten Button passiert. Die Beschriftung bleibt unabhängig davon.';
+    if (activeTab === 'buttons' && activeSubSection === 'buttons-list') return 'Hier verwaltest du deine Buttons. Große Listen bleiben unten scrollbar, die Vorschau bleibt sichtbar.';
+    if (activeTab === 'buttons' && activeSubSection === 'buttons-transfer') return 'Übertrage den Look des aktuellen Buttons auf andere Buttons, damit alle einheitlich aussehen.';
+    if (activeTab === 'buttons') return 'Bearbeite den aktuell ausgewählten Button. Änderungen sind oben in der Vorschau sichtbar.';
+    if (activeTab === 'timeline' && activeSubSection === 'timeline-templates') return 'Wähle eine Textvorlage. Die Karte zeigt sofort, wie die Werbebotschaft wirkt.';
+    if (activeTab === 'timeline') return 'Bearbeite Titel, Untertitel und Beschreibung. Die Vorschau zeigt dir die Wirkung direkt auf der Karte.';
+    if (activeTab === 'scene' && activeSubSection === 'scene-poster') return 'Lade ein Bild oder Poster hoch. Wenn ein Video aktiv ist, entferne zuerst das Video.';
+    if (activeTab === 'scene') return 'Bearbeite Bühne, Video, Bild, Farbe oder Endkarte deiner ureel.';
+    if (activeTab === 'design') return 'Passe die öffentliche Miniwebseite und den Kartenlook an.';
+    return 'Wähle eine Einstellung. Die Änderung bleibt in der Vorschau sichtbar.';
+  };
+
   const openMobileModule = (module: MainModule) => {
+    const defaultSub = getDefaultSubSectionForModule(module);
     setActiveTab(module);
-    setActiveSubSection(getDefaultSubSectionForModule(module));
+    setActiveSubSection(defaultSub);
     setMobileOrbitModule(module);
+    setMobileActiveSetting(null);
     setMobileOrbitOpen(true);
     setMobileSheetOpen(false);
     if (module === 'buttons' && (activeCard?.buttons?.length || 0) > 0 && !editingBtnId) {
@@ -1776,17 +1896,25 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const openMobileSubSection = (module: MainModule, subsectionId: string) => {
     setActiveTab(module);
     setActiveSubSection(subsectionId);
-    // v52.0.3: Untermenü bleibt als transparenter Orbit-Halbring sichtbar;
-    // das Eingabe-Overlay öffnet sich eigenständig darüber.
     setMobileOrbitOpen(true);
     setMobileOrbitModule(module);
-    setMobileSheetOpen(true);
+    setMobileSheetOpen(false);
+    const firstSetting = getMobileSettingItems(module, subsectionId)[0]?.id || null;
+    setMobileActiveSetting(firstSetting);
     if (module !== 'timeline') {
       setMobileActiveTextLayer(null);
     }
     if (module === 'buttons' && (activeCard?.buttons?.length || 0) > 0 && !editingBtnId) {
       setEditingBtnId(activeCard.buttons?.[0]?.id || null);
     }
+  };
+
+  const openMobileSetting = (settingId: string, opensPanel = true) => {
+    setMobileActiveSetting(settingId);
+    setMobileSheetOpen(opensPanel);
+    if (settingId === 'text-title') setMobileActiveTextLayer('title');
+    if (settingId === 'text-subtitle') setMobileActiveTextLayer('subtitle');
+    if (settingId === 'text-description') setMobileActiveTextLayer('description');
   };
 
   const openMobileTextLayerEditor = (fieldKey: 'title' | 'subtitle' | 'description') => {
@@ -1796,6 +1924,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     setMobileOrbitModule('timeline');
     setMobileSheetOpen(true);
     setMobileActiveTextLayer(fieldKey);
+    setMobileActiveSetting(fieldKey === 'title' ? 'text-title' : fieldKey === 'subtitle' ? 'text-subtitle' : 'text-description');
     setTextPreviewMode('text');
   };
 
@@ -1822,80 +1951,143 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     );
   };
 
-  const renderMobileOrbitOverlay = () => (
-    <div className="ureel-mobile-orbit-layer md:hidden">
-      {!mobileOrbitOpen && !mobileSheetOpen && (
-        <button
-          type="button"
-          onClick={() => { setMobileOrbitModule(null); setMobileOrbitOpen(true); }}
-          className="ureel-orbit-center-button ureel-orbit-center-button--start"
-          aria-label="Studio öffnen"
-        >
-          <span className="ureel-orbit-dot" />
-          <span>Studio</span>
+  const renderMobileCenterPreview = () => {
+    if (mobileOrbitModule === 'buttons' && editingButton) {
+      return (
+        <div className="ureel-three-orbit-preview ureel-three-orbit-preview--button">
+          <span>Aktueller Button</span>
+          <ButtonRenderer button={editingButton} mode="designer" lang={lang} forceSquare={false} previewScale={1.06} />
+        </div>
+      );
+    }
+    if (mobileOrbitModule === 'timeline') {
+      return (
+        <button type="button" className="ureel-three-orbit-preview ureel-three-orbit-preview--text" onClick={() => openMobileTextLayerEditor('title')}>
+          <span>Werbetext</span>
+          <strong>{getTextLayerDraftValue('title') || 'Titel'}</strong>
+          <small>{getTextLayerDraftValue('subtitle') || 'Untertitel'}</small>
         </button>
-      )}
+      );
+    }
+    if (mobileOrbitModule === 'scene') {
+      return (
+        <div className="ureel-three-orbit-preview ureel-three-orbit-preview--scene">
+          <span>Szene</span>
+          <strong>{activeSubSection === 'scene-poster' ? 'Bild / Poster' : activeSubSection === 'scene-endcard' ? 'Endkarte' : activeSubSection === 'scene-color' ? 'Farbe' : 'Video'}</strong>
+          <small>{activeCard.videoBackgroundUrl ? 'Video aktiv' : activeCard.profileImageUrl ? 'Bild aktiv' : 'Bereit'}</small>
+        </div>
+      );
+    }
+    if (mobileOrbitModule === 'design') {
+      return (
+        <div className="ureel-three-orbit-preview ureel-three-orbit-preview--design">
+          <span>Design</span>
+          <strong>Kartenlook</strong>
+          <small>Desktop & Teilen</small>
+        </div>
+      );
+    }
+    return (
+      <button type="button" className="ureel-three-orbit-preview ureel-three-orbit-preview--start" onClick={() => setMobileOrbitOpen(false)}>
+        <span>Studio</span>
+        <strong>●</strong>
+      </button>
+    );
+  };
 
-      {mobileSheetOpen && !mobileOrbitOpen && (
-        <button
-          type="button"
-          onClick={() => setMobileSheetOpen(false)}
-          className="ureel-orbit-center-button ureel-orbit-center-button--preview"
-          aria-label="Vorschau frei machen"
-        >
-          <span className="ureel-orbit-dot" />
-          <span>Vorschau frei</span>
-        </button>
-      )}
+  const renderMobileOrbitOverlay = () => {
+    const activeSubLabel = getMobileSubMenuItems(activeTab).find((item) => item.id === activeSubSection)?.label || 'Bearbeiten';
+    const activeSettingLabel = getMobileActiveSettingLabel();
+    const settings = mobileOrbitModule ? getMobileSettingItems(mobileOrbitModule, activeSubSection) : [];
 
-      {mobileOrbitOpen && (
-        <div className={`ureel-orbit-menu ${mobileOrbitModule ? 'ureel-orbit-menu--compact' : ''}`} role="navigation" aria-label="ureel Studio Orbit">
-          <button type="button" className="ureel-orbit-close" onClick={() => { setMobileOrbitOpen(false); setMobileOrbitModule(null); }}>Schließen</button>
-          <button type="button" className="ureel-orbit-center" onClick={() => { setMobileOrbitOpen(false); setMobileOrbitModule(null); }}>●</button>
-          {mobileMainModules.map((item) => (
-            <button
-              type="button"
-              key={item.id}
-              onClick={() => openMobileModule(item.id)}
-              className={`ureel-orbit-quadrant ${item.orbitClass} ${activeTab === item.id ? 'is-active' : ''}`}
-            >
-              <span>{item.label}</span>
+    return (
+      <div className="ureel-mobile-orbit-layer md:hidden">
+        {!mobileOrbitOpen && !mobileSheetOpen && (
+          <button
+            type="button"
+            onClick={() => { setMobileOrbitModule(null); setMobileOrbitOpen(true); }}
+            className="ureel-orbit-center-button ureel-orbit-center-button--start"
+            aria-label="Studio öffnen"
+          >
+            <span className="ureel-orbit-dot" />
+            <span>Studio</span>
+          </button>
+        )}
+
+        {mobileOrbitOpen && (
+          <div className={`ureel-three-orbit ${mobileOrbitModule ? 'is-module-active' : 'is-main-open'} ureel-three-orbit--${mobileOrbitModule || 'main'}`} role="navigation" aria-label="ureel Three Ring Orbit Cockpit">
+            <button type="button" className="ureel-orbit-utility ureel-orbit-utility--preview" onClick={() => { setMobileSheetOpen(false); setMobileOrbitOpen(false); }}>
+              Vorschau voll
             </button>
-          ))}
-        </div>
-      )}
+            <button type="button" className="ureel-orbit-utility ureel-orbit-utility--timing" onClick={() => { setActiveTab('timeline'); setActiveSubSection('timeline-times'); setMobileOrbitModule('timeline'); setMobileActiveSetting('timing-title'); setMobileSheetOpen(true); }}>
+              Timing
+            </button>
+            <button type="button" className="ureel-orbit-utility ureel-orbit-utility--studio" onClick={() => {
+              if (mobileOrbitModule) {
+                setMobileOrbitModule(null);
+                setMobileActiveSetting(null);
+                setMobileSheetOpen(false);
+              } else {
+                setMobileOrbitOpen(false);
+              }
+            }}>
+              Studio
+            </button>
 
-      {mobileOrbitOpen && mobileOrbitModule && (
-        <div className={`ureel-orbit-submenu ureel-orbit-submenu--${mobileOrbitModule}`} role="navigation" aria-label={`${mobileModuleLabels[mobileOrbitModule] || 'Modul'} Untermenü`}>
-          <div className="ureel-orbit-submenu-title">
-            <span>{mobileModuleLabels[mobileOrbitModule]}</span>
-            <small>{getMobileModuleHelp(mobileOrbitModule)}</small>
-          </div>
-          <button type="button" className="ureel-orbit-submenu-back" onClick={() => setMobileOrbitModule(null)}>Hauptmenü</button>
-          <button type="button" className="ureel-orbit-submenu-center" onClick={() => { setMobileSheetOpen(false); setMobileOrbitOpen(false); setMobileOrbitModule(null); }}>●</button>
-          <div className="ureel-orbit-submenu-ring">
-            {getMobileSubMenuItems(mobileOrbitModule).map((item, index) => (
-              <button
-                type="button"
-                key={item.id}
-                onClick={() => openMobileSubSection(mobileOrbitModule, item.id)}
-                className={`ureel-orbit-sub-segment ureel-orbit-sub-segment--${index} ${activeSubSection === item.id ? 'is-active' : ''}`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+            <div className="ureel-three-orbit-ring ureel-three-orbit-ring--main" aria-label="Hauptmenü">
+              {mobileMainModules.map((item, index) => (
+                <button
+                  type="button"
+                  key={item.id}
+                  onClick={() => openMobileModule(item.id)}
+                  className={`ureel-three-segment ureel-three-segment--main ureel-three-segment--${index} ${activeTab === item.id ? 'is-active' : ''}`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
 
-      {activeTab === 'buttons' && mobileSheetOpen && editingButton && (
-        <div className="ureel-mobile-button-spotlight" aria-label="Button Vorschau groß">
-          <span className="ureel-mobile-button-spotlight-label">Button-Vorschau</span>
-          <ButtonRenderer button={editingButton} mode="designer" lang={lang} forceSquare={false} previewScale={1.16} />
-        </div>
-      )}
-    </div>
-  );
+            {mobileOrbitModule && (
+              <div className="ureel-three-orbit-ring ureel-three-orbit-ring--sub" aria-label="Untermenü">
+                <span className="ureel-three-ring-label">{mobileModuleLabels[mobileOrbitModule]}</span>
+                {getMobileSubMenuItems(mobileOrbitModule).map((item, index) => (
+                  <button
+                    type="button"
+                    key={item.id}
+                    onClick={() => openMobileSubSection(mobileOrbitModule, item.id)}
+                    className={`ureel-three-segment ureel-three-segment--sub ureel-three-segment--sub-${index} ${activeSubSection === item.id ? 'is-active' : ''}`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {mobileOrbitModule && settings.length > 0 && (
+              <div className="ureel-three-orbit-ring ureel-three-orbit-ring--tools" aria-label="Einstellungen">
+                <span className="ureel-three-ring-label ureel-three-ring-label--tools">{activeSubLabel}</span>
+                {settings.map((item, index) => (
+                  <button
+                    type="button"
+                    key={item.id}
+                    onClick={() => openMobileSetting(item.id, item.opensPanel !== false)}
+                    className={`ureel-three-segment ureel-three-segment--tool ureel-three-segment--tool-${index} ${mobileActiveSetting === item.id ? 'is-active' : ''}`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="ureel-three-orbit-center" aria-label="Aktiver Mini-Editor">
+              {renderMobileCenterPreview()}
+              {mobileOrbitModule && activeSettingLabel && <span className="ureel-three-orbit-current">{activeSettingLabel}</span>}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col md:flex-row min-h-[100dvh] md:h-screen w-full max-w-[100vw] bg-[#09090B] text-stone-200 overflow-x-hidden md:overflow-hidden overflow-y-auto font-sans antialiased text-xs">
@@ -2259,8 +2451,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <button type="button" onClick={() => { setMobileOrbitModule(activeTab); setMobileOrbitOpen(true); setMobileSheetOpen(false); }} className="ureel-mobile-main-menu">Untermenü</button>
           </div>
           <div className={`ureel-mobile-config-context ureel-mobile-config-context--${activeTab}`}>
-            <span>{mobileModuleLabels[activeTab] || 'Studio'}</span>
+            <span>{mobileModuleLabels[activeTab] || 'Studio'}{getMobileActiveSettingLabel() ? ` · ${getMobileActiveSettingLabel()}` : ''}</span>
             <strong>{getMobileSubMenuItems(activeTab).find((item) => item.id === activeSubSection)?.label || 'Bearbeiten'}</strong>
+            <p>{getMobilePanelHelp()}</p>
           </div>
         </div>
         
@@ -2270,7 +2463,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <h1 className="text-base font-black text-white tracking-tight uppercase">
               {activeTab === 'scene' && (activeSubSection === 'scene-video' ? 'Clip-Video / Background Reel' : activeSubSection === 'scene-poster' ? 'Bild / Poster einrichten' : activeSubSection === 'scene-display' ? 'Darstellung & Zuschnitt' : activeSubSection === 'scene-endcard' ? 'Endkarte in der Szene' : 'Farbe, Verlauf & Overlay')}
               {activeTab === 'timeline' && (activeSubSection === 'timeline-texts' ? 'Werbebotschaft' : activeSubSection === 'timeline-templates' ? 'Werbeschriften & Vorlagen' : activeSubSection === 'timeline-style' ? 'Rahmen, Schrift & Effekt' : 'Animations-Timeline')}
-              {activeTab === 'buttons' && (activeSubSection === 'buttons-list' ? 'Button-Liste' : activeSubSection === 'buttons-action' ? 'Aktion & Ziel' : activeSubSection === 'buttons-design' ? 'Button-Design' : 'Raster & Vorschau')}
+              {activeTab === 'buttons' && (activeSubSection === 'buttons-list' ? 'Button-Liste' : activeSubSection === 'buttons-action' ? 'Aktion & Ziel' : activeSubSection === 'buttons-text' ? 'Button-Text' : activeSubSection === 'buttons-icon' ? 'Button-Icon' : activeSubSection === 'buttons-design' ? 'Button-Look' : activeSubSection === 'buttons-size' ? 'Button-Größe' : activeSubSection === 'buttons-transfer' ? 'Design übertragen' : 'Raster & Vorschau')}
               {activeTab === 'endcard' && (activeSubSection === 'endcard-general' ? 'Nachspielsequenz einrichten' : 'Wasserzeichen & Branding')}
   
             {activeTab === 'cards' && (
@@ -2289,7 +2482,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <p className="text-[10px] text-stone-450 mt-1">
               {activeTab === 'scene' && (activeSubSection === 'scene-video' ? 'Ermöglicht das automatische Abspielen eines Videos oder Loops im Hintergrund.' : activeSubSection === 'scene-poster' ? 'Lege ein ruhiges Cover- oder Werbebild fest, falls kein Video genutzt wird.' : activeSubSection === 'scene-display' ? 'Bestimme, wie 9:16-, 16:9- und Bildinhalte innerhalb der ureel-Karte sitzen.' : activeSubSection === 'scene-endcard' ? 'Steuere den Abschluss der Karte direkt dort, wo Video, Bild und Szene entstehen.' : 'Bestimme Anthrazit-/Cremeflächen, Verläufe, Vignette und Abdunklung.')}
               {activeTab === 'timeline' && (activeSubSection === 'timeline-texts' ? 'Formuliere die Werbebotschaft, die aus Video oder Bild eine Aktion macht.' : activeSubSection === 'timeline-templates' ? 'Wähle eine professionelle Werbeschrift und fülle die Karte mit passenden Texten.' : activeSubSection === 'timeline-style' ? 'Gestalte Rahmen, Textbox, Schrift, Highlight und Animation.' : 'Reguliere millisekundengenaue Animations-Szenen wie bei professionellen Werbeanzeigen.')}
-              {activeTab === 'buttons' && (activeSubSection === 'buttons-list' ? 'Jeder Button ist als eigene Karte sichtbar – inklusive Kopieren, Duplizieren und Löschen.' : activeSubSection === 'buttons-action' ? 'Bestimme, was der Button öffnet: Link, Telefon, PDF, Datei oder Formular.' : activeSubSection === 'buttons-design' ? 'Gestalte Text, Bild, Farbe, Form und Lesbarkeit des Buttons.' : 'Wechsle zwischen Karte, Button und Raster-Vorschau und passe Größe/Abstand an.')}
+              {activeTab === 'buttons' && getMobilePanelHelp()}
               {activeTab === 'endcard' && (activeSubSection === 'endcard-general' ? 'Bestimme, was abläuft, wenn das Video zu Ende abgespielt wurde.' : 'Entferne ureel-Wasserzeichen oder füge eigene Marken-Logos hinzu.')}
   
             {activeTab === 'cards' && (
@@ -3255,6 +3448,50 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   <button onClick={handleAddButtonLocal} className="mt-4 h-10 px-4 rounded-xl bg-[#F5F2EA] text-[#101010] font-black text-[10px] uppercase tracking-wider inline-flex items-center gap-2">
                     <LucideIcons.Plus size={14} /> Button hinzufügen
                   </button>
+                </div>
+              )}
+
+              {['buttons-text','buttons-icon','buttons-size','buttons-transfer'].includes(activeSubSection) && editingButton && (
+                <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
+                  <div>
+                    <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">
+                      {activeSubSection === 'buttons-text' ? 'Button-Text' : activeSubSection === 'buttons-icon' ? 'Icon & Symbol' : activeSubSection === 'buttons-size' ? 'Größe & Raster' : 'Design übertragen'}
+                    </span>
+                    <p className="text-[9.5px] text-stone-500 mt-1">
+                      {activeSubSection === 'buttons-transfer' ? 'Übertrage den Look dieses Buttons auf alle anderen Buttons.' : 'Bearbeite den aktuellen Button. Die Änderung ist in der Vorschau sichtbar.'}
+                    </p>
+                  </div>
+
+                  {activeSubSection === 'buttons-text' && (
+                    <div className="grid gap-3">
+                      <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider">Buttontext</label>
+                      <input value={editingButton.title || ''} onChange={(e) => handleUpdateSingleButton(editingButton.id, { title: e.target.value })} className="w-full bg-[#181818] border border-[#3A3732] h-10 px-3 rounded-xl text-sm font-semibold text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
+                      <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider">Zweite Zeile</label>
+                      <input value={(editingButton as any).subtitle || ''} onChange={(e) => handleUpdateSingleButton(editingButton.id, { subtitle: e.target.value } as any)} className="w-full bg-[#181818] border border-[#3A3732] h-10 px-3 rounded-xl text-sm font-semibold text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
+                    </div>
+                  )}
+
+                  {activeSubSection === 'buttons-icon' && (
+                    <div className="grid grid-cols-3 gap-2">
+                      {['phone','globe','mail','file','folder','company'].map((icon) => (
+                        <button key={icon} type="button" onClick={() => handleUpdateSingleButton(editingButton.id, { icon } as any)} className="h-11 rounded-xl border border-[#3A3732] bg-[#181818] text-[#F5F2EA] text-[10px] font-black uppercase">{icon}</button>
+                      ))}
+                    </div>
+                  )}
+
+                  {activeSubSection === 'buttons-size' && (
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-[10px] uppercase font-bold text-stone-450"><span>Buttongröße</span><span>{buttonSizePx}px</span></div>
+                      <input type="range" min={54} max={108} step={2} value={buttonSizePx} onChange={(e) => syncCardUpdate({ buttonSizePx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), buttonSizePx: Number(e.target.value) } as any })} className="w-full accent-[#E8DCC2]" />
+                    </div>
+                  )}
+
+                  {activeSubSection === 'buttons-transfer' && (
+                    <div className="rounded-xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
+                      <p className="text-[11px] text-stone-400">Farbe, Form, Rahmen, Iconstil und Größe dieses Buttons werden auf alle anderen Buttons übertragen.</p>
+                      <button type="button" onClick={transferButtonDesignToAll} className="w-full h-11 rounded-xl bg-[#F5F2EA] text-[#101010] text-[11px] font-black uppercase tracking-wider">Auf alle übertragen</button>
+                    </div>
+                  )}
                 </div>
               )}
 

@@ -1815,3 +1815,334 @@ body {
   .ureel-mobile-text-hotspot--subtitle { top: 48%; }
   .ureel-mobile-text-hotspot--description { top: 57%; }
 }
+
+/* v52.1 – Three Ring Orbit Cockpit Foundation */
+@media (max-width: 767px) {
+  .ureel-mobile-orbit-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 46;
+    pointer-events: none;
+  }
+
+  .ureel-three-orbit {
+    --orbit-accent: rgba(216, 205, 183, .62);
+    --orbit-accent-soft: rgba(216, 205, 183, .16);
+    position: absolute;
+    left: 50%;
+    top: clamp(82px, 13dvh, 112px);
+    width: min(96vw, 410px);
+    height: min(96vw, 410px);
+    transform: translateX(-50%);
+    pointer-events: auto;
+    border-radius: 999px;
+    animation: ureelOrbitIn .22s ease-out both;
+  }
+
+  .ureel-three-orbit--scene { --orbit-accent: rgba(195, 151, 58, .78); --orbit-accent-soft: rgba(195, 151, 58, .18); }
+  .ureel-three-orbit--timeline { --orbit-accent: rgba(178, 127, 205, .78); --orbit-accent-soft: rgba(178, 127, 205, .18); }
+  .ureel-three-orbit--buttons { --orbit-accent: rgba(115, 194, 155, .78); --orbit-accent-soft: rgba(115, 194, 155, .18); }
+  .ureel-three-orbit--design { --orbit-accent: rgba(99, 160, 190, .78); --orbit-accent-soft: rgba(99, 160, 190, .18); }
+
+  .ureel-three-orbit::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background:
+      radial-gradient(circle at center, rgba(9,9,11,.04) 0 25%, rgba(255,255,255,.025) 26% 39%, transparent 40% 43%, var(--orbit-accent-soft) 44% 62%, transparent 63% 66%, rgba(245,242,234,.07) 67% 99%);
+    border: 1px solid rgba(245,242,234,.14);
+    box-shadow: 0 22px 54px rgba(0,0,0,.42), inset 0 0 36px rgba(255,255,255,.035);
+    backdrop-filter: blur(6px);
+    pointer-events: none;
+  }
+
+  .ureel-three-orbit-ring,
+  .ureel-three-orbit-center {
+    position: absolute;
+    inset: 0;
+  }
+
+  .ureel-three-orbit-ring--main {
+    opacity: 1;
+    transition: opacity .22s ease, transform .22s ease;
+  }
+
+  .ureel-three-orbit.is-module-active .ureel-three-orbit-ring--main {
+    opacity: .13;
+    transform: scale(.78);
+    pointer-events: none;
+  }
+
+  .ureel-three-segment {
+    position: absolute;
+    border: 1px solid rgba(245,242,234,.26);
+    background: rgba(245,242,234,.10);
+    color: rgba(245,242,234,.92);
+    text-transform: uppercase;
+    letter-spacing: .045em;
+    font-weight: 950;
+    text-shadow: 0 1px 4px rgba(0,0,0,.62);
+    backdrop-filter: blur(9px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 8px 20px rgba(0,0,0,.14);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.05;
+  }
+
+  .ureel-three-segment.is-active {
+    border-color: var(--orbit-accent);
+    background: linear-gradient(180deg, rgba(255,255,255,.22), var(--orbit-accent-soft));
+    color: #fff;
+  }
+
+  .ureel-three-segment--main {
+    width: 118px;
+    height: 60px;
+    font-size: 11px;
+    border-radius: 999px;
+  }
+
+  .ureel-three-segment--main.ureel-three-segment--0 { left: 50%; top: 42px; transform: translateX(-50%); }
+  .ureel-three-segment--main.ureel-three-segment--1 { right: 26px; top: 50%; transform: translateY(-50%); }
+  .ureel-three-segment--main.ureel-three-segment--2 { left: 50%; bottom: 42px; transform: translateX(-50%); }
+  .ureel-three-segment--main.ureel-three-segment--3 { left: 26px; top: 50%; transform: translateY(-50%); }
+
+  .ureel-three-ring-label {
+    position: absolute;
+    left: 50%;
+    top: 29%;
+    transform: translate(-50%, -50%);
+    color: rgba(245,242,234,.72);
+    font-size: 10px;
+    font-weight: 950;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+
+  .ureel-three-ring-label--tools {
+    top: 12%;
+    color: rgba(245,242,234,.58);
+  }
+
+  .ureel-three-segment--sub {
+    width: 104px;
+    min-height: 42px;
+    font-size: 9.5px;
+    padding: 0 8px;
+    border-radius: 18px;
+    background: var(--orbit-accent-soft);
+    clip-path: polygon(8% 0%, 100% 0%, 92% 100%, 0% 100%);
+  }
+
+  .ureel-three-segment--sub-0 { left: 50%; top: 92px; transform: translateX(-50%); }
+  .ureel-three-segment--sub-1 { right: 58px; top: 126px; transform: rotate(15deg); }
+  .ureel-three-segment--sub-2 { right: 39px; top: 184px; transform: rotate(7deg); }
+  .ureel-three-segment--sub-3 { right: 58px; bottom: 126px; transform: rotate(-15deg); }
+  .ureel-three-segment--sub-4 { left: 58px; bottom: 126px; transform: rotate(15deg); }
+  .ureel-three-segment--sub-5 { left: 39px; top: 184px; transform: rotate(-7deg); }
+  .ureel-three-segment--sub-6 { left: 58px; top: 126px; transform: rotate(-15deg); }
+
+  .ureel-three-segment--tool {
+    width: 94px;
+    min-height: 40px;
+    font-size: 9px;
+    padding: 0 7px;
+    border-radius: 18px;
+    background: rgba(12,12,14,.46);
+  }
+
+  .ureel-three-segment--tool-0 { left: 50%; top: 18px; transform: translateX(-50%); }
+  .ureel-three-segment--tool-1 { right: 18px; top: 80px; transform: rotate(22deg); }
+  .ureel-three-segment--tool-2 { right: 2px; top: 50%; transform: translateY(-50%); }
+  .ureel-three-segment--tool-3 { right: 38px; bottom: 72px; transform: rotate(-22deg); }
+  .ureel-three-segment--tool-4 { left: 50%; bottom: 18px; transform: translateX(-50%); }
+  .ureel-three-segment--tool-5 { left: 38px; bottom: 72px; transform: rotate(22deg); }
+  .ureel-three-segment--tool-6 { left: 2px; top: 50%; transform: translateY(-50%); }
+  .ureel-three-segment--tool-7 { left: 18px; top: 80px; transform: rotate(-22deg); }
+
+  .ureel-three-orbit-center {
+    inset: 50% auto auto 50%;
+    width: 148px;
+    min-height: 112px;
+    transform: translate(-50%, -50%);
+    border-radius: 26px;
+    border: 1px solid rgba(245,242,234,.25);
+    background: radial-gradient(circle at 50% 20%, rgba(245,242,234,.16), rgba(7,7,9,.66));
+    backdrop-filter: blur(10px);
+    color: #F5F2EA;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+    gap: 7px;
+    box-shadow: 0 14px 34px rgba(0,0,0,.32), inset 0 0 28px rgba(255,255,255,.04);
+    pointer-events: auto;
+    z-index: 5;
+  }
+
+  .ureel-three-orbit-preview {
+    width: 100%;
+    text-align: center;
+    display: grid;
+    gap: 4px;
+    justify-items: center;
+  }
+
+  .ureel-three-orbit-preview span,
+  .ureel-three-orbit-current {
+    font-size: 8.5px;
+    font-weight: 950;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(245,242,234,.68);
+  }
+
+  .ureel-three-orbit-preview strong {
+    max-width: 100%;
+    font-size: 13px;
+    font-weight: 950;
+    line-height: 1.08;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ureel-three-orbit-preview small {
+    max-width: 100%;
+    font-size: 10px;
+    line-height: 1.15;
+    color: rgba(245,242,234,.74);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ureel-three-orbit-preview--button .ureel-button-renderer,
+  .ureel-three-orbit-preview--button button {
+    max-width: 128px !important;
+    transform-origin: center !important;
+  }
+
+  .ureel-orbit-utility {
+    position: absolute;
+    width: 62px;
+    height: 62px;
+    border-radius: 999px;
+    border: 1px solid rgba(245,242,234,.26);
+    background: rgba(7,7,9,.52);
+    color: rgba(245,242,234,.88);
+    font-size: 8.5px;
+    font-weight: 950;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    backdrop-filter: blur(10px);
+    z-index: 8;
+    box-shadow: 0 10px 24px rgba(0,0,0,.28), inset 0 0 20px rgba(255,255,255,.035);
+  }
+
+  .ureel-orbit-utility--preview { left: 8px; top: 18px; }
+  .ureel-orbit-utility--timing { right: 8px; top: 18px; }
+  .ureel-orbit-utility--studio { left: 8px; bottom: 18px; border-color: var(--orbit-accent); }
+
+  .ureel-mobile-text-hotspots {
+    z-index: 48;
+  }
+
+  /* Action Panel: full-width, calm, readable. */
+  .ureel-detail-panel {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100vw !important;
+    height: min(42dvh, 390px) !important;
+    max-height: min(42dvh, 390px) !important;
+    padding: 8px 14px calc(18px + env(safe-area-inset-bottom)) !important;
+    border-radius: 24px 24px 0 0 !important;
+    background: #F7F2E8 !important;
+    color: #121212 !important;
+    border-color: rgba(216,205,183,.95) !important;
+    overflow-y: auto !important;
+    box-shadow: 0 -20px 48px rgba(0,0,0,.42) !important;
+  }
+
+  .ureel-mobile-sheet-head {
+    margin: -8px -14px 10px !important;
+    padding: 8px 14px 10px !important;
+    border-radius: 24px 24px 0 0 !important;
+    background: #F7F2E8 !important;
+    border-bottom: 1px solid #D8CDB7 !important;
+  }
+
+  .ureel-mobile-sheet-actions {
+    grid-template-columns: auto auto 1fr !important;
+    align-items: center !important;
+    gap: 7px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .ureel-mobile-preview-free,
+  .ureel-mobile-main-menu {
+    min-height: 34px !important;
+    padding: 0 12px !important;
+    border-radius: 999px !important;
+    font-size: 10.5px !important;
+    letter-spacing: .035em !important;
+    white-space: nowrap;
+  }
+
+  .ureel-mobile-config-context {
+    padding: 9px 11px !important;
+    border-radius: 16px !important;
+    background: #FFFDF8 !important;
+    border: 1px solid #D8CDB7 !important;
+  }
+
+  .ureel-mobile-config-context span {
+    font-size: 10px !important;
+    letter-spacing: .07em !important;
+  }
+
+  .ureel-mobile-config-context strong {
+    font-size: 16px !important;
+    line-height: 1.1 !important;
+    letter-spacing: .015em !important;
+  }
+
+  .ureel-mobile-config-context p {
+    margin-top: 3px;
+    font-size: 12.5px;
+    line-height: 1.28;
+    color: #4A4336;
+    font-weight: 650;
+  }
+
+  .ureel-detail-panel > div:nth-child(2) h1 {
+    font-size: 18px !important;
+    line-height: 1.1 !important;
+  }
+
+  .ureel-detail-panel > div:nth-child(2) p {
+    font-size: 13px !important;
+    line-height: 1.32 !important;
+  }
+
+  .ureel-detail-panel button,
+  .ureel-detail-panel input:not([type="color"]):not([type="range"]),
+  .ureel-detail-panel select,
+  .ureel-detail-panel textarea {
+    min-height: 42px !important;
+    font-size: 15px !important;
+  }
+
+  .ureel-detail-panel label,
+  .ureel-detail-panel .text-\[10px\],
+  .ureel-detail-panel .text-\[10\.5px\],
+  .ureel-detail-panel .text-\[11px\] {
+    font-size: 12px !important;
+    line-height: 1.24 !important;
+  }
+
+  .ureel-mobile-button-spotlight { display: none !important; }
+}
