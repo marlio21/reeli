@@ -342,7 +342,10 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   // A second line is allowed only via a manual line break in this field.
   // Action type / action label is never rendered as visible text.
   const rawVisibleTitle = (btn.title || '').toString().replace(/\r/g, '').trim();
-  const buttonTextLines = (rawVisibleTitle ? rawVisibleTitle.split('\n') : [lang === 'en' ? 'Untitled' : 'Ohne Titel'])
+  const rawVisibleSubtitle = ((btn as any).subtitle || '').toString().replace(/\r/g, '').trim();
+  const buttonTextLines = (rawVisibleSubtitle
+      ? [rawVisibleTitle || (lang === 'en' ? 'Untitled' : 'Ohne Titel'), rawVisibleSubtitle]
+      : (rawVisibleTitle ? rawVisibleTitle.split('\n') : [lang === 'en' ? 'Untitled' : 'Ohne Titel']))
     .map((line) => line.trim())
     .filter(Boolean)
     .slice(0, 2);

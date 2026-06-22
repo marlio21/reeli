@@ -4002,3 +4002,111 @@ body {
     background: linear-gradient(180deg, #FFFFFF, #F8F4EA) !important;
   }
 }
+
+
+/* v52.4.2 – Mobile Button Editor Structure Fix */
+@media (max-width: 767px) {
+  .ureel-mobile-button-editor-tabs {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    overflow: visible !important;
+  }
+  .ureel-mobile-button-editor-tabs button {
+    width: 100% !important;
+    padding: 0 4px !important;
+    font-size: 9.5px !important;
+  }
+  .ureel-mobile-text-editor .ureel-tap-mini-label,
+  .ureel-mobile-look-editor .ureel-tap-mini-label {
+    margin-top: 13px !important;
+  }
+  .ureel-mobile-one-color {
+    display: grid !important;
+    grid-template-columns: 1fr 48px minmax(96px, 130px) !important;
+    gap: 8px !important;
+    align-items: center !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #FFFFFF !important;
+    border-radius: 16px !important;
+    padding: 9px 10px !important;
+    margin: 8px 0 10px !important;
+    color: #8A6B24 !important;
+    font-size: 9px !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .08em !important;
+  }
+  .ureel-mobile-one-color input[type="color"] {
+    width: 48px !important;
+    height: 38px !important;
+    border-radius: 12px !important;
+    border: 1px solid #D8CDB7 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #fff !important;
+  }
+  .ureel-mobile-one-color input:not([type="color"]) {
+    height: 38px !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 8px 9px !important;
+    border-radius: 12px !important;
+    font-size: 12px !important;
+    font-weight: 850 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+  }
+  .ureel-mobile-danger-inline,
+  .ureel-mobile-look-all-button {
+    width: 100% !important;
+    min-height: 42px !important;
+    border-radius: 16px !important;
+    font-size: 10px !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .04em !important;
+    margin: 8px 0 !important;
+  }
+  .ureel-mobile-danger-inline {
+    border: 1px solid #D7A3A3 !important;
+    background: #FFF6F6 !important;
+    color: #9A1F1F !important;
+  }
+  .ureel-mobile-look-all-button {
+    border: 1px solid #111 !important;
+    background: #111 !important;
+    color: #F5F2EA !important;
+    box-shadow: 0 8px 18px rgba(17,17,17,.18) !important;
+  }
+  .ureel-mobile-manage-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    margin-top: 10px !important;
+  }
+  .ureel-mobile-manage-grid button {
+    min-height: 46px !important;
+    border-radius: 16px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #FFFFFF !important;
+    color: #111111 !important;
+    font-size: 11px !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .04em !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+  }
+  .ureel-mobile-manage-grid button.is-danger {
+    border-color: #D7A3A3 !important;
+    background: #FFF6F6 !important;
+    color: #9A1F1F !important;
+  }
+  .ureel-tap-big-button-stage .ureel-button-preview-tile--large {
+    max-width: 170px !important;
+    margin: 0 auto !important;
+  }
+}
