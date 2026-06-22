@@ -3482,3 +3482,399 @@ body {
     overflow-wrap: anywhere !important;
   }
 }
+
+/* v52.4 – Tap-to-Edit Mobile Studio
+   The true 9:16 card becomes the editor: tap scene/text/buttons, edit below. */
+@media (max-width: 767px) {
+  .ureel-studio-preview-stage {
+    display: none !important;
+  }
+
+  .ureel-simple-card-builder.ureel-tap-editor {
+    display: block !important;
+    width: 100% !important;
+    padding: 10px 12px 28px !important;
+    background: #F5F2EA !important;
+    color: #111111 !important;
+    border-top: 1px solid #D8CDB7 !important;
+  }
+
+  .ureel-tap-intro,
+  .ureel-tap-preview-shell,
+  .ureel-tap-panel {
+    width: 100% !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #FFFDF8 !important;
+    border-radius: 22px !important;
+    box-shadow: 0 10px 28px rgba(24, 18, 10, .08) !important;
+  }
+
+  .ureel-tap-intro {
+    padding: 12px 14px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .ureel-tap-intro span,
+  .ureel-tap-panel-head span,
+  .ureel-tap-mini-label,
+  .ureel-tap-config label {
+    display: block !important;
+    color: #8A6B24 !important;
+    font-size: 9px !important;
+    line-height: 1.1 !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .09em !important;
+  }
+
+  .ureel-tap-intro h2,
+  .ureel-tap-panel-head h3 {
+    margin: 3px 0 4px !important;
+    color: #111111 !important;
+    font-size: 18px !important;
+    line-height: 1.05 !important;
+    font-weight: 950 !important;
+    letter-spacing: -.04em !important;
+  }
+
+  .ureel-tap-intro p,
+  .ureel-tap-preview-note,
+  .ureel-tap-help,
+  .ureel-tap-config p {
+    color: #4A4034 !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+    margin: 0 !important;
+  }
+
+  .ureel-tap-preview-shell {
+    padding: 10px 12px 12px !important;
+    margin-bottom: 10px !important;
+    text-align: center !important;
+  }
+
+  .ureel-tap-preview-toolbar {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .ureel-tap-preview-toolbar button,
+  .ureel-tap-chip-row button,
+  .ureel-tap-actions button,
+  .ureel-tap-button-list button {
+    min-height: 38px !important;
+    border-radius: 14px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #FFFFFF !important;
+    color: #111111 !important;
+    font-size: 10px !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .04em !important;
+  }
+
+  .ureel-tap-preview-toolbar button.is-active,
+  .ureel-tap-chip-row button.is-active,
+  .ureel-tap-button-list button.is-active,
+  .ureel-tap-choice-grid button.is-active,
+  .ureel-tap-actions button:first-child,
+  .ureel-tap-toggle-line button.is-active,
+  .ureel-tap-display-options button.is-active {
+    background: #111111 !important;
+    border-color: #111111 !important;
+    color: #F5F2EA !important;
+  }
+
+  .ureel-tap-phone-frame {
+    width: min(58vw, 218px) !important;
+    aspect-ratio: 9 / 16 !important;
+    margin: 0 auto !important;
+    border-radius: 30px !important;
+    border: 7px solid #111111 !important;
+    background: #000 !important;
+    overflow: hidden !important;
+    box-shadow: 0 18px 36px rgba(0, 0, 0, .25) !important;
+    position: relative !important;
+  }
+
+  .ureel-tap-phone-card {
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    position: relative !important;
+    background: #09090B !important;
+  }
+
+  .ureel-tap-hotspot {
+    position: absolute !important;
+    z-index: 20 !important;
+    border: 1px solid rgba(245, 242, 234, .55) !important;
+    background: rgba(17, 17, 17, .34) !important;
+    color: #F5F2EA !important;
+    backdrop-filter: blur(8px) !important;
+    border-radius: 999px !important;
+    padding: 5px 8px !important;
+    font-size: 8px !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .06em !important;
+    line-height: 1 !important;
+    box-shadow: 0 6px 14px rgba(0,0,0,.25) !important;
+  }
+
+  .ureel-tap-hotspot.is-active {
+    background: rgba(245, 242, 234, .94) !important;
+    color: #111111 !important;
+    border-color: #F5F2EA !important;
+  }
+
+  .ureel-tap-hotspot--scene { top: 10px !important; left: 10px !important; }
+  .ureel-tap-hotspot--text { top: 38% !important; left: 50% !important; transform: translateX(-50%) !important; }
+  .ureel-tap-hotspot--buttons { bottom: 12px !important; left: 50% !important; transform: translateX(-50%) !important; }
+
+  .ureel-tap-preview-note {
+    margin-top: 8px !important;
+    font-size: 10.5px !important;
+    color: #786D5F !important;
+  }
+
+  .ureel-tap-panel {
+    padding: 13px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .ureel-tap-panel-head {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .ureel-tap-panel-head svg {
+    color: #8A6B24 !important;
+    flex: 0 0 auto !important;
+  }
+
+  .ureel-tap-choice-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .ureel-tap-choice-grid button {
+    min-height: 82px !important;
+    border-radius: 18px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #FFFFFF !important;
+    color: #111111 !important;
+    padding: 10px !important;
+    text-align: left !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+  }
+
+  .ureel-tap-choice-grid button svg { color: #8A6B24 !important; }
+  .ureel-tap-choice-grid button.is-active svg { color: #F5F2EA !important; }
+  .ureel-tap-choice-grid button strong { font-size: 13px !important; line-height: 1.05 !important; font-weight: 950 !important; }
+  .ureel-tap-choice-grid button small { font-size: 10.5px !important; color: #75695C !important; line-height: 1.2 !important; }
+  .ureel-tap-choice-grid button.is-active small { color: rgba(245,242,234,.76) !important; }
+
+  .ureel-tap-config {
+    border-top: 1px solid #E2D8C4 !important;
+    margin-top: 10px !important;
+    padding-top: 12px !important;
+  }
+
+  .ureel-tap-config h4 {
+    margin: 0 0 4px !important;
+    font-size: 16px !important;
+    line-height: 1.1 !important;
+    font-weight: 950 !important;
+    color: #111111 !important;
+    letter-spacing: -.03em !important;
+  }
+
+  .ureel-tap-config input:not([type="range"]):not([type="color"]),
+  .ureel-tap-config textarea,
+  .ureel-tap-config select {
+    width: 100% !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #FFFFFF !important;
+    color: #111111 !important;
+    border-radius: 15px !important;
+    padding: 11px 12px !important;
+    font-size: 14px !important;
+    line-height: 1.2 !important;
+    font-weight: 750 !important;
+    outline: none !important;
+    margin: 6px 0 10px !important;
+  }
+
+  .ureel-tap-config textarea { resize: vertical !important; min-height: 72px !important; }
+
+  .ureel-tap-slider-row {
+    margin: 10px 0 !important;
+  }
+
+  .ureel-tap-slider-row label,
+  .ureel-tap-toggle-line {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    color: #111111 !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    margin-bottom: 6px !important;
+  }
+
+  .ureel-tap-slider-row b { color: #8A6B24 !important; font-size: 14px !important; }
+
+  .ureel-tap-slider-row input[type="range"] {
+    width: 100% !important;
+    accent-color: #111111 !important;
+  }
+
+  .ureel-tap-actions,
+  .ureel-tap-chip-row,
+  .ureel-tap-button-list {
+    display: flex !important;
+    gap: 7px !important;
+    overflow-x: auto !important;
+    padding: 2px 0 4px !important;
+    scrollbar-width: none !important;
+  }
+
+  .ureel-tap-actions button,
+  .ureel-tap-chip-row button,
+  .ureel-tap-button-list button {
+    flex: 0 0 auto !important;
+    padding: 0 12px !important;
+  }
+
+  .ureel-tap-upload {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    min-height: 46px !important;
+    border-radius: 16px !important;
+    border: 1px dashed #BBAA8F !important;
+    background: #FFFFFF !important;
+    color: #111111 !important;
+    font-size: 11px !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .05em !important;
+    margin: 8px 0 !important;
+  }
+
+  .ureel-tap-upload input { display: none !important; }
+
+  .ureel-tap-fileline {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    color: #111111 !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+  }
+
+  .ureel-tap-fileline button,
+  .ureel-tap-toggle-line button {
+    border: 1px solid #D8CDB7 !important;
+    border-radius: 13px !important;
+    background: #FFFFFF !important;
+    color: #111111 !important;
+    min-height: 34px !important;
+    padding: 0 12px !important;
+    font-size: 10px !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+  }
+
+  .ureel-tap-swatch-row {
+    display: flex !important;
+    gap: 8px !important;
+    align-items: center !important;
+    margin-top: 10px !important;
+  }
+
+  .ureel-tap-swatch-row button,
+  .ureel-tap-swatch-row input[type="color"] {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 999px !important;
+    border: 2px solid #FFFFFF !important;
+    box-shadow: 0 0 0 1px #D8CDB7 !important;
+    overflow: hidden !important;
+  }
+
+  .ureel-tap-display-options {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin-top: 10px !important;
+  }
+
+  .ureel-tap-display-options button {
+    min-height: 104px !important;
+    border-radius: 18px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #FFFFFF !important;
+    color: #111111 !important;
+    padding: 9px !important;
+    text-align: left !important;
+  }
+
+  .ureel-tap-display-options .mock {
+    display: block !important;
+    width: 100% !important;
+    height: 44px !important;
+    border-radius: 10px !important;
+    margin-bottom: 7px !important;
+    background: linear-gradient(135deg, #111, #8A6B24) !important;
+  }
+
+  .ureel-tap-display-options .mock-wide {
+    height: 26px !important;
+    margin-top: 9px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .ureel-tap-display-options strong { display: block !important; font-size: 12px !important; font-weight: 950 !important; }
+  .ureel-tap-display-options small { color: #75695C !important; font-size: 10px !important; }
+  .ureel-tap-display-options button.is-active small { color: rgba(245,242,234,.75) !important; }
+
+  .ureel-tap-button-list {
+    margin: 6px 0 10px !important;
+  }
+
+  .ureel-tap-big-button-stage {
+    border-radius: 22px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #FFFFFF !important;
+    padding: 14px !important;
+    margin: 10px 0 !important;
+  }
+
+  .ureel-tap-two-col {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  .ureel-tap-two-col input[type="color"] {
+    width: 100% !important;
+    height: 44px !important;
+    border-radius: 15px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #FFFFFF !important;
+    overflow: hidden !important;
+  }
+}

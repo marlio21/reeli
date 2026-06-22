@@ -108,3 +108,16 @@ Mobile-Studio-Sichtbarkeitsfix: Hauptmenü, Untermenü und großer Button werden
 ## v52.3 – Simple Card Builder
 
 Mobile Studio reset toward a block-based editor inspired by digital business cards: compact 9:16 preview, then Video/Szene, Werbetext, Aktionen/Buttons, Design, Teilen/QR as clear editing blocks. Buttons appear as large editable action cards. Public Link and desktop remain unchanged.
+
+## v52.4 – Tap-to-Edit Mobile Studio
+
+Diese Version ersetzt den mobilen Simple Card Builder durch einen Tap-to-Edit-Ansatz:
+
+- echte 9:16-Karte im mobilen Editor
+- Szene, Text oder Buttons direkt auf der Karte antippen
+- unten erscheint nur das passende helle Bedienfeld
+- Szene mit Reel/Video, Bildhintergrund, Farbhintergrund, Darstellung und Endkarte
+- Text mit Werbetext, Vorlage und einfacher Timeline
+- Buttons mit großem Arbeitsbutton, Aktion, Ziel, Look und Design übertragen
+- Design bleibt mobil bewusst reduziert und primär Desktop-Thema
+- Public Link und Desktop bleiben unverändert
