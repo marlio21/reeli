@@ -2645,7 +2645,7 @@ Jetzt kommt der KONU Admin JSON Export:`;
   // Toast confirmation
   const triggerSaveToast = () => {
     setSaveToast(true);
-    setTimeout(() => setSaveToast(false), 4000);
+    setTimeout(() => setSaveToast(false), 1300);
   };
 
   // Synchronous database updates with UI toast
@@ -5510,14 +5510,9 @@ Jetzt kommt der KONU Admin JSON Export:`;
     return (
       <>
         {saveToast && (
-          <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-[#121214] text-stone-200 font-bold px-5 py-3.5 rounded-2xl text-xs shadow-2xl flex items-center gap-3.5 border border-purple-900/30 animate-slide-in max-w-sm w-[90%] justify-between">
-            <div className="flex items-center gap-2">
-              <LucideIcons.CheckCircle size={15} className="text-emerald-500 shrink-0" />
-              <div className="flex flex-col text-left">
-                <span className="text-[11px] text-white font-black leading-tight">Automatisch gespeichert!</span>
-                <span className="text-[9px] text-stone-450 font-normal mt-0.5 leading-none">Alle Änderungen sind sofort live.</span>
-              </div>
-            </div>
+          <div className="fixed right-4 bottom-4 z-[80] bg-emerald-600 text-white font-black px-3.5 py-2 rounded-full text-[11px] shadow-xl flex items-center gap-2 border border-emerald-300/40">
+            <LucideIcons.CheckCircle size={14} className="shrink-0" />
+            <span>Gespeichert</span>
           </div>
         )}
         <UreelStudioShell
@@ -5546,25 +5541,9 @@ Jetzt kommt der KONU Admin JSON Export:`;
     <div className="relative min-h-screen bg-[#0F0F0F] text-stone-200 flex flex-col justify-between">
       {/* Dynamic Saving Notification Toast */}
       {saveToast && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-[#1C1C1C] text-stone-200 font-bold px-5 py-3.5 rounded-2xl text-xs shadow-2xl flex items-center gap-3.5 border border-stone-800/80 animate-slide-in max-w-sm w-[90%] justify-between">
-          <div className="flex items-center gap-2">
-            <LucideIcons.CheckCircle size={15} className="text-green-500 shrink-0" />
-            <div className="flex flex-col text-left">
-              <span className="text-[11px] text-white font-black leading-tight">Automatisch gespeichert!</span>
-              <span className="text-[9px] text-stone-400 font-normal mt-0.5 leading-none">Alle Änderungen sind live.</span>
-            </div>
-          </div>
-          <button
-            onClick={() => {
-              setIsUpdateSharing(true);
-              setShowShareModal(true);
-              setSaveToast(false);
-            }}
-            className="bg-[#A855F7] hover:bg-[#7E22CE] text-stone-950 font-extrabold text-[10px] py-1.5 px-3 rounded-lg transition duration-150 flex items-center gap-1 cursor-pointer shrink-0"
-          >
-            <LucideIcons.Share2 size={11} />
-            <span>{lang === 'de' ? 'Update teilen' : 'Share update'}</span>
-          </button>
+        <div className="fixed right-4 bottom-4 z-[80] bg-emerald-600 text-white font-black px-3.5 py-2 rounded-full text-[11px] shadow-xl flex items-center gap-2 border border-emerald-300/40">
+          <LucideIcons.CheckCircle size={14} className="shrink-0" />
+          <span>Gespeichert</span>
         </div>
       )}
 

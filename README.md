@@ -121,3 +121,7 @@ Diese Version ersetzt den mobilen Simple Card Builder durch einen Tap-to-Edit-An
 - Buttons mit großem Arbeitsbutton, Aktion, Ziel, Look und Design übertragen
 - Design bleibt mobil bewusst reduziert und primär Desktop-Thema
 - Public Link und Desktop bleiben unverändert
+
+## v52.4.1 – Mobile Button Editor Polish
+
+Fokus auf mobilen Button-Workflow: Auswahlreihe entfernt, Look-Bereich erweitert, Farbfelder ausgebaut, Buttongröße proportional skaliert und Vollbild-Speicheroverlay durch kleinen Hinweis ersetzt.
