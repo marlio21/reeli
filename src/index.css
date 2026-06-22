@@ -4163,3 +4163,89 @@ body {
     cursor: pointer !important;
   }
 }
+
+/* v52.4.4 – Compact Stable Mobile Editor polish */
+@media (max-width: 767px) {
+  .ureel-tap-phone-frame {
+    width: min(56vw, 210px) !important;
+    aspect-ratio: 9 / 16 !important;
+  }
+  .ureel-tap-phone-card [class*="button"],
+  .ureel-tap-phone-card button {
+    max-width: 100% !important;
+  }
+  .ureel-mobile-one-color {
+    grid-template-columns: 1fr 64px minmax(104px, 1fr) !important;
+  }
+  .ureel-mobile-one-color input[type="color"] {
+    width: 64px !important;
+    height: 44px !important;
+    cursor: pointer !important;
+  }
+  .ureel-mobile-one-color input[type="color"]::-webkit-color-swatch-wrapper { padding: 0 !important; }
+  .ureel-mobile-one-color input[type="color"]::-webkit-color-swatch { border: none !important; border-radius: 10px !important; }
+  .ureel-tap-slider-row input[type="range"] {
+    width: 100% !important;
+    accent-color: #111111 !important;
+  }
+  .ureel-mobile-position-grid {
+    border: 1px solid #D8CDB7 !important;
+    background: #FFFFFF !important;
+    border-radius: 18px !important;
+    padding: 10px !important;
+    margin: 10px 0 !important;
+  }
+  .ureel-mobile-position-grid > span {
+    display: block !important;
+    color: #8A6B24 !important;
+    font-size: 9px !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .08em !important;
+    margin-bottom: 8px !important;
+  }
+  .ureel-mobile-position-grid > div {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+  .ureel-mobile-position-grid button {
+    min-height: 40px !important;
+    border-radius: 14px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #F8F5EE !important;
+    color: #111 !important;
+    font-weight: 950 !important;
+  }
+  .ureel-mobile-position-grid button.is-active {
+    background: #111 !important;
+    color: #F5F2EA !important;
+    border-color: #111 !important;
+  }
+  .ureel-mobile-manage-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .ureel-tap-choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .ureel-tap-choice-grid button {
+    min-height: 72px !important;
+  }
+  .ureel-tap-fileline {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: #FFFFFF !important;
+    border: 1px solid #D8CDB7 !important;
+    color: #111 !important;
+    border-radius: 14px !important;
+    padding: 9px 10px !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+  }
+  .ureel-tap-fileline button {
+    color: #9A1F1F !important;
+    font-weight: 950 !important;
+  }
+}

@@ -5510,7 +5510,7 @@ Jetzt kommt der KONU Admin JSON Export:`;
     return (
       <>
         {saveToast && (
-          <div className="fixed right-4 bottom-4 z-[80] bg-emerald-600 text-white font-black px-3.5 py-2 rounded-full text-[11px] shadow-xl flex items-center gap-2 border border-emerald-300/40">
+          <div className="fixed right-3 bottom-3 z-[80] bg-emerald-500/95 text-white font-black px-2.5 py-1.5 rounded-full text-[10px] shadow-lg flex items-center gap-1.5 border border-emerald-200/50">
             <LucideIcons.CheckCircle size={14} className="shrink-0" />
             <span>Gespeichert</span>
           </div>
@@ -5541,7 +5541,7 @@ Jetzt kommt der KONU Admin JSON Export:`;
     <div className="relative min-h-screen bg-[#0F0F0F] text-stone-200 flex flex-col justify-between">
       {/* Dynamic Saving Notification Toast */}
       {saveToast && (
-        <div className="fixed right-4 bottom-4 z-[80] bg-emerald-600 text-white font-black px-3.5 py-2 rounded-full text-[11px] shadow-xl flex items-center gap-2 border border-emerald-300/40">
+        <div className="fixed right-3 bottom-3 z-[80] bg-emerald-500/95 text-white font-black px-2.5 py-1.5 rounded-full text-[10px] shadow-lg flex items-center gap-1.5 border border-emerald-200/50">
           <LucideIcons.CheckCircle size={14} className="shrink-0" />
           <span>Gespeichert</span>
         </div>

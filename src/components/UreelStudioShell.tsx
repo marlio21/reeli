@@ -159,7 +159,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [mobileActiveSetting, setMobileActiveSetting] = useState<string | null>(null);
   const [mobileOrbitLevel, setMobileOrbitLevel] = useState<'main' | 'sub' | 'setting'>('main');
   const [tapEditTarget, setTapEditTarget] = useState<'scene' | 'text' | 'button'>('scene');
-  const [tapSceneTool, setTapSceneTool] = useState<'overview' | 'video' | 'image' | 'color' | 'display' | 'endcard'>('overview');
+  const [tapSceneTool, setTapSceneTool] = useState<'overview' | 'video' | 'image' | 'color' | 'display' | 'endcard' | 'profile'>('overview');
   const [tapButtonTool, setTapButtonTool] = useState<'overview' | 'text' | 'action' | 'look' | 'manage'>('overview');
   
   // Local state for actively selected button being edited
@@ -168,6 +168,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [buttonFileUploading, setButtonFileUploading] = useState(false);
   const [sceneImageUploadProgress, setSceneImageUploadProgress] = useState<number | null>(null);
   const [sceneImageUploading, setSceneImageUploading] = useState(false);
+  const [profileImageUploadProgress, setProfileImageUploadProgress] = useState<number | null>(null);
+  const [profileImageUploading, setProfileImageUploading] = useState(false);
   const [endCardImageUploadProgress, setEndCardImageUploadProgress] = useState<number | null>(null);
   const [endCardImageUploading, setEndCardImageUploading] = useState(false);
   const [desktopBgUploadProgress, setDesktopBgUploadProgress] = useState<number | null>(null);
@@ -837,6 +839,18 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     triggerToast(lang === 'de' ? 'Button-Reihenfolge aktualisiert.' : 'Button order updated.', 'success');
   };
 
+  const handleMoveButtonToPositionLocal = async (btnId: string, targetIndex: number) => {
+    if (!activeCard) return;
+    const sorted = [...(activeCard.buttons || [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+    const currentIndex = sorted.findIndex((b) => b.id === btnId);
+    if (currentIndex < 0 || targetIndex < 0 || targetIndex >= sorted.length || currentIndex === targetIndex) return;
+    const [moved] = sorted.splice(currentIndex, 1);
+    sorted.splice(targetIndex, 0, moved);
+    const reordered = sorted.map((b, index) => ({ ...b, position: index }));
+    await syncCardUpdate({ buttons: reordered });
+    setEditingBtnId(btnId);
+  };
+
   // Toggle buttons group lock or hide
   const handleToggleElementInReelLocal = (elementKey: string) => {
     const config = activeCard.reelExportConfig || {};
@@ -1326,6 +1340,81 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
 
+  const handleProfileImageUpload = async (file: File) => {
+    if (!activeCard || !user) {
+      triggerToast(lang === 'de' ? 'Bitte einloggen, bevor du ein Profilbild hochlädst.' : 'Please log in before uploading a profile image.', 'error');
+      return;
+    }
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      triggerToast(lang === 'de' ? 'Bitte eine Bilddatei auswählen.' : 'Please choose an image file.', 'error');
+      return;
+    }
+    const maxMb = 10;
+    if (file.size > maxMb * 1024 * 1024) {
+      triggerToast(lang === 'de' ? `Profilbild ist zu groß. Maximal ${maxMb} MB.` : `Profile image is too large. Max ${maxMb} MB.`, 'error');
+      return;
+    }
+    const cleanName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '')}`;
+    const cardStorageId = activeCard.cardId || (activeCard as any).id || activeCard.slug || 'draft';
+    const storagePath = `users/${user.uid}/cards/${cardStorageId}/profile-image/${cleanName}`;
+    try {
+      setProfileImageUploading(true);
+      setProfileImageUploadProgress(0);
+      const storageRef = ref(storage, storagePath);
+      const downloadUrl = await new Promise<string>((resolve, reject) => {
+        const task = uploadBytesResumable(storageRef, file, { contentType: file.type || 'image/jpeg' });
+        task.on('state_changed',
+          (snap) => setProfileImageUploadProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
+          reject,
+          async () => resolve(await getDownloadURL(task.snapshot.ref))
+        );
+      });
+      await syncCardUpdate({
+        profileImageUrl: downloadUrl,
+        showProfileImage: true,
+        profileImageEnabled: true,
+        profileImageShape: (activeCard as any).profileImageShape || 'circle',
+        profileImageSize: (activeCard as any).profileImageSize || 'normal',
+        profileImageRevealAt: (activeCard as any).profileImageRevealAt || 'with_text',
+        videoBackgroundConfig: {
+          ...(activeCard.videoBackgroundConfig || {}),
+          profileImage: {
+            ...((activeCard.videoBackgroundConfig as any)?.profileImage || {}),
+            enabled: true,
+            url: downloadUrl,
+            shape: (activeCard as any).profileImageShape || 'circle',
+            size: (activeCard as any).profileImageSize || 'normal',
+            revealAt: (activeCard as any).profileImageRevealAt || 'with_text',
+          },
+        } as any,
+      } as any);
+    } catch (err: any) {
+      console.error('Profile image upload failed', err);
+      triggerToast(lang === 'de' ? `Profilbild-Upload fehlgeschlagen: ${err?.message || err}` : `Profile upload failed: ${err?.message || err}`, 'error');
+    } finally {
+      setProfileImageUploading(false);
+      setTimeout(() => setProfileImageUploadProgress(null), 1200);
+    }
+  };
+
+  const removeProfileImage = async () => {
+    await syncCardUpdate({
+      profileImageUrl: '',
+      showProfileImage: false,
+      profileImageEnabled: false,
+      videoBackgroundConfig: {
+        ...(activeCard.videoBackgroundConfig || {}),
+        profileImage: {
+          ...((activeCard.videoBackgroundConfig as any)?.profileImage || {}),
+          enabled: false,
+          url: '',
+        },
+      } as any,
+    } as any);
+  };
+
+
   const removeSceneImage = async () => {
     const hasVideo = !!(activeCard.videoBackgroundConfig?.enabled || activeCard.videoBackgroundConfig?.youtubeUrl || activeCard.ureelScene?.mode === 'video' || activeCard.ureelScene?.video?.url || activeCard.backgroundType === 'video');
     await syncCardUpdate({
@@ -1765,6 +1854,18 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     return {
       ...card,
       buttons: cleanedButtons,
+      buttonGridCols: 3 as any,
+      buttonGridLayout: {
+        ...(card.buttonGridLayout || {}),
+        mode: 'grid',
+        cols: 3,
+        square: true,
+        buttonSizePx: Math.max(30, Math.min(46, Number((card.buttonGridLayout as any)?.buttonSizePx || (card as any).buttonSizePx || 38))),
+        gapPx: Math.max(5, Math.min(8, Number((card.buttonGridLayout as any)?.gapPx || (card as any).buttonGapPx || 6))),
+        align: 'center',
+      } as any,
+      buttonSizePx: Math.max(30, Math.min(46, Number((card as any).buttonSizePx || 38))) as any,
+      buttonGapPx: Math.max(5, Math.min(8, Number((card as any).buttonGapPx || 6))) as any,
     };
   };
 
@@ -4356,14 +4457,27 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               </div>
             )}
 
+            {tapSceneTool === 'profile' && (
+              <div className="ureel-tap-config">
+                <h4>Profilbild</h4>
+                <p>Aktiviere ein Profilbild auf deiner ureel. Es kann Kreis, rund oder eckig sein und zeitlich eingeblendet werden.</p>
+                <div className="ureel-tap-toggle-line"><span>Profilbild anzeigen</span><button type="button" className={(activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage || activeCard.profileImageUrl ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageEnabled: !((activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage), showProfileImage: !((activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage) } as any)}>{((activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage || activeCard.profileImageUrl) ? 'Ein' : 'Aus'}</button></div>
+                <label className="ureel-tap-upload"><LucideIcons.UploadCloud size={16}/> {profileImageUploading ? `Upload ${profileImageUploadProgress || 0}%` : 'Profilbild hochladen'}<input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleProfileImageUpload(e.target.files[0])} /></label>
+                {activeCard.profileImageUrl && <div className="ureel-tap-fileline">Profilbild aktiv <button type="button" onClick={removeProfileImage}>Entfernen</button></div>}
+                <span className="ureel-tap-mini-label">Form</span>
+                <div className="ureel-tap-chip-row"><button type="button" className={((activeCard as any).profileImageShape || 'circle') === 'circle' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageShape: 'circle' } as any)}>Kreis</button><button type="button" className={(activeCard as any).profileImageShape === 'rounded' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageShape: 'rounded' } as any)}>Rund</button><button type="button" className={(activeCard as any).profileImageShape === 'square' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageShape: 'square' } as any)}>Eckig</button></div>
+                <span className="ureel-tap-mini-label">Größe</span>
+                <div className="ureel-tap-chip-row"><button type="button" className={((activeCard as any).profileImageSize || 'normal') === 'small' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'small' } as any)}>Klein</button><button type="button" className={((activeCard as any).profileImageSize || 'normal') === 'normal' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'normal' } as any)}>Normal</button><button type="button" className={(activeCard as any).profileImageSize === 'large' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'large' } as any)}>Groß</button><button type="button" className={(activeCard as any).profileImageSize === 'hero' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'hero' } as any)}>Sehr groß</button></div>
+                <span className="ureel-tap-mini-label">Erscheint</span>
+                <div className="ureel-tap-chip-row"><button type="button" className={((activeCard as any).profileImageRevealAt || 'with_text') === 'start' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageRevealAt: 'start' } as any)}>Sofort</button><button type="button" className={(activeCard as any).profileImageRevealAt === 'after_text' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageRevealAt: 'after_text' } as any)}>Nach Text</button><button type="button" className={((activeCard as any).profileImageRevealAt || 'with_text') === 'with_buttons' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageRevealAt: 'with_buttons' } as any)}>Mit Buttons</button><button type="button" className={(activeCard as any).profileImageRevealAt === 'end' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageRevealAt: 'end' } as any)}>Am Ende</button></div>
+              </div>
+            )}
+
             {tapSceneTool === 'color' && (
               <div className="ureel-tap-config">
                 <h4>Farbhintergrund</h4>
                 <p>Wähle eine ruhige Bühne, wenn kein Video oder Bild im Vordergrund stehen soll.</p>
-                <div className="ureel-tap-swatch-row">
-                  {['#111111','#F5F2EA','#8B5CF6','#14532D','#92400E'].map((color) => <button key={color} type="button" style={{ backgroundColor: color }} onClick={() => syncCardUpdate({ backgroundType: 'color' as any, cardBackgroundEnabled: true, cardBackgroundColor: color, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color' as any, backgroundColor: color } as any } as any)} aria-label={color} />)}
-                  <input type="color" value={activeCard.cardBackgroundColor || activeCard.ureelScene?.backgroundColor || '#111111'} onChange={(e) => syncCardUpdate({ backgroundType: 'color' as any, cardBackgroundEnabled: true, cardBackgroundColor: e.target.value, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color' as any, backgroundColor: e.target.value } as any } as any)} />
-                </div>
+                <label className="ureel-mobile-one-color">Hintergrundfarbe<input type="color" value={activeCard.cardBackgroundColor || activeCard.ureelScene?.backgroundColor || '#111111'} onChange={(e) => syncCardUpdate({ backgroundType: 'color' as any, cardBackgroundEnabled: true, cardBackgroundColor: e.target.value, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color' as any, backgroundColor: e.target.value } as any } as any)} /><input value={activeCard.cardBackgroundColor || activeCard.ureelScene?.backgroundColor || '#111111'} onChange={(e) => syncCardUpdate({ backgroundType: 'color' as any, cardBackgroundEnabled: true, cardBackgroundColor: e.target.value, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color' as any, backgroundColor: e.target.value } as any } as any)} /></label>
               </div>
             )}
 
@@ -4444,6 +4558,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <span className="ureel-tap-mini-label">Form</span>
                 <div className="ureel-tap-chip-row"><button type="button" className={(currentButton.buttonShape || currentButton.radius) === 'pill' || (currentButton.buttonShape || '') === 'round' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { buttonShape: 'round', radius: 'pill' } as any)}>Rund / Kreis</button><button type="button" className={(currentButton.buttonShape || currentButton.radius) === 'square' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { buttonShape: 'square', radius: 'square' } as any)}>Eckig</button><button type="button" className={(currentButton.buttonShape || currentButton.radius || 'rounded') === 'rounded' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { buttonShape: 'rounded', radius: 'rounded' } as any)}>Abgerundet</button></div>
                 <label className="ureel-mobile-one-color">Buttonfarbe<input type="color" value={(currentButton.bgColor || currentButton.backgroundColor || '#F5F2EA').startsWith('rgba') ? '#F5F2EA' : (currentButton.bgColor || currentButton.backgroundColor || '#F5F2EA')} onChange={(e) => applyMobileButtonLook(currentButton.id, { bgColor: e.target.value, backgroundColor: e.target.value, styleVariant: 'filled' } as any)} /><input value={(currentButton.bgColor || currentButton.backgroundColor || '#F5F2EA').startsWith('rgba') ? '#F5F2EA' : (currentButton.bgColor || currentButton.backgroundColor || '#F5F2EA')} onChange={(e) => applyMobileButtonLook(currentButton.id, { bgColor: e.target.value, backgroundColor: e.target.value, styleVariant: 'filled' } as any)} /></label>
+                <div className="ureel-tap-slider-row"><label>Button-Transparenz <b>{typeof (currentButton as any).opacity === 'number' ? (currentButton as any).opacity : 100}%</b></label><input type="range" min={15} max={100} step={5} value={typeof (currentButton as any).opacity === 'number' ? (currentButton as any).opacity : 100} onChange={(e) => applyMobileButtonLook(currentButton.id, { opacity: Number(e.target.value) } as any)} /></div>
                 <span className="ureel-tap-mini-label">Buttonbild</span>
                 <label className="ureel-tap-upload"><LucideIcons.ImagePlus size={16}/> Buttonbild hochladen<input type="file" accept="image/*" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleButtonImageUpload(currentButton.id, file); e.currentTarget.value = ''; }} /></label>
                 {(currentButton.buttonImageUrl || currentButton.imageUrl) && <button type="button" className="ureel-mobile-danger-inline" onClick={() => handleUpdateSingleButton(currentButton.id, { buttonImageUrl: '', imageUrl: '', buttonImageFileName: '', buttonImageOverlay: false } as any)}>Buttonbild entfernen</button>}
@@ -4455,7 +4570,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <label className="ureel-mobile-one-color">Rahmenfarbe<input type="color" value={(currentButton.borderColor || '#D8CDB7').startsWith('rgba') ? '#D8CDB7' : (currentButton.borderColor || '#D8CDB7')} onChange={(e) => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderColor: e.target.value, borderWidth: currentButton.borderWidth === 'none' || !currentButton.borderWidth ? 'thin' : currentButton.borderWidth } as any)} /><input value={(currentButton.borderColor || '#D8CDB7').startsWith('rgba') ? '#D8CDB7' : (currentButton.borderColor || '#D8CDB7')} onChange={(e) => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderColor: e.target.value, borderWidth: currentButton.borderWidth === 'none' || !currentButton.borderWidth ? 'thin' : currentButton.borderWidth } as any)} /></label>
                 <button type="button" className="ureel-mobile-look-all-button" onClick={async () => { const designFields: Partial<CardButton> = { bgColor: currentButton.bgColor, backgroundColor: currentButton.backgroundColor, textColor: currentButton.textColor, borderColor: currentButton.borderColor, borderEnabled: currentButton.borderEnabled, borderWidth: currentButton.borderWidth, borderStyle: currentButton.borderStyle, styleVariant: currentButton.styleVariant, radius: currentButton.radius, buttonShape: currentButton.buttonShape, buttonSize: currentButton.buttonSize, fontSize: currentButton.fontSize, icon: currentButton.icon, iconColor: currentButton.iconColor, iconSize: currentButton.iconSize, iconEnabled: currentButton.iconEnabled, buttonImageUrl: currentButton.buttonImageUrl, imageUrl: currentButton.imageUrl, buttonImageFit: currentButton.buttonImageFit, buttonImageOverlay: currentButton.buttonImageOverlay, textPadding: currentButton.textPadding }; await syncCardUpdate({ buttons: (activeCard.buttons || []).map((button) => button.id === currentButton.id ? button : { ...button, ...designFields }) }); }}>Look auf alle Buttons</button>
               </div>}
-              {tapButtonTool === 'manage' && <div className="ureel-tap-config"><h4>Button verwalten</h4><p>Kopiere, ordne, entferne oder schütze diesen Button.</p><div className="ureel-mobile-manage-grid"><button type="button" onClick={() => handleDuplicateButtonLocal(currentButton)}><LucideIcons.Copy size={15}/> Kopieren</button><button type="button" onClick={() => handleMoveButtonLocal(currentButton.id, -1)}><LucideIcons.ArrowLeft size={15}/> Nach links</button><button type="button" onClick={() => handleMoveButtonLocal(currentButton.id, 1)}><LucideIcons.ArrowRight size={15}/> Nach rechts</button><button type="button" className="is-danger" onClick={() => handleDeleteButtonLocal(currentButton.id)}><LucideIcons.Trash2 size={15}/> Entfernen</button></div><div className="ureel-mobile-password-box"><h5>Passwortschutz</h5><p>Bereite sensible Inhalte wie Folder, Datei, Telefon oder Website mit Passwortschutz vor.</p><div className="ureel-tap-chip-row"><button type="button" className={(currentButton as any).passwordProtected ? 'is-active' : ''} onClick={() => handleUpdateSingleButton(currentButton.id, { passwordProtected: true } as any)}>Ein</button><button type="button" className={!(currentButton as any).passwordProtected ? 'is-active' : ''} onClick={() => handleUpdateSingleButton(currentButton.id, { passwordProtected: false, accessPassword: '', passwordHint: '' } as any)}>Aus</button></div>{(currentButton as any).passwordProtected && <><label>Passwort</label><input type="password" value={(currentButton as any).accessPassword || ''} placeholder="Passwort für Besucher" onChange={(e) => handleUpdateSingleButton(currentButton.id, { accessPassword: e.target.value } as any)} /><label>Hinweistext</label><input value={(currentButton as any).passwordHint || ''} placeholder="z.B. Passwort beim Team erfragen" onChange={(e) => handleUpdateSingleButton(currentButton.id, { passwordHint: e.target.value } as any)} /></>}</div></div>}
+              {tapButtonTool === 'manage' && <div className="ureel-tap-config"><h4>Button verwalten</h4><p>Füge Buttons hinzu, kopiere, ordne oder entferne sie. Wähle für die Position einfach einen Platz im Raster.</p><div className="ureel-mobile-manage-grid"><button type="button" onClick={handleAddButtonLocal}><LucideIcons.Plus size={15}/> Hinzufügen</button><button type="button" onClick={() => handleDuplicateButtonLocal(currentButton)}><LucideIcons.Copy size={15}/> Kopieren</button><button type="button" onClick={() => handleMoveButtonLocal(currentButton.id, -1)}><LucideIcons.ArrowLeft size={15}/> Links</button><button type="button" onClick={() => handleMoveButtonLocal(currentButton.id, 1)}><LucideIcons.ArrowRight size={15}/> Rechts</button><button type="button" className="is-danger" onClick={() => handleDeleteButtonLocal(currentButton.id)}><LucideIcons.Trash2 size={15}/> Entfernen</button></div><div className="ureel-mobile-position-grid"><span>Position wählen</span><div>{(activeCard.buttons || []).sort((a,b)=>(a.position??0)-(b.position??0)).map((button, index) => <button key={button.id} type="button" className={button.id === currentButton.id ? 'is-active' : ''} onClick={() => handleMoveButtonToPositionLocal(currentButton.id, index)}>{index + 1}</button>)}</div></div><div className="ureel-mobile-password-box"><h5>Passwortschutz</h5><p>Bereite sensible Inhalte wie Folder, Datei, Telefon oder Website mit Passwortschutz vor.</p><div className="ureel-tap-chip-row"><button type="button" className={(currentButton as any).passwordProtected ? 'is-active' : ''} onClick={() => handleUpdateSingleButton(currentButton.id, { passwordProtected: true } as any)}>Ein</button><button type="button" className={!(currentButton as any).passwordProtected ? 'is-active' : ''} onClick={() => handleUpdateSingleButton(currentButton.id, { passwordProtected: false, accessPassword: '', passwordHint: '' } as any)}>Aus</button></div>{(currentButton as any).passwordProtected && <><label>Passwort</label><input type="password" value={(currentButton as any).accessPassword || ''} placeholder="Passwort für Besucher" onChange={(e) => handleUpdateSingleButton(currentButton.id, { accessPassword: e.target.value } as any)} /><label>Hinweistext</label><input value={(currentButton as any).passwordHint || ''} placeholder="z.B. Passwort beim Team erfragen" onChange={(e) => handleUpdateSingleButton(currentButton.id, { passwordHint: e.target.value } as any)} /></>}</div></div>}
             </section>
           );
         })()}

@@ -130,3 +130,8 @@ Diese Version verbessert gezielt den mobilen Button-Editor: Text/Look/Verwalten 
 ## v52.4.3 – Button Layout, Color Picker & Management Fix
 
 Diese Version verbessert gezielt den mobilen Button-Editor: sichere Buttonraster-Größen, Farbfeld + Farbcode, Look auf alle Buttons, Verwaltung mit Kopieren/Verschieben/Entfernen und vorbereiteter Passwortschutz für sensible Button-Inhalte.
+
+
+## v52.4.4 – Compact Stable Mobile Editor
+
+Mobile-Studio-Stabilisierung mit Profilbild unter Szene, kompakter sauberer 9:16-Vorschau, Button-Transparenz, Farbfeld/Farbcode, Button hinzufügen, Positionsraster und weiter reduziertem Speichern-Hinweis. Public Link und Desktop bleiben unverändert.
