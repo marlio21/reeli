@@ -126,3 +126,7 @@ Diese Version ersetzt den mobilen Simple Card Builder durch einen Tap-to-Edit-An
 ## v52.4.2 – Mobile Button Editor Structure Fix
 
 Diese Version verbessert gezielt den mobilen Button-Editor: Text/Look/Verwalten sind sauber getrennt, Look enthält Form, Buttonfarbe, Buttonbild, Größe, Rahmen und Look-Übertragung. Die Größe `Klein` ist neu kalibriert und reduziert die echte Vorschau sichtbar.
+
+## v52.4.3 – Button Layout, Color Picker & Management Fix
+
+Diese Version verbessert gezielt den mobilen Button-Editor: sichere Buttonraster-Größen, Farbfeld + Farbcode, Look auf alle Buttons, Verwaltung mit Kopieren/Verschieben/Entfernen und vorbereiteter Passwortschutz für sensible Button-Inhalte.

@@ -442,14 +442,13 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
   const applyMobileButtonSizePreset = async (btnId: string, preset: 'compact' | 'standard' | 'large') => {
-    // v52.4.2: recalibrated mobile button sizes.
-    // Important: the selected size changes the real card grid and the selected button itself.
-    // Text, icon, padding, border and radius scale together so the 9:16 preview stays trustworthy.
+    // v52.4.3: safe 3-column mobile sizes.
+    // The grid and the selected button scale together, but never so far that the 9:16 card breaks.
     const values = preset === 'compact'
-      ? { px: 46, fontSize: 9, iconSize: 14, textPadding: 5, borderWidth: 'thin' as const, scale: 0.64, radius: 'rounded' as const }
+      ? { px: 34, gap: 7, fontSize: 7.4, iconSize: 12, textPadding: 4, borderWidth: 'thin' as const, scale: 0.54, radius: 'rounded' as const }
       : preset === 'large'
-        ? { px: 78, fontSize: 14, iconSize: 25, textPadding: 11, borderWidth: 'medium' as const, scale: 1.02, radius: 'rounded' as const }
-        : { px: 62, fontSize: 11, iconSize: 19, textPadding: 8, borderWidth: 'thin' as const, scale: 0.82, radius: 'rounded' as const };
+        ? { px: 50, gap: 7, fontSize: 10.2, iconSize: 18, textPadding: 7, borderWidth: 'medium' as const, scale: 0.76, radius: 'rounded' as const }
+        : { px: 42, gap: 8, fontSize: 8.6, iconSize: 15, textPadding: 5, borderWidth: 'thin' as const, scale: 0.64, radius: 'rounded' as const };
 
     const updatedButtons = (activeCard.buttons || []).map((button) => button.id === btnId ? {
       ...button,
@@ -458,17 +457,28 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       fontSize: values.fontSize,
       iconSize: values.iconSize,
       textPadding: values.textPadding,
-      borderWidth: values.borderWidth,
+      borderWidth: button.borderEnabled ? values.borderWidth : button.borderWidth,
       radius: button.radius || values.radius,
+      textWrap: 'single',
     } : button);
 
     await syncCardUpdate({
       buttons: updatedButtons,
+      buttonGridCols: 3 as any,
       buttonSizePx: values.px as any,
-      buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), buttonSizePx: values.px, square: true } as any,
+      buttonGapPx: values.gap as any,
+      buttonGridLayout: {
+        ...(activeCard.buttonGridLayout || {}),
+        mode: 'grid',
+        cols: 3,
+        square: true,
+        buttonSizePx: values.px,
+        gapPx: values.gap,
+        gap: values.gap,
+        align: 'center',
+      } as any,
     } as any);
   };
-
 
   const fileActionTypes = ['pdf_link', 'external_file_link', 'google_drive_file', 'dropbox_file', 'onedrive_file', 'download_area'];
   const cloudLinkActionTypes = ['google_drive_folder', 'dropbox_folder', 'onedrive_folder'];
@@ -4443,9 +4453,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <span className="ureel-tap-mini-label">Rahmen</span>
                 <div className="ureel-tap-chip-row"><button type="button" className={!currentButton.borderEnabled || currentButton.borderWidth === 'none' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: false, borderWidth: 'none' } as any)}>Kein</button><button type="button" className={currentButton.borderEnabled && currentButton.borderWidth === 'thin' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderWidth: 'thin', borderColor: currentButton.borderColor || '#D8CDB7' } as any)}>Klein</button><button type="button" className={currentButton.borderEnabled && currentButton.borderWidth === 'medium' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderWidth: 'medium', borderColor: currentButton.borderColor || '#D8CDB7' } as any)}>Mittel</button><button type="button" className={currentButton.borderEnabled && currentButton.borderWidth === 'thick' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderWidth: 'thick', borderColor: currentButton.borderColor || '#111111' } as any)}>Dick</button></div>
                 <label className="ureel-mobile-one-color">Rahmenfarbe<input type="color" value={(currentButton.borderColor || '#D8CDB7').startsWith('rgba') ? '#D8CDB7' : (currentButton.borderColor || '#D8CDB7')} onChange={(e) => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderColor: e.target.value, borderWidth: currentButton.borderWidth === 'none' || !currentButton.borderWidth ? 'thin' : currentButton.borderWidth } as any)} /><input value={(currentButton.borderColor || '#D8CDB7').startsWith('rgba') ? '#D8CDB7' : (currentButton.borderColor || '#D8CDB7')} onChange={(e) => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderColor: e.target.value, borderWidth: currentButton.borderWidth === 'none' || !currentButton.borderWidth ? 'thin' : currentButton.borderWidth } as any)} /></label>
-                <button type="button" className="ureel-mobile-look-all-button" onClick={async () => { const designFields: Partial<CardButton> = { bgColor: currentButton.bgColor, backgroundColor: currentButton.backgroundColor, textColor: currentButton.textColor, borderColor: currentButton.borderColor, borderEnabled: currentButton.borderEnabled, borderWidth: currentButton.borderWidth, borderStyle: currentButton.borderStyle, styleVariant: currentButton.styleVariant, radius: currentButton.radius, buttonShape: currentButton.buttonShape, buttonSize: currentButton.buttonSize, fontSize: currentButton.fontSize, icon: currentButton.icon, iconColor: currentButton.iconColor, iconSize: currentButton.iconSize, iconEnabled: currentButton.iconEnabled, buttonImageUrl: currentButton.buttonImageUrl, imageUrl: currentButton.imageUrl, buttonImageFit: currentButton.buttonImageFit, buttonImageOverlay: currentButton.buttonImageOverlay, textPadding: currentButton.textPadding }; await syncCardUpdate({ buttons: (activeCard.buttons || []).map((button) => button.id === currentButton.id ? button : { ...button, ...designFields }) }); triggerToast('Look auf alle Buttons übertragen.', 'success'); }}>Look auf alle Buttons</button>
+                <button type="button" className="ureel-mobile-look-all-button" onClick={async () => { const designFields: Partial<CardButton> = { bgColor: currentButton.bgColor, backgroundColor: currentButton.backgroundColor, textColor: currentButton.textColor, borderColor: currentButton.borderColor, borderEnabled: currentButton.borderEnabled, borderWidth: currentButton.borderWidth, borderStyle: currentButton.borderStyle, styleVariant: currentButton.styleVariant, radius: currentButton.radius, buttonShape: currentButton.buttonShape, buttonSize: currentButton.buttonSize, fontSize: currentButton.fontSize, icon: currentButton.icon, iconColor: currentButton.iconColor, iconSize: currentButton.iconSize, iconEnabled: currentButton.iconEnabled, buttonImageUrl: currentButton.buttonImageUrl, imageUrl: currentButton.imageUrl, buttonImageFit: currentButton.buttonImageFit, buttonImageOverlay: currentButton.buttonImageOverlay, textPadding: currentButton.textPadding }; await syncCardUpdate({ buttons: (activeCard.buttons || []).map((button) => button.id === currentButton.id ? button : { ...button, ...designFields }) }); }}>Look auf alle Buttons</button>
               </div>}
-              {tapButtonTool === 'manage' && <div className="ureel-tap-config"><h4>Button verwalten</h4><p>Kopiere, verschiebe oder entferne diesen Button.</p><div className="ureel-mobile-manage-grid"><button type="button" onClick={() => handleDuplicateButtonLocal(currentButton)}><LucideIcons.Copy size={15}/> Kopieren</button><button type="button" onClick={() => triggerToast('Verschieben wird als nächster Schritt mit Drag & Drop verbunden.', 'info')}><LucideIcons.Move size={15}/> Verschieben</button><button type="button" className="is-danger" onClick={() => handleDeleteButtonLocal(currentButton.id)}><LucideIcons.Trash2 size={15}/> Entfernen</button></div></div>}
+              {tapButtonTool === 'manage' && <div className="ureel-tap-config"><h4>Button verwalten</h4><p>Kopiere, ordne, entferne oder schütze diesen Button.</p><div className="ureel-mobile-manage-grid"><button type="button" onClick={() => handleDuplicateButtonLocal(currentButton)}><LucideIcons.Copy size={15}/> Kopieren</button><button type="button" onClick={() => handleMoveButtonLocal(currentButton.id, -1)}><LucideIcons.ArrowLeft size={15}/> Nach links</button><button type="button" onClick={() => handleMoveButtonLocal(currentButton.id, 1)}><LucideIcons.ArrowRight size={15}/> Nach rechts</button><button type="button" className="is-danger" onClick={() => handleDeleteButtonLocal(currentButton.id)}><LucideIcons.Trash2 size={15}/> Entfernen</button></div><div className="ureel-mobile-password-box"><h5>Passwortschutz</h5><p>Bereite sensible Inhalte wie Folder, Datei, Telefon oder Website mit Passwortschutz vor.</p><div className="ureel-tap-chip-row"><button type="button" className={(currentButton as any).passwordProtected ? 'is-active' : ''} onClick={() => handleUpdateSingleButton(currentButton.id, { passwordProtected: true } as any)}>Ein</button><button type="button" className={!(currentButton as any).passwordProtected ? 'is-active' : ''} onClick={() => handleUpdateSingleButton(currentButton.id, { passwordProtected: false, accessPassword: '', passwordHint: '' } as any)}>Aus</button></div>{(currentButton as any).passwordProtected && <><label>Passwort</label><input type="password" value={(currentButton as any).accessPassword || ''} placeholder="Passwort für Besucher" onChange={(e) => handleUpdateSingleButton(currentButton.id, { accessPassword: e.target.value } as any)} /><label>Hinweistext</label><input value={(currentButton as any).passwordHint || ''} placeholder="z.B. Passwort beim Team erfragen" onChange={(e) => handleUpdateSingleButton(currentButton.id, { passwordHint: e.target.value } as any)} /></>}</div></div>}
             </section>
           );
         })()}

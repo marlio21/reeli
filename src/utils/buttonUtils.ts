@@ -792,14 +792,22 @@ export function normalizeButtonGridLayout(card: Partial<Card> | undefined): Requ
   const isUreel = !!(card.ureelTimeline || card.ureelEndCard || card.ureelScene);
   const defaultMode = isUreel ? 'grid' : 'list';
   const defaultSquare = isUreel;
+  const rawGap = typeof gl?.gapPx === 'number' ? gl.gapPx : (typeof card.buttonGapPx === 'number' ? card.buttonGapPx : 12);
+  const rawButtonSize = typeof gl?.buttonSizePx === 'number' ? gl.buttonSizePx : (typeof card.buttonSizePx === 'number' ? card.buttonSizePx : 72);
+
+  // v52.4.3: Ureel cards must remain visually stable in the 9:16 frame.
+  // Old mobile tests could save oversized buttonSizePx values; clamp them for the real renderer
+  // so even a "Groß" preset stays in a clean 3-column grid instead of overlapping.
+  const safeButtonSize = isUreel ? Math.max(32, Math.min(rawButtonSize, 54)) : rawButtonSize;
+  const safeGap = isUreel ? Math.max(5, Math.min(rawGap, 10)) : rawGap;
 
   return {
     mode: (gl?.mode || defaultMode) as any,
-    cols: typeof gl?.cols === 'number' ? gl.cols : 3,
+    cols: typeof gl?.cols === 'number' ? Math.max(1, Math.min(gl.cols, 3)) : 3,
     square: gl?.square !== undefined ? !!gl.square : defaultSquare,
-    gapPx: typeof gl?.gapPx === 'number' ? gl.gapPx : (typeof card.buttonGapPx === 'number' ? card.buttonGapPx : 12),
-    buttonSizePx: typeof gl?.buttonSizePx === 'number' ? gl.buttonSizePx : (typeof card.buttonSizePx === 'number' ? card.buttonSizePx : 72),
-    gap: typeof gl?.gap === 'number' ? gl.gap : 12,
+    gapPx: safeGap,
+    buttonSizePx: safeButtonSize,
+    gap: typeof gl?.gap === 'number' ? (isUreel ? Math.max(5, Math.min(gl.gap, 10)) : gl.gap) : safeGap,
     align: gl?.align || 'center',
   };
 }

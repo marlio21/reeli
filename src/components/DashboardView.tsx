@@ -2645,7 +2645,7 @@ Jetzt kommt der KONU Admin JSON Export:`;
   // Toast confirmation
   const triggerSaveToast = () => {
     setSaveToast(true);
-    setTimeout(() => setSaveToast(false), 1300);
+    setTimeout(() => setSaveToast(false), 800);
   };
 
   // Synchronous database updates with UI toast
@@ -9047,7 +9047,7 @@ Jetzt kommt der KONU Admin JSON Export:`;
             ? 'bg-red-950 border-red-900/60' 
             : toastNotification.type === 'info'
             ? 'bg-blue-950 border-blue-900/60'
-            : 'bg-[#1C1C1C] border-stone-800/85'
+            : 'bg-emerald-600 border-emerald-300/50 text-white'
         }`}>
           <div className="flex items-center gap-2.5 text-left">
             {toastNotification.type === 'error' ? (

@@ -4110,3 +4110,56 @@ body {
     margin: 0 auto !important;
   }
 }
+
+
+/* v52.4.3 – Button Layout, Color Picker & Management Fix */
+@media (max-width: 767px) {
+  .ureel-mobile-password-box {
+    margin-top: 12px !important;
+    padding: 13px !important;
+    border: 1px solid #D8CDB7 !important;
+    border-radius: 18px !important;
+    background: #FFFDF7 !important;
+  }
+  .ureel-mobile-password-box h5 {
+    margin: 0 0 4px !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    color: #111 !important;
+  }
+  .ureel-mobile-password-box p {
+    margin: 0 0 10px !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    color: #6E6658 !important;
+  }
+  .ureel-mobile-password-box label {
+    display: block !important;
+    margin: 10px 0 5px !important;
+    color: #8A6B24 !important;
+    font-size: 9px !important;
+    font-weight: 950 !important;
+    letter-spacing: .08em !important;
+    text-transform: uppercase !important;
+  }
+  .ureel-mobile-password-box input {
+    width: 100% !important;
+    height: 42px !important;
+    border-radius: 14px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #fff !important;
+    color: #111 !important;
+    padding: 9px 11px !important;
+    font-size: 14px !important;
+    font-weight: 760 !important;
+  }
+  .ureel-mobile-manage-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .ureel-mobile-manage-grid button.is-danger {
+    grid-column: 1 / -1 !important;
+  }
+  .ureel-tap-config .ureel-mobile-one-color input[type="color"] {
+    cursor: pointer !important;
+  }
+}
