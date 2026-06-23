@@ -2642,10 +2642,10 @@ Jetzt kommt der KONU Admin JSON Export:`;
     }
   }, [activeCard]);
 
-  // Toast confirmation
+  // v52.4.5: Mobile editor must not show a global save stripe/overlay.
+  // Keep autosave silent; local panels can show their own inline hint if needed.
   const triggerSaveToast = () => {
-    setSaveToast(true);
-    setTimeout(() => setSaveToast(false), 800);
+    // intentionally silent
   };
 
   // Synchronous database updates with UI toast

@@ -122,9 +122,12 @@ export const ProfileHeroSection: React.FC<ProfileHeroSectionProps> = ({
   }
 
   // Avatar/Logo configuration
-  const showProfileImage = card.showProfileImage !== false; // default true
   const profileImageUrl = card.heroProfileImageUrl || card.profileImageUrl || '';
   const customLogoUrl = card.heroLogoUrl || card.customLogoUrl || '';
+  // v52.4.5: do not render a placeholder circle in the card preview.
+  // Profile image appears only when explicitly enabled and an actual image/logo exists.
+  const explicitProfileImageEnabled = (card as any).profileImageEnabled === true || card.showProfileImage === true || (card as any).heroProfileImageEnabled === true;
+  const showProfileImage = explicitProfileImageEnabled && !!(profileImageUrl || customLogoUrl);
 
   // Shape, position & borders of avatar
   const profileImagePosition = card.heroImagePlacement || card.profileImagePosition || (
