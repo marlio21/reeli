@@ -1,3 +1,13 @@
+## v52.4.10 – Text Preview & Color Picker Hard Fix
+
+- Werbetext-Vorlagen aktualisieren nun auch die kleine Vorschau im Texteditor sichtbar.
+- Wisch-Hinweis im mobilen Werbetext-Editor deutlicher gemacht.
+- Titel, Untertitel und Beschreibung haben größere, flexiblere Schriftgrößen-Slider.
+- Beschreibungstext ist größer voreingestellt und separat farblich steuerbar.
+- Mobile Textfarben auf Spektrum-Farbfeld + Hex-Code umgestellt.
+- Mehrfachanzeige von „Spot neu starten“ in der Karten-Vorschau entfernt; nur ein Neustart-Button bleibt sichtbar.
+- Keine Kartenverwaltung/Nutzerverwaltung in dieser Reparaturversion; diese folgt separat.
+
 # CHANGELOG
 
 ## v52.4.7 – Text Template Editor & Preview Button Fix

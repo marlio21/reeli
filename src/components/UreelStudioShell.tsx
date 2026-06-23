@@ -1727,6 +1727,39 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     return Math.max(min, Math.min(max, parsed));
   };
 
+
+  const getTextTemplatePreviewStyle = () => {
+    const style = currentTextTemplate.style || 'none';
+    const frameType = currentTextTemplate.frame?.type || selectedTextTemplatePreset?.defaultFrame || 'none';
+    const boxType = currentTextTemplate.box?.type || selectedTextTemplatePreset?.defaultBox || 'none';
+    const fontStyle = currentTextTemplate.fontStyle || selectedTextTemplatePreset?.defaultFontStyle || 'modern';
+    const fontFamily = fontStyle === 'elegant' || fontStyle === 'serif'
+      ? 'Georgia, Times New Roman, serif'
+      : fontStyle === 'condensed' || fontStyle === 'bold'
+        ? 'Arial Narrow, Inter, sans-serif'
+        : 'Inter, system-ui, sans-serif';
+    const alignment = frameType === 'side_line' ? 'left' : frameType === 'underline' ? 'center' : 'center';
+    const border = frameType === 'none' ? '1px solid rgba(232,220,194,.18)' : frameType === 'underline' ? '0 0 2px 0 rgba(232,220,194,.85)' : '0 0 0 1px rgba(232,220,194,.32)';
+    const boxBg = boxType === 'none'
+      ? 'radial-gradient(circle at top, rgba(232,220,194,.10), rgba(8,8,8,.45))'
+      : boxType === 'glass'
+        ? 'linear-gradient(135deg, rgba(245,242,234,.18), rgba(15,15,15,.62))'
+        : boxType === 'solid'
+          ? 'rgba(5,5,5,.78)'
+          : 'linear-gradient(135deg, rgba(168,85,247,.18), rgba(10,10,10,.7))';
+    return {
+      fontFamily,
+      textAlign: alignment as any,
+      alignItems: alignment === 'left' ? 'flex-start' : 'center',
+      background: boxBg,
+      boxShadow: border.includes('0 0') ? border : undefined,
+      border: border.includes('solid') ? border : undefined,
+      borderLeft: frameType === 'side_line' ? `3px solid ${currentTextTemplate.frame?.color || '#E8DCC2'}` : undefined,
+      borderBottom: frameType === 'underline' ? `2px solid ${currentTextTemplate.frame?.color || '#E8DCC2'}` : undefined,
+      borderRadius: style === 'luxury' || style === 'premium_product' ? 28 : 22,
+    };
+  };
+
   const adTextSizePreset = () => {
     const title = clampTextSize(activeCard.heroTitleSize, 28, 16, 52);
     if (title <= 22) return 'compact';
@@ -3065,7 +3098,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
                 <div className="rounded-[28px] border border-[#3A3732] bg-[#0D0D0D] p-3 space-y-3 md:hidden">
                   <div className="flex items-center justify-between">
-                    <div><span className="text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Werbetext-Vorschau</span><p className="text-[8.5px] text-stone-500">← Wische für Vorlage →</p></div>
+                    <div><span className="text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Werbetext-Vorschau</span><p className="text-[8.5px] text-stone-500">← Wischen: neues Design sichtbar in Vorschau →</p></div>
                     <LucideIcons.Hand size={16} className="text-[#E8DCC2]" />
                   </div>
                   <div className="rounded-3xl border border-[#E8DCC2]/18 bg-black/30 p-4 text-center shadow-inner">
@@ -3232,7 +3265,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     {[
                       { key: 'heroTitleSize', label: 'Headline', fallback: 30, min: 16, max: 52 },
                       { key: 'heroSubtitleSize', label: 'Slogan', fallback: 12, min: 8, max: 24 },
-                      { key: 'heroDescriptionSize', label: 'Beschreibung', fallback: 11, min: 8, max: 22 },
+                      { key: 'heroDescriptionSize', label: 'Beschreibung', fallback: 16, min: 10, max: 40 },
                     ].map((item) => (
                       <div key={item.key}>
                         <div className="flex justify-between text-[9px] uppercase font-bold text-stone-400 mb-1"><span>{item.label}</span><span>{clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max).toFixed(0)}px</span></div>
@@ -3330,7 +3363,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     {[
                       { key: 'heroTitleSize', label: 'Headline', min: 16, max: 52, fallback: 30 },
                       { key: 'heroSubtitleSize', label: 'Slogan', min: 8, max: 24, fallback: 12 },
-                      { key: 'heroDescriptionSize', label: 'Beschreibung', min: 8, max: 22, fallback: 11 },
+                      { key: 'heroDescriptionSize', label: 'Beschreibung', min: 10, max: 40, fallback: 16 },
                     ].map((item) => (
                       <div key={item.key}>
                         <div className="flex justify-between text-[9px] uppercase font-bold text-stone-400 mb-1"><span>{item.label}</span><span>{clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max).toFixed(0)}px</span></div>
@@ -3472,7 +3505,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     {[
                       { key: 'heroTitleSize', label: 'Headline', min: 16, max: 52, fallback: 30 },
                       { key: 'heroSubtitleSize', label: 'Slogan', min: 8, max: 24, fallback: 12 },
-                      { key: 'heroDescriptionSize', label: 'Beschreibung', min: 8, max: 22, fallback: 11 },
+                      { key: 'heroDescriptionSize', label: 'Beschreibung', min: 10, max: 40, fallback: 16 },
                     ].map((item) => (
                       <div key={item.key}>
                         <div className="flex justify-between text-[9px] uppercase font-bold text-stone-400 mb-1"><span>{item.label}</span><span>{clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max).toFixed(0)}px</span></div>
@@ -4611,11 +4644,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <div className="ureel-tap-panel-head"><div><span>Text / Timeline</span><h3>Werbetext bearbeiten</h3><p>Oben Vorschau, dann Vorlage, Text, Stil und Timing.</p></div><LucideIcons.Type size={18} /></div>
             <div className="ureel-tap-config">
               <div className="ureel-mobile-text-preview-card">
-                <div className="ureel-mobile-text-preview-top"><span>Werbetext-Vorschau</span><small>← Wische für Vorlage →</small></div>
-                <div className="ureel-mobile-text-preview-sample">
-                  <b style={{ fontSize: clampTextSize((activeCard as any).heroTitleSize, 30, 16, 52), color: (activeCard as any).heroTitleTextColor || '#F5F2EA' }}>{activeCard.title || 'Dein Titel'}</b>
-                  <strong style={{ fontSize: clampTextSize((activeCard as any).heroSubtitleSize, 12, 8, 24), color: (activeCard as any).heroSubtitleTextColor || '#E8DCC2' }}>{activeCard.subtitle || 'Dein Untertitel'}</strong>
-                  <p style={{ fontSize: clampTextSize((activeCard as any).heroDescriptionSize, 11, 8, 22), color: (activeCard as any).heroDescTextColor || '#D8D2C5' }}>{activeCard.description || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.'}</p>
+                <div className="ureel-mobile-text-preview-top"><span>Werbetext-Vorschau</span><small>← Wischen: neues Design · {currentTextTemplate.style === 'none' ? 'Klar' : `Design ${Math.max(1, Object.values(UREEL_TEXT_TEMPLATES).findIndex((t) => t.id === currentTextTemplate.style) + 1)} / 15`}</small></div>
+                <div className="ureel-mobile-text-preview-sample" style={getTextTemplatePreviewStyle()}>
+                  <b style={{ fontSize: clampTextSize((activeCard as any).heroTitleSize, 30, 16, 56), color: (activeCard as any).heroTitleTextColor || '#F5F2EA' }}>{activeCard.title || 'Dein Titel'}</b>
+                  <strong style={{ fontSize: clampTextSize((activeCard as any).heroSubtitleSize, 18, 10, 44), color: (activeCard as any).heroSubtitleTextColor || '#E8DCC2' }}>{activeCard.subtitle || 'Dein Untertitel'}</strong>
+                  <p style={{ fontSize: clampTextSize((activeCard as any).heroDescriptionSize, 16, 10, 40), color: (activeCard as any).heroDescTextColor || '#D8D2C5' }}>{activeCard.description || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.'}</p>
                 </div>
                 <div className="ureel-mobile-text-template-strip">
                   <button type="button" className={currentTextTemplate.style === 'none' ? 'is-active' : ''} onClick={() => applyTextTemplatePreset('none')}><b>Klar</b><small>Neutral</small></button>
@@ -4632,15 +4665,18 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <span className="ureel-tap-mini-label">Schriftart</span>
               <div className="ureel-tap-chip-row"><button type="button" className={(currentTextTemplate.fontStyle || 'modern') === 'modern' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'modern' })}>Klar</button><button type="button" className={currentTextTemplate.fontStyle === 'elegant' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'elegant' })}>Elegant</button><button type="button" className={currentTextTemplate.fontStyle === 'serif' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'serif' })}>Serif</button><button type="button" className={currentTextTemplate.fontStyle === 'condensed' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'condensed' })}>Bold</button></div>
               {[
-                { key: 'heroTitleSize', label: 'Titelgröße', min: 16, max: 52, fallback: 30 },
-                { key: 'heroSubtitleSize', label: 'Untertitelgröße', min: 8, max: 24, fallback: 12 },
-                { key: 'heroDescriptionSize', label: 'Beschreibunggröße', min: 8, max: 22, fallback: 11 },
+                { key: 'heroTitleSize', label: 'Titelgröße', min: 16, max: 56, fallback: 30 },
+                { key: 'heroSubtitleSize', label: 'Untertitelgröße', min: 10, max: 44, fallback: 18 },
+                { key: 'heroDescriptionSize', label: 'Beschreibunggröße', min: 10, max: 40, fallback: 16 },
               ].map((item) => <div key={item.key} className="ureel-tap-slider-row"><label>{item.label} <b>{clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max).toFixed(0)}px</b></label><input type="range" min={item.min} max={item.max} step={1} value={clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max)} onChange={(e) => syncCardUpdate({ [item.key]: Number(e.target.value) } as any)} /></div>)}
               {[
                 { key: 'heroTitleTextColor', label: 'Titelfarbe', fallback: '#F5F2EA' },
                 { key: 'heroSubtitleTextColor', label: 'Untertitelfarbe', fallback: '#E8DCC2' },
                 { key: 'heroDescTextColor', label: 'Beschreibungfarbe', fallback: '#D8D2C5' },
-              ].map((item) => <label key={item.key} className="ureel-mobile-one-color">{item.label}<input type="color" value={(activeCard as any)[item.key] || item.fallback} onChange={(e) => syncCardUpdate({ [item.key]: e.target.value } as any)} /><input value={(activeCard as any)[item.key] || item.fallback} onChange={(e) => syncCardUpdate({ [item.key]: e.target.value } as any)} /></label>)}
+              ].map((item) => {
+                const value = /^#[0-9A-Fa-f]{6}$/.test(String((activeCard as any)[item.key] || '')) ? (activeCard as any)[item.key] : item.fallback;
+                return <label key={item.key} className="ureel-mobile-spectrum-color"><span>{item.label}<small> Spektrum + Farbcode</small></span><input aria-label={`${item.label} Farbspektrum`} type="color" value={value} onChange={(e) => syncCardUpdate({ [item.key]: e.target.value } as any)} /><input aria-label={`${item.label} Hex-Code`} value={(activeCard as any)[item.key] || item.fallback} maxLength={7} placeholder="#FFFFFF" onChange={(e) => { const next = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`; syncCardUpdate({ [item.key]: next } as any); }} /></label>;
+              })}
               <span className="ureel-tap-mini-label">Position</span>
               <div className="ureel-tap-chip-row"><button type="button" onClick={() => updateTextTemplate({ frame: { ...currentTextTemplate.frame, type: 'side_line' } })}>Oben/Seite</button><button type="button" onClick={() => updateTextTemplate({ frame: { ...currentTextTemplate.frame, type: 'none' } })}>Mitte</button><button type="button" onClick={() => updateTextTemplate({ frame: { ...currentTextTemplate.frame, type: 'underline' } })}>Unten</button></div>
 

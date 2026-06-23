@@ -4509,3 +4509,56 @@ body {
     font-weight: 800 !important;
   }
 }
+
+/* v52.4.10: hard color picker cleanup for mobile text editor */
+.ureel-mobile-spectrum-color {
+  display: grid !important;
+  grid-template-columns: 1fr 48px minmax(96px, 120px) !important;
+  gap: 8px !important;
+  align-items: center !important;
+  padding: 10px !important;
+  border: 1px solid #3A3732 !important;
+  border-radius: 16px !important;
+  background: #111111 !important;
+  color: #F5F2EA !important;
+}
+.ureel-mobile-spectrum-color span {
+  font-size: 10px !important;
+  font-weight: 950 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .06em !important;
+}
+.ureel-mobile-spectrum-color small {
+  display: block !important;
+  margin-top: 2px !important;
+  color: #8B8172 !important;
+  font-size: 8px !important;
+  letter-spacing: .03em !important;
+}
+.ureel-mobile-spectrum-color input[type="color"] {
+  width: 48px !important;
+  height: 42px !important;
+  padding: 0 !important;
+  border-radius: 14px !important;
+  border: 1px solid #E8DCC2 !important;
+  background: linear-gradient(135deg, red, orange, yellow, lime, cyan, blue, violet) !important;
+  cursor: pointer !important;
+}
+.ureel-mobile-spectrum-color input:not([type="color"]) {
+  height: 42px !important;
+  border-radius: 14px !important;
+  border: 1px solid #3A3732 !important;
+  background: #050505 !important;
+  color: #F5F2EA !important;
+  padding: 0 10px !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+.ureel-mobile-text-preview-top small {
+  animation: ureelSwipeHintPulse 1.8s ease-in-out infinite !important;
+}
+@keyframes ureelSwipeHintPulse {
+  0%, 100% { opacity: .62; transform: translateX(0); }
+  50% { opacity: 1; transform: translateX(-3px); }
+}

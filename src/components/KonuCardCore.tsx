@@ -1287,26 +1287,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                   />
                 );
               })}
-              {!backgroundOnlyPreview && elapsed >= effectiveEndCardAt && (
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); handleReplay(); }}
-            className="absolute right-4 top-4 z-[35] rounded-full border border-[#F5F2EA]/35 bg-black/55 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-[#F5F2EA] backdrop-blur hover:bg-black/75"
-          >
-            Spot neu starten
-          </button>
-        )}
-      </div>
-            {!backgroundOnlyPreview && elapsed >= effectiveEndCardAt && (
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); handleReplay(); }}
-            className="absolute right-4 top-4 z-[35] rounded-full border border-[#F5F2EA]/35 bg-black/55 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-[#F5F2EA] backdrop-blur hover:bg-black/75"
-          >
-            Spot neu starten
-          </button>
-        )}
-      </div>
+            </div>
+          </div>
         )}
         {!backgroundOnlyPreview && elapsed >= effectiveEndCardAt && (
           <button

@@ -1,3 +1,7 @@
+# ureel.me – v52.4.10 Text Preview & Color Picker Hard Fix
+
+Diese kompakte Upload-Version repariert gezielt den mobilen Karteneditor: Werbetext-Vorschau, flexible Textgrößen, Spektrum-Farbauswahl mit Hex-Code und nur einen „Spot neu starten“-Button. Karten- und Nutzerverwaltung werden in der nächsten separaten Version angelegt.
+
 # ureel v50 – Stabilisierung, Mobile Lesbarkeit und Werbetext-Größen
 
 Diese Version ist eine Stabilisierungsrunde. Ziel ist nicht ein neues Großfeature, sondern die Bedienung klarer und die vorhandenen Module zuverlässiger zu machen.
