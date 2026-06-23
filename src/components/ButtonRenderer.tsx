@@ -57,6 +57,20 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
     return '"Inter", sans-serif';
   };
 
+  const hexToRgba = (value: string, alpha: number): string => {
+    const input = (value || '').trim();
+    if (!input.startsWith('#')) return input;
+    const hex = input.replace('#', '');
+    const full = hex.length === 3 ? hex.split('').map((c) => c + c).join('') : hex;
+    if (full.length !== 6) return input;
+    const n = Number.parseInt(full, 16);
+    if (Number.isNaN(n)) return input;
+    const r = (n >> 16) & 255;
+    const g = (n >> 8) & 255;
+    const b = n & 255;
+    return `rgba(${r}, ${g}, ${b}, ${Math.max(0, Math.min(1, alpha))})`;
+  };
+
   // Border styles
   const getBorderStyle = () => {
     if (btn.borderEnabled === false) {
@@ -101,7 +115,8 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
     let backgroundColor = btn.bgColor || btn.backgroundColor || '#F5F0E6';
     let backgroundStyle = {};
 
-    const op = typeof btn.opacity === 'number' ? btn.opacity / 100 : 1;
+    const rawOpacity = typeof btn.opacity === 'number' ? btn.opacity : (typeof (btn as any).transparency === 'number' ? 100 - Number((btn as any).transparency) : 100);
+    const op = Math.max(0, Math.min(1, rawOpacity / 100));
 
     // Check if simplified background mode is preset
     if (btn.bgMode === 'gradient') {
@@ -115,13 +130,11 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
       const c1 = btn.bgColor || '#F5F0E6';
       const c2 = btn.gradientColor || '#A855F7';
       backgroundStyle = {
-        background: `linear-gradient(${direction}, ${c1}, ${c2})`,
-        opacity: op,
+        background: `linear-gradient(${direction}, ${hexToRgba(c1, op)}, ${hexToRgba(c2, op)})`,
       };
     } else if (btn.bgMode === 'solid') {
       backgroundStyle = {
-        backgroundColor: backgroundColor,
-        opacity: op,
+        backgroundColor: hexToRgba(backgroundColor, op),
       };
     } else if (btn.styleVariant === 'gradient' && btn.gradient) {
       backgroundStyle = {
@@ -139,14 +152,12 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
     } else if (btn.styleVariant === 'soft') {
       // Add soft transparency
       backgroundStyle = {
-        backgroundColor: backgroundColor,
-        opacity: 0.15,
+        backgroundColor: hexToRgba(backgroundColor, Math.min(op, 0.22)),
       };
     } else {
       // filled standard
       backgroundStyle = {
-        backgroundColor: backgroundColor,
-        opacity: op,
+        backgroundColor: hexToRgba(backgroundColor, op),
       };
     }
 
@@ -154,13 +165,13 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   };
 
   // Normalize button shape to one of 'rounded', 'round', 'square'
-  const rawShape = btn.buttonShape || 'classic';
+  const rawShape = (btn.buttonShape || btn.radius || 'classic').toString().toLowerCase();
   let shape: 'rounded' | 'round' | 'square' = 'rounded';
-  if (rawShape === 'round' || rawShape === 'pill') {
+  if (rawShape === 'round' || rawShape === 'pill' || rawShape === 'circle' || rawShape === 'kreis') {
     shape = 'round';
-  } else if (rawShape === 'square') {
+  } else if (rawShape === 'square' || rawShape === 'eckig') {
     shape = 'square';
-  } else if (rawShape === 'classic' || rawShape === 'rounded') {
+  } else if (rawShape === 'classic' || rawShape === 'rounded' || rawShape === 'rund' || rawShape === 'abgerundet') {
     if (btn.radius === 'square') shape = 'square';
     else if (btn.radius === 'pill') shape = 'round';
     else shape = 'rounded';

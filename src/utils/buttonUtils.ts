@@ -79,7 +79,9 @@ function normalizeButtonWithRaw(rawButton: any): CardButton {
     iconEnabled,
 
     gradient: rawButton.gradient || '',
-    opacity: typeof rawButton.opacity === 'number' ? rawButton.opacity : 100,
+    opacity: typeof rawButton.opacity === 'number'
+      ? rawButton.opacity
+      : (typeof rawButton.transparency === 'number' ? 100 - Number(rawButton.transparency) : 100),
 
     fontFamily: rawButton.fontFamily || 'Inter',
     fontSize: typeof rawButton.fontSize === 'number' ? rawButton.fontSize : 13,
@@ -114,7 +116,7 @@ function normalizeButtonWithRaw(rawButton: any): CardButton {
         ? rawButton.galleryUrls.map((url: any) => typeof url === 'string' ? { url } : url)
         : []),
     galleryDropboxUrl: rawButton.galleryDropboxUrl || '',
-    buttonShape: rawButton.buttonShape || 'classic',
+    buttonShape: rawButton.buttonShape || rawButton.shape || rawButton.radius || 'classic',
     downloadItems: Array.isArray(rawButton.downloadItems) ? rawButton.downloadItems : [],
     uploadedFile: rawButton.uploadedFile || undefined,
     socialCollection: rawButton.socialCollection || null,

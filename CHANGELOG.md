@@ -1,3 +1,15 @@
+## v52.4.12 – Repository Cleanup & Editor Hard Fix Continuation
+
+- Upload-Struktur bereinigt: `RELEASE_NOTES_*.md` bleiben aus der ZIP entfernt; `CHANGELOG.md` ist die einzige Versionshistorie.
+- README auf v52.4.12 aktualisiert.
+- Replay-Dopplung weiter reduziert: der Endkarten-Replay-Button wird nicht zusätzlich zum globalen `Spot neu starten` gerendert.
+- Profilbild-Sichtbarkeit robuster: zusätzliche Profilbild-Felder werden gelesen; Aktivierung bleibt Voraussetzung.
+- Profilbild bleibt über Reel/Video sichtbar, wenn aktiv und ein Bild vorhanden ist.
+- Buttonform-Aliase stabilisiert: Kreis/Rund/Eckig, circle/rounded/square werden einheitlicher gerendert.
+- Button-Transparenz härter umgesetzt: Hintergrundfarbe nutzt Alpha/rgba statt nur Element-Opacity.
+- Beschreibungstext in der Karten-Vorschau größer und flexibler sichtbar.
+- Public Link, Desktop und Verwaltungsbereiche bleiben unverändert.
+
 ## v52.4.10 – Text Preview & Color Picker Hard Fix
 
 - Werbetext-Vorlagen aktualisieren nun auch die kleine Vorschau im Texteditor sichtbar.
@@ -62,15 +74,3 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Icon-Bibliothek im Buttoneditor erweitert.
 - Farbauswahl im Texteditor vereinheitlicht: Farbfeld, Hex-Code und echter Picker.
 - Build- und Upload-Paket kompakt gehalten; alte Einzel-Release-Notes aus dem Upload entfernt.
-
-## v52.4.11 – Profile, Button Shape, Transparency & Color Picker Hard Fix
-
-- Profilbild-Sichtbarkeit robuster: Renderer liest Profilbild direkt aus Kartenfeldern, nicht nur aus gemappten Preview-Daten.
-- Profilbild Ein/Aus setzt auch `heroProfileImageEnabled` und Größen speichern zusätzlich Prozentwerte 15/35/55/80.
-- Profilbild-Größe `Sehr groß` wird im Renderer als 80 % der Kartenbreite behandelt.
-- Replay-/Hilfsbuttons wie „Spot neu starten“ oder „Video erneut ansehen“ werden aus dem 3×2-Buttonraster gefiltert; die Karte zeigt nur noch den echten Neustart-Control.
-- Buttonform in der echten 9:16-Karte korrigiert: Preview erzwingt nicht mehr alle Buttons als quadratische Form.
-- „Look auf alle Buttons“ überträgt jetzt auch Transparenz, Background-Modus, Gradientdaten und weitere Look-Felder.
-- Mobile Farbauswahl durch eigenen Spektrum-Picker ersetzt: Farbfläche, Hue-Leiste, Farbfeld und Hex-Code statt alter nativer Farbvorschläge.
-- Beschreibungstext bleibt im Werbetexteditor editierbar und nutzt die flexiblen Größen-/Farbwerte.
-- Produktions-Build erfolgreich geprüft.

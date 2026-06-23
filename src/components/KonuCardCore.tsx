@@ -334,22 +334,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         {/* Optional 16:9 endcard video. It is intentionally not a Reel/full-screen layer. */}
         {renderEndCardVideo()}
 
-        {/* Replay Button overlay (fully interactive pointer-events-auto) */}
-        {endCardConfig.replayButton && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none" style={{ animation: 'ureelEndcardFade 2s ease-in-out both' }}>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleReplay();
-              }}
-              style={{ pointerEvents: 'auto' }}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-stone-900/90 hover:bg-stone-850 border border-stone-800 hover:border-[#A855F7] text-xs font-black uppercase tracking-widest text-[#A855F7] transition-all hover:scale-105 active:scale-95 shadow-2xl mt-12 cursor-pointer"
-            >
-              <LucideIcons.RotateCcw size={11} className="animate-spin-slow" />
-              <span>{lang === 'de' ? 'Spot neu starten' : 'Restart spot'}</span>
-            </button>
-          </div>
-        )}
+        {/* v52.4.12: Replay is rendered only once by the global top-right control.
+            The older endcard-centered replay button caused duplicate "Spot neu starten" labels. */}
       </React.Fragment>
     );
   };
@@ -1170,8 +1156,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     const widthClass = layeredFrameType === 'badge' ? 'max-w-[78%]' : 'max-w-[82%]';
     const compactRatio = buttonsVisible ? (isHero || endcardVideoActive ? 0.50 : 0.62) : 0.92;
     const titleSize = Math.max(12, Math.min(buttonsVisible ? 20 : 38, Number((card as any).heroTitleSize || 30) * compactRatio));
-    const subtitleSize = Math.max(6.5, Math.min(buttonsVisible ? 10 : 18, Number((card as any).heroSubtitleSize || 12) * (buttonsVisible ? 0.62 : 0.95)));
-    const descriptionSize = Math.max(6.2, Math.min(buttonsVisible ? 8 : 15, Number((card as any).heroDescriptionSize || 11) * (buttonsVisible ? 0.58 : 1)));
+    const subtitleSize = Math.max(8, Math.min(buttonsVisible ? 16 : 26, Number((card as any).heroSubtitleSize || 14) * (buttonsVisible ? 0.86 : 1)));
+    const descriptionSize = Math.max(7.8, Math.min(buttonsVisible ? 14 : 24, Number((card as any).heroDescriptionSize || 13) * (buttonsVisible ? 0.82 : 1)));
     const boxStyle = layeredTextBoxStyle();
     const textZoneStyle: React.CSSProperties = {
       top: heroTop,
@@ -1227,8 +1213,9 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         {!backgroundOnlyPreview && renderLayeredAdText()}
 
         {!backgroundOnlyPreview && (() => {
-          const profileUrl = (card as any).profileImageUrl || (card as any).heroProfileImageUrl || (mappedCardData as any).profileImageUrl || (mappedCardData as any).heroProfileImageUrl || (card as any).heroLogoUrl || (card as any).customLogoUrl || (mappedCardData as any).heroLogoUrl || (mappedCardData as any).customLogoUrl || '';
-          const profileEnabled = ((card as any).profileImageEnabled === true || (card as any).showProfileImage === true || (card as any).heroProfileImageEnabled === true) && !!profileUrl && showProfileImageTimed;
+          const profileUrl = (card as any).profileImageUrl || (card as any).profileImage || (card as any).profilePhotoUrl || (card as any).avatarUrl || (card as any).heroProfileImageUrl || (mappedCardData as any).profileImageUrl || (mappedCardData as any).profileImage || (mappedCardData as any).profilePhotoUrl || (mappedCardData as any).avatarUrl || (mappedCardData as any).heroProfileImageUrl || (card as any).heroLogoUrl || (card as any).customLogoUrl || (mappedCardData as any).heroLogoUrl || (mappedCardData as any).customLogoUrl || '';
+          const profileToggle = (card as any).profileImageEnabled === true || (card as any).showProfileImage === true || (card as any).heroProfileImageEnabled === true || (card as any).profileImageActive === true;
+          const profileEnabled = profileToggle && !!profileUrl && showProfileImageTimed;
           const profileTextEnabled = (card as any).profileTextMode === true && showProfileTextTimed && (!!(card as any).profileTextName || !!(card as any).profileTextPosition || !!(card as any).profileTextCompany);
           if (!profileEnabled && !profileTextEnabled) return null;
           const percentMap: Record<string, number> = { small: 15, normal: 35, large: 55, xlarge: 80, hero: 80, klein: 15, gross: 55, sehrgross: 80 };

@@ -1,4 +1,4 @@
-# ureel.me – v52.4.10 Text Preview & Color Picker Hard Fix
+# ureel.me – v52.4.12 Repository Cleanup & Editor Hard Fix Continuation
 
 Diese kompakte Upload-Version repariert gezielt den mobilen Karteneditor: Werbetext-Vorschau, flexible Textgrößen, Spektrum-Farbauswahl mit Hex-Code und nur einen „Spot neu starten“-Button. Karten- und Nutzerverwaltung werden in der nächsten separaten Version angelegt.
 
@@ -156,3 +156,7 @@ Diese Version poliert den mobilen Karteneditor nach v52.4.5:
 ## v52.4.7 – Text Template Editor & Preview Button Fix
 
 Diese Version stabilisiert den mobilen Karteneditor: 6-Button-Vorschau, antippbare Vorschau-Buttons, bereinigter Spot-Neustart, erweiterte Icon-Bibliothek und ein neuer mobiler Werbetext-Editor mit Vorschau, mindestens 15 Vorlagen und Timing-Schiebereglern auf Basis der Video-/Spotlänge.
+
+## v52.4.12 Kurzinfo
+
+Diese kompakte Upload-Version hält das Repository sauber (`CHANGELOG.md` statt vieler Release-Notes-Dateien) und setzt die harten Karteneditor-Fixes fort: Profilbild-Sichtbarkeit, Buttonform, Transparenz, Replay-Dopplung und Beschreibungstext.
