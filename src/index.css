@@ -4562,3 +4562,88 @@ body {
   0%, 100% { opacity: .62; transform: translateX(0); }
   50% { opacity: 1; transform: translateX(-3px); }
 }
+
+/* v52.4.11 – custom mobile spectrum picker, no old native color palette UI */
+.ureel-spectrum-picker {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 9px !important;
+  border: 1px solid #D8CDB7 !important;
+  border-radius: 18px !important;
+  background: #FFFFFF !important;
+  padding: 10px !important;
+  margin: 9px 0 12px !important;
+  color: #8A6B24 !important;
+}
+.ureel-spectrum-picker__head {
+  display: flex !important;
+  align-items: baseline !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+}
+.ureel-spectrum-picker__head span {
+  font-size: 10px !important;
+  font-weight: 950 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .08em !important;
+}
+.ureel-spectrum-picker__head small {
+  font-size: 8px !important;
+  font-weight: 850 !important;
+  color: #75695C !important;
+  text-transform: uppercase !important;
+}
+.ureel-spectrum-picker__field {
+  position: relative !important;
+  width: 100% !important;
+  height: 136px !important;
+  border-radius: 14px !important;
+  border: 1px solid #BCA96D !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.32) !important;
+  overflow: hidden !important;
+  cursor: crosshair !important;
+}
+.ureel-spectrum-picker__field i {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: 18px !important;
+  height: 18px !important;
+  border: 2px solid #fff !important;
+  border-radius: 999px !important;
+  transform: translate(-50%, -50%) !important;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.55), 0 4px 14px rgba(0,0,0,.25) !important;
+}
+.ureel-spectrum-picker__hue {
+  width: 100% !important;
+  height: 14px !important;
+  border-radius: 999px !important;
+  appearance: none !important;
+  background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000) !important;
+  outline: none !important;
+  cursor: pointer !important;
+}
+.ureel-spectrum-picker__bottom {
+  display: grid !important;
+  grid-template-columns: 44px 1fr !important;
+  gap: 8px !important;
+  align-items: center !important;
+}
+.ureel-spectrum-picker__bottom b {
+  display: block !important;
+  width: 44px !important;
+  height: 38px !important;
+  border-radius: 12px !important;
+  border: 1px solid #BCA96D !important;
+}
+.ureel-spectrum-picker__bottom input {
+  height: 38px !important;
+  border-radius: 12px !important;
+  border: 1px solid #D8CDB7 !important;
+  background: #fff !important;
+  color: #111 !important;
+  padding: 0 10px !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+}

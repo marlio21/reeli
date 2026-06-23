@@ -1093,7 +1093,10 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     .filter((btn) => btn.isActive)
     .filter((btn) => {
       const label = `${btn.title || ''}`.toLowerCase();
-      // v52.4.7: keep user-created Text/Timeline buttons visible. Only hidden studio/helper CTAs are excluded.
+      const actionType = `${(btn as any).actionType || ''}`.toLowerCase();
+      // v52.4.11: the replay control is rendered once by the card itself.
+      // Do not also render helper/replay buttons inside the 3×2 action grid.
+      if (actionType === 'video_replay' || /spot neu starten|video erneut ansehen|restart spot|watch again/i.test(label)) return false;
       return !/(editor|vorschau|bearbeiten|ureel live|konu live)/i.test(label);
     });
 
@@ -1224,11 +1227,11 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         {!backgroundOnlyPreview && renderLayeredAdText()}
 
         {!backgroundOnlyPreview && (() => {
-          const profileUrl = (mappedCardData as any).profileImageUrl || (mappedCardData as any).heroProfileImageUrl || (mappedCardData as any).heroLogoUrl || (mappedCardData as any).customLogoUrl || '';
+          const profileUrl = (card as any).profileImageUrl || (card as any).heroProfileImageUrl || (mappedCardData as any).profileImageUrl || (mappedCardData as any).heroProfileImageUrl || (card as any).heroLogoUrl || (card as any).customLogoUrl || (mappedCardData as any).heroLogoUrl || (mappedCardData as any).customLogoUrl || '';
           const profileEnabled = ((card as any).profileImageEnabled === true || (card as any).showProfileImage === true || (card as any).heroProfileImageEnabled === true) && !!profileUrl && showProfileImageTimed;
           const profileTextEnabled = (card as any).profileTextMode === true && showProfileTextTimed && (!!(card as any).profileTextName || !!(card as any).profileTextPosition || !!(card as any).profileTextCompany);
           if (!profileEnabled && !profileTextEnabled) return null;
-          const percentMap: Record<string, number> = { small: 15, normal: 35, large: 55, xlarge: 80, klein: 15, gross: 55, sehrgross: 80 };
+          const percentMap: Record<string, number> = { small: 15, normal: 35, large: 55, xlarge: 80, hero: 80, klein: 15, gross: 55, sehrgross: 80 };
           const sizePercent = Number((card as any).profileImageSizePercent || percentMap[(card as any).profileImageSize || 'small'] || 15);
           const shape = (card as any).profileImageShape || 'circle';
           const radius = shape === 'square' || shape === 'eckig' ? '6px' : shape === 'rounded' || shape === 'rund' ? '22px' : '999px';
@@ -1282,7 +1285,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                       else if (!isPreview && handleButtonClick) handleButtonClick(btn);
                     }}
                     lang={lang}
-                    forceSquare={gridLayout.square}
+                    forceSquare={false}
                     forceSizePx={safePreviewSize}
                   />
                 );

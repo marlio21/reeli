@@ -62,3 +62,15 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Icon-Bibliothek im Buttoneditor erweitert.
 - Farbauswahl im Texteditor vereinheitlicht: Farbfeld, Hex-Code und echter Picker.
 - Build- und Upload-Paket kompakt gehalten; alte Einzel-Release-Notes aus dem Upload entfernt.
+
+## v52.4.11 – Profile, Button Shape, Transparency & Color Picker Hard Fix
+
+- Profilbild-Sichtbarkeit robuster: Renderer liest Profilbild direkt aus Kartenfeldern, nicht nur aus gemappten Preview-Daten.
+- Profilbild Ein/Aus setzt auch `heroProfileImageEnabled` und Größen speichern zusätzlich Prozentwerte 15/35/55/80.
+- Profilbild-Größe `Sehr groß` wird im Renderer als 80 % der Kartenbreite behandelt.
+- Replay-/Hilfsbuttons wie „Spot neu starten“ oder „Video erneut ansehen“ werden aus dem 3×2-Buttonraster gefiltert; die Karte zeigt nur noch den echten Neustart-Control.
+- Buttonform in der echten 9:16-Karte korrigiert: Preview erzwingt nicht mehr alle Buttons als quadratische Form.
+- „Look auf alle Buttons“ überträgt jetzt auch Transparenz, Background-Modus, Gradientdaten und weitere Look-Felder.
+- Mobile Farbauswahl durch eigenen Spektrum-Picker ersetzt: Farbfläche, Hue-Leiste, Farbfeld und Hex-Code statt alter nativer Farbvorschläge.
+- Beschreibungstext bleibt im Werbetexteditor editierbar und nutzt die flexiblen Größen-/Farbwerte.
+- Produktions-Build erfolgreich geprüft.
