@@ -78,44 +78,69 @@ const hslToHex = (h: number, s: number, l: number) => {
 const SpectrumColorPicker: React.FC<{ label: string; value?: string; fallback?: string; onChange: (value: string) => void; }> = ({ label, value, fallback = '#FFFFFF', onChange }) => {
   const safe = normalizeHexColor(value, fallback);
   const [hue, setHue] = React.useState(220);
+  const [sat, setSat] = React.useState(82);
+  const [light, setLight] = React.useState(54);
+  const [open, setOpen] = React.useState(false);
+
+  const applyFromPointer = (event: React.PointerEvent<HTMLButtonElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = Math.max(0, Math.min(1, (event.clientX - rect.left) / Math.max(1, rect.width)));
+    const y = Math.max(0, Math.min(1, (event.clientY - rect.top) / Math.max(1, rect.height)));
+    const nextSat = Math.round(x * 100);
+    const nextLight = Math.round(100 - y * 88);
+    setSat(nextSat);
+    setLight(nextLight);
+    onChange(hslToHex(hue, nextSat, nextLight));
+  };
+
   return (
-    <div className="ureel-spectrum-picker">
-      <div className="ureel-spectrum-picker__head">
-        <span>{label}</span>
-        <small>Farbspektrum + Farbcode</small>
+    <div className={`ureel-spectrum-picker ${open ? 'is-open' : 'is-closed'}`}>
+      <div className="ureel-spectrum-picker__closed-row">
+        <button type="button" className="ureel-spectrum-picker__swatch" style={{ backgroundColor: safe }} onClick={() => setOpen(true)} aria-label={`${label} öffnen`} />
+        <div className="ureel-spectrum-picker__closed-text">
+          <span>{label}</span>
+          <input
+            aria-label={`${label} Hex-Code`}
+            value={safe}
+            maxLength={7}
+            placeholder="#FFFFFF"
+            onChange={(e) => {
+              const raw = e.target.value.trim();
+              const next = raw.startsWith('#') ? raw : `#${raw}`;
+              if (/^#[0-9A-Fa-f]{0,6}$/.test(next)) onChange(next.toUpperCase());
+            }}
+          />
+        </div>
+        <button type="button" className="ureel-spectrum-picker__open-button" onClick={() => setOpen((prev) => !prev)}>{open ? 'Schließen' : 'Farbe wählen'}</button>
       </div>
-      <button
-        type="button"
-        aria-label={`${label} Farbspektrum`}
-        className="ureel-spectrum-picker__field"
-        style={{ background: `linear-gradient(to top, #000000, transparent), linear-gradient(to right, #ffffff, hsl(${hue} 100% 50%))` }}
-        onClick={() => onChange(hslToHex(hue, 82, 54))}
-      >
-        <i style={{ backgroundColor: safe }} />
-      </button>
-      <input
-        aria-label={`${label} Farbton`}
-        type="range"
-        min={0}
-        max={360}
-        value={hue}
-        onChange={(e) => { const nextHue = Number(e.target.value); setHue(nextHue); onChange(hslToHex(nextHue, 82, 54)); }}
-        className="ureel-spectrum-picker__hue"
-      />
-      <div className="ureel-spectrum-picker__bottom">
-        <b style={{ backgroundColor: safe }} />
-        <input
-          aria-label={`${label} Hex-Code`}
-          value={safe}
-          maxLength={7}
-          placeholder="#FFFFFF"
-          onChange={(e) => {
-            const raw = e.target.value.trim();
-            const next = raw.startsWith('#') ? raw : `#${raw}`;
-            if (/^#[0-9A-Fa-f]{0,6}$/.test(next)) onChange(next.toUpperCase());
-          }}
-        />
-      </div>
+
+      {open && (
+        <div className="ureel-spectrum-picker__panel">
+          <div className="ureel-spectrum-picker__head">
+            <span>{label}</span>
+            <small>Farbspektrum + Farbcode</small>
+          </div>
+          <button
+            type="button"
+            aria-label={`${label} Farbspektrum`}
+            className="ureel-spectrum-picker__field"
+            style={{ background: `linear-gradient(to top, #000000, transparent), linear-gradient(to right, #ffffff, hsl(${hue} 100% 50%))` }}
+            onPointerDown={applyFromPointer}
+            onPointerMove={(e) => { if (e.buttons === 1) applyFromPointer(e); }}
+          >
+            <i style={{ left: `${sat}%`, top: `${100 - ((light / 100) * 88)}%`, backgroundColor: safe }} />
+          </button>
+          <input
+            aria-label={`${label} Farbton`}
+            type="range"
+            min={0}
+            max={360}
+            value={hue}
+            onChange={(e) => { const nextHue = Number(e.target.value); setHue(nextHue); onChange(hslToHex(nextHue, sat, light)); }}
+            className="ureel-spectrum-picker__hue"
+          />
+        </div>
+      )}
     </div>
   );
 };
@@ -509,7 +534,15 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     if (!activeCard) return;
     const updatedButtons = activeCard.buttons.map(b => {
       if (b.id === btnId) {
-        return { ...b, ...updates };
+        const next: any = { ...b, ...updates };
+        if ((updates as any).title !== undefined) { next.text = (updates as any).title; next.label = (updates as any).title; }
+        if ((updates as any).subtitle !== undefined) { next.secondLine = (updates as any).subtitle; }
+        if ((updates as any).radius !== undefined || (updates as any).buttonShape !== undefined) {
+          const rawShape = String((updates as any).buttonShape || (updates as any).radius || '').toLowerCase();
+          next.buttonShape = rawShape === 'pill' || rawShape === 'round' || rawShape === 'circle' ? 'round' : rawShape === 'square' ? 'square' : 'rounded';
+          next.radius = rawShape === 'pill' || rawShape === 'round' || rawShape === 'circle' ? 'pill' : rawShape === 'square' ? 'square' : 'rounded';
+        }
+        return next;
       }
       return b;
     });
@@ -1935,7 +1968,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           button={button}
           mode="editor"
           lang={lang}
-          forceSquare={true}
+          forceSquare={false}
           forceSizePx={size}
         />
       </div>
@@ -2472,7 +2505,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             { id: 'scene', label: lang === 'de' ? 'Szene' : 'Scene', icon: LucideIcons.Tv },
             { id: 'timeline', label: lang === 'de' ? 'Timeline' : 'Timeline', icon: LucideIcons.Milestone },
             { id: 'buttons', label: lang === 'de' ? 'Buttons' : 'Buttons', icon: LucideIcons.Grid },
-            { id: 'design', label: lang === 'de' ? 'Design' : 'Design', icon: LucideIcons.Palette }
+            { id: 'design', label: lang === 'de' ? 'Design' : 'Design', icon: LucideIcons.Palette },
+            { id: 'cards', label: lang === 'de' ? 'Karten' : 'Cards', icon: LucideIcons.Layers }
           ].map((item) => {
             const IconComponent = item.icon;
             const active = activeTab === item.id;
@@ -2481,7 +2515,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 key={item.id}
                 onClick={() => {
                   setActiveTab(item.id as MainModule);
-                  const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-list', design: 'design-desktop' };
+                  const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-list', design: 'design-desktop', cards: 'cards-list' };
                   if (defaults[item.id]) setActiveSubSection(defaults[item.id]);
                 }}
                 className={`min-w-[74px] md:min-w-0 flex flex-col snap-start items-center justify-center py-2.5 px-2 md:px-0 rounded-xl transition duration-150 relative cursor-pointer ${
@@ -2500,6 +2534,16 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             );
           })}
         </div>
+
+        <button
+          type="button"
+          onClick={() => { setAccountPanelOpen(true); setAccountManagerTab('profile'); }}
+          className="min-w-[74px] md:min-w-0 flex flex-col items-center justify-center py-2.5 px-2 md:px-0 rounded-xl transition duration-150 text-stone-300 hover:text-[#E8DCC2] hover:bg-stone-900/40 font-medium border border-stone-800/60 md:w-[60px]"
+          title="Konto / Nutzer"
+        >
+          <LucideIcons.UserCog size={18} className="stroke-[2.2]" />
+          <span className="text-[8.5px] mt-1 tracking-wider leading-none">Konto</span>
+        </button>
 
         {/* Bottom Profile Details or Exit */}
         <div className="flex flex-row md:flex-col items-center gap-2 shrink-0 ureel-mobile-utility-actions">
@@ -4711,8 +4755,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div className="ureel-mobile-text-preview-top"><span>Werbetext-Vorschau</span><small>← Wischen: neues Design · {currentTextTemplate.style === 'none' ? 'Klar' : `Design ${Math.max(1, Object.values(UREEL_TEXT_TEMPLATES).findIndex((t) => t.id === currentTextTemplate.style) + 1)} / 15`}</small></div>
                 <div className="ureel-mobile-text-preview-sample" style={getTextTemplatePreviewStyle()}>
                   <b style={{ fontSize: clampTextSize((activeCard as any).heroTitleSize, 30, 16, 56), color: (activeCard as any).heroTitleTextColor || '#F5F2EA' }}>{activeCard.title || 'Dein Titel'}</b>
-                  <strong style={{ fontSize: clampTextSize((activeCard as any).heroSubtitleSize, 18, 10, 44), color: (activeCard as any).heroSubtitleTextColor || '#E8DCC2' }}>{activeCard.subtitle || 'Dein Untertitel'}</strong>
-                  <p style={{ fontSize: clampTextSize((activeCard as any).heroDescriptionSize, 16, 10, 40), color: (activeCard as any).heroDescTextColor || '#D8D2C5' }}>{activeCard.description || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.'}</p>
+                  <strong style={{ fontSize: clampTextSize((activeCard as any).heroSubtitleSize, 24, 12, 64), color: (activeCard as any).heroSubtitleTextColor || '#E8DCC2' }}>{activeCard.subtitle || 'Dein Untertitel'}</strong>
+                  <p style={{ fontSize: clampTextSize((activeCard as any).heroDescriptionSize, 24, 12, 56), color: (activeCard as any).heroDescTextColor || '#D8D2C5' }}>{activeCard.description || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.'}</p>
                 </div>
                 <div className="ureel-mobile-text-template-strip">
                   <button type="button" className={currentTextTemplate.style === 'none' ? 'is-active' : ''} onClick={() => applyTextTemplatePreset('none')}><b>Klar</b><small>Neutral</small></button>
@@ -4721,17 +4765,17 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               </div>
 
               <h4>Textfelder</h4>
-              <label>Titel</label><input value={activeCard.title || ''} placeholder="z. B. Tischlerei Hager" onChange={(e) => syncCardUpdate({ title: e.target.value })} />
-              <label>Untertitel</label><input value={activeCard.subtitle || ''} placeholder="z. B. Handwerk, das bleibt" onChange={(e) => syncCardUpdate({ subtitle: e.target.value })} />
-              <label>Beschreibung</label><textarea rows={3} value={activeCard.description || ''} placeholder="Kurzer Werbetext oder Angebot" onChange={(e) => syncCardUpdate({ description: e.target.value })} />
+              <label>Titel</label><input value={activeCard.title || ''} placeholder="z. B. Tischlerei Hager" onChange={(e) => syncCardUpdate({ title: e.target.value, heroTitle: e.target.value })} />
+              <label>Untertitel</label><input value={activeCard.subtitle || ''} placeholder="z. B. Handwerk, das bleibt" onChange={(e) => syncCardUpdate({ subtitle: e.target.value, heroSubtitle: e.target.value })} />
+              <label>Beschreibung</label><textarea rows={3} value={activeCard.description || ''} placeholder="Kurzer Werbetext oder Angebot" onChange={(e) => syncCardUpdate({ description: e.target.value, heroDescription: e.target.value })} />
 
               <h4>Stil</h4>
               <span className="ureel-tap-mini-label">Schriftart</span>
               <div className="ureel-tap-chip-row"><button type="button" className={(currentTextTemplate.fontStyle || 'modern') === 'modern' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'modern' })}>Klar</button><button type="button" className={currentTextTemplate.fontStyle === 'elegant' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'elegant' })}>Elegant</button><button type="button" className={currentTextTemplate.fontStyle === 'serif' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'serif' })}>Serif</button><button type="button" className={currentTextTemplate.fontStyle === 'condensed' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'condensed' })}>Bold</button></div>
               {[
                 { key: 'heroTitleSize', label: 'Titelgröße', min: 16, max: 56, fallback: 30 },
-                { key: 'heroSubtitleSize', label: 'Untertitelgröße', min: 10, max: 44, fallback: 18 },
-                { key: 'heroDescriptionSize', label: 'Beschreibunggröße', min: 10, max: 40, fallback: 16 },
+                { key: 'heroSubtitleSize', label: 'Untertitelgröße', min: 12, max: 64, fallback: 24 },
+                { key: 'heroDescriptionSize', label: 'Beschreibunggröße', min: 12, max: 56, fallback: 24 },
               ].map((item) => <div key={item.key} className="ureel-tap-slider-row"><label>{item.label} <b>{clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max).toFixed(0)}px</b></label><input type="range" min={item.min} max={item.max} step={1} value={clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max)} onChange={(e) => syncCardUpdate({ [item.key]: Number(e.target.value) } as any)} /></div>)}
               {[
                 { key: 'heroTitleTextColor', label: 'Titelfarbe', fallback: '#F5F2EA' },

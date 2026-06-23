@@ -1157,7 +1157,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     const compactRatio = buttonsVisible ? (isHero || endcardVideoActive ? 0.50 : 0.62) : 0.92;
     const titleSize = Math.max(12, Math.min(buttonsVisible ? 20 : 38, Number((card as any).heroTitleSize || 30) * compactRatio));
     const subtitleSize = Math.max(8, Math.min(buttonsVisible ? 16 : 26, Number((card as any).heroSubtitleSize || 14) * (buttonsVisible ? 0.86 : 1)));
-    const descriptionSize = Math.max(7.8, Math.min(buttonsVisible ? 14 : 24, Number((card as any).heroDescriptionSize || 13) * (buttonsVisible ? 0.82 : 1)));
+    const descriptionSize = Math.max(10, Math.min(buttonsVisible ? 22 : 34, Number((card as any).heroDescriptionSize || 22) * (buttonsVisible ? 0.72 : 1))); // v52.5.1: description must remain readable in card preview
     const boxStyle = layeredTextBoxStyle();
     const textZoneStyle: React.CSSProperties = {
       top: heroTop,
@@ -1219,15 +1219,15 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
           const profileTextEnabled = (card as any).profileTextMode === true && showProfileTextTimed && (!!(card as any).profileTextName || !!(card as any).profileTextPosition || !!(card as any).profileTextCompany);
           if (!profileEnabled && !profileTextEnabled) return null;
           const percentMap: Record<string, number> = { small: 15, normal: 35, large: 55, xlarge: 80, hero: 80, klein: 15, gross: 55, sehrgross: 80 };
-          const sizePercent = Number((card as any).profileImageSizePercent || percentMap[(card as any).profileImageSize || 'small'] || 15);
+          const sizePercent = Math.max(15, Math.min(80, Number((card as any).profileImageSizePercent || percentMap[(card as any).profileImageSize || 'normal'] || 35))); // v52.5.1: true percentage of card width
           const shape = (card as any).profileImageShape || 'circle';
           const radius = shape === 'square' || shape === 'eckig' ? '6px' : shape === 'rounded' || shape === 'rund' ? '22px' : '999px';
           return (
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); if (isPreview && onEditText) onEditText(); else if (isPreview && onEditProfileHero) onEditProfileHero(); }}
-              className={`absolute left-1/2 top-[5.5%] z-[18] -translate-x-1/2 flex flex-col items-center gap-2 text-center ${isPreview ? 'cursor-pointer pointer-events-auto' : 'pointer-events-none'}`}
-              style={{ maxWidth: '86%' }}
+              className={`absolute left-0 right-0 top-[5.5%] z-[18] flex flex-col items-center gap-2 text-center ${isPreview ? 'cursor-pointer pointer-events-auto' : 'pointer-events-none'}`}
+              style={{ width: '100%', maxWidth: '100%' }}
             >
               {profileEnabled && (
                 <img
