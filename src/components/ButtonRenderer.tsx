@@ -183,7 +183,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const scaleFactor = getButtonScaleFactor(btn);
   
   // A button is square if no custom heights or custom widths are active, or if forceSquare is true
-  const isSquare = forceSquare || !bSize || bSize.preset === 'standard' || bSize.preset === 'compact' || bSize.preset === 'large' || bSize.scale !== undefined || (!bSize.height && !bSize.minHeight);
+  const isSquare = forceSquare; // v52.5.2: never force real card buttons into square tiles unless explicitly requested
 
   // Calculate buttonSize presets
   let paddingXStyle = '';
@@ -250,8 +250,9 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const getRadiusClass = () => {
     if (shape === 'square') return 'rounded-none';
     if (shape === 'round') return 'rounded-full';
-    return 'rounded-[20px]'; // standard KONU card button style
+    return 'rounded-[18px]'; // standard ureel rounded-rectangle button style
   };
+  const radiusStyleValue = shape === 'square' ? '6px' : shape === 'round' ? '999px' : (forceSizePx ? `${Math.max(10, Math.round(forceSizePx * 0.22))}px` : '20px');
 
   // Render internal Icon
   const renderIcon = (iconId: string, color: string, size = 18) => {
@@ -417,10 +418,10 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   if (shape === 'round') {
     inlineStyles.borderRadius = '999px';
   } else if (shape === 'square') {
-    inlineStyles.borderRadius = '0px';
+    inlineStyles.borderRadius = radiusStyleValue;
   } else {
     // rounded - proportional slightly
-    inlineStyles.borderRadius = `${Math.round(20 * scaleFactor)}px`;
+    inlineStyles.borderRadius = radiusStyleValue;
   }
 
   // Click Handler wrapping

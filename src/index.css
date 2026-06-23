@@ -4717,3 +4717,55 @@ body {
   left: var(--picker-x, 50%) !important;
   top: var(--picker-y, 50%) !important;
 }
+
+/* v52.5.2: closed-first spectrum picker with real touch/drag control */
+.ureel-spectrum-picker__field,
+.ureel-spectrum-picker__hue-drag {
+  touch-action: none;
+  user-select: none;
+  cursor: crosshair;
+}
+.ureel-spectrum-picker__hue-drag {
+  position: relative;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(245,242,234,.22);
+  background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+  margin-top: 10px;
+}
+.ureel-spectrum-picker__hue-drag span {
+  position: absolute;
+  top: 50%;
+  left: var(--hue-pos, 50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px rgba(0,0,0,.55), 0 6px 18px rgba(0,0,0,.45);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.ureel-spectrum-picker__hex-row {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+}
+.ureel-spectrum-picker__hex-row span {
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(245,242,234,.25);
+}
+.ureel-spectrum-picker__hex-row input {
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid rgba(245,242,234,.18);
+  background: #0f0f0f;
+  color: #f5f2ea;
+  padding: 0 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  outline: none;
+}
+.ureel-studio-preview-panel .relative.shrink-0 { z-index: 90; }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import * as LucideIcons from 'lucide-react';
 import { Card, CardButton, UreelScene, UreelTimeline, UreelEndCard, UreelTextTemplate, getPublicCardUrl } from '../types';
@@ -81,16 +81,34 @@ const SpectrumColorPicker: React.FC<{ label: string; value?: string; fallback?: 
   const [sat, setSat] = React.useState(82);
   const [light, setLight] = React.useState(54);
   const [open, setOpen] = React.useState(false);
+  const draggingRef = useRef(false);
+  const hueDraggingRef = useRef(false);
 
-  const applyFromPointer = (event: React.PointerEvent<HTMLButtonElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = Math.max(0, Math.min(1, (event.clientX - rect.left) / Math.max(1, rect.width)));
-    const y = Math.max(0, Math.min(1, (event.clientY - rect.top) / Math.max(1, rect.height)));
+  const applyFromPoint = (clientX: number, clientY: number, target: HTMLElement) => {
+    const rect = target.getBoundingClientRect();
+    const x = Math.max(0, Math.min(1, (clientX - rect.left) / Math.max(1, rect.width)));
+    const y = Math.max(0, Math.min(1, (clientY - rect.top) / Math.max(1, rect.height)));
     const nextSat = Math.round(x * 100);
     const nextLight = Math.round(100 - y * 88);
     setSat(nextSat);
     setLight(nextLight);
     onChange(hslToHex(hue, nextSat, nextLight));
+  };
+
+  const applyHueFromPoint = (clientX: number, target: HTMLElement) => {
+    const rect = target.getBoundingClientRect();
+    const x = Math.max(0, Math.min(1, (clientX - rect.left) / Math.max(1, rect.width)));
+    const nextHue = Math.round(x * 360);
+    setHue(nextHue);
+    onChange(hslToHex(nextHue, sat, light));
+  };
+
+  const handleHexChange = (rawInput: string) => {
+    const raw = rawInput.trim().replace(/[^0-9A-Fa-f#]/g, '');
+    const next = raw.startsWith('#') ? raw : `#${raw}`;
+    if (/^#[0-9A-Fa-f]{0,6}$/.test(next)) {
+      onChange(next.toUpperCase());
+    }
   };
 
   return (
@@ -104,11 +122,8 @@ const SpectrumColorPicker: React.FC<{ label: string; value?: string; fallback?: 
             value={safe}
             maxLength={7}
             placeholder="#FFFFFF"
-            onChange={(e) => {
-              const raw = e.target.value.trim();
-              const next = raw.startsWith('#') ? raw : `#${raw}`;
-              if (/^#[0-9A-Fa-f]{0,6}$/.test(next)) onChange(next.toUpperCase());
-            }}
+            onChange={(e) => handleHexChange(e.target.value)}
+            onFocus={() => setOpen(true)}
           />
         </div>
         <button type="button" className="ureel-spectrum-picker__open-button" onClick={() => setOpen((prev) => !prev)}>{open ? 'Schließen' : 'Farbe wählen'}</button>
@@ -120,25 +135,60 @@ const SpectrumColorPicker: React.FC<{ label: string; value?: string; fallback?: 
             <span>{label}</span>
             <small>Farbspektrum + Farbcode</small>
           </div>
-          <button
-            type="button"
+          <div
+            role="slider"
+            tabIndex={0}
             aria-label={`${label} Farbspektrum`}
             className="ureel-spectrum-picker__field"
             style={{ background: `linear-gradient(to top, #000000, transparent), linear-gradient(to right, #ffffff, hsl(${hue} 100% 50%))` }}
-            onPointerDown={applyFromPointer}
-            onPointerMove={(e) => { if (e.buttons === 1) applyFromPointer(e); }}
+            onPointerDown={(e) => {
+              e.preventDefault();
+              draggingRef.current = true;
+              (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+              applyFromPoint(e.clientX, e.clientY, e.currentTarget as HTMLElement);
+            }}
+            onPointerMove={(e) => {
+              if (!draggingRef.current && e.buttons !== 1) return;
+              e.preventDefault();
+              applyFromPoint(e.clientX, e.clientY, e.currentTarget as HTMLElement);
+            }}
+            onPointerUp={(e) => {
+              draggingRef.current = false;
+              (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
+            }}
+            onPointerCancel={() => { draggingRef.current = false; }}
           >
             <i style={{ left: `${sat}%`, top: `${100 - ((light / 100) * 88)}%`, backgroundColor: safe }} />
-          </button>
-          <input
+          </div>
+          <div
+            role="slider"
+            tabIndex={0}
             aria-label={`${label} Farbton`}
-            type="range"
-            min={0}
-            max={360}
-            value={hue}
-            onChange={(e) => { const nextHue = Number(e.target.value); setHue(nextHue); onChange(hslToHex(nextHue, sat, light)); }}
-            className="ureel-spectrum-picker__hue"
-          />
+            className="ureel-spectrum-picker__hue-drag"
+            style={{ ['--hue-pos' as any]: `${(hue / 360) * 100}%` }}
+            onPointerDown={(e) => {
+              e.preventDefault();
+              hueDraggingRef.current = true;
+              (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+              applyHueFromPoint(e.clientX, e.currentTarget as HTMLElement);
+            }}
+            onPointerMove={(e) => {
+              if (!hueDraggingRef.current && e.buttons !== 1) return;
+              e.preventDefault();
+              applyHueFromPoint(e.clientX, e.currentTarget as HTMLElement);
+            }}
+            onPointerUp={(e) => {
+              hueDraggingRef.current = false;
+              (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
+            }}
+            onPointerCancel={() => { hueDraggingRef.current = false; }}
+          >
+            <span />
+          </div>
+          <div className="ureel-spectrum-picker__hex-row">
+            <span style={{ backgroundColor: safe }} />
+            <input value={safe} maxLength={7} onChange={(e) => handleHexChange(e.target.value)} aria-label={`${label} Hex-Code direkt`} />
+          </div>
         </div>
       )}
     </div>
@@ -238,6 +288,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [accountPanelOpen, setAccountPanelOpen] = useState(false);
   const [teamPanelOpen, setTeamPanelOpen] = useState(false);
   const [cardManagerOpen, setCardManagerOpen] = useState(false);
+  const [dashboardMenuOpen, setDashboardMenuOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [accountManagerTab, setAccountManagerTab] = useState<'profile' | 'billing' | 'team' | 'settings'>('profile');
   const [profileDraft, setProfileDraft] = useState({
@@ -435,7 +486,32 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     }
     const preset = UREEL_TEXT_TEMPLATES[styleId];
     if (!preset) return;
+    const templateSizes: any = {
+      luxury: { heroTitleSize: 38, heroSubtitleSize: 24, heroDescriptionSize: 26 },
+      premium_product: { heroTitleSize: 36, heroSubtitleSize: 22, heroDescriptionSize: 25 },
+      social_reel: { heroTitleSize: 34, heroSubtitleSize: 23, heroDescriptionSize: 24 },
+      event_messe: { heroTitleSize: 35, heroSubtitleSize: 22, heroDescriptionSize: 24 },
+      real_estate: { heroTitleSize: 32, heroSubtitleSize: 21, heroDescriptionSize: 24 },
+    };
+    const sizePatch = templateSizes[preset.id] || { heroTitleSize: 32, heroSubtitleSize: 21, heroDescriptionSize: 24 };
     await syncCardUpdate({
+      ...sizePatch,
+      description: activeCard.description || activeCard.heroDescription || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.',
+      heroDescription: activeCard.description || activeCard.heroDescription || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.',
+      heroTitleTextColor: (activeCard as any).heroTitleTextColor || '#F5F2EA',
+      heroSubtitleTextColor: (activeCard as any).heroSubtitleTextColor || '#E8DCC2',
+      heroDescTextColor: (activeCard as any).heroDescTextColor || '#D8D2C5',
+      videoBackgroundConfig: {
+        ...(activeCard.videoBackgroundConfig || {}),
+        profileTextReveals: ['title','subtitle','description'].map((fieldKey: any) => ({
+          fieldKey,
+          enabled: true,
+          startSecond: 0,
+          fadeDuration: 0.6,
+          staysVisibleAfterSequence: true,
+        })),
+      } as any,
+      ureelTimeline: { ...(activeCard.ureelTimeline || {}), titleAt: 0, subtitleAt: 0, descriptionAt: 0 } as any,
       ureelTextTemplate: {
         id: preset.id,
         style: preset.id,
@@ -1089,7 +1165,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const getTextLayerDraftValue = (fieldKey: 'title' | 'subtitle' | 'description') => {
     if (fieldKey === 'title') return textDirty ? textDraft.title : (activeCard.title || '');
     if (fieldKey === 'subtitle') return textDirty ? textDraft.subtitle : (activeCard.subtitle || '');
-    return textDirty ? textDraft.description : (activeCard.description || '');
+    return textDirty ? textDraft.description : (activeCard.description || (activeCard as any).heroDescription || '');
   };
 
   const hasTextLayerContent = (fieldKey: 'title' | 'subtitle' | 'description') => {
@@ -1945,13 +2021,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     title: getTextLayerDraftValue('title'),
     subtitle: getTextLayerDraftValue('subtitle'),
     description: getTextLayerDraftValue('description'),
+    heroDescription: getTextLayerDraftValue('description'),
     ureelTimeline: { ...(activeCard.ureelTimeline || {}), titleAt: 0, subtitleAt: 0, descriptionAt: 0, buttonsAt: 999, endCardAt: activeCard.videoBackgroundConfig?.durationSeconds || 12 },
     videoBackgroundConfig: {
       ...(activeCard.videoBackgroundConfig || {}),
       profileTextReveals: [
-        { fieldKey: 'title', enabled: isTextLayerVisible('title'), startSecond: 0, fadeDuration: 0.8, staysVisibleAfterSequence: true },
-        { fieldKey: 'subtitle', enabled: isTextLayerVisible('subtitle'), startSecond: 0, fadeDuration: 0.8, staysVisibleAfterSequence: true },
-        { fieldKey: 'description', enabled: isTextLayerVisible('description'), startSecond: 0, fadeDuration: 0.8, staysVisibleAfterSequence: true },
+        { fieldKey: 'title', enabled: true, startSecond: 0, fadeDuration: 0.8, staysVisibleAfterSequence: true },
+        { fieldKey: 'subtitle', enabled: true, startSecond: 0, fadeDuration: 0.8, staysVisibleAfterSequence: true },
+        { fieldKey: 'description', enabled: true, startSecond: 0, fadeDuration: 0.8, staysVisibleAfterSequence: true },
       ],
       buttonReveal: { ...(activeCard.videoBackgroundConfig?.buttonReveal || {}), enabled: false, startSecond: 999 },
     } as any,
@@ -4431,6 +4508,23 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             </span>
           </div>
 
+          <div className="relative shrink-0">
+            <button
+              type="button"
+              onClick={() => setDashboardMenuOpen((open) => !open)}
+              className="h-8 rounded-xl bg-[#F5F2EA] text-[#101010] px-3 text-[8.5px] font-black uppercase tracking-wider inline-flex items-center gap-1.5 shadow-lg"
+            >
+              <LucideIcons.LayoutDashboard size={12} /> Dashboard
+            </button>
+            {dashboardMenuOpen && (
+              <div className="absolute right-0 top-10 z-[80] w-[260px] rounded-2xl border border-[#E8DCC2]/30 bg-[#121216] p-3 shadow-2xl text-[#F5F2EA]">
+                <button type="button" onClick={() => { setDashboardMenuOpen(false); setCardManagerOpen(true); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.Layers size={14}/> Kartenverwaltung</button>
+                <button type="button" onClick={() => { setDashboardMenuOpen(false); setAccountManagerTab('profile'); setAccountPanelOpen(true); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.UserCog size={14}/> Nutzerverwaltung / Konto</button>
+                <button type="button" onClick={() => { setDashboardMenuOpen(false); handleCreateNewUreel(); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.Plus size={14}/> Neue Karte</button>
+              </div>
+            )}
+          </div>
+
           {activeTab === 'buttons' ? (
             <div className="grid grid-cols-3 gap-0.5 rounded-xl border border-[#3A3732] bg-[#0F0F0F] p-0.5 text-[8px] font-black uppercase shrink-0">
               {(['card','button','grid'] as const).map((mode) => (
@@ -4471,7 +4565,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 ) : (
                   <>
                     <LucideIcons.Play size={10} className="text-[#E8DCC2] fill-[#E8DCC2]" />
-                    <span>Simulation</span>
+                    <span>Start</span>
                   </>
                 )}
               </button>
@@ -4481,6 +4575,23 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
         {/* Smart preview / Button monitor */}
         <div className="flex-none md:flex-1 flex items-center justify-center py-2 md:py-4 bg-stone-950/20 overflow-visible md:overflow-hidden ureel-studio-preview-stage">
+          <div className="relative shrink-0">
+            <button
+              type="button"
+              onClick={() => setDashboardMenuOpen((open) => !open)}
+              className="h-8 rounded-xl bg-[#F5F2EA] text-[#101010] px-3 text-[8.5px] font-black uppercase tracking-wider inline-flex items-center gap-1.5 shadow-lg"
+            >
+              <LucideIcons.LayoutDashboard size={12} /> Dashboard
+            </button>
+            {dashboardMenuOpen && (
+              <div className="absolute right-0 top-10 z-[80] w-[260px] rounded-2xl border border-[#E8DCC2]/30 bg-[#121216] p-3 shadow-2xl text-[#F5F2EA]">
+                <button type="button" onClick={() => { setDashboardMenuOpen(false); setCardManagerOpen(true); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.Layers size={14}/> Kartenverwaltung</button>
+                <button type="button" onClick={() => { setDashboardMenuOpen(false); setAccountManagerTab('profile'); setAccountPanelOpen(true); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.UserCog size={14}/> Nutzerverwaltung / Konto</button>
+                <button type="button" onClick={() => { setDashboardMenuOpen(false); handleCreateNewUreel(); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.Plus size={14}/> Neue Karte</button>
+              </div>
+            )}
+          </div>
+
           {activeTab === 'buttons' ? (
             <div className="w-full h-full min-h-[230px] md:min-h-0 flex items-center justify-center">
               {buttonPreviewMode === 'button' && editingButton && (
@@ -4754,9 +4865,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <div className="ureel-mobile-text-preview-card">
                 <div className="ureel-mobile-text-preview-top"><span>Werbetext-Vorschau</span><small>← Wischen: neues Design · {currentTextTemplate.style === 'none' ? 'Klar' : `Design ${Math.max(1, Object.values(UREEL_TEXT_TEMPLATES).findIndex((t) => t.id === currentTextTemplate.style) + 1)} / 15`}</small></div>
                 <div className="ureel-mobile-text-preview-sample" style={getTextTemplatePreviewStyle()}>
-                  <b style={{ fontSize: clampTextSize((activeCard as any).heroTitleSize, 30, 16, 56), color: (activeCard as any).heroTitleTextColor || '#F5F2EA' }}>{activeCard.title || 'Dein Titel'}</b>
-                  <strong style={{ fontSize: clampTextSize((activeCard as any).heroSubtitleSize, 24, 12, 64), color: (activeCard as any).heroSubtitleTextColor || '#E8DCC2' }}>{activeCard.subtitle || 'Dein Untertitel'}</strong>
-                  <p style={{ fontSize: clampTextSize((activeCard as any).heroDescriptionSize, 24, 12, 56), color: (activeCard as any).heroDescTextColor || '#D8D2C5' }}>{activeCard.description || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.'}</p>
+                  <b style={{ fontSize: clampTextSize((activeCard as any).heroTitleSize, 30, 16, 56), color: (activeCard as any).heroTitleTextColor || '#F5F2EA' }}>{getTextLayerDraftValue('title') || 'Dein Titel'}</b>
+                  <strong style={{ fontSize: clampTextSize((activeCard as any).heroSubtitleSize, 24, 12, 64), color: (activeCard as any).heroSubtitleTextColor || '#E8DCC2' }}>{getTextLayerDraftValue('subtitle') || 'Dein Untertitel'}</strong>
+                  <p style={{ fontSize: clampTextSize((activeCard as any).heroDescriptionSize, 24, 12, 56), color: (activeCard as any).heroDescTextColor || '#D8D2C5' }}>{getTextLayerDraftValue('description') || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.'}</p>
                 </div>
                 <div className="ureel-mobile-text-template-strip">
                   <button type="button" className={currentTextTemplate.style === 'none' ? 'is-active' : ''} onClick={() => applyTextTemplatePreset('none')}><b>Klar</b><small>Neutral</small></button>
@@ -4767,7 +4878,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <h4>Textfelder</h4>
               <label>Titel</label><input value={activeCard.title || ''} placeholder="z. B. Tischlerei Hager" onChange={(e) => syncCardUpdate({ title: e.target.value, heroTitle: e.target.value })} />
               <label>Untertitel</label><input value={activeCard.subtitle || ''} placeholder="z. B. Handwerk, das bleibt" onChange={(e) => syncCardUpdate({ subtitle: e.target.value, heroSubtitle: e.target.value })} />
-              <label>Beschreibung</label><textarea rows={3} value={activeCard.description || ''} placeholder="Kurzer Werbetext oder Angebot" onChange={(e) => syncCardUpdate({ description: e.target.value, heroDescription: e.target.value })} />
+              <label>Beschreibung</label><textarea rows={4} value={getTextLayerDraftValue('description')} placeholder="Kurzer Werbetext oder Angebot" onChange={(e) => { const next = e.target.value; setTextDirty(true); setTextDraft((draft) => ({ ...draft, description: next })); syncCardUpdate({ description: next, heroDescription: next } as any); }} />
 
               <h4>Stil</h4>
               <span className="ureel-tap-mini-label">Schriftart</span>

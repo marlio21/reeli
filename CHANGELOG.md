@@ -1,18 +1,3 @@
-
-## v52.5.1 – Editor Rendering Sync & Management Visibility Fix
-
-- Beschreibungstext im mobilen Werbetexteditor stärker mit Karte und Vorschau synchronisiert.
-- Titel, Untertitel und Beschreibung schreiben zusätzlich in die Hero-Felder.
-- Farbeditor startet geschlossen: Farbfeld, Hex-Code und Button „Farbe wählen“.
-- Spektrum-Picker mit bedienbarem Punktkreis, Hue-Leiste und Hex-Code ergänzt.
-- Button-Vorschau verwendet keine erzwungene Quadrat-Form mehr.
-- Buttontext und zweite Zeile werden zusätzlich in Legacy-Textfelder synchronisiert.
-- Profilbild-Größen werden als echte Prozentwerte der Kartenbreite gerendert.
-- Beschreibung in der 9:16-Karte größer/lesbarer.
-- Kartenverwaltung ist direkt in der Hauptnavigation sichtbar.
-- Konto/Nutzerbereich ist direkt in der Hauptnavigation sichtbar.
-- Produktions-Build erfolgreich.
-
 ## v52.4.12 – Repository Cleanup & Editor Hard Fix Continuation
 
 - Upload-Struktur bereinigt: `RELEASE_NOTES_*.md` bleiben aus der ZIP entfernt; `CHANGELOG.md` ist die einzige Versionshistorie.
@@ -89,3 +74,13 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Icon-Bibliothek im Buttoneditor erweitert.
 - Farbauswahl im Texteditor vereinheitlicht: Farbfeld, Hex-Code und echter Picker.
 - Build- und Upload-Paket kompakt gehalten; alte Einzel-Release-Notes aus dem Upload entfernt.
+
+
+## v52.5.2 – Renderer Sync Foundation & Dashboard Entry
+
+- Dashboard-Button in der Preview-Leiste ergänzt; Kartenverwaltung und Nutzerverwaltung sind darüber sichtbar erreichbar.
+- Werbetext-Vorlagen synchronisieren Textvorschau und 9:16-Karte härter.
+- Beschreibungstext bleibt an description + heroDescription gebunden und wird im Preview-Modell sofort angezeigt.
+- Farbeditor startet geschlossen und nutzt ein echtes Spektrumfeld mit Pointer-Capture, Hue-Leiste und Hex-Code.
+- ButtonRenderer erzwingt in der echten Kartenvorschau keine Quadratform mehr; abgerundete Buttons bleiben sichtbar.
+- Profilbild-Rendering wird nicht verändert.

@@ -1,6 +1,8 @@
-# ureel – v52.5.1 – Editor Rendering Sync & Management Visibility Fix
+# ureel.me v52.5.2
 
-Reparaturversion für Karteneditor, sichtbare Karten-/Kontonavigation, Farbauswahl, Profilbildgrößen und Button-/Text-Sync.
+Renderer Sync Foundation & Dashboard Entry.
 
-## Test
-Upload auf GitHub und Test über https://reeli-alpha.vercel.app
+- Dashboard-Button oben rechts statt versteckter Simulation.
+- Kartenverwaltung und Nutzerverwaltung sichtbar erreichbar.
+- Werbetext/Buttons/Farben werden stärker über gemeinsame Renderdaten synchronisiert.
+- Farbeditor mit echter Pointer-/Touch-Bedienung.
