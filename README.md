@@ -135,3 +135,20 @@ Diese Version verbessert gezielt den mobilen Button-Editor: sichere Buttonraster
 ## v52.4.4 – Compact Stable Mobile Editor
 
 Mobile-Studio-Stabilisierung mit Profilbild unter Szene, kompakter sauberer 9:16-Vorschau, Button-Transparenz, Farbfeld/Farbcode, Button hinzufügen, Positionsraster und weiter reduziertem Speichern-Hinweis. Public Link und Desktop bleiben unverändert.
+
+## v52.4.6 – Mobile Card Preview & Profile/Icon Polish
+
+Diese Version poliert den mobilen Karteneditor nach v52.4.5:
+
+- Profilbild-Größen: 15 %, 35 %, 55 %, 80 % der Kartenbreite.
+- Profilbild-Formen werden an den Renderer weitergegeben.
+- Profilbild bleibt über Reel/Video sichtbar, sobald es aktiv ist.
+- Icon-Bibliothek im mobilen Button/Text-Editor erweitert.
+- Icon-Größen erhöht und um „Sehr groß“ ergänzt.
+- „Vorschau starten“ unter Reel/Video entfernt.
+- Weitere neue Versionen werden in `CHANGELOG.md` dokumentiert.
+
+
+## v52.4.7 – Text Template Editor & Preview Button Fix
+
+Diese Version stabilisiert den mobilen Karteneditor: 6-Button-Vorschau, antippbare Vorschau-Buttons, bereinigter Spot-Neustart, erweiterte Icon-Bibliothek und ein neuer mobiler Werbetext-Editor mit Vorschau, mindestens 15 Vorlagen und Timing-Schiebereglern auf Basis der Video-/Spotlänge.
