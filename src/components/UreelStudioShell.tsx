@@ -75,14 +75,50 @@ const hslToHex = (h: number, s: number, l: number) => {
   return `#${f(0)}${f(8)}${f(4)}`.toUpperCase();
 };
 
+const hexToHsl = (hexValue: string) => {
+  const safe = normalizeHexColor(hexValue, '#FFFFFF').replace('#', '');
+  const r = Number.parseInt(safe.slice(0, 2), 16) / 255;
+  const g = Number.parseInt(safe.slice(2, 4), 16) / 255;
+  const b = Number.parseInt(safe.slice(4, 6), 16) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h = 0;
+  let s = 0;
+  const l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0);
+        break;
+      case g:
+        h = (b - r) / d + 2;
+        break;
+      default:
+        h = (r - g) / d + 4;
+        break;
+    }
+    h /= 6;
+  }
+  return { hue: Math.round(h * 360), sat: Math.round(s * 100), light: Math.round(l * 100) };
+};
+
 const SpectrumColorPicker: React.FC<{ label: string; value?: string; fallback?: string; onChange: (value: string) => void; }> = ({ label, value, fallback = '#FFFFFF', onChange }) => {
   const safe = normalizeHexColor(value, fallback);
-  const [hue, setHue] = React.useState(220);
-  const [sat, setSat] = React.useState(82);
-  const [light, setLight] = React.useState(54);
+  const [hue, setHue] = React.useState(() => hexToHsl(safe).hue);
+  const [sat, setSat] = React.useState(() => hexToHsl(safe).sat);
+  const [light, setLight] = React.useState(() => hexToHsl(safe).light);
   const [open, setOpen] = React.useState(false);
   const draggingRef = useRef(false);
   const hueDraggingRef = useRef(false);
+
+  React.useEffect(() => {
+    const next = hexToHsl(safe);
+    setHue(next.hue);
+    setSat(next.sat);
+    setLight(next.light);
+  }, [safe]);
 
   const applyFromPoint = (clientX: number, clientY: number, target: HTMLElement) => {
     const rect = target.getBoundingClientRect();
@@ -106,8 +142,13 @@ const SpectrumColorPicker: React.FC<{ label: string; value?: string; fallback?: 
   const handleHexChange = (rawInput: string) => {
     const raw = rawInput.trim().replace(/[^0-9A-Fa-f#]/g, '');
     const next = raw.startsWith('#') ? raw : `#${raw}`;
-    if (/^#[0-9A-Fa-f]{0,6}$/.test(next)) {
-      onChange(next.toUpperCase());
+    if (/^#[0-9A-Fa-f]{3}$/.test(next) || /^#[0-9A-Fa-f]{6}$/.test(next)) {
+      const normalized = normalizeHexColor(next, safe);
+      const hsl = hexToHsl(normalized);
+      setHue(hsl.hue);
+      setSat(hsl.sat);
+      setLight(hsl.light);
+      onChange(normalized);
     }
   };
 
@@ -158,7 +199,15 @@ const SpectrumColorPicker: React.FC<{ label: string; value?: string; fallback?: 
             }}
             onPointerCancel={() => { draggingRef.current = false; }}
           >
-            <i style={{ left: `${sat}%`, top: `${100 - ((light / 100) * 88)}%`, backgroundColor: safe }} />
+            <i
+              style={{
+                ['--picker-x' as any]: `${sat}%`,
+                ['--picker-y' as any]: `${100 - ((light / 100) * 88)}%`,
+                left: `${sat}%`,
+                top: `${100 - ((light / 100) * 88)}%`,
+                backgroundColor: safe,
+              }}
+            />
           </div>
           <div
             role="slider"

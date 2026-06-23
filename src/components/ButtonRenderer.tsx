@@ -403,14 +403,17 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
     }
   }
 
-  // Force size absolute override (e.g. for ureel design)
+  // Force size absolute override (e.g. for ureel design).
+  // v52.5.3: real 9:16 card buttons must never collapse to border lines.
+  // Button content is positioned absolutely, so a forced-width non-square button also
+  // needs a real min-height. Otherwise the visible card button becomes a thin line.
   if (forceSizePx !== undefined) {
     inlineStyles.width = `${forceSizePx}px`;
     if (isSquare) {
       inlineStyles.height = `${forceSizePx}px`;
       inlineStyles.minHeight = `${forceSizePx}px`;
     } else {
-      inlineStyles.minHeight = '0px';
+      inlineStyles.minHeight = `${Math.max(32, Math.round(forceSizePx * 0.72))}px`;
     }
   }
 

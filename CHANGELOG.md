@@ -1,3 +1,14 @@
+## v52.5.3 – Dashboard Routing, Button Visibility & Text Field Reset Fix
+
+- Dashboard-Einstieg bleibt sichtbar und öffnet Kartenverwaltung/Nutzerverwaltung über echte Panels.
+- Kartenbuttons in der echten 9:16-Karte kollabieren nicht mehr zu Linien/Platzhaltern.
+- 3×2-Buttonbereich bleibt auf echte Buttons ausgelegt; Button-Tap öffnet weiter den Buttoneditor.
+- Buttontext, zweite Zeile, Radius/Form, Farbe, Rahmen und Transparenz lesen weiter aus dem zentralen ButtonRenderer.
+- Beschreibungstext bleibt sauber an `description` + `heroDescription` gekoppelt und wird in Editor-Vorschau und 9:16-Karte gerendert.
+- Farbeditor startet geschlossen; Spektrum-Punkt und Hue-Regler synchronisieren sichtbar mit Tap, Drag und Hex-Code.
+- Profilbild-Rendering bleibt unverändert und geschützt.
+- Keine `RELEASE_NOTES_*.md` im Upload-Paket.
+
 ## v52.4.12 – Repository Cleanup & Editor Hard Fix Continuation
 
 - Upload-Struktur bereinigt: `RELEASE_NOTES_*.md` bleiben aus der ZIP entfernt; `CHANGELOG.md` ist die einzige Versionshistorie.
