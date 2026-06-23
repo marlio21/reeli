@@ -74,3 +74,12 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Icon-Bibliothek im Buttoneditor erweitert.
 - Farbauswahl im Texteditor vereinheitlicht: Farbfeld, Hex-Code und echter Picker.
 - Build- und Upload-Paket kompakt gehalten; alte Einzel-Release-Notes aus dem Upload entfernt.
+
+## v52.5.0 – Card & User Management Foundation
+
+- Kartenverwaltung als sichtbarer Dashboard-Bereich gefestigt.
+- Kartenaktionen ergänzt/verdeutlicht: neue Karte, bearbeiten, Live-Link öffnen, duplizieren, löschen.
+- Neuer Konto-/Nutzerverwaltungsbereich mit Account, Plan, Kartenlimit, Name und Firma/Organisation.
+- Upload bleibt kompakt; keine einzelnen Release-Notes-Dateien mehr.
+- Karteneditor, Public Link und Desktop bleiben geschützt.
+

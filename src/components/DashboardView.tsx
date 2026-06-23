@@ -761,7 +761,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     processFrameLoop();
   };
 
-  const [dashboardActiveTab, setDashboardActiveTab] = useState<'my-cards' | 'card-status' | 'seo-sharing' | 'business-hub'>('my-cards');
+  const [dashboardActiveTab, setDashboardActiveTab] = useState<'my-cards' | 'card-status' | 'seo-sharing' | 'business-hub' | 'account'>('my-cards');
   const [sidebarActiveTab, setSidebarActiveTab] = useState<'editor' | 'my-ureels' | 'users' | 'seo' | 'share' | 'stats' | 'settings'>('my-ureels');
   const [activeTile, setActiveTile] = useState<'scene' | 'texts' | 'buttons' | 'endcard' | 'design'>('scene');
   const [showCreateChoiceModal, setShowCreateChoiceModal] = useState(false);
@@ -6187,7 +6187,7 @@ Jetzt kommt der KONU Admin JSON Export:`;
             ) : (
               <>
                 {/* 4 SLEEK MAIN CATEGORY SELECTORS */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4 select-none">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 mb-4 select-none">
               {/* Category 1: Meine ureels */}
               <button
                 type="button"
@@ -6236,7 +6236,23 @@ Jetzt kommt der KONU Admin JSON Export:`;
                 </span>
               </button>
 
-              {/* Category 4: Business-Zentrale */}
+              {/* Category 4: Konto / Nutzer */}
+              <button
+                type="button"
+                onClick={() => setDashboardActiveTab('account')}
+                className={`py-3 px-3 rounded-2xl flex flex-col items-center justify-center gap-1 transition duration-150 text-center cursor-pointer border shadow-sm ${
+                  dashboardActiveTab === 'account' 
+                    ? 'bg-[#A855F7] border-[#A855F7] text-stone-950 font-black' 
+                    : 'bg-[#121212] hover:bg-stone-900 border-stone-850 text-stone-350 hover:text-white font-bold'
+                }`}
+              >
+                <LucideIcons.UserRound size={16} className={dashboardActiveTab === 'account' ? 'text-stone-950' : 'text-[#A855F7]'} />
+                <span className="text-[10px] uppercase tracking-wider font-semibold">
+                  {lang === 'de' ? 'Konto' : 'Account'}
+                </span>
+              </button>
+
+              {/* Category 5: Business-Zentrale */}
               <button
                 type="button"
                 onClick={() => setDashboardActiveTab('business-hub')}
@@ -6248,7 +6264,7 @@ Jetzt kommt der KONU Admin JSON Export:`;
               >
                 <LucideIcons.Briefcase size={16} className={dashboardActiveTab === 'business-hub' ? 'text-stone-950' : 'text-[#A855F7]'} />
                 <span className="text-[10px] uppercase tracking-wider font-semibold">
-                  {lang === 'de' ? 'Business-Zentrale' : 'Business Hub'}
+                  {lang === 'de' ? 'Business' : 'Business'}
                 </span>
               </button>
             </div>
@@ -6396,6 +6412,19 @@ Jetzt kommt der KONU Admin JSON Export:`;
                             </span>
 
                             <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                              {/* Action 0: Live-Link öffnen */}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(cardUrl, '_blank', 'noopener,noreferrer');
+                                }}
+                                className="w-8 h-8 rounded-lg bg-stone-900 hover:bg-emerald-950/50 border border-stone-800 hover:border-emerald-800/60 text-stone-400 hover:text-emerald-300 flex items-center justify-center transition duration-150 cursor-pointer"
+                                title={lang === 'de' ? 'Live-Link öffnen' : 'Open live link'}
+                              >
+                                <LucideIcons.ExternalLink size={13} />
+                              </button>
+
                               {/* Action 1: Duplicate */}
                               <button
                                 type="button"
@@ -6450,6 +6479,77 @@ Jetzt kommt der KONU Admin JSON Export:`;
                 )}
               </div>
             </div>
+            )}
+
+            {/* Nutzerverwaltung / Konto panel */}
+            {dashboardActiveTab === 'account' && (
+              <div className="bg-[#121212] border border-stone-850 rounded-3xl p-5 md:p-6 shadow-xl font-sans relative animate-fadeIn">
+                <div className="flex items-start justify-between gap-4 pb-5 border-b border-stone-850 mb-5">
+                  <div>
+                    <h2 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+                      <LucideIcons.UserRound size={16} className="text-[#A855F7]" />
+                      {lang === 'de' ? 'Nutzerverwaltung' : 'User Management'}
+                    </h2>
+                    <p className="text-[10px] text-stone-400 mt-1 leading-relaxed">
+                      {lang === 'de' ? 'Basisdaten deines Accounts. Diese Verwaltung ist bewusst getrennt vom Karteneditor.' : 'Basic account data, separated from the card editor.'}
+                    </p>
+                  </div>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2.5 py-1">
+                    Foundation
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-stone-950 border border-stone-850 rounded-2xl p-4 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-2xl bg-[#A855F7]/10 border border-[#A855F7]/20 flex items-center justify-center text-[#A855F7] font-black">
+                        {(profile?.displayName || user?.displayName || user?.email || 'U').charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[9px] text-stone-500 uppercase tracking-widest font-black">Account</p>
+                        <h3 className="text-sm font-black text-white truncate">{profile?.displayName || user?.displayName || 'ureel Nutzer'}</h3>
+                        <p className="text-[10px] text-stone-400 truncate">{user?.email || 'Keine E-Mail geladen'}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-[10px]">
+                      <div className="bg-stone-900 border border-stone-800 rounded-xl p-2.5">
+                        <span className="block text-stone-500 font-black uppercase">Plan</span>
+                        <strong className="text-white">{(PLANS[effectivePlanId] || PLANS['starter']).name}</strong>
+                      </div>
+                      <div className="bg-stone-900 border border-stone-800 rounded-xl p-2.5">
+                        <span className="block text-stone-500 font-black uppercase">Karten</span>
+                        <strong className="text-white">{cards.length} / {(PLANS[effectivePlanId] || PLANS['starter']).maxCards}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-stone-950 border border-stone-850 rounded-2xl p-4 space-y-3">
+                    <label className="block">
+                      <span className="text-[9px] text-stone-500 uppercase tracking-widest font-black">Name / Anzeige</span>
+                      <input
+                        type="text"
+                        defaultValue={profile?.displayName || user?.displayName || ''}
+                        onBlur={(e) => updateUserProfile({ displayName: e.target.value })}
+                        placeholder="Dein Name"
+                        className="mt-1 w-full h-10 bg-stone-900 border border-stone-800 rounded-xl px-3 text-sm text-white focus:outline-none focus:border-[#A855F7]"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-[9px] text-stone-500 uppercase tracking-widest font-black">Firma / Organisation</span>
+                      <input
+                        type="text"
+                        defaultValue={(profile as any)?.companyName || (profile as any)?.company || ''}
+                        onBlur={(e) => updateUserProfile({ companyName: e.target.value } as any)}
+                        placeholder="Firma"
+                        className="mt-1 w-full h-10 bg-stone-900 border border-stone-800 rounded-xl px-3 text-sm text-white focus:outline-none focus:border-[#A855F7]"
+                      />
+                    </label>
+                    <p className="text-[10px] text-stone-500 leading-relaxed">
+                      {lang === 'de' ? 'Änderungen werden beim Verlassen des Feldes gespeichert. E-Mail und Login bleiben geschützt.' : 'Changes save when leaving the field. Email and login stay protected.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
             )}
 
             {/* Prompt 7A: Business-Zentrale */}
