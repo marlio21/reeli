@@ -39,3 +39,16 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Button management position picker now counts the real visible card buttons and labels the real amount.
 - New starter card copy polished for a cleaner first impression.
 - Production build verified locally after the changes.
+
+## v52.4.9 – Text Preview Polish, Profile Text Mode, Color Picker & Card Management
+
+- Werbetext-Editor mit deutlicherem Wisch-Hinweis und Design-Zähler erweitert.
+- Werbetext-Vorschau nutzt die ausgewählte Vorlage sichtbar im Editor.
+- Textfeld in der 9:16-Karte öffnet jetzt den Texteditor.
+- Untertitel- und Beschreibungsgröße per größerem Sliderbereich erweitert.
+- Profilbildmodus ergänzt: Profilbild aktivieren plus Name, Position, Firma und Profiltextfarbe.
+- Profilbild wird in der Karten-Vorschau sichtbar, wenn Nutzer es aktiviert und ein Bild vorhanden ist.
+- Timing-Slider für Titel, Untertitel, Beschreibung, Buttons, Profilbild und Profiltext ergänzt; Slider richten sich nach Spot-/Videolänge.
+- Icon-Bibliothek im Buttoneditor erweitert.
+- Farbauswahl im Texteditor vereinheitlicht: Farbfeld, Hex-Code und echter Picker.
+- Build- und Upload-Paket kompakt gehalten; alte Einzel-Release-Notes aus dem Upload entfernt.

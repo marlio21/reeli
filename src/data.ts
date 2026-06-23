@@ -163,6 +163,30 @@ export const LIBRARY_ICONS: LibraryIcon[] = [
   { id: 'DollarSign', name: 'Zahlungslink / Checkout', category: 'shopping', defaultColor: '#A855F7', defaultActionType: 'url' },
   { id: 'Tag', name: 'Rabattcode / Coupon', category: 'shopping', defaultColor: '#f43f5e', defaultActionType: 'url' },
 
+  // v52.4.9: extended visible icon library for mobile Buttoneditor
+  { id: 'MessageCircleMore', name: 'WhatsApp / Chat', category: 'contact', defaultColor: '#25D366', defaultActionType: 'url' },
+  { id: 'Send', name: 'Nachricht senden', category: 'contact', defaultColor: '#38BDF8', defaultActionType: 'url' },
+  { id: 'Navigation', name: 'Route starten', category: 'contact', defaultColor: '#22C55E', defaultActionType: 'url' },
+  { id: 'QrCode', name: 'QR-Code zeigen', category: 'action', defaultColor: '#F5F2EA', defaultActionType: 'url' },
+  { id: 'Share2', name: 'Teilen', category: 'action', defaultColor: '#A855F7', defaultActionType: 'url' },
+  { id: 'Play', name: 'Video abspielen', category: 'media', defaultColor: '#EF4444', defaultActionType: 'url' },
+  { id: 'Image', name: 'Bild / Foto', category: 'media', defaultColor: '#60A5FA', defaultActionType: 'url' },
+  { id: 'Images', name: 'Galerie', category: 'media', defaultColor: '#818CF8', defaultActionType: 'url' },
+  { id: 'Music', name: 'Musik / Audio', category: 'media', defaultColor: '#E879F9', defaultActionType: 'url' },
+  { id: 'FolderOpen', name: 'Folder öffnen', category: 'files', defaultColor: '#FBBF24', defaultActionType: 'url' },
+  { id: 'FileDown', name: 'PDF Download', category: 'files', defaultColor: '#F87171', defaultActionType: 'pdf' },
+  { id: 'BookOpen', name: 'Speisekarte / Katalog', category: 'files', defaultColor: '#F59E0B', defaultActionType: 'pdf' },
+  { id: 'CalendarCheck', name: 'Termin bestätigen', category: 'business', defaultColor: '#22C55E', defaultActionType: 'url' },
+  { id: 'Handshake', name: 'Beratung', category: 'business', defaultColor: '#A855F7', defaultActionType: 'url' },
+  { id: 'Clock3', name: 'Öffnungszeiten', category: 'business', defaultColor: '#FACC15', defaultActionType: 'url' },
+  { id: 'Store', name: 'Shop / Geschäft', category: 'shopping', defaultColor: '#34D399', defaultActionType: 'url' },
+  { id: 'Ticket', name: 'Ticket', category: 'shopping', defaultColor: '#F97316', defaultActionType: 'url' },
+  { id: 'Gift', name: 'Gutschein', category: 'shopping', defaultColor: '#EC4899', defaultActionType: 'url' },
+  { id: 'Info', name: 'Info', category: 'action', defaultColor: '#93C5FD', defaultActionType: 'url' },
+  { id: 'Star', name: 'Bewertung / Stern', category: 'action', defaultColor: '#FACC15', defaultActionType: 'url' },
+  { id: 'Heart', name: 'Herz / Favorit', category: 'action', defaultColor: '#FB7185', defaultActionType: 'url' },
+  { id: 'CheckCircle2', name: 'Bestätigung', category: 'action', defaultColor: '#22C55E', defaultActionType: 'url' },
+
   // Protected
   { id: 'Lock', name: 'Passwortgeschützter Bereich', category: 'protected', defaultColor: '#64748b', defaultActionType: 'password_link' },
   { id: 'ShieldAlert', name: 'VIP Partnerbereich', category: 'protected', defaultColor: '#A855F7', defaultActionType: 'password_link' }

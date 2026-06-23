@@ -12,6 +12,7 @@ import { PLANS, CARD_CATEGORIES, LIBRARY_ICONS } from '../data';
 import { Card, CardButton, CardType, BackgroundType, VisibilityType, OverlayType, PlanType, getPublicCardUrl, normalizeProfileType } from '../types';
 import { compressAndSquareImage, compressImageKeepAspect, compressImageBeforeUpload, formatImageOptimizationToast } from '../utils/image';
 import { parseVideoUrl } from '../utils/video';
+import { UREEL_TEXT_TEMPLATES } from '../utils/textTemplates';
 import { ProfileHeroSection } from './ProfileHeroSection';
 import { ShareExportModal } from './ShareExportModal';
 import { HelpCenterModal } from './HelpCenterModal';
@@ -4832,175 +4833,173 @@ Jetzt kommt der KONU Admin JSON Export:`;
             </div>
           </div>
         );
-      case 'texts':
+      case 'texts': {
+        const textTemplates = Object.values(UREEL_TEXT_TEMPLATES);
+        const selectedTemplateId = (activeCard as any).ureelTextTemplate?.style || activeCard.textTemplateStyle || 'premium_product';
+        const selectedTemplate = textTemplates.find((t: any) => t.id === selectedTemplateId) || textTemplates[0];
+        const spotLength = Math.max(
+          3,
+          Number((activeCard as any).ureelScene?.video?.duration || activeCard.videoBackgroundConfig?.duration || (activeCard as any).spotDuration || 10)
+        );
+        const timeline = (activeCard as any).ureelTimeline || {};
+        const updateTimeline = (patch: any) => syncCardUpdate({ ureelTimeline: { ...timeline, enabled: true, ...patch } });
+        const applyTextTemplate = (preset: any) => {
+          const nextTemplate = {
+            id: preset.id,
+            style: preset.id,
+            animation: preset.defaultAnimation,
+            emphasis: { ...preset.defaultEmphasis },
+            frame: { type: preset.defaultFrame, color: preset.defaultEmphasis?.color || '#A855F7', opacity: 100 },
+            box: { type: preset.defaultBox, opacity: preset.defaultBox === 'none' ? 0 : 82 },
+            fontStyle: preset.defaultFontStyle,
+          };
+          syncCardUpdate({
+            textTemplateStyle: preset.id,
+            ureelTextTemplate: nextTemplate,
+            textTemplateConfig: { ...(activeCard as any).textTemplateConfig, style: preset.id, animation: preset.defaultAnimation },
+          });
+        };
+        const ColorInput = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
+          <div className="space-y-1.5">
+            <label className="block text-[9px] uppercase font-black text-stone-450 tracking-wider">{label}</label>
+            <div className="flex items-center gap-2 rounded-xl border border-stone-800 bg-stone-900 p-2">
+              <label className="relative h-9 w-9 shrink-0 overflow-hidden rounded-xl border border-stone-700 shadow-inner" style={{ backgroundColor: value || '#ffffff' }}>
+                <input type="color" value={value || '#ffffff'} onChange={(e) => onChange(e.target.value)} className="absolute inset-0 h-16 w-16 -translate-x-3 -translate-y-3 scale-150 cursor-pointer opacity-0" />
+              </label>
+              <input
+                type="text"
+                value={value || ''}
+                onChange={(e) => onChange(e.target.value)}
+                placeholder="#FFFFFF"
+                className="min-w-0 flex-1 rounded-lg border border-stone-800 bg-stone-950 px-2.5 py-2 text-xs font-black uppercase tracking-wider text-[#A855F7] focus:border-[#A855F7] focus:outline-none"
+              />
+            </div>
+          </div>
+        );
+        const TimingSlider = ({ label, field, value, enabled = true }: { label: string; field: string; value: number; enabled?: boolean }) => (
+          <div className="rounded-2xl border border-stone-850 bg-stone-950/70 p-3 space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[10px] font-black uppercase tracking-wider text-stone-300">{label}</span>
+              <span className="rounded-full border border-[#A855F7]/30 bg-[#A855F7]/10 px-2 py-0.5 text-[10px] font-black text-[#A855F7]">{Number(value || 0).toFixed(1)}s</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => updateTimeline({ [`${field}Enabled`]: !enabled })}
+                className={`rounded-lg px-2 py-1 text-[9px] font-black uppercase ${enabled ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-stone-900 text-stone-500 border border-stone-800'}`}
+              >
+                {enabled ? 'Sichtbar' : 'Aus'}
+              </button>
+              <input
+                type="range"
+                min={0}
+                max={spotLength}
+                step={0.1}
+                value={Math.min(Number(value || 0), spotLength)}
+                onChange={(e) => updateTimeline({ [field]: Number(e.target.value), [`${field}Enabled`]: true })}
+                className="min-w-0 flex-1 accent-[#A855F7]"
+              />
+            </div>
+          </div>
+        );
         return (
           <div className="space-y-5">
             <div className="pb-3 border-b border-stone-800">
-              <h3 className="text-sm font-black text-white uppercase tracking-wider">Texte & Timeline</h3>
-              <p className="text-[10.5px] text-stone-400 mt-1">Konfiguriere Schriftzüge, die ureel Werbeschrift, und das zeitgesteuerte Fade-In.</p>
+              <h3 className="text-sm font-black text-white uppercase tracking-wider">Werbetext-Editor</h3>
+              <p className="text-[10.5px] text-stone-400 mt-1">Tippe auf den Text in der Karte oder wische hier durch die Vorlagen. Timing richtet sich nach der Spotlänge.</p>
             </div>
 
-            {/* Profile Detail inputs */}
-            <div className="bg-stone-950/60 p-4.5 rounded-2xl border border-stone-850 space-y-4">
-              <div className="flex items-center gap-2 text-blue-400 text-[10.5px] font-black uppercase tracking-wider">
-                <LucideIcons.User size={14} />
-                <span>Profil Details</span>
+            <div className="rounded-3xl border border-[#A855F7]/35 bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 p-4 space-y-3 shadow-2xl shadow-black/20">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-[#A855F7] text-[10px] font-black uppercase tracking-widest">
+                  <LucideIcons.Hand size={14} />
+                  <span>← Wischen für neues Design →</span>
+                </div>
+                <span className="rounded-full bg-[#A855F7] px-2 py-1 text-[9px] font-black text-stone-950">Design {Math.max(1, textTemplates.findIndex((t: any) => t.id === selectedTemplateId) + 1)} / {textTemplates.length}</span>
               </div>
+              <div className="rounded-2xl border border-stone-800 p-4 text-center overflow-hidden"
+                style={{
+                  background: selectedTemplate?.defaultBox === 'light' ? '#F5F2EA' : selectedTemplate?.defaultBox === 'glass' ? 'rgba(255,255,255,0.10)' : selectedTemplate?.defaultBox === 'dark' ? 'rgba(0,0,0,0.62)' : 'rgba(0,0,0,0.22)',
+                  borderColor: selectedTemplate?.defaultEmphasis?.color || '#A855F7'
+                }}>
+                <div className="text-[22px] leading-[0.95] font-black uppercase" style={{ color: (activeCard as any).heroTitleTextColor || '#F5F2EA' }}>{activeCard.title || 'Dein starker Auftritt'}</div>
+                <div className="mt-2 text-[14px] font-black uppercase tracking-wider" style={{ color: (activeCard as any).heroSubtitleTextColor || selectedTemplate?.defaultEmphasis?.color || '#A855F7' }}>{activeCard.subtitle || 'Sichtbar. Schnell. Direkt.'}</div>
+                <div className="mt-2 text-[12px] font-semibold leading-snug" style={{ color: (activeCard as any).heroDescTextColor || '#E8DCC2' }}>{activeCard.description || 'Aus Video wird Aktion – mit deiner ureel Karte.'}</div>
+              </div>
+              <div className="flex gap-2 overflow-x-auto pb-1 snap-x scrollbar-none">
+                {textTemplates.map((preset: any) => {
+                  const active = preset.id === selectedTemplateId;
+                  return (
+                    <button key={preset.id} type="button" onClick={() => applyTextTemplate(preset)}
+                      className={`snap-start min-w-[132px] rounded-2xl border p-3 text-left transition ${active ? 'border-[#A855F7] bg-[#A855F7]/15 text-white' : 'border-stone-800 bg-stone-950 text-stone-400'}`}>
+                      <span className="block text-[9px] font-black uppercase tracking-widest" style={{ color: preset.defaultEmphasis?.color || '#A855F7' }}>{preset.labelDe}</span>
+                      <span className="mt-1 line-clamp-2 block text-[9px] leading-snug text-stone-500">{preset.descriptionDe}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
+            <div className="bg-stone-950/60 p-4.5 rounded-2xl border border-stone-850 space-y-4">
+              <div className="flex items-center gap-2 text-blue-400 text-[10.5px] font-black uppercase tracking-wider"><LucideIcons.Type size={14}/><span>Textfelder</span></div>
               <div className="space-y-3">
-                <div>
-                  <label className="block text-[9.5px] uppercase font-bold text-stone-450 tracking-wider mb-1.5">Anzeigename / Überschrift</label>
-                  <input
-                    type="text"
-                    value={activeCard.title || ''}
-                    onChange={(e) => syncCardUpdate({ title: e.target.value })}
-                    placeholder="z.B. Markus Meier"
-                    className="w-full h-9 bg-stone-800 border border-stone-700 rounded-xl px-3 text-xs text-white focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[9.5px] uppercase font-bold text-stone-450 tracking-wider mb-1.5">Untertitel / Beruf</label>
-                  <input
-                    type="text"
-                    value={activeCard.subtitle || ''}
-                    onChange={(e) => syncCardUpdate({ subtitle: e.target.value })}
-                    placeholder="z.B. Marketing-Berater & Coach"
-                    className="w-full h-9 bg-stone-800 border border-stone-700 rounded-xl px-3 text-xs text-white focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[9.5px] uppercase font-bold text-stone-450 tracking-wider mb-1.5">Beschreibung / Slogan</label>
-                  <textarea
-                    rows={2}
-                    value={activeCard.description || ''}
-                    onChange={(e) => syncCardUpdate({ description: e.target.value })}
-                    placeholder="Klicke unten auf meine Aktionen!"
-                    className="w-full bg-stone-800 border border-stone-700 rounded-xl p-3 text-xs text-white focus:outline-none resize-none"
-                  />
-                </div>
+                <input type="text" value={activeCard.title || ''} onChange={(e) => syncCardUpdate({ title: e.target.value, heroTitle: e.target.value })} placeholder="Titel" className="w-full h-10 bg-stone-800 border border-stone-700 rounded-xl px-3 text-sm text-white focus:outline-none focus:border-[#A855F7]" />
+                <input type="text" value={activeCard.subtitle || ''} onChange={(e) => syncCardUpdate({ subtitle: e.target.value, heroSubtitle: e.target.value })} placeholder="Untertitel" className="w-full h-10 bg-stone-800 border border-stone-700 rounded-xl px-3 text-sm text-white focus:outline-none focus:border-[#A855F7]" />
+                <textarea rows={3} value={activeCard.description || ''} onChange={(e) => syncCardUpdate({ description: e.target.value, heroDescription: e.target.value })} placeholder="Beschreibung" className="w-full bg-stone-800 border border-stone-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-[#A855F7] resize-none" />
               </div>
             </div>
 
-            {/* Werbeschriften Vorlagen */}
             <div className="bg-stone-950/60 p-4.5 rounded-2xl border border-stone-850 space-y-4">
-              <div className="flex items-center justify-between border-b border-stone-900 pb-1.5">
-                <div className="flex items-center gap-2 text-purple-400 text-[10.5px] font-black uppercase tracking-wider">
-                  <LucideIcons.Sparkles size={14} />
-                  <span>Werbeschriften & Textvorlagen</span>
+              <div className="flex items-center gap-2 text-[#A855F7] text-[10.5px] font-black uppercase tracking-wider"><LucideIcons.SlidersHorizontal size={14}/><span>Stil & Farbauswahl</span></div>
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-[9px] uppercase font-black text-stone-450 mb-1.5">Schriftart</label>
+                  <select value={(activeCard as any).ureelTextTemplate?.fontStyle || 'modern'} onChange={(e) => syncCardUpdate({ ureelTextTemplate: { ...((activeCard as any).ureelTextTemplate || {}), fontStyle: e.target.value } })} className="w-full bg-stone-850 border border-stone-700 rounded-xl py-2.5 px-3 text-xs text-white focus:outline-none focus:border-[#A855F7]">
+                    <option value="modern">Modern</option><option value="elegant">Elegant</option><option value="serif">Serif</option><option value="condensed">Bold/Condensed</option><option value="tech">Tech</option>
+                  </select>
                 </div>
-                <span className="text-[8.5px] font-black uppercase text-purple-300 bg-purple-950 px-1.5 py-0.5 rounded border border-purple-800">VIP</span>
-              </div>
-
-              <div>
-                <label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-2">Vorlage anwenden:</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { id: 'teaser', label: 'Eilmeldung Teaser', cat: 'Kategorie 1' },
-                    { id: 'headline', label: 'Bold Headline Card', cat: 'Kategorie 2' },
-                    { id: 'promotion', label: 'Rabatt & Gutschein', cat: 'Kategorie 3' },
-                    { id: 'appointment', label: 'Termin-Buchungs Call', cat: 'Kategorie 4' }
-                  ].map((preset) => {
-                    const isSelected = activeCard.textTemplateStyle === preset.id;
-                    return (
-                      <button
-                        key={preset.id}
-                        type="button"
-                        onClick={async () => {
-                          await syncCardUpdate({
-                            textTemplateStyle: preset.id,
-                            textTemplateConfig: {
-                              ...activeCard.textTemplateConfig,
-                              style: preset.id,
-                              animation: 'scaleUpFade',
-                              color: '#A855F7',
-                              bgColor: '#141416',
-                              fontSize: 'lg',
-                              borderRadius: '2xl'
-                            }
-                          });
-                          triggerToast(lang === 'de' ? `Werbeschrift "${preset.label}" applied!` : `Werbeschrift "${preset.label}" applied!`, 'success');
-                        }}
-                        className={`p-3 rounded-xl border text-left flex flex-col transition-all duration-150 cursor-pointer ${
-                          isSelected
-                            ? 'border-purple-600 bg-purple-950/10 text-purple-350'
-                            : 'border-stone-850 bg-stone-900 text-stone-400 hover:text-stone-200'
-                        }`}
-                      >
-                        <span className="text-[8.5px] font-mono text-stone-550 lowercase">{preset.cat}</span>
-                        <span className="text-[10px] font-black uppercase mt-1 leading-none">{preset.label}</span>
-                      </button>
-                    );
-                  })}
+                <div className="space-y-3">
+                  {[['Titelgröße','heroTitleSize',Number((activeCard as any).heroTitleSize || 30),18,54],['Untertitelgröße','heroSubtitleSize',Number((activeCard as any).heroSubtitleSize || 18),12,44],['Beschreibungsgröße','heroDescriptionSize',Number((activeCard as any).heroDescriptionSize || 14),10,34]].map(([label,key,val,min,max]: any) => (
+                    <div key={key}>
+                      <div className="flex justify-between text-[10px] font-black uppercase text-stone-400 mb-1"><span>{label}</span><span className="text-[#A855F7]">{val}px</span></div>
+                      <input type="range" min={min} max={max} step={1} value={val} onChange={(e) => syncCardUpdate({ [key]: Number(e.target.value) })} className="w-full accent-[#A855F7]" />
+                    </div>
+                  ))}
                 </div>
+                <ColorInput label="Titelfarbe" value={(activeCard as any).heroTitleTextColor || '#F5F2EA'} onChange={(v) => syncCardUpdate({ heroTitleTextColor: v })} />
+                <ColorInput label="Untertitelfarbe" value={(activeCard as any).heroSubtitleTextColor || '#A855F7'} onChange={(v) => syncCardUpdate({ heroSubtitleTextColor: v })} />
+                <ColorInput label="Beschreibungsfarbe" value={(activeCard as any).heroDescTextColor || '#E8DCC2'} onChange={(v) => syncCardUpdate({ heroDescTextColor: v })} />
               </div>
             </div>
 
-            {/* TIMELINE TIMINGS */}
             <div className="bg-stone-950/60 p-4.5 rounded-2xl border border-stone-850 space-y-4">
-              <div className="flex items-center gap-2 text-blue-400 text-[10.5px] font-black uppercase tracking-wider">
-                <LucideIcons.Clock size={14} />
-                <span>Timeline & Zeit-Balken</span>
+              <div className="flex items-center gap-2 text-emerald-400 text-[10.5px] font-black uppercase tracking-wider"><LucideIcons.UserRound size={14}/><span>Profilbildmodus / Profiltext</span></div>
+              <div className="grid grid-cols-1 gap-3">
+                <label className="flex items-center justify-between gap-3 rounded-xl border border-stone-800 bg-stone-900 p-3 text-xs font-bold text-stone-300">
+                  <span>Profilbild auf Karte anzeigen</span>
+                  <input type="checkbox" checked={(activeCard as any).profileImageEnabled === true || activeCard.showProfileImage === true} onChange={(e) => syncCardUpdate({ profileImageEnabled: e.target.checked, showProfileImage: e.target.checked, heroProfileImageEnabled: e.target.checked })} className="h-5 w-5 accent-[#A855F7]" />
+                </label>
+                <input type="text" value={(activeCard as any).profileTextName || ''} onChange={(e) => syncCardUpdate({ profileTextMode: true, profileTextName: e.target.value })} placeholder="Name beim Profilbild" className="w-full h-10 bg-stone-800 border border-stone-700 rounded-xl px-3 text-sm text-white focus:outline-none focus:border-[#A855F7]" />
+                <input type="text" value={(activeCard as any).profileTextPosition || ''} onChange={(e) => syncCardUpdate({ profileTextMode: true, profileTextPosition: e.target.value })} placeholder="Position / Rolle" className="w-full h-10 bg-stone-800 border border-stone-700 rounded-xl px-3 text-sm text-white focus:outline-none focus:border-[#A855F7]" />
+                <input type="text" value={(activeCard as any).profileTextCompany || ''} onChange={(e) => syncCardUpdate({ profileTextMode: true, profileTextCompany: e.target.value })} placeholder="Firma" className="w-full h-10 bg-stone-800 border border-stone-700 rounded-xl px-3 text-sm text-white focus:outline-none focus:border-[#A855F7]" />
+                <ColorInput label="Profiltextfarbe" value={(activeCard as any).profileTextColor || '#F5F2EA'} onChange={(v) => syncCardUpdate({ profileTextMode: true, profileTextColor: v })} />
               </div>
+            </div>
 
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between text-[11px] font-bold mb-1">
-                    <span className="text-stone-400">Profilbild Delay:</span>
-                    <span className="text-blue-400 font-mono">{activeCard.profileImageReveal?.startSecond || 0}s</span>
-                  </div>
-                  <input
-                    type="range"
-                    min={0}
-                    max={5}
-                    step={0.5}
-                    value={activeCard.profileImageReveal?.startSecond || 0}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
-                      syncCardUpdate({
-                        profileImageReveal: {
-                          ...activeCard.profileImageReveal,
-                          startSecond: val,
-                          enabled: val > 0
-                        }
-                      });
-                    }}
-                    className="w-full accent-blue-500 cursor-pointer bg-stone-800 h-1 rounded"
-                  />
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-[11px] font-bold mb-1">
-                    <span className="text-stone-400">Buttons Delay:</span>
-                    <span className="text-blue-400 font-mono">{activeCard.videoBackgroundConfig?.buttonReveal?.startSecond || 0}s</span>
-                  </div>
-                  <input
-                    type="range"
-                    min={0}
-                    max={5}
-                    step={0.5}
-                    value={activeCard.videoBackgroundConfig?.buttonReveal?.startSecond || 0}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
-                      syncCardUpdate({
-                        videoBackgroundConfig: {
-                          ...activeCard.videoBackgroundConfig,
-                          buttonReveal: {
-                            ...activeCard.videoBackgroundConfig?.buttonReveal,
-                            startSecond: val,
-                            enabled: val > 0
-                          }
-                        }
-                      });
-                    }}
-                    className="w-full accent-blue-500 cursor-pointer bg-stone-800 h-1 rounded"
-                  />
-                </div>
+            <div className="bg-stone-950/60 p-4.5 rounded-2xl border border-stone-850 space-y-4">
+              <div className="flex items-center justify-between gap-2"><div className="flex items-center gap-2 text-blue-400 text-[10.5px] font-black uppercase tracking-wider"><LucideIcons.Clock size={14}/><span>Timing mit Schiebereglern</span></div><span className="text-[10px] font-black text-stone-400">Spotlänge {spotLength.toFixed(1)}s</span></div>
+              <div className="space-y-3">
+                <TimingSlider label="Titel" field="titleAt" value={Number(timeline.titleAt || 0)} enabled={timeline.titleAtEnabled !== false} />
+                <TimingSlider label="Untertitel" field="subtitleAt" value={Number(timeline.subtitleAt || 1)} enabled={timeline.subtitleAtEnabled !== false} />
+                <TimingSlider label="Beschreibung" field="descriptionAt" value={Number(timeline.descriptionAt || 2)} enabled={timeline.descriptionAtEnabled !== false} />
+                <TimingSlider label="Buttons" field="buttonsAt" value={Number(timeline.buttonsAt || 3)} enabled={timeline.buttonsAtEnabled !== false} />
+                <TimingSlider label="Profilbild" field="profileImageAt" value={Number(timeline.profileImageAt || 0)} enabled={timeline.profileImageAtEnabled !== false} />
+                <TimingSlider label="Profiltext" field="profileTextAt" value={Number(timeline.profileTextAt || 0)} enabled={timeline.profileTextAtEnabled !== false} />
               </div>
             </div>
           </div>
         );
+      }
       case 'buttons':
         return (
           <div className="space-y-5">
@@ -7240,6 +7239,7 @@ Jetzt kommt der KONU Admin JSON Export:`;
                         }}
                         lang={lang}
                         isPreview={true}
+                        cleanPreview={true}
 
                         isReelView={previewMode === 'reel'}
                         reelModeConfig={reelConfig}
@@ -7248,6 +7248,7 @@ Jetzt kommt der KONU Admin JSON Export:`;
                         isSortingMode={isSortingMode}
                     onEditBackground={() => setShowBgModal(true)}
                     onEditProfileHero={() => setShowProfileModal(true)}
+                    onEditText={() => setActiveTile('texts')}
                     onEditButton={handleOpenEditButton}
                     onAddButton={handleOpenAddButton}
 

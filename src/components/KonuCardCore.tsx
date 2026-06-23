@@ -29,6 +29,7 @@ export interface KonuCardCoreProps {
   isSortingMode?: boolean;
   onEditBackground?: () => void;
   onEditProfileHero?: () => void;
+  onEditText?: () => void;
   onEditButton?: (btn: CardButton) => void;
   onAddButton?: () => void;
 
@@ -75,6 +76,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   isSortingMode = false,
   onEditBackground,
   onEditProfileHero,
+  onEditText,
   onEditButton,
   onAddButton,
 
@@ -225,10 +227,13 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     return reveal?.enabled !== false;
   }, [card.videoBackgroundConfig?.profileTextReveals]);
 
-  const showTitle = textRevealEnabled('title') && (!hasTimeline || elapsed >= timelineConfig.titleAt);
-  const showSubtitle = textRevealEnabled('subtitle') && (!hasTimeline || elapsed >= timelineConfig.subtitleAt);
-  const showDescription = textRevealEnabled('description') && (!hasTimeline || elapsed >= timelineConfig.descriptionAt);
-  const showButtons = !hasTimeline || elapsed >= timelineConfig.buttonsAt;
+  const showTitle = textRevealEnabled('title') && ((card as any).ureelTimeline?.titleAtEnabled === false || !hasTimeline || elapsed >= timelineConfig.titleAt);
+  const showSubtitle = textRevealEnabled('subtitle') && ((card as any).ureelTimeline?.subtitleAtEnabled === false || !hasTimeline || elapsed >= timelineConfig.subtitleAt);
+  const showDescription = textRevealEnabled('description') && ((card as any).ureelTimeline?.descriptionAtEnabled === false || !hasTimeline || elapsed >= timelineConfig.descriptionAt);
+  const rawTimeline: any = (card as any).ureelTimeline || {};
+  const showButtons = (!hasTimeline || rawTimeline.buttonsAtEnabled === false || elapsed >= timelineConfig.buttonsAt);
+  const showProfileImageTimed = rawTimeline.profileImageAtEnabled === false || !hasTimeline || elapsed >= Number(rawTimeline.profileImageAt || 0);
+  const showProfileTextTimed = rawTimeline.profileTextAtEnabled === false || !hasTimeline || elapsed >= Number(rawTimeline.profileTextAt || 0);
 
   const showEndCard = hasEndCard && endCardConfig.enabled && elapsed >= effectiveEndCardAt;
   const backgroundOnlyPreview = cleanPreview && previewFocus === 'background';
@@ -1174,7 +1179,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     };
 
     return (
-      <div className={`absolute left-1/2 -translate-x-1/2 ${widthClass} z-[12] overflow-hidden pointer-events-none transition-all duration-500`} style={textZoneStyle}>
+      <div onClick={(e) => { e.stopPropagation(); if (isPreview && onEditText) onEditText(); }} className={`absolute left-1/2 -translate-x-1/2 ${widthClass} z-[12] overflow-hidden ${isPreview ? 'pointer-events-auto cursor-pointer' : 'pointer-events-none'} transition-all duration-500`} style={textZoneStyle}>
         <div className={`relative w-full max-h-full overflow-hidden rounded-3xl border ${buttonsVisible ? 'px-3 py-2' : 'px-5 py-5'} text-center shadow-2xl shadow-black/20 ureel-ad-anim-${layeredTemplate.animation || 'fade'}`} style={{ ...boxStyle, animationDuration: `${Number((card as any).adAnimationDuration || 1.2)}s` }}>
           {layeredFrameType === 'corner' && <><span className="absolute left-2 top-2 w-5 h-5 border-l-2 border-t-2" style={{ borderColor: layeredAccent }} /><span className="absolute right-2 top-2 w-5 h-5 border-r-2 border-t-2" style={{ borderColor: layeredAccent }} /><span className="absolute left-2 bottom-2 w-5 h-5 border-l-2 border-b-2" style={{ borderColor: layeredAccent }} /><span className="absolute right-2 bottom-2 w-5 h-5 border-r-2 border-b-2" style={{ borderColor: layeredAccent }} /></>}
           {layeredFrameType === 'thin' && <span className="absolute inset-2 rounded-2xl border border-dashed pointer-events-none" style={{ borderColor: `${layeredAccent}77` }} />}
@@ -1217,6 +1222,41 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
 
         {/* Layer 2: Werbetext / template area. It can use the full card before buttons and compacts automatically when buttons appear. */}
         {!backgroundOnlyPreview && renderLayeredAdText()}
+
+        {!backgroundOnlyPreview && (() => {
+          const profileUrl = (mappedCardData as any).profileImageUrl || (mappedCardData as any).heroProfileImageUrl || (mappedCardData as any).heroLogoUrl || (mappedCardData as any).customLogoUrl || '';
+          const profileEnabled = ((card as any).profileImageEnabled === true || (card as any).showProfileImage === true || (card as any).heroProfileImageEnabled === true) && !!profileUrl && showProfileImageTimed;
+          const profileTextEnabled = (card as any).profileTextMode === true && showProfileTextTimed && (!!(card as any).profileTextName || !!(card as any).profileTextPosition || !!(card as any).profileTextCompany);
+          if (!profileEnabled && !profileTextEnabled) return null;
+          const percentMap: Record<string, number> = { small: 15, normal: 35, large: 55, xlarge: 80, klein: 15, gross: 55, sehrgross: 80 };
+          const sizePercent = Number((card as any).profileImageSizePercent || percentMap[(card as any).profileImageSize || 'small'] || 15);
+          const shape = (card as any).profileImageShape || 'circle';
+          const radius = shape === 'square' || shape === 'eckig' ? '6px' : shape === 'rounded' || shape === 'rund' ? '22px' : '999px';
+          return (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); if (isPreview && onEditText) onEditText(); else if (isPreview && onEditProfileHero) onEditProfileHero(); }}
+              className={`absolute left-1/2 top-[5.5%] z-[18] -translate-x-1/2 flex flex-col items-center gap-2 text-center ${isPreview ? 'cursor-pointer pointer-events-auto' : 'pointer-events-none'}`}
+              style={{ maxWidth: '86%' }}
+            >
+              {profileEnabled && (
+                <img
+                  src={profileUrl}
+                  alt="Profilbild"
+                  className="object-cover shadow-2xl border-2 border-[#F5F2EA]/70 bg-stone-900"
+                  style={{ width: `${sizePercent}%`, aspectRatio: '1 / 1', borderRadius: radius }}
+                />
+              )}
+              {profileTextEnabled && (
+                <span className="rounded-2xl border border-[#F5F2EA]/20 bg-black/45 px-4 py-2 text-[#F5F2EA] backdrop-blur-md shadow-xl" style={{ color: (card as any).profileTextColor || '#F5F2EA' }}>
+                  {(card as any).profileTextName && <span className="block text-[14px] font-black uppercase leading-tight">{(card as any).profileTextName}</span>}
+                  {(card as any).profileTextPosition && <span className="block text-[10px] font-bold uppercase tracking-wider opacity-90">{(card as any).profileTextPosition}</span>}
+                  {(card as any).profileTextCompany && <span className="block text-[9px] font-semibold opacity-75">{(card as any).profileTextCompany}</span>}
+                </span>
+              )}
+            </button>
+          );
+        })()}
 
         {/* Layer 3: timed action dock. More than six buttons scroll inside the phone, the background remains fixed behind it. */}
         {!backgroundOnlyPreview && showButtons && filteredLayeredButtons.length > 0 && (
