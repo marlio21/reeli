@@ -143,7 +143,99 @@ export const UREEL_TEXT_TEMPLATES: Record<string, UreelTextTemplatePreset> = {
       color: '#10B981',
     },
     recommendedTimelinePreset: 'short_intro'
-  }
+  },
+  minimal_clear: {
+    id: 'minimal_clear',
+    labelDe: 'Minimal Klar',
+    labelEn: 'Minimal Clear',
+    descriptionDe: 'Sehr reduzierte Vorlage mit viel Ruhe, ideal für klare Botschaften.',
+    descriptionEn: 'Very reduced template with calm spacing, ideal for clear messages.',
+    defaultAnimation: 'fade',
+    defaultFrame: 'none',
+    defaultBox: 'transparent',
+    defaultFontStyle: 'modern',
+    defaultEmphasis: { mode: 'none' },
+    recommendedTimelinePreset: 'direct'
+  },
+  handwerk_bold: {
+    id: 'handwerk_bold',
+    labelDe: 'Handwerk Bold',
+    labelEn: 'Craft Bold',
+    descriptionDe: 'Kräftige, ehrliche Werbeschrift für Handwerk, Bau, Werkstatt und Services.',
+    descriptionEn: 'Strong and honest copy style for craft, construction, workshop, and services.',
+    defaultAnimation: 'slide_up',
+    defaultFrame: 'side_line',
+    defaultBox: 'dark',
+    defaultFontStyle: 'condensed',
+    defaultEmphasis: { mode: 'last_word', color: '#F97316' },
+    recommendedTimelinePreset: 'ad_reel'
+  },
+  gastro_appetite: {
+    id: 'gastro_appetite',
+    labelDe: 'Gastro Appetit',
+    labelEn: 'Gastro Appetite',
+    descriptionDe: 'Warme Textbox für Restaurants, Cafés, Speisekarten und Tagesangebote.',
+    descriptionEn: 'Warm text box for restaurants, cafés, menus, and daily specials.',
+    defaultAnimation: 'reveal',
+    defaultFrame: 'badge',
+    defaultBox: 'light',
+    defaultFontStyle: 'serif',
+    defaultEmphasis: { mode: 'last_word', color: '#B45309' },
+    recommendedTimelinePreset: 'short_intro'
+  },
+  story_soft: {
+    id: 'story_soft',
+    labelDe: 'Story Soft',
+    labelEn: 'Story Soft',
+    descriptionDe: 'Sanfte Story-Vorlage für emotionale Angebote und persönliche Marken.',
+    descriptionEn: 'Soft story template for emotional offers and personal brands.',
+    defaultAnimation: 'focus',
+    defaultFrame: 'underline',
+    defaultBox: 'glass',
+    defaultFontStyle: 'elegant',
+    defaultEmphasis: { mode: 'none' },
+    recommendedTimelinePreset: 'short_intro'
+  },
+  startup_pitch: {
+    id: 'startup_pitch',
+    labelDe: 'Startup Pitch',
+    labelEn: 'Startup Pitch',
+    descriptionDe: 'Moderner Pitch-Look für neue Produkte, Apps und digitale Services.',
+    descriptionEn: 'Modern pitch look for new products, apps, and digital services.',
+    defaultAnimation: 'slide_left',
+    defaultFrame: 'thin',
+    defaultBox: 'glass',
+    defaultFontStyle: 'tech',
+    defaultEmphasis: { mode: 'last_word', color: '#38BDF8' },
+    recommendedTimelinePreset: 'ad_reel'
+  },
+  beauty_premium: {
+    id: 'beauty_premium',
+    labelDe: 'Beauty Premium',
+    labelEn: 'Beauty Premium',
+    descriptionDe: 'Eleganter Look für Beauty, Wellness, Studio, Salon und hochwertige Termine.',
+    descriptionEn: 'Elegant look for beauty, wellness, studio, salon, and high-value bookings.',
+    defaultAnimation: 'fade',
+    defaultFrame: 'corner',
+    defaultBox: 'transparent',
+    defaultFontStyle: 'elegant',
+    defaultEmphasis: { mode: 'last_word', color: '#E9A8B8' },
+    recommendedTimelinePreset: 'short_intro'
+  },
+  fitness_energy: {
+    id: 'fitness_energy',
+    labelDe: 'Fitness Energy',
+    labelEn: 'Fitness Energy',
+    descriptionDe: 'Dynamische, laute Vorlage für Training, Kurse, Aktionen und Challenge-Angebote.',
+    descriptionEn: 'Dynamic and loud template for training, classes, deals, and challenges.',
+    defaultAnimation: 'slide_up',
+    defaultFrame: 'underline',
+    defaultBox: 'dark',
+    defaultFontStyle: 'condensed',
+    defaultEmphasis: { mode: 'last_word', color: '#22C55E' },
+    recommendedTimelinePreset: 'ad_reel'
+  },
+
 };
 
 export function normalizeUreelTextTemplate(template?: Partial<UreelTextTemplate>): Required<UreelTextTemplate> {

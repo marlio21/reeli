@@ -59,7 +59,7 @@ const copyTextToClipboard = (text: string): boolean => {
 type MainModule = 'scene' | 'timeline' | 'buttons' | 'endcard' | 'design' | 'cards';
 
 const UREEL_ICON_CHOICES = [
-  'Phone','Smartphone','Mail','Send','MessageCircle','MessagesSquare','Globe','ExternalLink','Link','MapPin','Navigation','Calendar','Clock','User','Users','Contact','ContactRound','Building2','Briefcase','Home','Store','ShoppingBag','ShoppingCart','CreditCard','Euro','BadgePercent','Gift','Sparkles','Star','Heart','ThumbsUp','Megaphone','Play','Video','Image','Camera','Music','Mic','Headphones','FileText','File','Files','Folder','FolderOpen','Download','UploadCloud','BookOpen','Newspaper','Shield','Lock','KeyRound','QrCode','Share2','Instagram','Facebook','Linkedin','Youtube','MessageSquareText','Wrench','Utensils','Car','Plane','Train','Bike','Dumbbell','GraduationCap','Handshake','Award','Trophy','Lightbulb','Palette','Paintbrush','Zap','Rocket','Crown'
+  'Phone','Smartphone','Mail','Send','MessageCircle','MessagesSquare','Globe','ExternalLink','Link','MapPin','Navigation','Route','Map','Calendar','CalendarDays','Clock','AlarmClock','User','Users','Contact','ContactRound','UserPlus','Building2','Briefcase','BriefcaseBusiness','Home','Store','ShoppingBag','ShoppingCart','CreditCard','Euro','BadgePercent','Gift','Ticket','Tag','Sparkles','Star','Heart','ThumbsUp','Smile','Megaphone','Play','CirclePlay','Video','Image','Images','Camera','Music','Mic','Headphones','FileText','File','Files','FileDown','FileUp','Folder','FolderOpen','Download','UploadCloud','BookOpen','Newspaper','Shield','Lock','Unlock','KeyRound','QrCode','Share2','Instagram','Facebook','Linkedin','Youtube','MessageSquareText','Wrench','Settings','Utensils','Coffee','Pizza','Wine','Car','Plane','Train','Bike','Dumbbell','GraduationCap','Handshake','Award','Trophy','Lightbulb','Palette','Paintbrush','Zap','Rocket','Crown','Gem','Scissors','Hammer','HardHat','Truck','Package','Box','ClipboardList','PenLine','FilePenLine','Calculator','Landmark','Banknote','Wifi','Printer','ScanLine','BadgeInfo','Info','CircleHelp','Check','CheckCircle2','Plus','PlusCircle','ArrowRight','ChevronRight','MousePointerClick'
 ];
 
 
@@ -92,7 +92,20 @@ const UREEL_MOBILE_TEXT_COLORS = [
   { name: 'Violett', value: '#8B5CF6' },
 ];
 
-const UREEL_MOBILE_BUTTON_ICONS = ['Phone','Globe','Mail','FileText','FolderOpen','Building2','MessageCircle','Share2'];
+const UREEL_MOBILE_BUTTON_ICONS = [
+  // Kontakt
+  'Phone','Smartphone','Mail','MessageCircle','MessagesSquare','Send','Contact','ContactRound','User','Users','UserPlus',
+  // Web / Social
+  'Globe','ExternalLink','Link','Instagram','Facebook','Linkedin','Youtube','Share2','QrCode','Wifi',
+  // Dateien / Downloads
+  'FileText','File','Files','FileDown','FileUp','Folder','FolderOpen','Download','UploadCloud','BookOpen','Newspaper','Printer','ScanLine',
+  // Business / Termine
+  'Building2','Briefcase','BriefcaseBusiness','Calendar','CalendarDays','Clock','AlarmClock','MapPin','Navigation','Route','Handshake','Award','Trophy','ClipboardList','Calculator','Landmark','Banknote',
+  // Medien / Aktion
+  'Play','CirclePlay','Video','Image','Images','Camera','Music','Mic','Headphones','ShoppingBag','ShoppingCart','Gift','Ticket','Tag','BadgePercent','Lock','Unlock','Shield','KeyRound','Star','Heart','Smile','Check','CheckCircle2','Plus','PlusCircle','Sparkles','Zap','Rocket','Crown','Gem','Info','BadgeInfo','CircleHelp',
+  // Branchen
+  'Wrench','Settings','Hammer','HardHat','Scissors','Utensils','Coffee','Pizza','Car','Truck','Plane','Train','Bike','Dumbbell','GraduationCap','Palette','Paintbrush'
+];
 
 export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   activeCard,
@@ -639,12 +652,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
   const createStarterUreelTemplate = (): Partial<Card> => ({
-    title: lang === 'de' ? 'Deine neue ureel-Seite' : 'Your new ureel page',
-    subtitle: lang === 'de' ? 'Deine Welt. Dein Link.' : 'Your world. Your link.',
-    description: lang === 'de' ? 'Telefon, Webseite, Mail, Folder, Unternehmen und Datei sind bereits vorbereitet.' : 'Phone, website, mail, folder, company and file are already prepared.',
-    heroTitle: lang === 'de' ? 'Deine neue ureel-Seite' : 'Your new ureel page',
-    heroSubtitle: lang === 'de' ? 'Deine Welt. Dein Link.' : 'Your world. Your link.',
-    heroDescription: lang === 'de' ? 'Telefon, Webseite, Mail, Folder, Unternehmen und Datei sind bereits vorbereitet.' : 'Phone, website, mail, folder, company and file are already prepared.',
+    title: lang === 'de' ? 'Dein Angebot. Sofort klickbar.' : 'Your offer. Instantly clickable.',
+    subtitle: lang === 'de' ? 'Aus Video wird Aktion.' : 'Turn video into action.',
+    description: lang === 'de' ? 'Starte mit einer schönen 9:16-Karte, klarem Werbetext und sechs vorbereiteten Aktionen.' : 'Start with a polished 9:16 card, clear ad copy and six prepared actions.',
+    heroTitle: lang === 'de' ? 'Dein Angebot. Sofort klickbar.' : 'Your offer. Instantly clickable.',
+    heroSubtitle: lang === 'de' ? 'Aus Video wird Aktion.' : 'Turn video into action.',
+    heroDescription: lang === 'de' ? 'Schöne Startkarte mit sechs Aktionen, Textvorlagen und sauberem mobilen Layout.' : 'Polished starter card with six actions, text templates and a clean mobile layout.',
     isPublished: true,
     visibility: 'public' as any,
     backgroundType: 'gradient',
@@ -667,8 +680,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     buttonTextColor: '#1A1A1A',
     buttonGridLayout: { mode: 'grid', cols: 3, square: true, buttonSizePx: 52, gapPx: 10, gap: 10, align: 'center' } as any,
     heroTextColor: 'cream' as any,
-    heroTitleSize: 26 as any,
-    heroSubtitleSize: 13 as any,
+    heroTitleSize: 28 as any,
+    heroSubtitleSize: 12.5 as any,
     heroDescriptionSize: 10.5 as any,
     heroFontFamily: 'Inter' as any,
     heroTitleTextColor: 'cream' as any,
@@ -929,8 +942,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
   const getTimelineDuration = () => {
-    const raw = activeCard.ureelScene?.video?.duration || activeCard.videoBackgroundConfig?.durationSeconds || activeCard.videoBackgroundConfig?.duration || 12;
-    return Math.max(12, Math.min(15, Number(raw) || 12));
+    const raw = activeCard.ureelScene?.video?.duration || activeCard.videoBackgroundConfig?.durationSeconds || activeCard.videoBackgroundConfig?.duration || 10;
+    // v52.4.7: Timing sliders use the real video/spot length instead of a fixed 12–15s window.
+    return Math.max(3, Math.min(90, Number(raw) || 10));
   };
 
   const clampTime = (value: number) => {
@@ -941,12 +955,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
   const valuesForTimelinePreset = (preset: UreelTimeline['preset'], duration = getTimelineDuration()): Required<UreelTimeline> => {
     if (preset === 'short_intro') {
-      return { preset, titleAt: 3, subtitleAt: 4, descriptionAt: 5, buttonsAt: 6, endCardAt: duration };
+      return { preset, titleAt: clampTime(duration * 0.12), subtitleAt: clampTime(duration * 0.22), descriptionAt: clampTime(duration * 0.34), buttonsAt: clampTime(duration * 0.48), endCardAt: duration };
     }
     if (preset === 'ad_reel') {
-      return duration >= 15
-        ? { preset, titleAt: 10.5, subtitleAt: 11.5, descriptionAt: 12.5, buttonsAt: 13.5, endCardAt: 15 }
-        : { preset, titleAt: 7.5, subtitleAt: 8.5, descriptionAt: 9.5, buttonsAt: 10.5, endCardAt: 12 };
+      return { preset, titleAt: clampTime(duration * 0.52), subtitleAt: clampTime(duration * 0.62), descriptionAt: clampTime(duration * 0.72), buttonsAt: clampTime(duration * 0.82), endCardAt: duration };
     }
     if (preset === 'manual') {
       const current = activeCard.ureelTimeline;
@@ -1045,12 +1057,18 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         duration: 0.8,
         style: activeCard.videoBackgroundConfig?.buttonReveal?.style || 'soft',
       },
+      profileImageReveal: {
+        ...(activeCard.videoBackgroundConfig as any)?.profileImageReveal,
+        enabled: ((activeCard as any).profileImageEnabled === true || activeCard.showProfileImage === true) && !!(activeCard.profileImageUrl || (activeCard as any).heroProfileImageUrl),
+        startSecond: typeof next.profileImageAt === 'number' ? next.profileImageAt : (activeCard as any).profileImageAt || 0,
+      },
     };
   };
 
   const applyTimeline = async (next: Required<UreelTimeline>, duration = timelineDuration) => {
     await syncCardUpdate({
       ureelTimeline: next,
+      profileImageAt: typeof (next as any).profileImageAt === 'number' ? (next as any).profileImageAt : (activeCard as any).profileImageAt,
       videoBackgroundConfig: syncTimelineToLegacyVideoConfig(next, duration) as any,
       ureelScene: {
         ...(activeCard.ureelScene || { mode: 'color' as const }),
@@ -1059,7 +1077,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           duration,
         }
       } as any,
-    });
+    } as any);
   };
 
   const updateTimelineField = async (field: keyof Omit<UreelTimeline, 'preset'>, value: number) => {
@@ -1116,6 +1134,28 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
 
   const activeButtons = (activeCard.buttons || []).filter((button) => button.isActive !== false);
+  const getVisibleEditorButtons = (card: Card = activeCard) => {
+    const hiddenPreviewLabels = [
+      'ureel editor', 'reel editor', 'reel/editor', 'reel / editor', 'zum bearbeiten', 'bearbeiten',
+      'texte timeline', 'texte & timeline', 'text timeline', 'text/timeline', 'texte/timeline',
+      'profil texte', 'profil/texte', 'vorschau', 'preview', 'editor', 'timeline', 'konu live', 'ureel live'
+    ];
+    return [...(card.buttons || [])]
+      .filter((button) => button.isActive !== false)
+      .filter((button) => {
+        const rawLabel = (button.title || '').trim().toLowerCase();
+        const label = rawLabel.replace(/[\/_-]+/g, ' ').replace(/&/g, ' ').replace(/\s+/g, ' ').trim();
+        const action = (button.actionType || '').trim().toLowerCase();
+        const iconId = ((button as any).iconId || (button as any).icon || '').trim().toLowerCase();
+        const hidden = hiddenPreviewLabels.some((item) => {
+          const normalized = item.replace(/[\/_-]+/g, ' ').replace(/&/g, ' ').replace(/\s+/g, ' ').trim();
+          return rawLabel.includes(item) || label.includes(normalized);
+        });
+        return !hidden && action !== 'editor' && iconId !== 'edit' && iconId !== 'palette';
+      })
+      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+  };
+  const visibleEditorButtons = getVisibleEditorButtons(activeCard);
   const buttonGridCols = activeCard.buttonGridCols || activeCard.buttonGridLayout?.cols || 3;
   const buttonSizePx = activeCard.buttonGridLayout?.buttonSizePx || activeCard.buttonSizePx || 72;
   const buttonGapPx = activeCard.buttonGridLayout?.gapPx || activeCard.buttonGridLayout?.gap || activeCard.buttonGapPx || 10;
@@ -1620,7 +1660,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     { value: 'onedrive_file', label: 'OneDrive Datei', hint: 'OneDrive-Datei öffnen' },
     { value: 'onedrive_folder', label: 'OneDrive Ordner', hint: 'OneDrive-Ordner öffnen' },
     { value: 'download_area', label: 'Downloadbereich', hint: 'Mehrere Dateien' },
-    { value: 'video_replay', label: 'Video erneut ansehen', hint: 'Timeline neu starten' },
+    { value: 'video_replay', label: 'Spot neu starten', hint: 'Timeline neu starten' },
   ];
 
   const getButtonActionIcon = (actionType?: string) => {
@@ -1835,25 +1875,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
   const getCleanMonitorCard = (card: Card): Card => {
-    const hiddenPreviewLabels = [
-      'ureel editor', 'reel editor', 'reel/editor', 'reel / editor', 'zum bearbeiten', 'bearbeiten',
-      'texte timeline', 'texte & timeline', 'text timeline', 'text/timeline', 'texte/timeline',
-      'profil texte', 'profil/texte', 'vorschau', 'preview', 'editor', 'timeline', 'konu live', 'ureel live'
-    ];
-    const cleanedButtons = (card.buttons || []).filter((button) => {
-      const rawLabel = (button.title || '').trim().toLowerCase();
-      const label = rawLabel.replace(/[\/_-]+/g, ' ').replace(/&/g, ' ').replace(/\s+/g, ' ').trim();
-      const action = (button.actionType || '').trim().toLowerCase();
-      const iconId = ((button as any).iconId || (button as any).icon || '').trim().toLowerCase();
-      const looksLikeEditorButton = hiddenPreviewLabels.some((hidden) => {
-        const normalizedHidden = hidden.replace(/[\/_-]+/g, ' ').replace(/&/g, ' ').replace(/\s+/g, ' ').trim();
-        return rawLabel.includes(hidden) || label.includes(normalizedHidden);
-      });
-      return !looksLikeEditorButton && action !== 'editor' && iconId !== 'edit' && iconId !== 'palette';
-    });
+    const cleanedButtons = getVisibleEditorButtons(card);
     return {
       ...card,
       buttons: cleanedButtons,
+      showProfileImage: ((card as any).profileImageEnabled === true || card.showProfileImage === true) && !!(card.profileImageUrl || (card as any).heroProfileImageUrl),
+      heroProfileImageEnabled: ((card as any).profileImageEnabled === true || card.showProfileImage === true) && !!(card.profileImageUrl || (card as any).heroProfileImageUrl),
       buttonGridCols: 3 as any,
       buttonGridLayout: {
         ...(card.buttonGridLayout || {}),
@@ -2099,9 +2126,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
   const openMobileTextLayerEditor = (fieldKey: 'title' | 'subtitle' | 'description') => {
+    setTapEditTarget('text');
     setActiveTab('timeline');
     setActiveSubSection('timeline-texts');
-    setMobileOrbitOpen(true);
+    setMobileOrbitOpen(false);
     setMobileOrbitModule('timeline');
     setMobileOrbitLevel('setting');
     setMobileSheetOpen(true);
@@ -2111,7 +2139,6 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
   const renderMobileTextHotspots = () => {
-    if (activeTab !== 'timeline') return null;
     const hotspots: Array<{ key: 'title' | 'subtitle' | 'description'; label: string; className: string }> = [
       { key: 'title', label: 'Titel bearbeiten', className: 'ureel-mobile-text-hotspot--title' },
       { key: 'subtitle', label: 'Slogan bearbeiten', className: 'ureel-mobile-text-hotspot--subtitle' },
@@ -3035,6 +3062,29 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <button type="button" onClick={() => { setActiveTab('design'); setActiveSubSection('design-content'); }} className="h-8 px-3 rounded-xl bg-[#F5F2EA] text-[#101010] text-[8px] font-black uppercase tracking-wider">Zurück</button>
                   </div>
                 )}
+
+                <div className="rounded-[28px] border border-[#3A3732] bg-[#0D0D0D] p-3 space-y-3 md:hidden">
+                  <div className="flex items-center justify-between">
+                    <div><span className="text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Werbetext-Vorschau</span><p className="text-[8.5px] text-stone-500">← Wische für Vorlage →</p></div>
+                    <LucideIcons.Hand size={16} className="text-[#E8DCC2]" />
+                  </div>
+                  <div className="rounded-3xl border border-[#E8DCC2]/18 bg-black/30 p-4 text-center shadow-inner">
+                    <div className="font-black uppercase leading-[0.92]" style={{ fontSize: clampTextSize((activeCard as any).heroTitleSize, 30, 16, 52), color: (activeCard as any).heroTitleTextColor || '#F5F2EA' }}>{textDraft.title || activeCard.title || 'Dein Titel'}</div>
+                    <div className="mt-2 font-black uppercase tracking-wider" style={{ fontSize: clampTextSize((activeCard as any).heroSubtitleSize, 12, 8, 24), color: (activeCard as any).heroSubtitleTextColor || '#E8DCC2' }}>{textDraft.subtitle || activeCard.subtitle || 'Dein Untertitel'}</div>
+                    <div className="mt-2 font-semibold leading-snug" style={{ fontSize: clampTextSize((activeCard as any).heroDescriptionSize, 11, 8, 22), color: (activeCard as any).heroDescTextColor || '#D8D2C5' }}>{textDraft.description || activeCard.description || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.'}</div>
+                  </div>
+                  <div className="flex gap-2 overflow-x-auto pb-1 snap-x">
+                    <button type="button" onClick={() => applyTextTemplatePreset('none')} className={`min-w-[92px] snap-start rounded-2xl border px-3 py-2 text-left ${currentTextTemplate.style === 'none' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732]'}`}>
+                      <b className="block text-[10px]">Klar</b><span className="text-[8px] opacity-60">Neutral</span>
+                    </button>
+                    {Object.values(UREEL_TEXT_TEMPLATES).slice(0, 15).map((tmpl) => (
+                      <button key={tmpl.id} type="button" onClick={() => applyTextTemplatePreset(tmpl.id)} className={`min-w-[112px] snap-start rounded-2xl border px-3 py-2 text-left ${currentTextTemplate.style === tmpl.id ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732]'}`}>
+                        <b className="block text-[10px] truncate">{lang === 'de' ? tmpl.labelDe : tmpl.labelEn}</b>
+                        <span className="text-[8px] opacity-60 line-clamp-2">{lang === 'de' ? tmpl.descriptionDe : tmpl.descriptionEn}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
@@ -4437,7 +4487,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         <section className="ureel-tap-preview-shell" aria-label="Echte 9:16 ureel Vorschau">
           <div className="ureel-tap-preview-toolbar">
             <button type="button" className={tapEditTarget === 'scene' ? 'is-active' : ''} onClick={() => { setTapEditTarget('scene'); setTapSceneTool('overview'); }}>Szene</button>
-            <button type="button" className={tapEditTarget === 'text' ? 'is-active' : ''} onClick={() => setTapEditTarget('text')}>Text</button>
+            <button type="button" className={tapEditTarget === 'text' ? 'is-active' : ''} onClick={() => openMobileTextLayerEditor('title')}>Text</button>
             <button type="button" className={tapEditTarget === 'button' ? 'is-active' : ''} onClick={() => { setTapEditTarget('button'); if (!editingBtnId && activeCard.buttons?.[0]?.id) setEditingBtnId(activeCard.buttons[0].id); }}>Buttons</button>
           </div>
           <div className="ureel-tap-phone-frame">
@@ -4455,8 +4505,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   setTapButtonTool('text');
                 }}
               />
+              <button type="button" className="ureel-tap-text-click-layer" onClick={() => openMobileTextLayerEditor('title')} aria-label="Werbetext direkt bearbeiten"><span>Textfeld antippen → Vorlagen</span></button>
               <button type="button" className={`ureel-tap-hotspot ureel-tap-hotspot--scene ${tapEditTarget === 'scene' ? 'is-active' : ''}`} onClick={() => { setTapEditTarget('scene'); setTapSceneTool('overview'); }} aria-label="Szene oder Hintergrund bearbeiten"><span>Szene</span></button>
-              <button type="button" className={`ureel-tap-hotspot ureel-tap-hotspot--text ${tapEditTarget === 'text' ? 'is-active' : ''}`} onClick={() => setTapEditTarget('text')} aria-label="Werbetext bearbeiten"><span>Text</span></button>
+              <button type="button" className={`ureel-tap-hotspot ureel-tap-hotspot--text ${tapEditTarget === 'text' ? 'is-active' : ''}`} onClick={() => openMobileTextLayerEditor('title')} aria-label="Werbetext bearbeiten"><span>Text</span></button>
               <button type="button" className={`ureel-tap-hotspot ureel-tap-hotspot--buttons ${tapEditTarget === 'button' ? 'is-active' : ''}`} onClick={() => { setTapEditTarget('button'); if (!editingBtnId && activeCard.buttons?.[0]?.id) setEditingBtnId(activeCard.buttons[0].id); }} aria-label="Buttons bearbeiten"><span>Buttons</span></button>
             </div>
           </div>
@@ -4476,7 +4527,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 { id: 'profile', icon: LucideIcons.UserCircle, title: 'Profilbild', desc: 'optional einblenden' },
               ].map((item) => {
                 const Icon = item.icon;
-                return <button key={item.id} type="button" className={tapSceneTool === item.id ? 'is-active' : ''} onClick={() => setTapSceneTool(item.id as any)}><Icon size={17}/><strong>{item.title}</strong><small>{item.desc}</small></button>;
+                return <button key={item.id} type="button" className={tapSceneTool === item.id ? 'is-active' : ''} onClick={() => setTapSceneTool(item.id as any)}><Icon size={21}/><strong>{item.title}</strong><small>{item.desc}</small></button>;
               })}
             </div>
 
@@ -4493,7 +4544,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   ureelScene: { ...(activeCard.ureelScene || {}), mode: e.target.value ? 'video' : (activeCard.ureelScene?.mode || 'color'), video: { ...(activeCard.ureelScene?.video || {}), type: e.target.value ? 'youtube' : 'none', url: e.target.value, duration: activeCard.videoBackgroundConfig?.durationSeconds || activeCard.ureelScene?.video?.duration || 12, displayMode: activeCard.ureelScene?.video?.displayMode || 'cover', placement: activeCard.ureelScene?.video?.placement || 'background', startAt: activeCard.ureelScene?.video?.startAt || 0 } } as any,
                 } as any)} />
                 <div className="ureel-tap-slider-row"><label>Dauer <b>{activeCard.videoBackgroundConfig?.durationSeconds || activeCard.ureelScene?.video?.duration || 12}s</b></label><input type="range" min={5} max={30} step={1} value={activeCard.videoBackgroundConfig?.durationSeconds || activeCard.ureelScene?.video?.duration || 12} onChange={(e) => syncCardUpdate({ videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), durationSeconds: Number(e.target.value) } as any, ureelScene: { ...(activeCard.ureelScene || {}), video: { ...(activeCard.ureelScene?.video || {}), duration: Number(e.target.value) } } as any } as any)} /></div>
-                <div className="ureel-tap-actions"><button type="button" onClick={() => syncCardUpdate({ videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color' as any, video: { ...(activeCard.ureelScene?.video || {}), type: 'none' as any, url: '' } } as any } as any)}>Video entfernen</button><button type="button" onClick={() => { setIsPlaying(true); setTimelineSec(0); }}>Vorschau starten</button></div>
+                <div className="ureel-tap-actions"><button type="button" onClick={() => syncCardUpdate({ videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color' as any, video: { ...(activeCard.ureelScene?.video || {}), type: 'none' as any, url: '' } } as any } as any)}>Video entfernen</button></div>
               </div>
             )}
 
@@ -4514,9 +4565,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <label className="ureel-tap-upload"><LucideIcons.UploadCloud size={16}/> {profileImageUploading ? `Upload ${profileImageUploadProgress || 0}%` : 'Profilbild hochladen'}<input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleProfileImageUpload(e.target.files[0])} /></label>
                 {activeCard.profileImageUrl && <div className="ureel-tap-fileline">Profilbild aktiv <button type="button" onClick={removeProfileImage}>Entfernen</button></div>}
                 <span className="ureel-tap-mini-label">Form</span>
-                <div className="ureel-tap-chip-row"><button type="button" className={((activeCard as any).profileImageShape || 'circle') === 'circle' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageShape: 'circle' } as any)}>Kreis</button><button type="button" className={(activeCard as any).profileImageShape === 'rounded' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageShape: 'rounded' } as any)}>Rund</button><button type="button" className={(activeCard as any).profileImageShape === 'square' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageShape: 'square' } as any)}>Eckig</button></div>
+                <div className="ureel-tap-chip-row"><button type="button" className={((activeCard as any).profileImageShape || 'circle') === 'circle' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageShape: 'circle', heroImageShape: 'circle' } as any)}>Kreis</button><button type="button" className={(activeCard as any).profileImageShape === 'rounded' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageShape: 'rounded', heroImageShape: 'rounded' } as any)}>Rund</button><button type="button" className={(activeCard as any).profileImageShape === 'square' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageShape: 'square', heroImageShape: 'square' } as any)}>Eckig</button></div>
                 <span className="ureel-tap-mini-label">Größe</span>
-                <div className="ureel-tap-chip-row"><button type="button" className={((activeCard as any).profileImageSize || 'normal') === 'small' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'small' } as any)}>Klein</button><button type="button" className={((activeCard as any).profileImageSize || 'normal') === 'normal' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'normal' } as any)}>Normal</button><button type="button" className={(activeCard as any).profileImageSize === 'large' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'large' } as any)}>Groß</button><button type="button" className={(activeCard as any).profileImageSize === 'hero' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'hero' } as any)}>Sehr groß</button></div>
+                <div className="ureel-tap-chip-row"><button type="button" className={((activeCard as any).profileImageSize || 'normal') === 'small' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'small', heroImageSize: 'small' } as any)}>Klein</button><button type="button" className={((activeCard as any).profileImageSize || 'normal') === 'normal' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'normal', heroImageSize: 'normal' } as any)}>Normal</button><button type="button" className={(activeCard as any).profileImageSize === 'large' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'large', heroImageSize: 'large' } as any)}>Groß</button><button type="button" className={(activeCard as any).profileImageSize === 'hero' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'hero', heroImageSize: 'hero' } as any)}>Sehr groß</button></div>
                 <span className="ureel-tap-mini-label">Erscheint</span>
                 <div className="ureel-tap-chip-row"><button type="button" className={((activeCard as any).profileImageRevealAt || 'with_text') === 'start' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageRevealAt: 'start' } as any)}>Sofort</button><button type="button" className={(activeCard as any).profileImageRevealAt === 'after_text' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageRevealAt: 'after_text' } as any)}>Nach Text</button><button type="button" className={((activeCard as any).profileImageRevealAt || 'with_text') === 'with_buttons' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageRevealAt: 'with_buttons' } as any)}>Mit Buttons</button><button type="button" className={(activeCard as any).profileImageRevealAt === 'end' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageRevealAt: 'end' } as any)}>Am Ende</button></div>
               </div>
@@ -4557,18 +4608,52 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
         {tapEditTarget === 'text' && (
           <section className="ureel-tap-panel ureel-tap-panel--text">
-            <div className="ureel-tap-panel-head"><div><span>Text / Timeline</span><h3>Was soll auf der ureel erscheinen?</h3></div><LucideIcons.Type size={18} /></div>
+            <div className="ureel-tap-panel-head"><div><span>Text / Timeline</span><h3>Werbetext bearbeiten</h3><p>Oben Vorschau, dann Vorlage, Text, Stil und Timing.</p></div><LucideIcons.Type size={18} /></div>
             <div className="ureel-tap-config">
+              <div className="ureel-mobile-text-preview-card">
+                <div className="ureel-mobile-text-preview-top"><span>Werbetext-Vorschau</span><small>← Wische für Vorlage →</small></div>
+                <div className="ureel-mobile-text-preview-sample">
+                  <b style={{ fontSize: clampTextSize((activeCard as any).heroTitleSize, 30, 16, 52), color: (activeCard as any).heroTitleTextColor || '#F5F2EA' }}>{activeCard.title || 'Dein Titel'}</b>
+                  <strong style={{ fontSize: clampTextSize((activeCard as any).heroSubtitleSize, 12, 8, 24), color: (activeCard as any).heroSubtitleTextColor || '#E8DCC2' }}>{activeCard.subtitle || 'Dein Untertitel'}</strong>
+                  <p style={{ fontSize: clampTextSize((activeCard as any).heroDescriptionSize, 11, 8, 22), color: (activeCard as any).heroDescTextColor || '#D8D2C5' }}>{activeCard.description || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.'}</p>
+                </div>
+                <div className="ureel-mobile-text-template-strip">
+                  <button type="button" className={currentTextTemplate.style === 'none' ? 'is-active' : ''} onClick={() => applyTextTemplatePreset('none')}><b>Klar</b><small>Neutral</small></button>
+                  {Object.values(UREEL_TEXT_TEMPLATES).slice(0, 15).map((tmpl) => <button key={tmpl.id} type="button" className={currentTextTemplate.style === tmpl.id ? 'is-active' : ''} onClick={() => applyTextTemplatePreset(tmpl.id)}><b>{lang === 'de' ? tmpl.labelDe : tmpl.labelEn}</b><small>{lang === 'de' ? tmpl.descriptionDe : tmpl.descriptionEn}</small></button>)}
+                </div>
+              </div>
+
+              <h4>Textfelder</h4>
               <label>Titel</label><input value={activeCard.title || ''} placeholder="z. B. Tischlerei Hager" onChange={(e) => syncCardUpdate({ title: e.target.value })} />
               <label>Untertitel</label><input value={activeCard.subtitle || ''} placeholder="z. B. Handwerk, das bleibt" onChange={(e) => syncCardUpdate({ subtitle: e.target.value })} />
               <label>Beschreibung</label><textarea rows={3} value={activeCard.description || ''} placeholder="Kurzer Werbetext oder Angebot" onChange={(e) => syncCardUpdate({ description: e.target.value })} />
-              <span className="ureel-tap-mini-label">Vorlage</span>
-              <div className="ureel-tap-chip-row">{[
-                { id: 'business_clean', label: 'Business' }, { id: 'social_reel', label: 'Social' }, { id: 'premium_product', label: 'Premium' }, { id: 'offer_action', label: 'Angebot' },
-              ].map((tpl) => <button key={tpl.id} type="button" className={currentTextTemplate.style === tpl.id ? 'is-active' : ''} onClick={() => applyTextTemplatePreset(tpl.id)}>{tpl.label}</button>)}</div>
-              <span className="ureel-tap-mini-label">Timing</span>
-              <div className="ureel-tap-chip-row"><button type="button" className={timeline.preset === 'direct' ? 'is-active' : ''} onClick={() => applyTimeline(valuesForTimelinePreset('direct'))}>Sofort</button><button type="button" className={timeline.preset === 'short_intro' ? 'is-active' : ''} onClick={() => applyTimeline(valuesForTimelinePreset('short_intro'))}>Nacheinander</button><button type="button" className={timeline.preset === 'ad_reel' ? 'is-active' : ''} onClick={() => applyTimeline(valuesForTimelinePreset('ad_reel'))}>Am Ende</button></div>
-              <div className="ureel-tap-slider-row"><label>Buttons erscheinen <b>{timeline.buttonsAt}s</b></label><input type="range" min={0} max={30} step={0.5} value={timeline.buttonsAt} onChange={(e) => updateTimelineField('buttonsAt', Number(e.target.value))} /></div>
+
+              <h4>Stil</h4>
+              <span className="ureel-tap-mini-label">Schriftart</span>
+              <div className="ureel-tap-chip-row"><button type="button" className={(currentTextTemplate.fontStyle || 'modern') === 'modern' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'modern' })}>Klar</button><button type="button" className={currentTextTemplate.fontStyle === 'elegant' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'elegant' })}>Elegant</button><button type="button" className={currentTextTemplate.fontStyle === 'serif' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'serif' })}>Serif</button><button type="button" className={currentTextTemplate.fontStyle === 'condensed' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'condensed' })}>Bold</button></div>
+              {[
+                { key: 'heroTitleSize', label: 'Titelgröße', min: 16, max: 52, fallback: 30 },
+                { key: 'heroSubtitleSize', label: 'Untertitelgröße', min: 8, max: 24, fallback: 12 },
+                { key: 'heroDescriptionSize', label: 'Beschreibunggröße', min: 8, max: 22, fallback: 11 },
+              ].map((item) => <div key={item.key} className="ureel-tap-slider-row"><label>{item.label} <b>{clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max).toFixed(0)}px</b></label><input type="range" min={item.min} max={item.max} step={1} value={clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max)} onChange={(e) => syncCardUpdate({ [item.key]: Number(e.target.value) } as any)} /></div>)}
+              {[
+                { key: 'heroTitleTextColor', label: 'Titelfarbe', fallback: '#F5F2EA' },
+                { key: 'heroSubtitleTextColor', label: 'Untertitelfarbe', fallback: '#E8DCC2' },
+                { key: 'heroDescTextColor', label: 'Beschreibungfarbe', fallback: '#D8D2C5' },
+              ].map((item) => <label key={item.key} className="ureel-mobile-one-color">{item.label}<input type="color" value={(activeCard as any)[item.key] || item.fallback} onChange={(e) => syncCardUpdate({ [item.key]: e.target.value } as any)} /><input value={(activeCard as any)[item.key] || item.fallback} onChange={(e) => syncCardUpdate({ [item.key]: e.target.value } as any)} /></label>)}
+              <span className="ureel-tap-mini-label">Position</span>
+              <div className="ureel-tap-chip-row"><button type="button" onClick={() => updateTextTemplate({ frame: { ...currentTextTemplate.frame, type: 'side_line' } })}>Oben/Seite</button><button type="button" onClick={() => updateTextTemplate({ frame: { ...currentTextTemplate.frame, type: 'none' } })}>Mitte</button><button type="button" onClick={() => updateTextTemplate({ frame: { ...currentTextTemplate.frame, type: 'underline' } })}>Unten</button></div>
+
+              <h4>Timing</h4>
+              <p className="ureel-tap-help">Spotlänge: <b>{timelineDuration.toFixed(1)}s</b>. Die Regler richten sich nach der Video-/Spotlänge.</p>
+              <div className="ureel-tap-chip-row"><button type="button" className={timeline.preset === 'direct' ? 'is-active' : ''} onClick={() => applyTimeline(valuesForTimelinePreset('direct'))}>Alles sofort</button><button type="button" className={timeline.preset === 'short_intro' ? 'is-active' : ''} onClick={() => applyTimeline(valuesForTimelinePreset('short_intro'))}>Nacheinander</button><button type="button" className={timeline.preset === 'ad_reel' ? 'is-active' : ''} onClick={() => applyTimeline(valuesForTimelinePreset('ad_reel'))}>Erst Text</button></div>
+              {[
+                { key: 'titleAt', label: 'Titel', value: timeline.titleAt, field: 'title' },
+                { key: 'subtitleAt', label: 'Untertitel', value: timeline.subtitleAt, field: 'subtitle' },
+                { key: 'descriptionAt', label: 'Beschreibung', value: timeline.descriptionAt, field: 'description' },
+                { key: 'buttonsAt', label: 'Buttons', value: timeline.buttonsAt },
+                { key: 'profileImageAt', label: 'Profilbild', value: Number((activeCard as any).profileImageAt || (activeCard.ureelTimeline as any)?.profileImageAt || 0) },
+              ].map((item: any) => { const enabled = item.field ? isTextLayerEnabled(item.field) : item.key === 'profileImageAt' ? (((activeCard as any).profileImageEnabled === true || activeCard.showProfileImage === true) && !!(activeCard.profileImageUrl || (activeCard as any).heroProfileImageUrl)) : true; return <div key={item.key} className="ureel-tap-slider-row"><label>{item.label} <b>{Number(item.value).toFixed(1)}s</b> <button type="button" className={enabled ? 'is-active' : ''} onClick={(e) => { e.preventDefault(); if (item.field) setTextLayerEnabled(item.field, !enabled); else if (item.key === 'profileImageAt') syncCardUpdate({ profileImageEnabled: !enabled, showProfileImage: !enabled, heroProfileImageEnabled: !enabled } as any); }}>{enabled ? 'AN' : 'AUS'}</button></label><input type="range" min={0} max={timelineDuration} step={0.1} value={Number(item.value)} onChange={(e) => item.key === 'profileImageAt' ? updateTimelineAnyField('profileImageAt', Number(e.target.value)) : updateTimelineField(item.key, Number(e.target.value))} /></div>; })}
             </div>
           </section>
         )}
@@ -4577,6 +4662,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           const currentButton = editingButton || activeCard.buttons?.[0] || null;
           if (!currentButton) return <section className="ureel-tap-panel"><div className="ureel-tap-panel-head"><div><span>Buttons / Aktionen</span><h3>Noch kein Button vorhanden.</h3></div><LucideIcons.MousePointerClick size={18}/></div></section>;
           const meta = getActionInputMeta(currentButton.actionType);
+          const manageButtons = visibleEditorButtons.length ? visibleEditorButtons : [...(activeCard.buttons || [])].sort((a,b)=>(a.position??0)-(b.position??0));
           return (
             <section className="ureel-tap-panel ureel-tap-panel--button">
               <div className="ureel-tap-panel-head"><div><span>Buttons / Aktionen</span><h3>Button bearbeiten</h3><p className="ureel-tap-active-button-line">Aktiver Button: <b>{currentButton.title || 'Button'}</b></p></div><LucideIcons.MousePointerClick size={18} /></div>
@@ -4592,13 +4678,28 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div className="ureel-tap-chip-row"><button type="button" className={(currentButton.fontFamily || '').includes('Inter') || !currentButton.fontFamily ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontFamily: 'Inter, system-ui, sans-serif', fontWeight: '700' } as any)}>Klar</button><button type="button" className={(currentButton.fontFamily || '').includes('Nunito') ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontFamily: 'Nunito, Inter, system-ui, sans-serif', fontWeight: '800' } as any)}>Rund</button><button type="button" className={(currentButton.fontFamily || '').includes('Georgia') ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontFamily: 'Georgia, serif', fontWeight: '700' } as any)}>Elegant</button><button type="button" className={currentButton.fontWeight === '900' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontWeight: '900' } as any)}>Fett</button></div>
                 <label className="ureel-mobile-one-color">Textfarbe<input type="color" value={(currentButton.textColor || '#111111').startsWith('rgba') ? '#111111' : (currentButton.textColor || '#111111')} onChange={(e) => applyMobileButtonLook(currentButton.id, { textColor: e.target.value } as any)} /><input value={(currentButton.textColor || '#111111').startsWith('rgba') ? '#111111' : (currentButton.textColor || '#111111')} onChange={(e) => applyMobileButtonLook(currentButton.id, { textColor: e.target.value } as any)} /></label>
                 <span className="ureel-tap-mini-label">Icon</span>
-                <div className="ureel-mobile-icon-grid">
-                  {UREEL_MOBILE_BUTTON_ICONS.map((iconName) => { const Icon = (LucideIcons as any)[iconName] || LucideIcons.Circle; return <button key={iconName} type="button" className={(currentButton.icon || '') === iconName && currentButton.iconEnabled !== false ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { icon: iconName, iconEnabled: true } as any)}><Icon size={17}/></button>; })}
-                  <button type="button" className={currentButton.iconEnabled === false ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconEnabled: false } as any)}>Ohne</button>
+                <div className="ureel-mobile-icon-library">
+                  {[
+                    { label: 'Kontakt', icons: ['Phone','Smartphone','Mail','MessageCircle','Send','Contact','UserPlus'] },
+                    { label: 'Web & Social', icons: ['Globe','ExternalLink','Link','Instagram','Facebook','Linkedin','Youtube','Share2','QrCode'] },
+                    { label: 'Dateien', icons: ['FileText','File','Files','FileDown','FolderOpen','Download','UploadCloud','BookOpen'] },
+                    { label: 'Business', icons: ['BriefcaseBusiness','CalendarDays','Clock','MapPin','Route','Handshake','Award','Calculator'] },
+                    { label: 'Medien', icons: ['Play','Video','Image','Images','Camera','Music','Mic','Headphones'] },
+                    { label: 'Aktion', icons: ['ShoppingBag','ShoppingCart','Gift','Ticket','Tag','Lock','Star','Heart','Info','CheckCircle2','PlusCircle','Sparkles'] },
+                    { label: 'Branchen', icons: ['Wrench','Hammer','Scissors','Utensils','Coffee','Car','Truck','Dumbbell','GraduationCap','Palette'] },
+                  ].map((group) => (
+                    <div key={group.label} className="ureel-mobile-icon-group">
+                      <span>{group.label}</span>
+                      <div className="ureel-mobile-icon-grid">
+                        {group.icons.map((iconName) => { const Icon = (LucideIcons as any)[iconName] || LucideIcons.Circle; return <button key={iconName} type="button" title={iconName} className={(currentButton.icon || '') === iconName && currentButton.iconEnabled !== false ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { icon: iconName, iconEnabled: true } as any)}><Icon size={24}/><small>{iconName.replace(/([A-Z])/g, ' $1').trim()}</small></button>; })}
+                      </div>
+                    </div>
+                  ))}
+                  <button type="button" className={`ureel-mobile-icon-off ${currentButton.iconEnabled === false ? 'is-active' : ''}`} onClick={() => applyMobileButtonLook(currentButton.id, { iconEnabled: false } as any)}>Ohne Icon</button>
                 </div>
                 <label className="ureel-mobile-one-color">Iconfarbe<input type="color" value={(currentButton.iconColor || currentButton.textColor || '#111111').startsWith('rgba') ? '#111111' : (currentButton.iconColor || currentButton.textColor || '#111111')} onChange={(e) => applyMobileButtonLook(currentButton.id, { iconColor: e.target.value } as any)} /><input value={(currentButton.iconColor || currentButton.textColor || '#111111').startsWith('rgba') ? '#111111' : (currentButton.iconColor || currentButton.textColor || '#111111')} onChange={(e) => applyMobileButtonLook(currentButton.id, { iconColor: e.target.value } as any)} /></label>
                 <span className="ureel-tap-mini-label">Icongröße</span>
-                <div className="ureel-tap-chip-row"><button type="button" className={(currentButton.iconSize || 18) <= 16 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconSize: 14 } as any)}>Klein</button><button type="button" className={(currentButton.iconSize || 18) > 16 && (currentButton.iconSize || 18) < 24 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconSize: 19 } as any)}>Normal</button><button type="button" className={(currentButton.iconSize || 18) >= 24 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconSize: 25 } as any)}>Groß</button></div>
+                <div className="ureel-tap-chip-row"><button type="button" className={(currentButton.iconSize || 26) <= 22 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconSize: 20 } as any)}>Klein</button><button type="button" className={(currentButton.iconSize || 26) > 22 && (currentButton.iconSize || 26) < 31 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconSize: 26 } as any)}>Normal</button><button type="button" className={(currentButton.iconSize || 26) >= 31 && (currentButton.iconSize || 26) < 39 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconSize: 34 } as any)}>Groß</button><button type="button" className={(currentButton.iconSize || 26) >= 39 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconSize: 42 } as any)}>Sehr groß</button></div>
               </div>}
               {tapButtonTool === 'action' && <div className="ureel-tap-config"><label>Aktion</label><select value={currentButton.actionType || 'url'} onChange={(e) => handleUpdateSingleButton(currentButton.id, { actionType: e.target.value })}>{actionOptions.filter((option) => ['url','phone','email','whatsapp','pdf_link','external_file_link','vcard','maps','video_replay'].includes(option.value)).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>{!['video_replay','vcard','contact_form','inquiry_form'].includes(currentButton.actionType || '') && <><label>{meta.label}</label><input value={currentButton.actionValue || ''} placeholder={meta.placeholder} onChange={(e) => handleUpdateSingleButton(currentButton.id, { actionValue: e.target.value })} /></>}{isFileUploadAction(currentButton.actionType) && <label className="ureel-tap-upload"><LucideIcons.UploadCloud size={16}/> {buttonFileUploading ? `Upload ${buttonFileUploadProgress || 0}%` : 'Datei hochladen'}<input type="file" onChange={(e) => e.target.files?.[0] && handleButtonFileUpload(currentButton.id, e.target.files[0])} /></label>}</div>}
               {tapButtonTool === 'look' && <div className="ureel-tap-config ureel-mobile-look-editor">
@@ -4619,7 +4720,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <label className="ureel-mobile-one-color">Rahmenfarbe<input type="color" value={(currentButton.borderColor || '#D8CDB7').startsWith('rgba') ? '#D8CDB7' : (currentButton.borderColor || '#D8CDB7')} onChange={(e) => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderColor: e.target.value, borderWidth: currentButton.borderWidth === 'none' || !currentButton.borderWidth ? 'thin' : currentButton.borderWidth } as any)} /><input value={(currentButton.borderColor || '#D8CDB7').startsWith('rgba') ? '#D8CDB7' : (currentButton.borderColor || '#D8CDB7')} onChange={(e) => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderColor: e.target.value, borderWidth: currentButton.borderWidth === 'none' || !currentButton.borderWidth ? 'thin' : currentButton.borderWidth } as any)} /></label>
                 <button type="button" className="ureel-mobile-look-all-button" onClick={async () => { const designFields: Partial<CardButton> = { bgColor: currentButton.bgColor, backgroundColor: currentButton.backgroundColor, textColor: currentButton.textColor, borderColor: currentButton.borderColor, borderEnabled: currentButton.borderEnabled, borderWidth: currentButton.borderWidth, borderStyle: currentButton.borderStyle, styleVariant: currentButton.styleVariant, radius: currentButton.radius, buttonShape: currentButton.buttonShape, buttonSize: currentButton.buttonSize, fontSize: currentButton.fontSize, icon: currentButton.icon, iconColor: currentButton.iconColor, iconSize: currentButton.iconSize, iconEnabled: currentButton.iconEnabled, buttonImageUrl: currentButton.buttonImageUrl, imageUrl: currentButton.imageUrl, buttonImageFit: currentButton.buttonImageFit, buttonImageOverlay: currentButton.buttonImageOverlay, textPadding: currentButton.textPadding }; await syncCardUpdate({ buttons: (activeCard.buttons || []).map((button) => button.id === currentButton.id ? button : { ...button, ...designFields }) }); }}>Look auf alle Buttons</button>
               </div>}
-              {tapButtonTool === 'manage' && <div className="ureel-tap-config"><h4>Button verwalten</h4><p>Füge Buttons hinzu, kopiere, ordne oder entferne sie. Wähle für die Position einfach einen Platz im Raster.</p><div className="ureel-mobile-manage-grid"><button type="button" onClick={handleAddButtonLocal}><LucideIcons.Plus size={15}/> Hinzufügen</button><button type="button" onClick={() => handleDuplicateButtonLocal(currentButton)}><LucideIcons.Copy size={15}/> Kopieren</button><button type="button" onClick={() => handleMoveButtonLocal(currentButton.id, -1)}><LucideIcons.ArrowLeft size={15}/> Links</button><button type="button" onClick={() => handleMoveButtonLocal(currentButton.id, 1)}><LucideIcons.ArrowRight size={15}/> Rechts</button><button type="button" className="is-danger" onClick={() => handleDeleteButtonLocal(currentButton.id)}><LucideIcons.Trash2 size={15}/> Entfernen</button></div><div className="ureel-mobile-position-grid"><span>Position wählen</span><div>{(activeCard.buttons || []).sort((a,b)=>(a.position??0)-(b.position??0)).map((button, index) => <button key={button.id} type="button" className={button.id === currentButton.id ? 'is-active' : ''} onClick={() => handleMoveButtonToPositionLocal(currentButton.id, index)}>{index + 1}</button>)}</div></div><div className="ureel-mobile-password-box"><h5>Passwortschutz</h5><p>Bereite sensible Inhalte wie Folder, Datei, Telefon oder Website mit Passwortschutz vor.</p><div className="ureel-tap-chip-row"><button type="button" className={(currentButton as any).passwordProtected ? 'is-active' : ''} onClick={() => handleUpdateSingleButton(currentButton.id, { passwordProtected: true } as any)}>Ein</button><button type="button" className={!(currentButton as any).passwordProtected ? 'is-active' : ''} onClick={() => handleUpdateSingleButton(currentButton.id, { passwordProtected: false, accessPassword: '', passwordHint: '' } as any)}>Aus</button></div>{(currentButton as any).passwordProtected && <><label>Passwort</label><input type="password" value={(currentButton as any).accessPassword || ''} placeholder="Passwort für Besucher" onChange={(e) => handleUpdateSingleButton(currentButton.id, { accessPassword: e.target.value } as any)} /><label>Hinweistext</label><input value={(currentButton as any).passwordHint || ''} placeholder="z.B. Passwort beim Team erfragen" onChange={(e) => handleUpdateSingleButton(currentButton.id, { passwordHint: e.target.value } as any)} /></>}</div></div>}
+              {tapButtonTool === 'manage' && <div className="ureel-tap-config"><h4>Button verwalten</h4><p>Füge Buttons hinzu, kopiere, ordne oder entferne sie. Wähle für die Position einfach einen Platz im Raster.</p><div className="ureel-mobile-manage-grid"><button type="button" onClick={handleAddButtonLocal}><LucideIcons.Plus size={15}/> Hinzufügen</button><button type="button" onClick={() => handleDuplicateButtonLocal(currentButton)}><LucideIcons.Copy size={15}/> Kopieren</button><button type="button" onClick={() => handleMoveButtonLocal(currentButton.id, -1)}><LucideIcons.ArrowLeft size={15}/> Links</button><button type="button" onClick={() => handleMoveButtonLocal(currentButton.id, 1)}><LucideIcons.ArrowRight size={15}/> Rechts</button><button type="button" className="is-danger" onClick={() => handleDeleteButtonLocal(currentButton.id)}><LucideIcons.Trash2 size={15}/> Entfernen</button></div><div className="ureel-mobile-position-grid"><span>Position wählen</span><small>{manageButtons.length} echte Kartenbuttons</small><div>{manageButtons.map((button, index) => { const fullIndex = [...(activeCard.buttons || [])].sort((a,b)=>(a.position??0)-(b.position??0)).findIndex((b) => b.id === button.id); return <button key={button.id} type="button" className={button.id === currentButton.id ? 'is-active' : ''} onClick={() => handleMoveButtonToPositionLocal(currentButton.id, Math.max(0, fullIndex))}>{index + 1}</button>; })}</div></div><div className="ureel-mobile-password-box"><h5>Passwortschutz</h5><p>Bereite sensible Inhalte wie Folder, Datei, Telefon oder Website mit Passwortschutz vor.</p><div className="ureel-tap-chip-row"><button type="button" className={(currentButton as any).passwordProtected ? 'is-active' : ''} onClick={() => handleUpdateSingleButton(currentButton.id, { passwordProtected: true } as any)}>Ein</button><button type="button" className={!(currentButton as any).passwordProtected ? 'is-active' : ''} onClick={() => handleUpdateSingleButton(currentButton.id, { passwordProtected: false, accessPassword: '', passwordHint: '' } as any)}>Aus</button></div>{(currentButton as any).passwordProtected && <><label>Passwort</label><input type="password" value={(currentButton as any).accessPassword || ''} placeholder="Passwort für Besucher" onChange={(e) => handleUpdateSingleButton(currentButton.id, { accessPassword: e.target.value } as any)} /><label>Hinweistext</label><input value={(currentButton as any).passwordHint || ''} placeholder="z.B. Passwort beim Team erfragen" onChange={(e) => handleUpdateSingleButton(currentButton.id, { passwordHint: e.target.value } as any)} /></>}</div></div>}
             </section>
           );
         })()}

@@ -124,15 +124,21 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
 
   // Construct helper for separate Reel customizer profile section data mask (Teil D)
   const mappedCardData = React.useMemo(() => {
+    const cleanPreviewProfileImageAllowed =
+      cleanPreview &&
+      ((card as any).profileImageEnabled === true || card.showProfileImage === true || (card as any).heroProfileImageEnabled === true) &&
+      !!(card.profileImageUrl || (card as any).heroProfileImageUrl || card.heroLogoUrl || card.customLogoUrl);
+
     const cleanSceneCard = cleanPreview && card.ureelScene
       ? {
           ...card,
-          // In the studio monitor the scene itself is the stage. The old profile avatar/background
-          // must not cover color/gradient/video scenes. Text stays visible, but the profile image
-          // and hero media/background are disabled.
-          showProfileImage: false,
-          heroLogoUrl: '',
-          customLogoUrl: null,
+          // In the studio monitor the scene itself is the stage. Old hero media/background
+          // must not cover color/gradient/video scenes. The profile image is only allowed
+          // when the user explicitly enabled it and a real image/logo exists.
+          showProfileImage: cleanPreviewProfileImageAllowed,
+          heroProfileImageEnabled: cleanPreviewProfileImageAllowed,
+          heroLogoUrl: cleanPreviewProfileImageAllowed ? card.heroLogoUrl : '',
+          customLogoUrl: cleanPreviewProfileImageAllowed ? card.customLogoUrl : null,
           heroBackgroundEnabled: false,
           heroBackgroundType: 'color',
           heroImageUrl: '',
@@ -335,7 +341,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-stone-900/90 hover:bg-stone-850 border border-stone-800 hover:border-[#A855F7] text-xs font-black uppercase tracking-widest text-[#A855F7] transition-all hover:scale-105 active:scale-95 shadow-2xl mt-12 cursor-pointer"
             >
               <LucideIcons.RotateCcw size={11} className="animate-spin-slow" />
-              <span>{lang === 'de' ? 'Video erneut ansehen' : 'Replay Video'}</span>
+              <span>{lang === 'de' ? 'Spot neu starten' : 'Restart spot'}</span>
             </button>
           </div>
         )}
@@ -1082,7 +1088,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     .filter((btn) => btn.isActive)
     .filter((btn) => {
       const label = `${btn.title || ''}`.toLowerCase();
-      return !/(editor|timeline|vorschau|bearbeiten|ureel live|konu live|texte)/i.test(label);
+      // v52.4.7: keep user-created Text/Timeline buttons visible. Only hidden studio/helper CTAs are excluded.
+      return !/(editor|vorschau|bearbeiten|ureel live|konu live)/i.test(label);
     });
 
   const renderLayeredYoutube = (embedUrl: string, mode: 'cover' | 'contain' | 'heroWide' | 'heroCompact') => {
@@ -1185,7 +1192,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   };
 
   if (useLayeredUreelCard) {
-    const buttonDockMaxHeight = filteredLayeredButtons.length > 6 ? 'max-h-[40%]' : 'max-h-[36%]';
+    const buttonDockMaxHeight = filteredLayeredButtons.length > 6 ? 'max-h-[46%]' : 'max-h-[42%]';
     return (
       <div
         onClick={() => {
@@ -1221,17 +1228,25 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               className={`grid ${gridLayout.cols === 1 ? 'grid-cols-1' : gridLayout.cols === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}
               style={{ gap: `${gridLayout.gapPx}px`, justifyItems: 'center' }}
             >
-              {filteredLayeredButtons.map((btn) => (
-                <ButtonRenderer
-                  key={btn.id}
-                  button={btn}
-                  mode="public"
-                  onClick={onEditButton ? () => onEditButton(btn) : (!isPreview && handleButtonClick ? () => handleButtonClick(btn) : undefined)}
-                  lang={lang}
-                  forceSquare={gridLayout.square}
-                  forceSizePx={gridLayout.buttonSizePx}
-                />
-              ))}
+              {filteredLayeredButtons.map((btn, index) => {
+                const safePreviewSize = isPreview ? Math.min(Number(gridLayout.buttonSizePx || 42), 44) : gridLayout.buttonSizePx;
+                return (
+                  <ButtonRenderer
+                    key={btn.id}
+                    button={btn}
+                    mode="public"
+                    extraClassName={index < 6 ? 'ureel-first-six-action' : ''}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onEditButton) onEditButton(btn);
+                      else if (!isPreview && handleButtonClick) handleButtonClick(btn);
+                    }}
+                    lang={lang}
+                    forceSquare={gridLayout.square}
+                    forceSizePx={safePreviewSize}
+                  />
+                );
+              })}
               {!backgroundOnlyPreview && elapsed >= effectiveEndCardAt && (
           <button
             type="button"

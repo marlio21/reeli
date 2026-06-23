@@ -4249,3 +4249,263 @@ body {
     font-weight: 950 !important;
   }
 }
+
+/* v52.4.7 – Mobile Werbetext Editor */
+@media (max-width: 767px) {
+  .ureel-first-six-action {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .ureel-mobile-text-preview-card {
+    border: 1px solid #3A3732 !important;
+    background: #111111 !important;
+    border-radius: 24px !important;
+    padding: 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .ureel-mobile-text-preview-top {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 8px !important;
+    text-transform: uppercase !important;
+    letter-spacing: .08em !important;
+  }
+
+  .ureel-mobile-text-preview-top span {
+    color: #E8DCC2 !important;
+    font-size: 10px !important;
+    font-weight: 950 !important;
+  }
+
+  .ureel-mobile-text-preview-top small {
+    color: #8B8172 !important;
+    font-size: 9px !important;
+    font-weight: 800 !important;
+  }
+
+  .ureel-mobile-text-preview-sample {
+    min-height: 132px !important;
+    border-radius: 22px !important;
+    border: 1px solid rgba(232,220,194,.18) !important;
+    background: radial-gradient(circle at top, rgba(232,220,194,.10), rgba(8,8,8,.45)) !important;
+    padding: 16px 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    overflow: hidden !important;
+  }
+
+  .ureel-mobile-text-preview-sample b,
+  .ureel-mobile-text-preview-sample strong,
+  .ureel-mobile-text-preview-sample p {
+    display: block !important;
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+    margin: 0 !important;
+  }
+
+  .ureel-mobile-text-preview-sample b {
+    line-height: .92 !important;
+    text-transform: uppercase !important;
+    letter-spacing: -.035em !important;
+    font-weight: 950 !important;
+  }
+
+  .ureel-mobile-text-preview-sample strong {
+    margin-top: 7px !important;
+    line-height: 1.05 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .06em !important;
+  }
+
+  .ureel-mobile-text-preview-sample p {
+    margin-top: 7px !important;
+    line-height: 1.22 !important;
+    font-weight: 700 !important;
+  }
+
+  .ureel-mobile-text-template-strip {
+    display: flex !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    padding-bottom: 4px !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .ureel-mobile-text-template-strip button {
+    min-width: 114px !important;
+    max-width: 114px !important;
+    min-height: 58px !important;
+    border-radius: 18px !important;
+    border: 1px solid #3A3732 !important;
+    background: #181818 !important;
+    color: #F5F2EA !important;
+    padding: 9px !important;
+    text-align: left !important;
+    scroll-snap-align: start !important;
+  }
+
+  .ureel-mobile-text-template-strip button.is-active {
+    background: #F5F2EA !important;
+    color: #101010 !important;
+    border-color: #F5F2EA !important;
+  }
+
+  .ureel-mobile-text-template-strip b {
+    display: block !important;
+    font-size: 10px !important;
+    line-height: 1.05 !important;
+    font-weight: 950 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .ureel-mobile-text-template-strip small {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    margin-top: 4px !important;
+    font-size: 8px !important;
+    line-height: 1.15 !important;
+    opacity: .68 !important;
+  }
+
+  .ureel-tap-help {
+    border: 1px solid #3A3732 !important;
+    background: #101010 !important;
+    color: #8B8172 !important;
+    border-radius: 14px !important;
+    padding: 9px 10px !important;
+    font-size: 10px !important;
+    line-height: 1.35 !important;
+  }
+
+  .ureel-tap-slider-row label button {
+    margin-left: 8px !important;
+    border: 1px solid #3A3732 !important;
+    border-radius: 999px !important;
+    background: #181818 !important;
+    color: #8B8172 !important;
+    padding: 2px 7px !important;
+    font-size: 8px !important;
+    font-weight: 950 !important;
+  }
+
+  .ureel-tap-slider-row label button.is-active {
+    border-color: #E8DCC2 !important;
+    color: #E8DCC2 !important;
+  }
+}
+
+/* v52.4.8 compact repair: larger text tap target + visible icon library categories */
+@media (max-width: 767px) {
+  .ureel-tap-text-click-layer {
+    position: absolute !important;
+    z-index: 23 !important;
+    left: 8% !important;
+    right: 8% !important;
+    top: 22% !important;
+    height: 34% !important;
+    border: 1px dashed rgba(245,242,234,.18) !important;
+    background: rgba(255,255,255,.015) !important;
+    color: transparent !important;
+    border-radius: 24px !important;
+    padding: 0 !important;
+  }
+  .ureel-tap-text-click-layer span {
+    position: absolute !important;
+    left: 50% !important;
+    bottom: 8px !important;
+    transform: translateX(-50%) !important;
+    white-space: nowrap !important;
+    color: rgba(245,242,234,.78) !important;
+    background: rgba(17,17,17,.52) !important;
+    border: 1px solid rgba(245,242,234,.2) !important;
+    border-radius: 999px !important;
+    padding: 4px 8px !important;
+    font-size: 8px !important;
+    font-weight: 950 !important;
+    letter-spacing: .04em !important;
+    text-transform: uppercase !important;
+    backdrop-filter: blur(8px) !important;
+  }
+  .ureel-tap-text-click-layer:active,
+  .ureel-tap-text-click-layer:focus-visible {
+    border-color: rgba(245,242,234,.62) !important;
+    background: rgba(245,242,234,.06) !important;
+    outline: none !important;
+  }
+  .ureel-mobile-icon-library {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 13px !important;
+  }
+  .ureel-mobile-icon-group {
+    border: 1px solid #E7DDC8 !important;
+    background: #FFFDF8 !important;
+    border-radius: 18px !important;
+    padding: 10px !important;
+  }
+  .ureel-mobile-icon-group > span {
+    display: block !important;
+    margin-bottom: 8px !important;
+    color: #54483B !important;
+    font-size: 9px !important;
+    font-weight: 950 !important;
+    letter-spacing: .08em !important;
+    text-transform: uppercase !important;
+  }
+  .ureel-mobile-icon-library .ureel-mobile-icon-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+  .ureel-mobile-icon-library .ureel-mobile-icon-grid button {
+    min-height: 54px !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+    padding: 6px 3px !important;
+  }
+  .ureel-mobile-icon-library .ureel-mobile-icon-grid button small {
+    display: block !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 6.5px !important;
+    line-height: 1 !important;
+    opacity: .72 !important;
+    text-transform: none !important;
+  }
+  .ureel-mobile-icon-off {
+    min-height: 42px !important;
+    border-radius: 16px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #111111 !important;
+    color: #F5F2EA !important;
+    font-size: 10px !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+  }
+  .ureel-mobile-icon-off.is-active {
+    background: #F5F2EA !important;
+    color: #111111 !important;
+  }
+  .ureel-mobile-position-grid small {
+    display: block !important;
+    margin-top: -4px !important;
+    margin-bottom: 8px !important;
+    color: #7B7064 !important;
+    font-size: 9px !important;
+    font-weight: 800 !important;
+  }
+}

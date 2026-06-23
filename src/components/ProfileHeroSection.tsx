@@ -137,7 +137,16 @@ export const ProfileHeroSection: React.FC<ProfileHeroSectionProps> = ({
 
   // Sizing of profile image
   let avatarSizeValue = 110;
-  if (card.heroProfileImageSize !== undefined && card.heroProfileImageSize !== null) {
+  let avatarSizeCss: string | null = null;
+  // v52.4.6: Mobile profile sizes are relative to card width.
+  // This keeps the same result in Studio preview and public renderer.
+  const mobileProfileSize = ((card as any).profileImageSize || (card as any).heroImageSize || '').toString().toLowerCase();
+  if (mobileProfileSize === 'small') avatarSizeCss = '15%';
+  else if (mobileProfileSize === 'normal' || mobileProfileSize === 'medium') avatarSizeCss = '35%';
+  else if (mobileProfileSize === 'large') avatarSizeCss = '55%';
+  else if (mobileProfileSize === 'hero' || mobileProfileSize === 'xlarge') avatarSizeCss = '80%';
+
+  if (!avatarSizeCss && card.heroProfileImageSize !== undefined && card.heroProfileImageSize !== null) {
     avatarSizeValue = Number(card.heroProfileImageSize) || 110;
   } else if (card.heroImageSize !== undefined && card.heroImageSize !== null) {
     if (typeof card.heroImageSize === 'number') {
@@ -781,14 +790,16 @@ export const ProfileHeroSection: React.FC<ProfileHeroSectionProps> = ({
       {/* Profile Image/Avatar */}
       {showProfileImage && (
         <div 
-          className={`${getProfileImagePosClass()} z-10 p-0.5`}
+          className={`${getProfileImagePosClass()} z-20 p-0.5`}
           style={getTimedElementStyle('image')}
         >
           <div 
             className={`flex items-center justify-center overflow-hidden transition-all duration-300 ${getImageBorderClass()}`}
             style={{
-              width: `${avatarSizeValue}px`,
-              height: `${avatarSizeValue}px`,
+              width: avatarSizeCss || `${avatarSizeValue}px`,
+              height: avatarSizeCss ? 'auto' : `${avatarSizeValue}px`,
+              aspectRatio: '1 / 1',
+              maxWidth: '92%',
               borderRadius: getAvatarBorderRadius(),
               borderColor: card.heroImageBorderColor || undefined,
               borderWidth: card.heroImageBorderWidth !== undefined ? `${card.heroImageBorderWidth}px` : undefined,

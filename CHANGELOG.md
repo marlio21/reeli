@@ -27,3 +27,15 @@
 ## Hinweis
 
 Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version neue einzelne Release-Notes-Dateien im Hauptordner anzulegen.
+
+## v52.4.8 – Compact Upload, Text Editor Fix & Security Stabilization
+
+- Compact GitHub upload package: old root-level `RELEASE_NOTES_*.md` files removed from the ZIP; `CHANGELOG.md` remains the single version history file.
+- Mobile card editor only: card management, user management, desktop and public link are intentionally left untouched.
+- Profile image visibility repaired in clean mobile preview: appears only when enabled by the user and a real image/logo exists, including over Reel/video scenes.
+- Text tap target enlarged: tapping the text area in the 9:16 card opens the mobile text editor with the template strip first.
+- Mobile text editor keeps ad-copy preview, swipeable templates, style controls and video/spot-length-based timing sliders.
+- Button icon library is now grouped visibly by category in the mobile button editor.
+- Button management position picker now counts the real visible card buttons and labels the real amount.
+- New starter card copy polished for a cleaner first impression.
+- Production build verified locally after the changes.
