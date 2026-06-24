@@ -1201,10 +1201,10 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     const heroTop = mobileTextDesign.top || defaultHeroTop;
     const safeBottom = mobileTextDesign.bottom || (buttonsVisible ? (filteredLayeredButtons.length > 6 ? '48%' : '42%') : '7%');
     const widthClass = layeredFrameType === 'badge' ? 'max-w-[78%]' : mobileTextDesign.widthClass;
-    const compactRatio = buttonsVisible ? (isHero || endcardVideoActive ? 0.50 : 0.62) : 0.92;
-    const titleSize = Math.max(12, Math.min(buttonsVisible ? 22 : 40, Number((card as any).heroTitleSize || 30) * compactRatio * mobileTextDesign.titleRatio));
-    const subtitleSize = Math.max(8, Math.min(buttonsVisible ? 17 : 28, Number((card as any).heroSubtitleSize || 14) * (buttonsVisible ? 0.86 : 1) * mobileTextDesign.subtitleRatio));
-    const descriptionSize = Math.max(9, Math.min(buttonsVisible ? 20 : 32, Number((card as any).heroDescriptionSize || 22) * (buttonsVisible ? 0.72 : 1) * mobileTextDesign.descriptionRatio));
+    const compactRatio = buttonsVisible ? (isHero || endcardVideoActive ? 0.62 : 0.74) : 0.96;
+    const titleSize = Math.max(15, Math.min(buttonsVisible ? 29 : 42, Number((card as any).heroTitleSize || 30) * compactRatio * mobileTextDesign.titleRatio));
+    const subtitleSize = Math.max(10, Math.min(buttonsVisible ? 22 : 30, Number((card as any).heroSubtitleSize || 14) * (buttonsVisible ? 1.02 : 1) * mobileTextDesign.subtitleRatio));
+    const descriptionSize = Math.max(10.5, Math.min(buttonsVisible ? 20 : 32, Number((card as any).heroDescriptionSize || 22) * (buttonsVisible ? 0.82 : 1) * mobileTextDesign.descriptionRatio));
     const boxStyle = layeredTextBoxStyle();
     const isLightTextBox = layeredBoxType === 'light';
     const readableOnDark = (value: any, fallback: string) => {

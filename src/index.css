@@ -5184,3 +5184,26 @@ body {
     overflow: hidden !important;
   }
 }
+
+
+/* v52.5.12 mobile public/editor parity: larger readable tiles + single font chip */
+@media (max-width: 767px) {
+  .ureel-mobile-font-row[data-active-font="klar"] button:not(:nth-child(1)),
+  .ureel-mobile-font-row[data-active-font="rund"] button:not(:nth-child(2)),
+  .ureel-mobile-font-row[data-active-font="elegant"] button:not(:nth-child(3)),
+  .ureel-mobile-font-row[data-active-font="modern"] button:not(:nth-child(4)),
+  .ureel-mobile-font-row[data-active-font="mono"] button:not(:nth-child(5)) {
+    background: #FFFFFF !important;
+    color: #111111 !important;
+    border-color: #D8CDB7 !important;
+  }
+  .ureel-mobile-font-row[data-active-font="klar"] button:nth-child(1),
+  .ureel-mobile-font-row[data-active-font="rund"] button:nth-child(2),
+  .ureel-mobile-font-row[data-active-font="elegant"] button:nth-child(3),
+  .ureel-mobile-font-row[data-active-font="modern"] button:nth-child(4),
+  .ureel-mobile-font-row[data-active-font="mono"] button:nth-child(5) {
+    background: #111111 !important;
+    color: #F5F2EA !important;
+    border-color: #111111 !important;
+  }
+}

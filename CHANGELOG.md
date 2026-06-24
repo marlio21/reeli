@@ -1,4 +1,14 @@
 
+
+## v52.5.12 – Mobile Public Preview Scale & Button Text Fit Fix
+
+- Mobile-only: öffentliche geteilte Karte, eingebettete 9:16-Vorschau und Buttoneditor verwenden besser abgestimmte Button-Tile-Größen.
+- Kartenbuttons werden auf Mobile größer und lesbarer gerendert, statt in Public/Share zu klein zu wirken.
+- Buttontext-Fit verbessert: Klein/Normal/Groß/Sehr groß bekommen klarere Verhältnisse; kurze Labels werden weniger getrennt.
+- Werbetext in der echten Karte etwas größer skaliert, damit Public/Share näher an der Editor-Vorschau liegt.
+- Schriftart-Auswahl im Buttoneditor visuell auf genau eine aktive Schriftart stabilisiert.
+- Desktop nicht bewusst verändert.
+
 ## v52.5.11 – Mobile Dashboard Share Placement & Textfield Readability Fix
 
 - Mobile-only cleanup: duplicate top preview/dashboard/start bar hidden on mobile; the lower mobile Dashboard remains the main entry.

@@ -232,7 +232,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   // scale as the button editor preview.  Older logic multiplied by the grid
   // scale factor, so text stayed tiny on the real 9:16 card although the editor
   // looked correct.  For forced mobile tiles we scale from the actual tile size.
-  const tileRatio = forceSizePx ? Math.max(0.72, Math.min(1.0, forceSizePx / 56)) : 1;
+  const tileRatio = forceSizePx ? Math.max(0.82, Math.min(1.12, forceSizePx / 60)) : 1;
   const fontScale = forceSizePx ? tileRatio : Math.min(scaleFactor, isTinyTile ? 1.0 : 1.12);
   const iconScale = forceSizePx ? tileRatio : Math.min(scaleFactor, isTinyTile ? 0.92 : 1.15);
 
@@ -245,16 +245,16 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   // v52.5.10 mobile final fit: each text-size preset receives a clearly
   // different tile cap, while short 6-9 character labels stay readable instead
   // of hyphenating.  The card and editor preview share these exact values.
-  const isSmallTextPreset = baseFontSize <= 9.8;
-  const isNormalTextPreset = baseFontSize > 9.8 && baseFontSize < 12.7;
-  const isLargeTextPreset = baseFontSize >= 12.7 && baseFontSize < 14.6;
+  const isSmallTextPreset = baseFontSize <= 10.8;
+  const isNormalTextPreset = baseFontSize > 10.8 && baseFontSize < 13.2;
+  const isLargeTextPreset = baseFontSize >= 13.2 && baseFontSize < 15.4;
   const forcedTextCap = forceSizePx
     ? (hasUsableIcon
-      ? (isSmallTextPreset ? 7.2 : isNormalTextPreset ? 8.7 : isLargeTextPreset ? 10.2 : 11.4)
-      : (isSmallTextPreset ? 8.3 : isNormalTextPreset ? 10.2 : isLargeTextPreset ? 12.0 : 13.6))
+      ? (isSmallTextPreset ? 8.7 : isNormalTextPreset ? 9.8 : isLargeTextPreset ? 11.1 : 12.2)
+      : (isSmallTextPreset ? 10.2 : isNormalTextPreset ? 11.8 : isLargeTextPreset ? 13.4 : 14.6))
     : (hasUsableIcon ? 11.2 : 13.2);
-  const forcedTextFloor = hasUsableIcon ? (isTinyTile ? 6.1 : 6.6) : (isTinyTile ? 7.2 : 7.8);
-  const iconTextFactor = hasUsableIcon ? (isSmallTextPreset ? 0.58 : isNormalTextPreset ? 0.66 : isLargeTextPreset ? 0.73 : 0.78) : 0.88;
+  const forcedTextFloor = hasUsableIcon ? (isTinyTile ? 7.2 : 7.8) : (isTinyTile ? 8.6 : 9.2);
+  const iconTextFactor = hasUsableIcon ? (isSmallTextPreset ? 0.78 : isNormalTextPreset ? 0.82 : isLargeTextPreset ? 0.86 : 0.9) : 0.96;
   const autoFitFontSize = forceSizePx
     ? Math.max(forcedTextFloor, Math.min(forcedTextCap, (baseFontSize * fontScale * iconTextFactor) - lengthPenalty))
     : Math.max(isTinyTile ? 6.2 : 7, Math.round((baseFontSize * fontScale) - lengthPenalty));
@@ -396,7 +396,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const iconColor = btn.iconColor || '#1E1E1E';
   const requestedIconSize = Math.round((btn.iconSize || 18) * iconScale);
   const iconSize = forceSizePx
-    ? Math.max(isTinyTile ? 7 : 9, Math.min(Math.round(requestedIconSize * 0.68), Math.round(forceSizePx * 0.25)))
+    ? Math.max(isTinyTile ? 8 : 10, Math.min(Math.round(requestedIconSize * 0.72), Math.round(forceSizePx * 0.24)))
     : requestedIconSize;
 
 
@@ -569,10 +569,10 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
               textShadow: textShadowVal,
               color: textColor,
               lineHeight: hasSecondButtonLine ? 1.02 : 1.06,
-              overflowWrap: compactSingleLine ? 'normal' : 'anywhere',
-              wordBreak: compactSingleLine ? 'keep-all' : 'break-word',
+              overflowWrap: compactSingleLine || forceSizePx ? 'normal' : 'anywhere',
+              wordBreak: compactSingleLine || forceSizePx ? 'keep-all' : 'break-word',
               whiteSpace: compactSingleLine ? 'nowrap' : 'normal',
-              hyphens: compactSingleLine ? 'manual' : 'auto',
+              hyphens: compactSingleLine || forceSizePx ? 'manual' : 'auto',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
             }}

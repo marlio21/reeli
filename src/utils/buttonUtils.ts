@@ -800,8 +800,8 @@ export function normalizeButtonGridLayout(card: Partial<Card> | undefined): Requ
   // v52.4.3: Ureel cards must remain visually stable in the 9:16 frame.
   // Old mobile tests could save oversized buttonSizePx values; clamp them for the real renderer
   // so even a "Groß" preset stays in a clean 3-column grid instead of overlapping.
-  const safeButtonSize = isUreel ? Math.max(32, Math.min(rawButtonSize, 54)) : rawButtonSize;
-  const safeGap = isUreel ? Math.max(5, Math.min(rawGap, 10)) : rawGap;
+  const safeButtonSize = isUreel ? Math.max(38, Math.min(rawButtonSize, 66)) : rawButtonSize;
+  const safeGap = isUreel ? Math.max(6, Math.min(rawGap, 12)) : rawGap;
 
   return {
     mode: (gl?.mode || defaultMode) as any,
