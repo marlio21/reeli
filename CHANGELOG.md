@@ -1,4 +1,14 @@
 
+## v52.5.14 – Public Renderer Hard Switch Fix
+
+- Public-/Live-Link-Pfad hart auf die zentrale Unified Mobile Live Card Surface umgestellt.
+- Public View verwendet nicht mehr den separaten Desktop/Public-Page-Renderer für die eigentliche Karte.
+- Public View, mobile Vorschau und Studio-Monitor teilen dieselbe 390×693 Kartenbasis.
+- Dashboard-/Start-Preview-Chrome wird im Public-Link nicht mehr gerendert.
+- Public-Karte darf nur noch außen skaliert werden; Button-/Werbetextgrößen werden nicht mehr je Public-Pfad neu berechnet.
+- Desktop-Editor nicht bewusst umgebaut.
+
+
 ## v52.5.13 – Unified Mobile Live Renderer & Desktop Preview Chrome Cleanup
 
 - Zentrale mobile 9:16-Live-Surface ergänzt: Public-Link, Desktop-Phone-Preview und Studio-Kartenvorschau rendern nun dieselbe feste 390×693 Kartenbasis und skalieren nur die ganze Fläche.

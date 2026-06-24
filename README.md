@@ -1,6 +1,6 @@
-# ureel.me v52.5.13
+# ureel.me v52.5.14
 
-Unified Mobile Live Renderer & Desktop Preview Chrome Cleanup.
+Public Renderer Hard Switch Fix.
 
 - Public-Link, mobile Studio-Vorschau und Desktop-Phone-Preview nutzen jetzt eine gemeinsame mobile 9:16-Live-Surface.
 - Die Karte rendert intern auf einer festen 390×693-Basis und wird danach nur skaliert, damit Buttontext, Icons und Werbetext nicht pro Ansicht neu umbrechen.

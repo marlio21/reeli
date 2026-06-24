@@ -18,7 +18,7 @@ import { downloadVCardFileFromCard } from '../utils/vcard-wrapper';
 import { ShareExportModal } from './ShareExportModal';
 import { KonuLogo } from './KonuLogo';
 import { ButtonRenderer } from './ButtonRenderer';
-import { PublicDesktopPageRenderer } from './PublicDesktopPageRenderer';
+import { UnifiedMobileLiveCardSurface } from './UnifiedMobileLiveCardSurface';
 import QRCode from 'qrcode';
 import { parseVideoUrl } from '../utils/video';
 import { executeButtonAction as runButtonAction, normalizeButtons, buildButtonActionUrl } from '../utils/buttonUtils';
@@ -581,18 +581,31 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
   }
 
   if (!isPreview) {
+    // v52.5.14 Public hard switch:
+    // Public/live links no longer route through the desktop page renderer or any
+    // preview chrome. The public route renders the same unified 390x693 mobile
+    // live surface that the studio monitor uses; only the outside viewport frame
+    // changes. This prevents the old Public view from re-computing text/button
+    // sizes through a separate PublicDesktopPageRenderer path.
     return (
       <>
-        <PublicDesktopPageRenderer
-          card={card}
-          lang={lang}
-          mode="public"
-          qrCodeUrl={qrCodeUrl}
-          onButtonClick={handleButtonClick}
-          onContactSave={triggerVCardDownload}
-          onShare={() => setShowShareModal(true)}
-          onQrClick={() => setShowShareDrawer(true)}
-        />
+        <main className="fixed inset-0 h-[100svh] w-screen overflow-hidden bg-black text-[#F5F2EA] flex items-center justify-center">
+          <div
+            className="relative h-[100svh] w-screen sm:h-[min(96svh,760px)] sm:w-auto sm:aspect-[9/16] overflow-hidden bg-black sm:rounded-[36px] sm:border-[8px] sm:border-[#111] sm:shadow-2xl"
+            aria-label="ureel public unified mobile live card"
+          >
+            <UnifiedMobileLiveCardSurface
+              card={card}
+              lang={lang}
+              isPreview={false}
+              cleanPreview={true}
+              previewFocus="full"
+              onButtonClick={handleButtonClick}
+              onContactSave={triggerVCardDownload}
+              onShare={() => setShowShareModal(true)}
+            />
+          </div>
+        </main>
         <AnimatePresence>{showShareModal && <ShareExportModal card={card} lang={lang} isOpen={showShareModal} onClose={() => setShowShareModal(false)} />}</AnimatePresence>
       </>
     );
