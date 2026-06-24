@@ -1,4 +1,13 @@
 
+## v52.5.13 – Unified Mobile Live Renderer & Desktop Preview Chrome Cleanup
+
+- Zentrale mobile 9:16-Live-Surface ergänzt: Public-Link, Desktop-Phone-Preview und Studio-Kartenvorschau rendern nun dieselbe feste 390×693 Kartenbasis und skalieren nur die ganze Fläche.
+- Unterschiedliche Neuberechnung von Button-/Werbetextgrößen zwischen Editor-Vorschau und geteilter Karte reduziert.
+- Public-Mobile-Karte nutzt dieselbe skalierte Live-Surface, damit Buttons und Werbetext nicht mehr kleiner wirken als in der Vorschau.
+- Desktop-Phone-Preview nutzt ebenfalls dieselbe mobile Live-Surface, statt eigene Telefon-Skalierungen zu rechnen.
+- Rechte Desktop-Vorschau bereinigt: zusätzliche Dashboard-/Start-Chrome-Buttons im Preview-Header ausgeblendet, ohne den eigentlichen Desktop-Editor umzubauen.
+- Buttonrenderer bleibt zentral; Buttoneditor, mobile Karte und Public-Karte sollen dadurch dieselben Text-/Icon-Fits sehen.
+- Keine `RELEASE_NOTES_*.md` im Upload-Paket.
 
 ## v52.5.12 – Mobile Public Preview Scale & Button Text Fit Fix
 

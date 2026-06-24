@@ -5,6 +5,7 @@ import { Card, CardButton, UreelScene, UreelTimeline, UreelEndCard, UreelTextTem
 import { KonuCardCore } from './KonuCardCore';
 import { ButtonRenderer } from './ButtonRenderer';
 import { PublicDesktopPageRenderer } from './PublicDesktopPageRenderer';
+import { UnifiedMobileLiveCardSurface } from './UnifiedMobileLiveCardSurface';
 import { createDefaultButton, sanitizeButtonForFirestore } from '../utils/buttonUtils';
 import { UREEL_TEXT_TEMPLATES, normalizeUreelTextTemplate } from '../utils/textTemplates';
 import { storage } from '../firebase';
@@ -2157,10 +2158,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           <span className="text-[7px] uppercase tracking-wider text-stone-500">Renderer Sync</span>
         </div>
         <div className="relative h-[430px] rounded-[26px] overflow-hidden border-[7px] border-[#F5F2EA]/85 bg-black">
-          <KonuCardCore
+          <UnifiedMobileLiveCardSurface
             card={getPreviewCardForTimeline()}
             lang={lang}
-            isDesktopPreview={false}
             isPreview={true}
             cleanPreview={true}
             previewFocus="full"
@@ -4672,7 +4672,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             </span>
           </div>
 
-          <div className="relative shrink-0">
+          <div className="relative shrink-0 hidden">
             <button
               type="button"
               onClick={() => setDashboardMenuOpen((open) => !open)}
@@ -4717,7 +4717,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               ))}
             </div>
           ) : (
-            <div className="flex bg-stone-950 border border-stone-900 p-0.5 rounded-lg">
+            <div className="hidden bg-stone-950 border border-stone-900 p-0.5 rounded-lg">
               <button
                 onClick={() => setIsPlaying(!isPlaying)}
                 className="p-1 px-2.5 rounded text-[8.5px] font-bold cursor-pointer transition flex items-center gap-1 hover:text-white"
@@ -4740,7 +4740,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
         {/* Smart preview / Button monitor */}
         <div className="flex-none md:flex-1 flex items-center justify-center py-2 md:py-4 bg-stone-950/20 overflow-visible md:overflow-hidden ureel-studio-preview-stage">
-          <div className="relative shrink-0">
+          <div className="relative shrink-0 hidden">
             <button
               type="button"
               onClick={() => setDashboardMenuOpen((open) => !open)}
@@ -4795,20 +4795,19 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               {buttonPreviewMode === 'card' && (
                 <div className="ureel-studio-phone-frame relative mx-auto w-[150px] h-[308px] sm:w-[180px] sm:h-[370px] md:w-[230px] md:h-[472px] bg-black rounded-[30px] md:rounded-[36px] border-[8px] border-[#F5F2EA]/80 shadow-2xl overflow-hidden flex flex-col justify-between ring-4 ring-[#E8DCC2]/10">
                   <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-black rounded-b-xl z-25" />
-                  <div className="w-full h-full overflow-y-auto select-none bg-[#09090B] text-stone-200 scrollbar-none flex flex-col justify-between relative pt-5">
-                    <KonuCardCore
-                card={monitorCard}
-                lang={lang}
-                isDesktopPreview={false}
-                isPreview={true}
-                cleanPreview={true}
-                previewFocus="full"
-                onEditButton={(btn) => {
-                  setTapEditTarget('button');
-                  setEditingBtnId(btn.id);
-                  setTapButtonTool('text');
-                }}
-              />
+                  <div className="w-full h-full select-none bg-[#09090B] text-stone-200 scrollbar-none relative">
+                    <UnifiedMobileLiveCardSurface
+                      card={monitorCard}
+                      lang={lang}
+                      isPreview={true}
+                      cleanPreview={true}
+                      previewFocus="full"
+                      onEditButton={(btn) => {
+                        setTapEditTarget('button');
+                        setEditingBtnId(btn.id);
+                        setTapButtonTool('text');
+                      }}
+                    />
                   </div>
                 </div>
               )}
@@ -4827,7 +4826,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div className="w-full max-w-[280px] rounded-[28px] border border-[#3A3732] bg-[#111111] p-3 shadow-2xl shadow-black/40">
                   <div className="flex items-center justify-between mb-2"><span className="text-[8px] uppercase tracking-widest font-black text-[#E8DCC2]">Fit-Vorschau</span><span className="text-[7px] text-stone-500">kleine Karte</span></div>
                   <div className="ureel-studio-fit-preview h-[390px] rounded-[26px] overflow-hidden border-[7px] border-[#F5F2EA]/85 bg-black">
-                    <KonuCardCore card={getPreviewCardForTimeline()} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} />
+                    <UnifiedMobileLiveCardSurface card={getPreviewCardForTimeline()} lang={lang} isPreview={true} cleanPreview={true} />
                   </div>
                   <p className="mt-2 text-[8.5px] leading-snug text-stone-500 text-center">Alle Texte werden unabhängig vom Timing eingeblendet, damit Größe und Rahmen prüfbar sind.</p>
                 </div>
@@ -4835,8 +4834,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               {textPreviewMode === 'card' && (
                 <div className="ureel-studio-phone-frame relative mx-auto w-[150px] h-[308px] sm:w-[180px] sm:h-[370px] md:w-[230px] md:h-[472px] bg-black rounded-[30px] md:rounded-[36px] border-[8px] border-[#F5F2EA]/80 shadow-2xl overflow-hidden flex flex-col justify-between ring-4 ring-[#E8DCC2]/10">
                   <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-black rounded-b-xl z-25" />
-                  <div className="w-full h-full overflow-y-auto select-none bg-[#09090B] text-stone-200 scrollbar-none flex flex-col justify-between relative pt-5">
-                    <KonuCardCore card={getPreviewCardForTimeline()} lang={lang} isDesktopPreview={false} isPreview={true} cleanPreview={true} />
+                  <div className="w-full h-full select-none bg-[#09090B] text-stone-200 scrollbar-none relative">
+                    <UnifiedMobileLiveCardSurface card={getPreviewCardForTimeline()} lang={lang} isPreview={true} cleanPreview={true} />
                   </div>
                 </div>
               )}
@@ -4848,20 +4847,19 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <span>09:41</span>
                 <span>100% 🔋</span>
               </div>
-              <div className="w-full h-full overflow-y-auto select-none bg-[#09090B] text-stone-200 scrollbar-none flex flex-col justify-between relative pt-5">
-                <KonuCardCore
-                card={monitorCard}
-                lang={lang}
-                isDesktopPreview={false}
-                isPreview={true}
-                cleanPreview={true}
-                previewFocus="full"
-                onEditButton={(btn) => {
-                  setTapEditTarget('button');
-                  setEditingBtnId(btn.id);
-                  setTapButtonTool('text');
-                }}
-              />
+              <div className="w-full h-full select-none bg-[#09090B] text-stone-200 scrollbar-none relative">
+                <UnifiedMobileLiveCardSurface
+                  card={monitorCard}
+                  lang={lang}
+                  isPreview={true}
+                  cleanPreview={true}
+                  previewFocus="full"
+                  onEditButton={(btn) => {
+                    setTapEditTarget('button');
+                    setEditingBtnId(btn.id);
+                    setTapButtonTool('text');
+                  }}
+                />
               </div>
               {isPlaying && (
                 <div className="absolute bottom-1.5 left-2 right-2 bg-black/80 border border-[#E8DCC2]/30 p-1.5 rounded-lg flex items-center justify-between text-[7.5px] z-30 font-mono text-[#E8DCC2]">

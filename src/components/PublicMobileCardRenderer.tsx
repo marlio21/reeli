@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Card, CardButton } from '../types';
-import { KonuCardCore } from './KonuCardCore';
+import { UnifiedMobileLiveCardSurface } from './UnifiedMobileLiveCardSurface';
 
 interface PublicMobileCardRendererProps {
   card: Card;
@@ -30,28 +30,19 @@ export const PublicMobileCardRenderer: React.FC<PublicMobileCardRendererProps> =
   onContactSave,
   onShare,
 }) => {
-  const cardFrameStyle: React.CSSProperties = {
-    width: 'min(100vw, calc(100svh * 9 / 16))',
-    height: 'min(100svh, calc(100vw * 16 / 9))',
-    maxWidth: '28rem',
-    aspectRatio: '9 / 16',
-  };
-
   return (
     <main className="min-h-[100svh] h-[100svh] w-screen overflow-hidden bg-black text-[#F5F2EA] flex items-center justify-center">
       <div
-        className="relative overflow-hidden bg-black shadow-2xl"
-        style={cardFrameStyle}
+        className="relative h-[100svh] w-screen overflow-hidden bg-black shadow-2xl"
         aria-label="ureel mobile live card"
       >
-        <KonuCardCore
+        <UnifiedMobileLiveCardSurface
           card={card}
           lang={lang}
           isPreview={false}
-          handleButtonClick={onButtonClick}
-          triggerVCardDownload={onContactSave}
-          handleCtaClick={onShare}
-          setShowShareModal={(show) => { if (show) onShare?.(); }}
+          onButtonClick={onButtonClick}
+          onContactSave={onContactSave}
+          onShare={onShare}
         />
       </div>
     </main>

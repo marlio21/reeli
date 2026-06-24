@@ -1,15 +1,17 @@
-# ureel.me v52.5.12
+# ureel.me v52.5.13
 
-Mobile Dashboard Share Placement & Textfield Readability Fix.
+Unified Mobile Live Renderer & Desktop Preview Chrome Cleanup.
 
-- Änderungen bewusst auf die Mobile-Version / mobile 9:16-Karte begrenzt.
-- Teilen-Button direkt neben der mobilen 9:16-Vorschaukarte ergänzt. Er öffnet den nativen Share-Dialog oder kopiert den Live-Link.
-- Buttoneditor Aktion: Web-/Datei-/Ziel-Links können per Zwischenablage eingefügt werden, inklusive Paste-Button.
-- Mobile Aktionseingabefelder übernehmen Paste-Inhalte zuverlässiger.
-- Button-Look: Buttongröße wird wieder als echte Kartengröße in die mobile Vorschaukarte übernommen.
-- Mobile Buttonvorschau und 9:16-Karte nutzen dieselben Tile-Größen bis 58px, statt große Größen im Monitor zu kappen.
-- Iconpositionen links, rechts, oben, mitte und unten werden im mobilen Editor gesetzt und in der Kartenansicht übernommen.
-- Design-Übertragen übernimmt jetzt auch Iconposition und Button-Schrift-Key.
-- Icon-Bibliothek wird nicht mehr dauerhaft angezeigt, sondern über „Icon-Bibliothek öffnen“ ein- und ausgeklappt.
-- Buttontext-Proportionen für Klein/Normal/Groß/Sehr groß weiter geglättet, damit kurze Labels sauber bleiben.
-- Desktop, Public Link und Profilbild wurden nicht bewusst umgebaut.
+- Public-Link, mobile Studio-Vorschau und Desktop-Phone-Preview nutzen jetzt eine gemeinsame mobile 9:16-Live-Surface.
+- Die Karte rendert intern auf einer festen 390×693-Basis und wird danach nur skaliert, damit Buttontext, Icons und Werbetext nicht pro Ansicht neu umbrechen.
+- Ziel: Die geteilte Karte soll optisch viel näher an der Editor-/Monitor-Vorschau liegen.
+- Desktop-Preview-Chrome bereinigt: zusätzliche Dashboard-/Start-Schaltflächen in der rechten Desktop-Vorschau wurden ausgeblendet.
+- Der Desktop-Editor selbst wurde nicht bewusst umgebaut.
+- Profilbild, Public Link und bestehende Kartenlogik bleiben erhalten.
+- Keine `RELEASE_NOTES_*.md`.
+
+## Projekt
+
+ureel.me / reeli – Aus Video wird Aktion.
+
+React / Vite / TypeScript mit vorbereitetem Firebase-Setup und Vercel Deployment.

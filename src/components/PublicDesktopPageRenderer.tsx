@@ -6,9 +6,9 @@
 import React from 'react';
 import * as LucideIcons from 'lucide-react';
 import { Card, CardButton } from '../types';
-import { KonuCardCore } from './KonuCardCore';
 import { ButtonRenderer } from './ButtonRenderer';
 import { PublicMobileCardRenderer } from './PublicMobileCardRenderer';
+import { UnifiedMobileLiveCardSurface } from './UnifiedMobileLiveCardSurface';
 import { normalizeButtons } from '../utils/buttonUtils';
 
 interface PublicDesktopPageRendererProps {
@@ -93,29 +93,17 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
       <div className={isStudioPreview
         ? 'relative w-[174px] h-[310px] overflow-hidden rounded-[30px] border-[7px] border-[#1A1A1A] bg-black shadow-2xl mx-auto'
         : 'relative h-[86vh] max-h-[760px] aspect-[9/16] rounded-[34px] border-[8px] border-[#D8D2C4] bg-black shadow-2xl overflow-hidden'}>
-        {isStudioPreview ? (
-          <div className="absolute left-0 top-0 w-[330px] h-[586px] origin-top-left scale-[0.527]">
-            <KonuCardCore
-              card={card}
-              lang={lang}
-              isPreview={true}
-              cleanPreview={true}
-              previewFocus="full"
-              hideActionButtons={desktopPage.showPhoneButtons !== true}
-            />
-          </div>
-        ) : (
-          <KonuCardCore
-            card={card}
-            lang={lang}
-            isPreview={false}
-            handleButtonClick={onButtonClick}
-            triggerVCardDownload={onContactSave}
-            handleCtaClick={onShare}
-            setShowShareModal={(show) => { if (show) onShare?.(); }}
-            hideActionButtons={desktopPage.showPhoneButtons !== true}
-          />
-        )}
+        <UnifiedMobileLiveCardSurface
+          card={card}
+          lang={lang}
+          isPreview={isStudioPreview}
+          cleanPreview={isStudioPreview}
+          previewFocus="full"
+          hideActionButtons={desktopPage.showPhoneButtons !== true}
+          onButtonClick={onButtonClick}
+          onContactSave={onContactSave}
+          onShare={onShare}
+        />
       </div>
       {isStudioPreview && <span className="mt-3 max-w-[190px] text-center text-[8px] leading-tight text-[#F5F2EA]/45">Skalierte Live-Karte ohne Text-Neuumbruch</span>}
     </section>
