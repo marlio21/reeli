@@ -64,6 +64,24 @@ export const ButtonActionTab: React.FC<ButtonActionTabProps> = ({
     }, 4000);
   };
 
+  const pasteActionValueFromClipboard = async () => {
+    try {
+      const text = await navigator.clipboard?.readText?.();
+      if (!text || !text.trim()) {
+        showLocalToast(lang === 'de' ? 'Zwischenablage ist leer.' : 'Clipboard is empty.');
+        return;
+      }
+      const raw = text.trim();
+      const sanitized = ['website','external_file_link','file_link','pdf_link','dropbox_file','dropbox_folder','google_drive_file','google_drive_folder','onedrive_file','onedrive_folder','youtube_video','vimeo_video','video_link','audio_podcast','instagram','linkedin','tiktok','youtube_channel','facebook'].includes(currentActionType)
+        ? sanitizeExternalUrl(raw)
+        : raw;
+      updateButton({ actionValue: sanitized || raw });
+      showLocalToast(lang === 'de' ? 'Aus Zwischenablage eingefügt.' : 'Pasted from clipboard.');
+    } catch (err) {
+      showLocalToast(lang === 'de' ? 'Automatisches Einfügen nicht erlaubt. Bitte per langem Tippen einfügen.' : 'Paste is blocked. Please paste manually.');
+    }
+  };
+
   const { uploadFile, profile, effectivePlanId } = useFirebase();
   const currentPlan = (effectivePlanId || getUserPlan(profile) || 'starter').toLowerCase();
   const ENABLE_PASSWORD_EDITOR_UI = false;
@@ -647,14 +665,26 @@ export const ButtonActionTab: React.FC<ButtonActionTabProps> = ({
               <label className="block text-[10px] uppercase font-bold text-stone-400 tracking-wider">
                 {lang === 'de' ? 'Eingabe / Zieladresse' : 'Input / Redirection target'}
               </label>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                 <input
                   type="text"
                   value={localButton.actionValue || ''}
+                  onPaste={(e) => {
+                    const pasted = e.clipboardData.getData('text');
+                    if (pasted) updateButton({ actionValue: pasted.trim() });
+                  }}
                   onChange={(e) => updateButton({ actionValue: e.target.value })}
                   placeholder={lang === 'de' ? matchedCatalogItem.placeholderDe : matchedCatalogItem.placeholderEn}
-                  className="flex-grow bg-stone-950 border border-stone-850 rounded-xl px-3.5 py-3 text-xs text-stone-200 focus:outline-[#A855F7]"
+                  className="min-w-0 flex-grow bg-stone-950 border border-stone-850 rounded-xl px-3.5 py-3 text-xs text-stone-200 focus:outline-[#A855F7]"
                 />
+                <button
+                  type="button"
+                  onClick={pasteActionValueFromClipboard}
+                  className="bg-stone-900 hover:bg-stone-800 text-stone-200 border border-stone-800 font-black text-[10px] uppercase tracking-wider px-3.5 py-3 rounded-xl transition cursor-pointer shrink-0 flex items-center gap-1.5"
+                >
+                  <LucideIcons.ClipboardPaste size={12} />
+                  {lang === 'de' ? 'Einfügen' : 'Paste'}
+                </button>
                 <button
                   type="button"
                   disabled={!localButton.actionValue || !localButton.actionValue.trim() || (() => {

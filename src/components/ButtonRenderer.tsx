@@ -240,20 +240,23 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const hasUsableIcon = btn.iconEnabled !== false && !!btn.icon;
   const baseFontSize = btn.fontSize !== undefined ? btn.fontSize : 12;
   const lengthPenalty = forceSizePx
-    ? (labelLength > 28 ? 2.2 : labelLength > 20 ? 1.45 : labelLength > 14 ? 0.75 : labelLength > 9 ? 0.35 : 0)
+    ? (labelLength > 28 ? 2.4 : labelLength > 20 ? 1.55 : labelLength > 14 ? 0.82 : labelLength > 9 ? 0.28 : 0)
     : (labelLength > 28 ? 4 : labelLength > 20 ? 3 : labelLength > 14 ? 1.8 : labelLength > 10 ? 0.8 : 0);
-  // v52.5.9 mobile parity: forced 3x2 card tiles need preset-specific limits.
-  // The previous cap made "klein" too large and "sehr groß" too similar, and short
-  // labels such as Telefon/Mail could still hyphenate.  These caps keep 6-9 letters
-  // clean inside the tile while making each preset visually distinct.
+  // v52.5.10 mobile final fit: each text-size preset receives a clearly
+  // different tile cap, while short 6-9 character labels stay readable instead
+  // of hyphenating.  The card and editor preview share these exact values.
+  const isSmallTextPreset = baseFontSize <= 9.8;
+  const isNormalTextPreset = baseFontSize > 9.8 && baseFontSize < 12.7;
+  const isLargeTextPreset = baseFontSize >= 12.7 && baseFontSize < 14.6;
   const forcedTextCap = forceSizePx
     ? (hasUsableIcon
-      ? (baseFontSize <= 9.5 ? 7.6 : baseFontSize <= 11.8 ? 8.6 : baseFontSize <= 13.5 ? 9.8 : 11.0)
-      : (baseFontSize <= 9.5 ? 8.7 : baseFontSize <= 11.8 ? 10.0 : baseFontSize <= 13.5 ? 11.5 : 13.0))
-    : (hasUsableIcon ? 10.8 : 12.4);
-  const forcedTextFloor = hasUsableIcon ? (isTinyTile ? 6.4 : 6.9) : (isTinyTile ? 7.8 : 8.4);
+      ? (isSmallTextPreset ? 7.2 : isNormalTextPreset ? 8.7 : isLargeTextPreset ? 10.2 : 11.4)
+      : (isSmallTextPreset ? 8.3 : isNormalTextPreset ? 10.2 : isLargeTextPreset ? 12.0 : 13.6))
+    : (hasUsableIcon ? 11.2 : 13.2);
+  const forcedTextFloor = hasUsableIcon ? (isTinyTile ? 6.1 : 6.6) : (isTinyTile ? 7.2 : 7.8);
+  const iconTextFactor = hasUsableIcon ? (isSmallTextPreset ? 0.58 : isNormalTextPreset ? 0.66 : isLargeTextPreset ? 0.73 : 0.78) : 0.88;
   const autoFitFontSize = forceSizePx
-    ? Math.max(forcedTextFloor, Math.min(forcedTextCap, (baseFontSize * fontScale * (hasUsableIcon ? 0.64 : 0.84)) - lengthPenalty))
+    ? Math.max(forcedTextFloor, Math.min(forcedTextCap, (baseFontSize * fontScale * iconTextFactor) - lengthPenalty))
     : Math.max(isTinyTile ? 6.2 : 7, Math.round((baseFontSize * fontScale) - lengthPenalty));
   const sizeStyle = `${Number(autoFitFontSize.toFixed(1))}px`;
 
@@ -393,7 +396,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const iconColor = btn.iconColor || '#1E1E1E';
   const requestedIconSize = Math.round((btn.iconSize || 18) * iconScale);
   const iconSize = forceSizePx
-    ? Math.max(isTinyTile ? 7 : 9, Math.min(Math.round(requestedIconSize * 0.62), Math.round(forceSizePx * 0.23)))
+    ? Math.max(isTinyTile ? 7 : 9, Math.min(Math.round(requestedIconSize * 0.68), Math.round(forceSizePx * 0.25)))
     : requestedIconSize;
 
 
@@ -412,7 +415,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
     buttonTextLines.push(lang === 'en' ? 'Untitled' : 'Ohne Titel');
   }
   const hasSecondButtonLine = buttonTextLines.length > 1;
-  const compactSingleLine = !!forceSizePx && !hasSecondButtonLine && (buttonTextLines[0] || '').length <= 9;
+  const compactSingleLine = !!forceSizePx && !hasSecondButtonLine && (buttonTextLines[0] || '').length <= 10;
 
   // Render Image Layer
   const buttonImageUrlToUse = btn.buttonImageUrl || btn.imageUrl || '';

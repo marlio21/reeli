@@ -5053,3 +5053,134 @@ body {
     min-height: 54px !important;
   }
 }
+
+/* v52.5.10 – mobile share, paste and icon library controls */
+@media (max-width: 767px) {
+  .ureel-tap-preview-shell {
+    position: relative !important;
+    overflow: visible !important;
+  }
+  .ureel-tap-share-side-button {
+    position: absolute !important;
+    right: 10px !important;
+    top: 54px !important;
+    z-index: 28 !important;
+    min-width: 48px !important;
+    height: 48px !important;
+    border-radius: 999px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #111111 !important;
+    color: #F5F2EA !important;
+    box-shadow: 0 10px 24px rgba(0,0,0,.22) !important;
+    display: inline-flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 1px !important;
+    font-size: 7.5px !important;
+    font-weight: 950 !important;
+    letter-spacing: .05em !important;
+    text-transform: uppercase !important;
+  }
+  .ureel-tap-share-side-button svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+  .ureel-tap-action-input-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 8px !important;
+    align-items: center !important;
+  }
+  .ureel-tap-action-input-row input {
+    min-width: 0 !important;
+  }
+  .ureel-tap-action-input-row button,
+  .ureel-mobile-open-icon-library {
+    min-height: 42px !important;
+    border-radius: 14px !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #111111 !important;
+    color: #F5F2EA !important;
+    padding: 0 12px !important;
+    font-size: 9px !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .04em !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+  }
+  .ureel-mobile-open-icon-library {
+    width: 100% !important;
+    margin: 4px 0 8px !important;
+    background: #F5F2EA !important;
+    color: #111111 !important;
+  }
+  .ureel-mobile-icon-position-row {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+  .ureel-mobile-icon-position-row button {
+    min-width: 0 !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    font-size: 8.5px !important;
+  }
+}
+
+/* v52.5.11 mobile cleanup: one dashboard, readable dark fields, stable font chips */
+@media (max-width: 767px) {
+  .ureel-tap-dashboard-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .ureel-tap-dashboard-strip > div {
+    grid-column: 1 / -1 !important;
+  }
+  .ureel-tap-dashboard-strip button {
+    min-width: 0 !important;
+  }
+  .ureel-tap-share-side-button { display: none !important; }
+
+  .ureel-mobile-font-row button:not(.is-active) {
+    background: #FFFFFF !important;
+    color: #111111 !important;
+    border-color: #D8CDB7 !important;
+  }
+  .ureel-mobile-font-row button.is-active,
+  .ureel-mobile-font-row button[aria-pressed="true"] {
+    background: #111111 !important;
+    color: #F5F2EA !important;
+    border-color: #111111 !important;
+  }
+
+  .ureel-tap-panel input,
+  .ureel-tap-panel textarea,
+  .ureel-tap-panel select,
+  .ureel-tap-config input,
+  .ureel-tap-config textarea,
+  .ureel-tap-config select,
+  .ureel-spectrum-picker input {
+    color: #111111 !important;
+    background: #FFFFFF !important;
+    caret-color: #111111 !important;
+  }
+
+  .fixed input[class*="bg-[#0F0F0F]"],
+  .fixed textarea[class*="bg-[#0F0F0F]"],
+  .fixed input[class*="bg-\[\#0F0F0F\]"],
+  .fixed textarea[class*="bg-\[\#0F0F0F\]"] {
+    color: #FDF8EA !important;
+    background: #111111 !important;
+    caret-color: #FDF8EA !important;
+  }
+  .fixed input::placeholder,
+  .fixed textarea::placeholder {
+    color: rgba(253,248,234,.58) !important;
+  }
+
+  .ureel-tap-big-button-stage .ureel-button-renderer,
+  .ureel-tap-big-button-stage [data-ureel-button-renderer="true"] {
+    overflow: hidden !important;
+  }
+}

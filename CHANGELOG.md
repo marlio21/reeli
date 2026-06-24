@@ -1,4 +1,29 @@
+
+## v52.5.11 – Mobile Dashboard Share Placement & Textfield Readability Fix
+
+- Mobile-only cleanup: duplicate top preview/dashboard/start bar hidden on mobile; the lower mobile Dashboard remains the main entry.
+- Share action moved into the mobile Dashboard strip.
+- Mobile card-side share pill hidden to reduce clutter.
+- Dark account/dashboard input fields made high-contrast and readable.
+- Button editor font chips stabilized so only one font family is visually active.
+- Button editor text/input fields kept bright and readable on mobile.
+- No RELEASE_NOTES files.
+
 # CHANGELOG
+
+## v52.5.10 – Mobile Share, Action Paste, Icon Library & Button Size Parity Fix
+
+- Mobile-only Reparatur: Desktop-Version wird nicht bewusst verändert.
+- Teilen-Button neben der mobilen Karte ergänzt; nutzt `navigator.share` und fällt auf Link-kopieren zurück.
+- Buttoneditor Aktion: Link-Eingaben unterstützen Paste aus der Zwischenablage per Eingabefeld und separatem Einfügen-Button.
+- Mobile Aktionseingabe ergänzt Paste-Button, damit Weblinks auf Touch-Geräten zuverlässiger übernommen werden.
+- Mobile Buttongrößen werden nicht mehr im Monitor auf 46px gekappt; Look-Tab und echte Vorschaukarte verwenden dieselben Tile-Werte.
+- ButtonRenderer: Textgrößen für Klein/Normal/Groß/Sehr groß in Forced-Mobile-Tiles neu feinjustiert.
+- Iconpositionen Links/Rechts/Oben/Mitte/Unten sind im mobilen Editor sichtbar und werden mit `iconEnabled` in die Karte geschrieben.
+- Icon-Bibliothek ist jetzt einklappbar und öffnet nur über „Icon-Bibliothek öffnen“.
+- Design-Übertragen nimmt Iconposition und den expliziten Button-Font-Key mit.
+- Keine `RELEASE_NOTES_*.md` im Upload-Paket.
+
 
 ## v52.5.9 – Mobile Button Font Control & Text Animation Parity Fix
 

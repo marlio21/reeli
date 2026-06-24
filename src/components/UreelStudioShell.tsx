@@ -363,6 +363,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [tapEditTarget, setTapEditTarget] = useState<'scene' | 'text' | 'button'>('scene');
   const [tapSceneTool, setTapSceneTool] = useState<'overview' | 'video' | 'image' | 'color' | 'display' | 'endcard' | 'profile'>('overview');
   const [tapButtonTool, setTapButtonTool] = useState<'overview' | 'text' | 'action' | 'look' | 'manage'>('overview');
+  const [mobileIconLibraryOpen, setMobileIconLibraryOpen] = useState(false);
   
   // Local state for actively selected button being edited
   const [editingBtnId, setEditingBtnId] = useState<string | null>(null);
@@ -725,10 +726,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     // v52.4.3: safe 3-column mobile sizes.
     // The grid and the selected button scale together, but never so far that the 9:16 card breaks.
     const values = preset === 'compact'
-      ? { px: 36, gap: 7, fontSize: 9, iconSize: 13, textPadding: 4, borderWidth: 'thin' as const, scale: 0.56, radius: 'rounded' as const }
+      ? { px: 42, gap: 7, fontSize: 9.2, iconSize: 15, textPadding: 4, borderWidth: 'thin' as const, scale: 0.64, radius: 'rounded' as const }
       : preset === 'large'
-        ? { px: 52, gap: 7, fontSize: 13, iconSize: 22, textPadding: 6, borderWidth: 'medium' as const, scale: 0.80, radius: 'rounded' as const }
-        : { px: 44, gap: 8, fontSize: 11.5, iconSize: 18, textPadding: 5, borderWidth: 'thin' as const, scale: 0.68, radius: 'rounded' as const };
+        ? { px: 58, gap: 7, fontSize: 13.4, iconSize: 24, textPadding: 6, borderWidth: 'medium' as const, scale: 0.90, radius: 'rounded' as const }
+        : { px: 50, gap: 8, fontSize: 11.5, iconSize: 20, textPadding: 5, borderWidth: 'thin' as const, scale: 0.78, radius: 'rounded' as const };
 
     const updatedButtons = (activeCard.buttons || []).map((button) => button.id === btnId ? {
       ...button,
@@ -1424,7 +1425,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const buttonGridCols = activeCard.buttonGridCols || activeCard.buttonGridLayout?.cols || 3;
   const buttonSizePx = activeCard.buttonGridLayout?.buttonSizePx || activeCard.buttonSizePx || 72;
   const buttonGapPx = activeCard.buttonGridLayout?.gapPx || activeCard.buttonGridLayout?.gap || activeCard.buttonGapPx || 10;
-  const getMobileCardButtonTilePx = (value: any = buttonSizePx) => Math.max(42, Math.min(Number(value || 52), 52));
+  const getMobileCardButtonTilePx = (value: any = buttonSizePx) => Math.max(38, Math.min(Number(value || 52), 58));
   const visibleButtonsAt = Number(timeline.buttonsAt || 0.6);
   const buttonsCurrentlyVisible = timelineSec >= visibleButtonsAt || !isPlaying;
 
@@ -1532,6 +1533,30 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       triggerToast(lang === 'de' ? 'Live-Link kopiert und Karte veröffentlicht.' : 'Live link copied and card published.', 'success');
     } else {
       triggerToast(lang === 'de' ? 'Link konnte nicht kopiert werden.' : 'Could not copy link.', 'error');
+    }
+  };
+
+  const shareLiveLink = async () => {
+    const url = await ensureCurrentCardIsPublic();
+    if (!url) {
+      triggerToast(lang === 'de' ? 'Live-Link konnte nicht erstellt werden.' : 'Live link could not be created.', 'error');
+      return;
+    }
+    const title = activeCard?.title || activeCard?.heroTitle || 'ureel.me';
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, text: lang === 'de' ? 'Hier ist meine ureel-Karte.' : 'Here is my ureel card.', url });
+        triggerToast(lang === 'de' ? 'Teilen geöffnet.' : 'Share sheet opened.', 'success');
+      } else if (copyTextToClipboard(url)) {
+        triggerToast(lang === 'de' ? 'Teilen nicht verfügbar – Link kopiert.' : 'Share not available – link copied.', 'success');
+      } else {
+        triggerToast(lang === 'de' ? 'Teilen ist auf diesem Gerät nicht verfügbar.' : 'Sharing is not available on this device.', 'error');
+      }
+    } catch (err: any) {
+      if (err?.name !== 'AbortError') {
+        if (copyTextToClipboard(url)) triggerToast(lang === 'de' ? 'Link kopiert.' : 'Link copied.', 'success');
+        else triggerToast(lang === 'de' ? 'Teilen abgebrochen.' : 'Share cancelled.', 'info');
+      }
     }
   };
 
@@ -2233,11 +2258,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         mode: 'grid',
         cols: 3,
         square: true,
-        buttonSizePx: Math.max(30, Math.min(46, Number((card.buttonGridLayout as any)?.buttonSizePx || (card as any).buttonSizePx || 38))),
+        buttonSizePx: Math.max(34, Math.min(58, Number((card.buttonGridLayout as any)?.buttonSizePx || (card as any).buttonSizePx || 44))),
         gapPx: Math.max(5, Math.min(8, Number((card.buttonGridLayout as any)?.gapPx || (card as any).buttonGapPx || 6))),
         align: 'center',
       } as any,
-      buttonSizePx: Math.max(30, Math.min(46, Number((card as any).buttonSizePx || 38))) as any,
+      buttonSizePx: Math.max(34, Math.min(58, Number((card as any).buttonSizePx || 44))) as any,
       buttonGapPx: Math.max(5, Math.min(8, Number((card as any).buttonGapPx || 6))) as any,
     };
   };
@@ -4636,7 +4661,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       </div>
 
       {/* COLUMN 4: RECHTE PERMANENTE SMARTPHONE-VORSCHAU */}
-      <div className="order-2 md:order-none w-full md:w-[330px] md:max-h-none ureel-studio-preview-panel overflow-visible md:overflow-visible bg-[#0E0E11] border-b md:border-b-0 md:border-l border-stone-900 flex flex-col justify-between shrink-0 p-3 md:p-4 relative">
+      <div className="hidden md:flex order-2 md:order-none w-full md:w-[330px] md:max-h-none ureel-studio-preview-panel overflow-visible md:overflow-visible bg-[#0E0E11] border-b md:border-b-0 md:border-l border-stone-900 flex-col justify-between shrink-0 p-3 md:p-4 relative">
         
         {/* Preview Title bar */}
         <div className="flex items-center justify-between border-b border-stone-900 pb-3 gap-2">
@@ -4660,6 +4685,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <button type="button" onClick={() => { setDashboardMenuOpen(false); setCardManagerOpen(true); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.Layers size={14}/> Kartenverwaltung</button>
                 <button type="button" onClick={() => { setDashboardMenuOpen(false); setAccountManagerTab('profile'); setAccountPanelOpen(true); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.UserCog size={14}/> Nutzerverwaltung / Konto</button>
                 <button type="button" onClick={() => { setDashboardMenuOpen(false); handleCreateNewUreel(); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.Plus size={14}/> Neue Karte</button>
+                <button type="button" onClick={() => { setDashboardMenuOpen(false); shareLiveLink(); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.Share2 size={14}/> Teilen</button>
               </div>
             )}
           </div>
@@ -4727,6 +4753,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <button type="button" onClick={() => { setDashboardMenuOpen(false); setCardManagerOpen(true); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.Layers size={14}/> Kartenverwaltung</button>
                 <button type="button" onClick={() => { setDashboardMenuOpen(false); setAccountManagerTab('profile'); setAccountPanelOpen(true); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.UserCog size={14}/> Nutzerverwaltung / Konto</button>
                 <button type="button" onClick={() => { setDashboardMenuOpen(false); handleCreateNewUreel(); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.Plus size={14}/> Neue Karte</button>
+                <button type="button" onClick={() => { setDashboardMenuOpen(false); shareLiveLink(); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.Share2 size={14}/> Teilen</button>
               </div>
             )}
           </div>
@@ -4880,6 +4907,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           <button type="button" onClick={() => setCardManagerOpen(true)}><LucideIcons.Layers size={14}/> Kartenverwaltung</button>
           <button type="button" onClick={() => { setAccountManagerTab('profile'); setAccountPanelOpen(true); }}><LucideIcons.UserCog size={14}/> Nutzerverwaltung</button>
           <button type="button" onClick={handleCreateNewUreel}><LucideIcons.Plus size={14}/> Neue Karte</button>
+          <button type="button" onClick={shareLiveLink}><LucideIcons.Share2 size={14}/> Teilen</button>
         </section>
 
         <section className="ureel-tap-preview-shell" aria-label="Echte 9:16 ureel Vorschau">
@@ -5073,6 +5101,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           const meta = getActionInputMeta(currentButton.actionType);
           const manageButtons = visibleEditorButtons.length ? visibleEditorButtons : [...(activeCard.buttons || [])].sort((a,b)=>(a.position??0)-(b.position??0));
           const mobileButtonFontKey = (() => {
+            const explicit = String((currentButton as any).buttonFontKey || '').toLowerCase();
+            if (['klar','rund','elegant','modern','mono'].includes(explicit)) return explicit;
             const ff = String(currentButton.fontFamily || '').toLowerCase();
             if (ff.includes('nunito') || ff.includes('rund') || ff.includes('round')) return 'rund';
             if (ff.includes('playfair') || ff.includes('georgia') || ff.includes('serif') || ff.includes('elegant')) return 'elegant';
@@ -5080,6 +5110,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             if (ff.includes('mono') || ff.includes('jetbrains') || ff.includes('code')) return 'mono';
             return 'klar';
           })();
+          const applySingleButtonFont = (fontKey: 'klar' | 'rund' | 'elegant' | 'modern' | 'mono', fontFamily: string) => {
+            applyMobileButtonLook(currentButton.id, {
+              fontFamily,
+              buttonFontKey: fontKey,
+              // remove older mixed font markers so only one font chip can appear active
+              fontStyle: fontKey,
+            } as any);
+          };
           const mobileButtonWeightKey = (() => {
             const fw = String(currentButton.fontWeight || '600').toLowerCase();
             return ['bold','extrabold','800','900','black'].includes(fw) ? 'fett' : 'normal';
@@ -5097,12 +5135,13 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <span className="ureel-tap-mini-label">Textgröße</span>
                 <div className="ureel-tap-chip-row"><button type="button" className={currentFontSizeNumber <= 9.6 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontSize: 9, textWrap: 'single' } as any)}>Klein</button><button type="button" className={currentFontSizeNumber > 9.6 && currentFontSizeNumber < 12.4 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontSize: 11.5, textWrap: 'single' } as any)}>Normal</button><button type="button" className={currentFontSizeNumber >= 12.4 && currentFontSizeNumber < 14.4 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontSize: 13.2, textWrap: 'single' } as any)}>Groß</button><button type="button" className={currentFontSizeNumber >= 14.4 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontSize: 15.2, textWrap: 'single' } as any)}>Sehr groß</button></div>
                 <span className="ureel-tap-mini-label">Schriftart</span>
-                <div className="ureel-tap-chip-row ureel-mobile-font-row"><button type="button" className={mobileButtonFontKey === 'klar' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontFamily: 'Inter' } as any)}>Klar</button><button type="button" className={mobileButtonFontKey === 'rund' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontFamily: 'Nunito' } as any)}>Rund</button><button type="button" className={mobileButtonFontKey === 'elegant' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontFamily: 'Playfair Display' } as any)}>Elegant</button><button type="button" className={mobileButtonFontKey === 'modern' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontFamily: 'Space Grotesk' } as any)}>Modern</button><button type="button" className={mobileButtonFontKey === 'mono' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontFamily: 'JetBrains Mono' } as any)}>Mono</button></div>
+                <div className="ureel-tap-chip-row ureel-mobile-font-row" data-active-font={mobileButtonFontKey}><button type="button" className={mobileButtonFontKey === 'klar' ? 'is-active' : ''} aria-pressed={mobileButtonFontKey === 'klar'} onClick={() => applySingleButtonFont('klar', 'Inter')}>Klar</button><button type="button" className={mobileButtonFontKey === 'rund' ? 'is-active' : ''} aria-pressed={mobileButtonFontKey === 'rund'} onClick={() => applySingleButtonFont('rund', 'Nunito')}>Rund</button><button type="button" className={mobileButtonFontKey === 'elegant' ? 'is-active' : ''} aria-pressed={mobileButtonFontKey === 'elegant'} onClick={() => applySingleButtonFont('elegant', 'Playfair Display')}>Elegant</button><button type="button" className={mobileButtonFontKey === 'modern' ? 'is-active' : ''} aria-pressed={mobileButtonFontKey === 'modern'} onClick={() => applySingleButtonFont('modern', 'Space Grotesk')}>Modern</button><button type="button" className={mobileButtonFontKey === 'mono' ? 'is-active' : ''} aria-pressed={mobileButtonFontKey === 'mono'} onClick={() => applySingleButtonFont('mono', 'JetBrains Mono')}>Mono</button></div>
                 <span className="ureel-tap-mini-label">Schriftgewicht</span>
                 <div className="ureel-tap-chip-row"><button type="button" className={mobileButtonWeightKey === 'normal' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontWeight: '600' } as any)}>Normal</button><button type="button" className={mobileButtonWeightKey === 'fett' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontWeight: '900' } as any)}>Fett</button></div>
                 <SpectrumColorPicker label="Textfarbe" value={(currentButton.textColor || '#111111').startsWith('rgba') ? '#111111' : (currentButton.textColor || '#111111')} fallback="#111111" onChange={(value) => applyMobileButtonLook(currentButton.id, { textColor: value } as any)} />
                 <span className="ureel-tap-mini-label">Icon</span>
-                <div className="ureel-mobile-icon-library">
+                <button type="button" className="ureel-mobile-open-icon-library" onClick={() => setMobileIconLibraryOpen(!mobileIconLibraryOpen)}><LucideIcons.Sparkles size={14}/> {mobileIconLibraryOpen ? 'Icon-Bibliothek schließen' : 'Icon-Bibliothek öffnen'}</button>
+                {mobileIconLibraryOpen && <div className="ureel-mobile-icon-library">
                   {[
                     { label: 'Kontakt', icons: ['Phone','Smartphone','Mail','MessageCircle','Send','Contact','UserPlus'] },
                     { label: 'Web & Social', icons: ['Globe','ExternalLink','Link','Instagram','Facebook','Linkedin','Youtube','Share2','QrCode'] },
@@ -5120,12 +5159,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     </div>
                   ))}
                   <button type="button" className={`ureel-mobile-icon-off ${currentButton.iconEnabled === false ? 'is-active' : ''}`} onClick={() => applyMobileButtonLook(currentButton.id, { iconEnabled: false } as any)}>Ohne Icon</button>
-                </div>
+                </div>}
+                <span className="ureel-tap-mini-label">Iconposition</span>
+                <div className="ureel-tap-chip-row ureel-mobile-icon-position-row"><button type="button" className={(currentButton.iconPosition || 'top') === 'top' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconEnabled: true, iconPosition: 'top' } as any)}>Oben</button><button type="button" className={currentButton.iconPosition === 'left' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconEnabled: true, iconPosition: 'left' } as any)}>Links</button><button type="button" className={currentButton.iconPosition === 'center' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconEnabled: true, iconPosition: 'center' } as any)}>Mitte</button><button type="button" className={currentButton.iconPosition === 'right' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconEnabled: true, iconPosition: 'right' } as any)}>Rechts</button><button type="button" className={currentButton.iconPosition === 'bottom' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconEnabled: true, iconPosition: 'bottom' } as any)}>Unten</button></div>
                 <SpectrumColorPicker label="Iconfarbe" value={(currentButton.iconColor || currentButton.textColor || '#111111').startsWith('rgba') ? '#111111' : (currentButton.iconColor || currentButton.textColor || '#111111')} fallback="#111111" onChange={(value) => applyMobileButtonLook(currentButton.id, { iconColor: value } as any)} />
                 <span className="ureel-tap-mini-label">Icongröße</span>
                 <div className="ureel-tap-chip-row"><button type="button" className={(currentButton.iconSize || 26) <= 22 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconSize: 20 } as any)}>Klein</button><button type="button" className={(currentButton.iconSize || 26) > 22 && (currentButton.iconSize || 26) < 31 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconSize: 26 } as any)}>Normal</button><button type="button" className={(currentButton.iconSize || 26) >= 31 && (currentButton.iconSize || 26) < 39 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconSize: 34 } as any)}>Groß</button><button type="button" className={(currentButton.iconSize || 26) >= 39 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconSize: 42 } as any)}>Sehr groß</button></div>
               </div>}
-              {tapButtonTool === 'action' && <div className="ureel-tap-config"><label>Aktion</label><select value={currentButton.actionType || 'url'} onChange={(e) => handleUpdateSingleButton(currentButton.id, { actionType: e.target.value })}>{actionOptions.filter((option) => ['url','phone','email','whatsapp','pdf_link','external_file_link','vcard','maps','video_replay'].includes(option.value)).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>{!['video_replay','vcard','contact_form','inquiry_form'].includes(currentButton.actionType || '') && <><label>{meta.label}</label><input value={currentButton.actionValue || ''} placeholder={meta.placeholder} onChange={(e) => handleUpdateSingleButton(currentButton.id, { actionValue: e.target.value })} /></>}{isFileUploadAction(currentButton.actionType) && <label className="ureel-tap-upload"><LucideIcons.UploadCloud size={16}/> {buttonFileUploading ? `Upload ${buttonFileUploadProgress || 0}%` : 'Datei hochladen'}<input type="file" onChange={(e) => e.target.files?.[0] && handleButtonFileUpload(currentButton.id, e.target.files[0])} /></label>}</div>}
+              {tapButtonTool === 'action' && <div className="ureel-tap-config"><label>Aktion</label><select value={currentButton.actionType || 'url'} onChange={(e) => handleUpdateSingleButton(currentButton.id, { actionType: e.target.value })}>{actionOptions.filter((option) => ['url','website','phone','email','whatsapp','pdf_link','external_file_link','vcard','maps','video_replay'].includes(option.value)).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>{!['video_replay','vcard','contact_form','inquiry_form'].includes(currentButton.actionType || '') && <><label>{meta.label}</label><div className="ureel-tap-action-input-row"><input value={currentButton.actionValue || ''} placeholder={meta.placeholder} onPaste={(e) => { const pasted = e.clipboardData.getData('text'); if (pasted) handleUpdateSingleButton(currentButton.id, { actionValue: pasted.trim() }); }} onChange={(e) => handleUpdateSingleButton(currentButton.id, { actionValue: e.target.value })} /><button type="button" onClick={async () => { try { const text = await navigator.clipboard?.readText?.(); if (text) { await handleUpdateSingleButton(currentButton.id, { actionValue: text.trim() }); triggerToast('Link eingefügt.', 'success'); } else triggerToast('Zwischenablage ist leer.', 'info'); } catch { triggerToast('Bitte den Link per langem Tippen ins Feld einfügen.', 'info'); } }}><LucideIcons.ClipboardPaste size={13}/> Einfügen</button></div></>}{isFileUploadAction(currentButton.actionType) && <label className="ureel-tap-upload"><LucideIcons.UploadCloud size={16}/> {buttonFileUploading ? `Upload ${buttonFileUploadProgress || 0}%` : 'Datei hochladen'}<input type="file" onChange={(e) => e.target.files?.[0] && handleButtonFileUpload(currentButton.id, e.target.files[0])} /></label>}</div>}
               {tapButtonTool === 'look' && <div className="ureel-tap-config ureel-mobile-look-editor">
                 <h4>Look des Buttons</h4>
                 <p>Gestalte Form, Fläche, Größe, Bild und Rahmen des aktiven Buttons. Die echte 9:16-Vorschau bleibt der Maßstab.</p>
@@ -5142,7 +5183,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <span className="ureel-tap-mini-label">Rahmen</span>
                 <div className="ureel-tap-chip-row"><button type="button" className={!currentButton.borderEnabled || currentButton.borderWidth === 'none' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: false, borderWidth: 'none' } as any)}>Kein</button><button type="button" className={currentButton.borderEnabled && currentButton.borderWidth === 'thin' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderWidth: 'thin', borderColor: currentButton.borderColor || '#D8CDB7' } as any)}>Klein</button><button type="button" className={currentButton.borderEnabled && currentButton.borderWidth === 'medium' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderWidth: 'medium', borderColor: currentButton.borderColor || '#D8CDB7' } as any)}>Mittel</button><button type="button" className={currentButton.borderEnabled && currentButton.borderWidth === 'thick' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderWidth: 'thick', borderColor: currentButton.borderColor || '#111111' } as any)}>Dick</button></div>
                 <SpectrumColorPicker label="Rahmenfarbe" value={(currentButton.borderColor || '#D8CDB7').startsWith('rgba') ? '#D8CDB7' : (currentButton.borderColor || '#D8CDB7')} fallback="#D8CDB7" onChange={(value) => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderColor: value, borderWidth: currentButton.borderWidth === 'none' || !currentButton.borderWidth ? 'thin' : currentButton.borderWidth } as any)} />
-                <button type="button" className="ureel-mobile-look-all-button" onClick={async () => { const designFields: Partial<CardButton> = { bgColor: currentButton.bgColor, backgroundColor: currentButton.backgroundColor, textColor: currentButton.textColor, borderColor: currentButton.borderColor, borderEnabled: currentButton.borderEnabled, borderWidth: currentButton.borderWidth, borderStyle: currentButton.borderStyle, styleVariant: currentButton.styleVariant, bgMode: (currentButton as any).bgMode, gradient: (currentButton as any).gradient, gradientColor: (currentButton as any).gradientColor, opacity: (currentButton as any).opacity, radius: currentButton.radius, buttonShape: currentButton.buttonShape, buttonSize: currentButton.buttonSize, fontSize: currentButton.fontSize, fontFamily: currentButton.fontFamily, fontWeight: currentButton.fontWeight, letterSpacing: currentButton.letterSpacing, textWrap: currentButton.textWrap, icon: currentButton.icon, iconColor: currentButton.iconColor, iconSize: currentButton.iconSize, iconEnabled: currentButton.iconEnabled, buttonImageUrl: currentButton.buttonImageUrl, imageUrl: currentButton.imageUrl, buttonImageFit: currentButton.buttonImageFit, buttonImageOverlay: currentButton.buttonImageOverlay, textPadding: currentButton.textPadding }; await syncCardUpdate({ buttons: (activeCard.buttons || []).map((button) => button.id === currentButton.id ? button : { ...button, ...designFields }) }); }}>Look auf alle Buttons</button>
+                <button type="button" className="ureel-mobile-look-all-button" onClick={async () => { const designFields: Partial<CardButton> = { bgColor: currentButton.bgColor, backgroundColor: currentButton.backgroundColor, textColor: currentButton.textColor, borderColor: currentButton.borderColor, borderEnabled: currentButton.borderEnabled, borderWidth: currentButton.borderWidth, borderStyle: currentButton.borderStyle, styleVariant: currentButton.styleVariant, bgMode: (currentButton as any).bgMode, gradient: (currentButton as any).gradient, gradientColor: (currentButton as any).gradientColor, opacity: (currentButton as any).opacity, radius: currentButton.radius, buttonShape: currentButton.buttonShape, buttonSize: currentButton.buttonSize, fontSize: currentButton.fontSize, fontFamily: currentButton.fontFamily, buttonFontKey: (currentButton as any).buttonFontKey, fontWeight: currentButton.fontWeight, letterSpacing: currentButton.letterSpacing, textWrap: currentButton.textWrap, icon: currentButton.icon, iconColor: currentButton.iconColor, iconSize: currentButton.iconSize, iconEnabled: currentButton.iconEnabled, iconPosition: currentButton.iconPosition, buttonImageUrl: currentButton.buttonImageUrl, imageUrl: currentButton.imageUrl, buttonImageFit: currentButton.buttonImageFit, buttonImageOverlay: currentButton.buttonImageOverlay, textPadding: currentButton.textPadding }; await syncCardUpdate({ buttons: (activeCard.buttons || []).map((button) => button.id === currentButton.id ? button : { ...button, ...designFields }) }); }}>Look auf alle Buttons</button>
               </div>}
               {tapButtonTool === 'manage' && <div className="ureel-tap-config"><h4>Button verwalten</h4><p>Füge Buttons hinzu, kopiere, ordne oder entferne sie. Wähle für die Position einfach einen Platz im Raster.</p><div className="ureel-mobile-manage-grid"><button type="button" onClick={handleAddButtonLocal}><LucideIcons.Plus size={15}/> Hinzufügen</button><button type="button" onClick={() => handleDuplicateButtonLocal(currentButton)}><LucideIcons.Copy size={15}/> Kopieren</button><button type="button" onClick={() => handleMoveButtonLocal(currentButton.id, -1)}><LucideIcons.ArrowLeft size={15}/> Links</button><button type="button" onClick={() => handleMoveButtonLocal(currentButton.id, 1)}><LucideIcons.ArrowRight size={15}/> Rechts</button><button type="button" className="is-danger" onClick={() => handleDeleteButtonLocal(currentButton.id)}><LucideIcons.Trash2 size={15}/> Entfernen</button></div><div className="ureel-mobile-position-grid"><span>Position wählen</span><small>{manageButtons.length} echte Kartenbuttons</small><div>{manageButtons.map((button, index) => { const fullIndex = [...(activeCard.buttons || [])].sort((a,b)=>(a.position??0)-(b.position??0)).findIndex((b) => b.id === button.id); return <button key={button.id} type="button" className={button.id === currentButton.id ? 'is-active' : ''} onClick={() => handleMoveButtonToPositionLocal(currentButton.id, Math.max(0, fullIndex))}>{index + 1}</button>; })}</div></div><div className="ureel-mobile-password-box"><h5>Passwortschutz</h5><p>Bereite sensible Inhalte wie Folder, Datei, Telefon oder Website mit Passwortschutz vor.</p><div className="ureel-tap-chip-row"><button type="button" className={(currentButton as any).passwordProtected ? 'is-active' : ''} onClick={() => handleUpdateSingleButton(currentButton.id, { passwordProtected: true } as any)}>Ein</button><button type="button" className={!(currentButton as any).passwordProtected ? 'is-active' : ''} onClick={() => handleUpdateSingleButton(currentButton.id, { passwordProtected: false, accessPassword: '', passwordHint: '' } as any)}>Aus</button></div>{(currentButton as any).passwordProtected && <><label>Passwort</label><input type="password" value={(currentButton as any).accessPassword || ''} placeholder="Passwort für Besucher" onChange={(e) => handleUpdateSingleButton(currentButton.id, { accessPassword: e.target.value } as any)} /><label>Hinweistext</label><input value={(currentButton as any).passwordHint || ''} placeholder="z.B. Passwort beim Team erfragen" onChange={(e) => handleUpdateSingleButton(currentButton.id, { passwordHint: e.target.value } as any)} /></>}</div></div>}
             </section>
