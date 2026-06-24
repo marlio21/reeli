@@ -692,10 +692,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     // v52.4.3: safe 3-column mobile sizes.
     // The grid and the selected button scale together, but never so far that the 9:16 card breaks.
     const values = preset === 'compact'
-      ? { px: 34, gap: 7, fontSize: 7.4, iconSize: 12, textPadding: 4, borderWidth: 'thin' as const, scale: 0.54, radius: 'rounded' as const }
+      ? { px: 34, gap: 7, fontSize: 9.5, iconSize: 14, textPadding: 4, borderWidth: 'thin' as const, scale: 0.54, radius: 'rounded' as const }
       : preset === 'large'
-        ? { px: 50, gap: 7, fontSize: 10.2, iconSize: 18, textPadding: 7, borderWidth: 'medium' as const, scale: 0.76, radius: 'rounded' as const }
-        : { px: 42, gap: 8, fontSize: 8.6, iconSize: 15, textPadding: 5, borderWidth: 'thin' as const, scale: 0.64, radius: 'rounded' as const };
+        ? { px: 52, gap: 7, fontSize: 14, iconSize: 24, textPadding: 7, borderWidth: 'medium' as const, scale: 0.80, radius: 'rounded' as const }
+        : { px: 44, gap: 8, fontSize: 12, iconSize: 19, textPadding: 5, borderWidth: 'thin' as const, scale: 0.68, radius: 'rounded' as const };
 
     const updatedButtons = (activeCard.buttons || []).map((button) => button.id === btnId ? {
       ...button,
@@ -1968,8 +1968,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
   const getTextTemplatePreviewStyle = () => {
     const style = currentTextTemplate.style || 'none';
-    const frameType = currentTextTemplate.frame?.type || selectedTextTemplatePreset?.defaultFrame || 'none';
-    const boxType = currentTextTemplate.box?.type || selectedTextTemplatePreset?.defaultBox || 'none';
+    const textBgEnabled = (currentTextTemplate.box as any)?.enabled !== false;
+    const frameType = textBgEnabled ? (currentTextTemplate.frame?.type || selectedTextTemplatePreset?.defaultFrame || 'none') : 'none';
+    const boxType = textBgEnabled ? (currentTextTemplate.box?.type || selectedTextTemplatePreset?.defaultBox || 'none') : 'none';
     const fontStyle = currentTextTemplate.fontStyle || selectedTextTemplatePreset?.defaultFontStyle || 'modern';
     const fontFamily = fontStyle === 'elegant' || fontStyle === 'serif'
       ? 'Georgia, Times New Roman, serif'
@@ -1979,20 +1980,22 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     const designAlign: Record<string, 'left' | 'center'> = { premium_product: 'left', event_messe: 'left', handwerk_bold: 'left', startup_pitch: 'left' };
     const alignment = designAlign[style] || (frameType === 'side_line' ? 'left' : frameType === 'underline' ? 'center' : 'center');
     const border = frameType === 'none' ? '1px solid rgba(232,220,194,.18)' : frameType === 'underline' ? '0 0 2px 0 rgba(232,220,194,.85)' : '0 0 0 1px rgba(232,220,194,.32)';
-    const boxBg = boxType === 'none'
-      ? 'radial-gradient(circle at top, rgba(232,220,194,.10), rgba(8,8,8,.45))'
-      : boxType === 'glass'
-        ? 'linear-gradient(135deg, rgba(245,242,234,.18), rgba(15,15,15,.62))'
-        : boxType === 'solid'
-          ? 'rgba(5,5,5,.78)'
-          : 'linear-gradient(135deg, rgba(168,85,247,.18), rgba(10,10,10,.7))';
+    const boxBg = !textBgEnabled
+      ? 'transparent'
+      : boxType === 'none'
+        ? 'radial-gradient(circle at top, rgba(232,220,194,.10), rgba(8,8,8,.45))'
+        : boxType === 'glass'
+          ? 'linear-gradient(135deg, rgba(245,242,234,.18), rgba(15,15,15,.62))'
+          : boxType === 'solid'
+            ? 'rgba(5,5,5,.78)'
+            : 'linear-gradient(135deg, rgba(168,85,247,.18), rgba(10,10,10,.7))';
     return {
       fontFamily,
       textAlign: alignment as any,
       alignItems: alignment === 'left' ? 'flex-start' : 'center',
       background: boxBg,
-      boxShadow: border.includes('0 0') ? border : undefined,
-      border: border.includes('solid') ? border : undefined,
+      boxShadow: textBgEnabled && border.includes('0 0') ? border : undefined,
+      border: textBgEnabled && border.includes('solid') ? border : '0 solid transparent',
       borderLeft: frameType === 'side_line' ? `3px solid ${currentTextTemplate.frame?.color || '#E8DCC2'}` : undefined,
       borderBottom: frameType === 'underline' ? `2px solid ${currentTextTemplate.frame?.color || '#E8DCC2'}` : undefined,
       borderRadius: style === 'luxury_frame' || style === 'beauty_premium' || style === 'story_soft' ? 34 : style === 'premium_product' ? 28 : style === 'minimal_clear' ? 12 : 22,
@@ -4803,6 +4806,13 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           <p>Kein Menü suchen: Hintergrund, Text oder Button antippen – unten erscheint nur die passende Bearbeitung.</p>
         </section>
 
+        <section className="ureel-tap-dashboard-strip" aria-label="Mobile Dashboard">
+          <div><span>Dashboard</span><strong>Karten & Konto</strong></div>
+          <button type="button" onClick={() => setCardManagerOpen(true)}><LucideIcons.Layers size={14}/> Kartenverwaltung</button>
+          <button type="button" onClick={() => { setAccountManagerTab('profile'); setAccountPanelOpen(true); }}><LucideIcons.UserCog size={14}/> Nutzerverwaltung</button>
+          <button type="button" onClick={handleCreateNewUreel}><LucideIcons.Plus size={14}/> Neue Karte</button>
+        </section>
+
         <section className="ureel-tap-preview-shell" aria-label="Echte 9:16 ureel Vorschau">
           <div className="ureel-tap-preview-toolbar">
             <button type="button" className={tapEditTarget === 'scene' ? 'is-active' : ''} onClick={() => { setTapEditTarget('scene'); setTapSceneTool('overview'); }}>Szene</button>
@@ -4931,10 +4941,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <div className="ureel-tap-config">
               <div className="ureel-mobile-text-preview-card">
                 <div className="ureel-mobile-text-preview-top"><span>Werbetext-Vorschau</span><small>← Wischen: neues Design · {currentTextTemplate.style === 'none' ? 'Klar' : `Design ${Math.max(1, Object.values(UREEL_TEXT_TEMPLATES).findIndex((t) => t.id === currentTextTemplate.style) + 1)} / 15`}</small></div>
-                <div className={getMobileTextPreviewClass()} style={getTextTemplatePreviewStyle()}>
+                <div className={`${getMobileTextPreviewClass()} ${(currentTextTemplate.box as any)?.enabled === false ? 'ureel-mobile-text-preview-sample--no-bg' : ''}`} style={getTextTemplatePreviewStyle()}>
                   <b style={{ fontSize: clampTextSize((activeCard as any).heroTitleSize, 30, 16, 56), color: (activeCard as any).heroTitleTextColor || '#F5F2EA' }}>{getTextLayerDraftValue('title') || 'Dein Titel'}</b>
                   <strong style={{ fontSize: clampTextSize((activeCard as any).heroSubtitleSize, 24, 12, 64), color: (activeCard as any).heroSubtitleTextColor || '#E8DCC2' }}>{getTextLayerDraftValue('subtitle') || 'Dein Untertitel'}</strong>
-                  <p style={{ fontSize: clampTextSize((activeCard as any).heroDescriptionSize, 24, 12, 56), color: (activeCard as any).heroDescTextColor || '#D8D2C5' }}>{getTextLayerDraftValue('description') || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.'}</p>
+                  <p style={{ fontSize: Math.max(13, Math.min(22, clampTextSize((activeCard as any).heroDescriptionSize, 16, 12, 32))), color: (activeCard as any).heroDescTextColor || '#E8DCC2', opacity: 0.95 }}>{getTextLayerDraftValue('description') || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.'}</p>
+                </div>
+                <div className="ureel-tap-chip-row" style={{ marginTop: 10 }}>
+                  <button type="button" className={(currentTextTemplate.box as any)?.enabled === false ? '' : 'is-active'} onClick={() => updateTextTemplate({ box: { ...currentTextTemplate.box, enabled: true, type: currentTextTemplate.box?.type && currentTextTemplate.box?.type !== 'none' ? currentTextTemplate.box.type : (selectedTextTemplatePreset?.defaultBox || 'glass') } as any })}>Design-Hintergrund AN</button>
+                  <button type="button" className={(currentTextTemplate.box as any)?.enabled === false ? 'is-active' : ''} onClick={() => updateTextTemplate({ box: { ...currentTextTemplate.box, enabled: false, type: 'none' } as any })}>Design-Hintergrund AUS</button>
                 </div>
                 <div className="ureel-mobile-text-template-strip">
                   <button type="button" className={currentTextTemplate.style === 'none' ? 'is-active' : ''} onClick={() => applyTextTemplatePreset('none')}><b>Klar</b><small>Neutral</small></button>
@@ -4995,7 +5009,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <label>Buttontext</label><input value={currentButton.title || ''} placeholder="z. B. Anrufen" onChange={(e) => handleUpdateSingleButton(currentButton.id, { title: e.target.value })} />
                 <label>Zweite Zeile</label><input value={(currentButton as any).subtitle || ''} placeholder="optional" onChange={(e) => handleUpdateSingleButton(currentButton.id, { subtitle: e.target.value } as any)} />
                 <span className="ureel-tap-mini-label">Textgröße</span>
-                <div className="ureel-tap-chip-row"><button type="button" className={(currentButton.fontSize || 11) <= 10 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontSize: 9 } as any)}>Klein</button><button type="button" className={(currentButton.fontSize || 11) > 10 && (currentButton.fontSize || 11) < 14 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontSize: 11 } as any)}>Normal</button><button type="button" className={(currentButton.fontSize || 11) >= 14 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontSize: 14 } as any)}>Groß</button></div>
+                <div className="ureel-tap-chip-row"><button type="button" className={(currentButton.fontSize || 12) <= 11 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontSize: 10 } as any)}>Klein</button><button type="button" className={(currentButton.fontSize || 12) > 11 && (currentButton.fontSize || 12) < 15 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontSize: 13 } as any)}>Normal</button><button type="button" className={(currentButton.fontSize || 12) >= 15 && (currentButton.fontSize || 12) < 18 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontSize: 16 } as any)}>Groß</button><button type="button" className={(currentButton.fontSize || 12) >= 18 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontSize: 18 } as any)}>Sehr groß</button></div>
                 <span className="ureel-tap-mini-label">Schriftart</span>
                 <div className="ureel-tap-chip-row"><button type="button" className={(currentButton.fontFamily || '').includes('Inter') || !currentButton.fontFamily ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontFamily: 'Inter, system-ui, sans-serif', fontWeight: '700' } as any)}>Klar</button><button type="button" className={(currentButton.fontFamily || '').includes('Nunito') ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontFamily: 'Nunito, Inter, system-ui, sans-serif', fontWeight: '800' } as any)}>Rund</button><button type="button" className={(currentButton.fontFamily || '').includes('Georgia') ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontFamily: 'Georgia, serif', fontWeight: '700' } as any)}>Elegant</button><button type="button" className={currentButton.fontWeight === '900' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontWeight: '900' } as any)}>Fett</button></div>
                 <SpectrumColorPicker label="Textfarbe" value={(currentButton.textColor || '#111111').startsWith('rgba') ? '#111111' : (currentButton.textColor || '#111111')} fallback="#111111" onChange={(value) => applyMobileButtonLook(currentButton.id, { textColor: value } as any)} />

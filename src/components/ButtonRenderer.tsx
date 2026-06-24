@@ -219,14 +219,22 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
         ? `${paddingYStyle} ${paddingXStyle}` 
         : (btn.textPadding !== undefined ? `${Math.round(btn.textPadding * scaleFactor)}px` : `${Math.round(10 * scaleFactor)}px`));
 
-  // Proportional lightweight scaling for text & icons
-  const fontScale = Math.min(scaleFactor, isTinyTile ? 1.0 : 1.12);
-  const iconScale = Math.min(scaleFactor, isTinyTile ? 0.92 : 1.15);
+  // v52.5.5 mobile sync: forced 3x2 card tiles must use the same visible
+  // scale as the button editor preview.  Older logic multiplied by the grid
+  // scale factor, so text stayed tiny on the real 9:16 card although the editor
+  // looked correct.  For forced mobile tiles we scale from the actual tile size.
+  const tileRatio = forceSizePx ? Math.max(0.82, Math.min(1.36, forceSizePx / 42)) : 1;
+  const fontScale = forceSizePx ? tileRatio : Math.min(scaleFactor, isTinyTile ? 1.0 : 1.12);
+  const iconScale = forceSizePx ? tileRatio : Math.min(scaleFactor, isTinyTile ? 0.92 : 1.15);
 
   const labelLength = (btn.title || '').trim().length;
   const baseFontSize = btn.fontSize !== undefined ? btn.fontSize : 12;
-  const lengthPenalty = labelLength > 28 ? 4 : labelLength > 20 ? 3 : labelLength > 14 ? 1.8 : labelLength > 10 ? 0.8 : 0;
-  const autoFitFontSize = Math.max(isTinyTile ? 6.2 : 7, Math.round((baseFontSize * fontScale) - lengthPenalty));
+  const lengthPenalty = forceSizePx
+    ? (labelLength > 28 ? 2.2 : labelLength > 20 ? 1.5 : labelLength > 14 ? 0.8 : 0)
+    : (labelLength > 28 ? 4 : labelLength > 20 ? 3 : labelLength > 14 ? 1.8 : labelLength > 10 ? 0.8 : 0);
+  const autoFitFontSize = forceSizePx
+    ? Math.max(isTinyTile ? 7.8 : 8.8, Math.min(16, Math.round((baseFontSize * fontScale * 1.16) - lengthPenalty)))
+    : Math.max(isTinyTile ? 6.2 : 7, Math.round((baseFontSize * fontScale) - lengthPenalty));
   const sizeStyle = `${autoFitFontSize}px`;
 
   const fontWeights: any = {
@@ -350,7 +358,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const iconColor = btn.iconColor || '#1E1E1E';
   const requestedIconSize = Math.round((btn.iconSize || 18) * iconScale);
   const iconSize = forceSizePx
-    ? Math.max(9, Math.min(requestedIconSize, Math.round(forceSizePx * 0.42)))
+    ? Math.max(isTinyTile ? 11 : 13, Math.min(requestedIconSize, Math.round(forceSizePx * 0.46)))
     : requestedIconSize;
 
 
@@ -530,7 +538,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
             {hasSecondButtonLine ? (
               <>
                 <span className="block max-w-full truncate">{buttonTextLines[0]}</span>
-                <span className="block max-w-full truncate opacity-85" style={{ fontSize: `calc(${sizeStyle} * 0.72)`, fontWeight: 700 }}>
+                <span className="block max-w-full truncate opacity-90" style={{ fontSize: `calc(${sizeStyle} * ${forceSizePx ? 0.80 : 0.72})`, fontWeight: 700 }}>
                   {buttonTextLines[1]}
                 </span>
               </>

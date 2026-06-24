@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v52.5.5 – Mobile Preview Sync, Button Scale & Dashboard Access Fix
+
+- Mobile-only Reparatur: Desktop-Version wird nicht bewusst verändert.
+- Werbetext-Vorschaueditor nutzt die Template-Daten sichtbarer synchron zur mobilen 9:16-Karte.
+- Beschreibungstext ist im mobilen Werbetext-Vorschaueditor wieder klar sichtbar.
+- Design-Hintergrund AN/AUS ergänzt, damit Textdesigns wahlweise mit oder ohne große Box/Overlay wirken.
+- Mobile 9:16-Karte respektiert den ausgeschalteten Design-Hintergrund ohne Box-Schatten.
+- Buttontext und zweite Zeile skalieren in den echten mobilen Kartenbuttons größer und näher an der Buttoneditor-Vorschau.
+- Icongrößen werden in echten mobilen Kartenbuttons stärker, aber weiter buttonflächenbezogen begrenzt.
+- Mobile Dashboard-Schnellzugriff öffnet Kartenverwaltung, Nutzerverwaltung/Konto und Neue Karte direkt unter dem Tap-to-Edit Einstieg.
+- Profilbild-Rendering bleibt geschützt.
+- Keine `RELEASE_NOTES_*.md` im Upload-Paket.
+
 ## v52.5.4 – Mobile Text Design & Button Renderer Sync Fix
 
 - Mobile-only Reparatur: Desktop-Version wird nicht bewusst verändert.

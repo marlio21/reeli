@@ -1,11 +1,12 @@
-# ureel.me v52.5.4
+# ureel.me v52.5.5
 
-Mobile Text Design & Button Renderer Sync Fix.
+Mobile Preview Sync, Button Scale & Dashboard Access Fix.
 
 - Änderungen bewusst auf die Mobile-Version / mobile 9:16-Karte begrenzt.
-- Werbetext-Vorlagen sind jetzt sichtbare Mobile-Designs statt nur Schriftwechsel.
-- Werbetext-Editor-Vorschau und echte 9:16-Vorschaukarte nutzen dieselben Template-Ideen für Layout, Rahmen, Box, Ausrichtung und Größenwirkung.
-- Mobile Buttonformen bleiben wieder echte Quadrat-/Kreis-/abgerundete Quadrat-Formen statt Rechtecken.
-- Buttoneditor-Preview und mobile 9:16-Karte nutzen den gemeinsamen ButtonRenderer mit gleicher Force-Square-Logik.
-- Icongrößen werden im mobilen Kartenraster begrenzt, damit Icons nicht in der echten Karte explodieren.
+- Werbetext-Designs werden im mobilen Werbetext-Editor und in der echten 9:16-Vorschaukarte stärker synchronisiert.
+- Beschreibungstext bleibt im mobilen Werbetext-Vorschaueditor sichtbar und wird nicht durch zu dunkle Standardfarbe versteckt.
+- Neuer Mobile-Schalter: Design-Hintergrund AN/AUS für Werbetextvorlagen.
+- Buttontext und Icongrößen skalieren in mobilen 3×2-Kartenbuttons sichtbarer und näher am Buttoneditor.
+- Mobile Buttonformen bleiben Quadrat, Kreis oder abgerundetes Quadrat.
+- Mobile Dashboard-Schnellzugriff zeigt Kartenverwaltung, Nutzerverwaltung und Neue Karte direkt im Tap-to-Edit Studio.
 - Profilbild, Public Link und Desktop-Renderer wurden nicht bewusst umgebaut.

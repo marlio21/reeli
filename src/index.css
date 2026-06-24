@@ -3514,6 +3514,70 @@ body {
     margin-bottom: 10px !important;
   }
 
+
+  .ureel-tap-dashboard-strip {
+    width: 100% !important;
+    border: 1px solid #D8CDB7 !important;
+    background: #111111 !important;
+    color: #F5F2EA !important;
+    border-radius: 22px !important;
+    box-shadow: 0 10px 28px rgba(24, 18, 10, .12) !important;
+    padding: 10px !important;
+    margin: 0 0 10px !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .ureel-tap-dashboard-strip > div {
+    grid-column: 1 / -1 !important;
+    display: flex !important;
+    align-items: baseline !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+  }
+
+  .ureel-tap-dashboard-strip span {
+    color: #E8DCC2 !important;
+    font-size: 9px !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .12em !important;
+  }
+
+  .ureel-tap-dashboard-strip strong {
+    color: #F5F2EA !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+  }
+
+  .ureel-tap-dashboard-strip button {
+    min-height: 42px !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(232,220,194,.25) !important;
+    background: rgba(245,242,234,.08) !important;
+    color: #F5F2EA !important;
+    font-size: 9.5px !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .04em !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+  }
+
+  .ureel-tap-dashboard-strip button:first-of-type {
+    background: #F5F2EA !important;
+    color: #111111 !important;
+  }
+
+  .ureel-mobile-text-preview-sample--no-bg {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+
   .ureel-tap-intro span,
   .ureel-tap-panel-head span,
   .ureel-tap-mini-label,
