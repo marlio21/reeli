@@ -223,7 +223,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   // scale as the button editor preview.  Older logic multiplied by the grid
   // scale factor, so text stayed tiny on the real 9:16 card although the editor
   // looked correct.  For forced mobile tiles we scale from the actual tile size.
-  const tileRatio = forceSizePx ? Math.max(0.78, Math.min(1.12, forceSizePx / 56)) : 1;
+  const tileRatio = forceSizePx ? Math.max(0.72, Math.min(1.0, forceSizePx / 56)) : 1;
   const fontScale = forceSizePx ? tileRatio : Math.min(scaleFactor, isTinyTile ? 1.0 : 1.12);
   const iconScale = forceSizePx ? tileRatio : Math.min(scaleFactor, isTinyTile ? 0.92 : 1.15);
 
@@ -233,7 +233,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
     ? (labelLength > 28 ? 2.2 : labelLength > 20 ? 1.5 : labelLength > 14 ? 0.8 : 0)
     : (labelLength > 28 ? 4 : labelLength > 20 ? 3 : labelLength > 14 ? 1.8 : labelLength > 10 ? 0.8 : 0);
   const autoFitFontSize = forceSizePx
-    ? Math.max(isTinyTile ? 7.2 : 8.2, Math.min(13.2, Math.round((baseFontSize * fontScale * 0.98) - lengthPenalty)))
+    ? Math.max(isTinyTile ? 6.8 : 7.6, Math.min(12.0, Math.round((baseFontSize * fontScale * 0.82) - lengthPenalty)))
     : Math.max(isTinyTile ? 6.2 : 7, Math.round((baseFontSize * fontScale) - lengthPenalty));
   const sizeStyle = `${autoFitFontSize}px`;
 
@@ -283,7 +283,11 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
       ...extraStyle,
     };
 
-    const circleBg = (btn as any).iconCircleBg || (btn as any).iconBackground === 'circle';
+    // v52.5.7 mobile parity: action icons must be pure icons in both the editor preview
+    // and the real 9:16 card. Older starter buttons carried iconCircleBg=true,
+    // which produced the small grey blob behind icons on the card. Ignore that
+    // legacy background for forced square mobile tiles.
+    const circleBg = !forceSizePx && ((btn as any).iconCircleBg || (btn as any).iconBackground === 'circle');
     const circleStyle: React.CSSProperties = circleBg ? {
       width: Math.max(isTinyTile ? 18 : 22, iconSize + (isTinyTile ? 8 : 14)),
       height: Math.max(isTinyTile ? 18 : 22, iconSize + (isTinyTile ? 8 : 14)),
@@ -358,7 +362,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const iconColor = btn.iconColor || '#1E1E1E';
   const requestedIconSize = Math.round((btn.iconSize || 18) * iconScale);
   const iconSize = forceSizePx
-    ? Math.max(isTinyTile ? 9 : 11, Math.min(requestedIconSize, Math.round(forceSizePx * 0.34)))
+    ? Math.max(isTinyTile ? 8 : 10, Math.min(Math.round(requestedIconSize * 0.82), Math.round(forceSizePx * 0.30)))
     : requestedIconSize;
 
 
@@ -538,7 +542,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
             {hasSecondButtonLine ? (
               <>
                 <span className="block max-w-full truncate">{buttonTextLines[0]}</span>
-                <span className="block max-w-full truncate opacity-90" style={{ fontSize: `calc(${sizeStyle} * ${forceSizePx ? 0.80 : 0.72})`, fontWeight: 700 }}>
+                <span className="block max-w-full truncate opacity-90" style={{ fontSize: `calc(${sizeStyle} * ${forceSizePx ? 0.72 : 0.72})`, fontWeight: 700 }}>
                   {buttonTextLines[1]}
                 </span>
               </>

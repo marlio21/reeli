@@ -1214,7 +1214,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
 
     return (
       <div onClick={(e) => { e.stopPropagation(); if (isPreview && onEditText) onEditText(); }} className={`absolute left-1/2 -translate-x-1/2 ${widthClass} z-[12] overflow-hidden ${isPreview ? 'pointer-events-auto cursor-pointer' : 'pointer-events-none'} transition-all duration-500`} style={textZoneStyle}>
-        <div className={`relative w-full max-h-full overflow-hidden border ${buttonsVisible ? 'px-3 py-2' : 'px-5 py-5'} ${mobileTextBackgroundEnabled ? 'shadow-2xl shadow-black/20' : 'shadow-none'} ureel-ad-anim-${layeredTemplate.animation || 'fade'}`} style={{ ...boxStyle, ...(mobileTextBackgroundEnabled ? mobileTextDesign.extraBox : {}), borderRadius: mobileTextDesign.borderRadius, textAlign: mobileTextDesign.textAlign, animationDuration: `${Number((card as any).adAnimationDuration || 1.2)}s` }}>
+        <div className={`relative w-full max-h-full overflow-hidden border ${mobileTextBackgroundEnabled ? (buttonsVisible ? 'px-3 py-2' : 'px-5 py-5') : (buttonsVisible ? 'px-1 py-1' : 'px-2 py-2')} ${mobileTextBackgroundEnabled ? 'shadow-2xl shadow-black/20' : 'shadow-none'} ureel-ad-anim-${layeredTemplate.animation || 'fade'}`} style={{ ...boxStyle, ...(mobileTextBackgroundEnabled ? mobileTextDesign.extraBox : {}), borderRadius: mobileTextDesign.borderRadius, textAlign: mobileTextDesign.textAlign, animationDuration: `${Number((card as any).adAnimationDuration || 1.2)}s` }}>
           {layeredFrameType === 'corner' && <><span className="absolute left-2 top-2 w-5 h-5 border-l-2 border-t-2" style={{ borderColor: layeredAccent }} /><span className="absolute right-2 top-2 w-5 h-5 border-r-2 border-t-2" style={{ borderColor: layeredAccent }} /><span className="absolute left-2 bottom-2 w-5 h-5 border-l-2 border-b-2" style={{ borderColor: layeredAccent }} /><span className="absolute right-2 bottom-2 w-5 h-5 border-r-2 border-b-2" style={{ borderColor: layeredAccent }} /></>}
           {layeredFrameType === 'thin' && <span className="absolute inset-2 rounded-2xl border border-dashed pointer-events-none" style={{ borderColor: `${layeredAccent}77` }} />}
           {layeredFrameType === 'side_line' && <span className="absolute left-3 top-5 bottom-5 w-1 rounded-full" style={{ background: layeredAccent }} />}
@@ -1304,7 +1304,9 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               style={{ gap: `${gridLayout.gapPx}px`, justifyItems: 'center' }}
             >
               {filteredLayeredButtons.map((btn, index) => {
-                const safePreviewSize = isPreview ? Math.max(42, Math.min(Number(gridLayout.buttonSizePx || 50), 52)) : gridLayout.buttonSizePx;
+                // v52.5.7: use the exact same mobile tile bound as the editor's
+                // enlarged tile preview. One renderer, one size, one fitting result.
+                const safePreviewSize = isPreview ? Math.max(42, Math.min(Number(gridLayout.buttonSizePx || 52), 52)) : gridLayout.buttonSizePx;
                 return (
                   <ButtonRenderer
                     key={btn.id}

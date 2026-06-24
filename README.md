@@ -1,4 +1,4 @@
-# ureel.me v52.5.6
+# ureel.me v52.5.7
 
 Mobile Button Tile Parity, Text Background Toggle & Account Scroll Fix.
 

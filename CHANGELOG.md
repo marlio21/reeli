@@ -1,3 +1,14 @@
+
+## v52.5.7 – Mobile Final Renderer Parity Fix
+
+- Mobile Buttoneditor-Vorschau rendert dieselbe echte Kartenkachel und wird nur visuell vergrößert.
+- Mobile 9:16-Karte und Buttoneditor verwenden dadurch dieselbe Text-/Icon-Skalierung.
+- Kleine Icon-Hintergründe in Kartenbuttons entfernt.
+- Schriftart und Schriftgewicht im mobilen Buttoneditor getrennt.
+- Design-Hintergrund AN/AUS als robuste mobile 2er-Schaltung repariert.
+- Mobile Konto-/Verwaltungsdialoge für Touch-Scroll weiter stabilisiert.
+- Desktop nicht bewusst verändert.
+
 # CHANGELOG
 
 ## v52.5.6 – Mobile Button Tile Parity, Text Background Toggle & Account Scroll Fix
