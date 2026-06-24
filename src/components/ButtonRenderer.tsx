@@ -182,8 +182,9 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const bSize = btn.buttonSize;
   const scaleFactor = getButtonScaleFactor(btn);
   
-  // A button is square if no custom heights or custom widths are active, or if forceSquare is true
-  const isSquare = forceSquare; // v52.5.2: never force real card buttons into square tiles unless explicitly requested
+  // v52.5.4 mobile sync: the mobile card offers Quadrat, Kreis and abgerundetes Quadrat.
+  // Forced-size card tiles therefore stay square; only future explicit rectangle modes may opt out.
+  const isSquare = forceSquare || (!!forceSizePx && (shape === 'round' || shape === 'square' || shape === 'rounded'));
 
   // Calculate buttonSize presets
   let paddingXStyle = '';
@@ -347,7 +348,10 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   // Determine actual color for the text / items
   const textColor = btn.textColor || '#1E1E1E';
   const iconColor = btn.iconColor || '#1E1E1E';
-  const iconSize = Math.round((btn.iconSize || 18) * iconScale);
+  const requestedIconSize = Math.round((btn.iconSize || 18) * iconScale);
+  const iconSize = forceSizePx
+    ? Math.max(9, Math.min(requestedIconSize, Math.round(forceSizePx * 0.42)))
+    : requestedIconSize;
 
 
   // Visible button text: exactly what is entered in Button-Text.

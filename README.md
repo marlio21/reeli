@@ -1,11 +1,11 @@
-# ureel.me v52.5.3
+# ureel.me v52.5.4
 
-Dashboard Routing, Button Visibility & Text Field Reset Fix.
+Mobile Text Design & Button Renderer Sync Fix.
 
-- Dashboard-Button bleibt sichtbar und öffnet Kartenverwaltung/Nutzerverwaltung.
-- Echte 9:16-Kartenbuttons werden wieder als Buttons gerendert statt als Linien.
-- 3×2-Buttonbereich bleibt für sechs echte Aktionen stabil.
-- Beschreibungstext ist zentral über `description` und `heroDescription` angebunden.
-- Farbeditor startet geschlossen; Spektrum-Cursor und Hue-Regler bewegen sich sichtbar mit Tap/Drag/Touch.
-- Buttonform, Buttontext, zweite Zeile, Farbe, Rahmen und Transparenz werden über den gemeinsamen ButtonRenderer angezeigt.
+- Änderungen bewusst auf die Mobile-Version / mobile 9:16-Karte begrenzt.
+- Werbetext-Vorlagen sind jetzt sichtbare Mobile-Designs statt nur Schriftwechsel.
+- Werbetext-Editor-Vorschau und echte 9:16-Vorschaukarte nutzen dieselben Template-Ideen für Layout, Rahmen, Box, Ausrichtung und Größenwirkung.
+- Mobile Buttonformen bleiben wieder echte Quadrat-/Kreis-/abgerundete Quadrat-Formen statt Rechtecken.
+- Buttoneditor-Preview und mobile 9:16-Karte nutzen den gemeinsamen ButtonRenderer mit gleicher Force-Square-Logik.
+- Icongrößen werden im mobilen Kartenraster begrenzt, damit Icons nicht in der echten Karte explodieren.
 - Profilbild, Public Link und Desktop-Renderer wurden nicht bewusst umgebaut.

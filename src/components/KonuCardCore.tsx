@@ -1051,6 +1051,48 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   const layeredBoxType = layeredTemplate.box?.type || 'transparent';
   const layeredFont = fontFamilyForLayeredText(layeredTemplate.fontStyle || card.textFontFamily || 'modern');
 
+
+  // v52.5.4 mobile-only text design resolver: one source for the real 9:16 card.
+  // The editor preview mirrors these styles so templates are real designs, not only font switches.
+  const getLayeredMobileTextDesign = () => {
+    const style = String(layeredTemplate.style || 'none');
+    const base = {
+      widthClass: 'max-w-[82%]',
+      top: '',
+      bottom: '',
+      textAlign: 'center' as const,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+      paddingClass: '',
+      borderRadius: 24,
+      titleRatio: 1,
+      subtitleRatio: 1,
+      descriptionRatio: 1,
+      titleTransform: 'uppercase' as const,
+      letterSpacing: layeredTemplate.fontStyle === 'elegant' ? '0.10em' : layeredTemplate.fontStyle === 'condensed' ? '0.02em' : '-0.03em',
+      extraBox: {} as React.CSSProperties,
+      descriptionWeight: 700 as React.CSSProperties['fontWeight'],
+    };
+    const map: Record<string, Partial<typeof base>> = {
+      premium_product: { widthClass: 'max-w-[78%]', textAlign: 'left', alignItems: 'flex-start', borderRadius: 28, titleRatio: 0.96, subtitleRatio: 0.88, descriptionRatio: 0.86, extraBox: { boxShadow: `0 16px 46px rgba(0,0,0,.36), inset 5px 0 0 ${layeredAccent}` } },
+      business_clean: { widthClass: 'max-w-[84%]', borderRadius: 18, titleRatio: 0.84, subtitleRatio: 0.9, descriptionRatio: 0.9, extraBox: { boxShadow: '0 12px 30px rgba(0,0,0,.18)' } },
+      social_reel: { widthClass: 'max-w-[86%]', borderRadius: 18, titleRatio: 1.08, subtitleRatio: 0.95, descriptionRatio: 0.78, letterSpacing: '0.01em', extraBox: { transform: 'rotate(-1deg)' } },
+      luxury_frame: { widthClass: 'max-w-[80%]', borderRadius: 34, titleRatio: 1.0, subtitleRatio: 1.02, descriptionRatio: 0.84, letterSpacing: '0.12em', extraBox: { boxShadow: `0 0 0 1px ${layeredAccent}55, 0 18px 50px rgba(0,0,0,.36)` } },
+      offer_action: { widthClass: 'max-w-[74%]', borderRadius: 20, titleRatio: 1.04, subtitleRatio: 0.82, descriptionRatio: 0.76, extraBox: { boxShadow: `0 0 0 2px ${layeredAccent}AA, 0 14px 38px rgba(0,0,0,.42)` } },
+      event_messe: { widthClass: 'max-w-[80%]', textAlign: 'left', alignItems: 'flex-start', borderRadius: 16, titleRatio: 0.92, subtitleRatio: 0.86, descriptionRatio: 0.8, letterSpacing: '0.02em' },
+      contact_premium: { widthClass: 'max-w-[78%]', borderRadius: 32, titleRatio: 0.88, subtitleRatio: 0.94, descriptionRatio: 0.82 },
+      real_estate: { widthClass: 'max-w-[84%]', borderRadius: 26, titleRatio: 0.9, subtitleRatio: 0.92, descriptionRatio: 0.86, extraBox: { boxShadow: '0 14px 42px rgba(0,0,0,.28)' } },
+      minimal_clear: { widthClass: 'max-w-[86%]', borderRadius: 12, titleRatio: 0.78, subtitleRatio: 0.84, descriptionRatio: 0.78, extraBox: { boxShadow: 'none' } },
+      handwerk_bold: { widthClass: 'max-w-[86%]', textAlign: 'left', alignItems: 'flex-start', borderRadius: 14, titleRatio: 1.08, subtitleRatio: 0.84, descriptionRatio: 0.76, letterSpacing: '0.015em' },
+      gastro_appetite: { widthClass: 'max-w-[80%]', borderRadius: 30, titleRatio: 0.94, subtitleRatio: 0.9, descriptionRatio: 0.86 },
+      story_soft: { widthClass: 'max-w-[82%]', borderRadius: 34, titleTransform: 'none', titleRatio: 0.84, subtitleRatio: 0.88, descriptionRatio: 0.9, descriptionWeight: 600 },
+      startup_pitch: { widthClass: 'max-w-[84%]', textAlign: 'left', alignItems: 'flex-start', borderRadius: 18, titleRatio: 0.98, subtitleRatio: 0.82, descriptionRatio: 0.76, letterSpacing: '-0.01em' },
+      beauty_premium: { widthClass: 'max-w-[78%]', borderRadius: 38, titleTransform: 'none', titleRatio: 0.88, subtitleRatio: 0.9, descriptionRatio: 0.82 },
+      fitness_energy: { widthClass: 'max-w-[86%]', borderRadius: 18, titleRatio: 1.12, subtitleRatio: 0.9, descriptionRatio: 0.74, letterSpacing: '0.01em', extraBox: { transform: 'skewY(-1deg)' } },
+    };
+    return { ...base, ...(map[style] || {}) };
+  };
+
   const layeredTextBoxStyle = (): React.CSSProperties => {
     if (layeredBoxType === 'light') return { background: 'rgba(245,242,234,0.92)', color: '#141414', borderColor: 'rgba(232,220,194,0.72)' };
     if (layeredBoxType === 'glass') return { background: 'rgba(15,15,15,0.38)', backdropFilter: 'blur(10px)', borderColor: 'rgba(232,220,194,0.34)' };
@@ -1147,37 +1189,39 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     const isHero = activeSceneVideoResult.placement === 'hero' && scene.mode === 'video';
     const endcardVideoActive = showEndCard && !!((endCardConfig as any).videoUrl || '').trim();
     const endcardVideoCompact = endcardVideoActive && ((endCardConfig as any).videoDisplayMode || 'wide') === 'compact';
-    const heroTop = endcardVideoActive
+    const mobileTextDesign = getLayeredMobileTextDesign();
+    const defaultHeroTop = endcardVideoActive
       ? (endcardVideoCompact ? '30%' : '22%')
       : isHero
       ? (activeSceneVideoResult.heroSize === 'compact' ? '29%' : '33.5%')
       : (buttonsVisible ? '8%' : '14%');
-    const safeBottom = buttonsVisible ? (filteredLayeredButtons.length > 6 ? '48%' : '42%') : '7%';
-    const widthClass = layeredFrameType === 'badge' ? 'max-w-[78%]' : 'max-w-[82%]';
+    const heroTop = mobileTextDesign.top || defaultHeroTop;
+    const safeBottom = mobileTextDesign.bottom || (buttonsVisible ? (filteredLayeredButtons.length > 6 ? '48%' : '42%') : '7%');
+    const widthClass = layeredFrameType === 'badge' ? 'max-w-[78%]' : mobileTextDesign.widthClass;
     const compactRatio = buttonsVisible ? (isHero || endcardVideoActive ? 0.50 : 0.62) : 0.92;
-    const titleSize = Math.max(12, Math.min(buttonsVisible ? 20 : 38, Number((card as any).heroTitleSize || 30) * compactRatio));
-    const subtitleSize = Math.max(8, Math.min(buttonsVisible ? 16 : 26, Number((card as any).heroSubtitleSize || 14) * (buttonsVisible ? 0.86 : 1)));
-    const descriptionSize = Math.max(10, Math.min(buttonsVisible ? 22 : 34, Number((card as any).heroDescriptionSize || 22) * (buttonsVisible ? 0.72 : 1))); // v52.5.1: description must remain readable in card preview
+    const titleSize = Math.max(12, Math.min(buttonsVisible ? 22 : 40, Number((card as any).heroTitleSize || 30) * compactRatio * mobileTextDesign.titleRatio));
+    const subtitleSize = Math.max(8, Math.min(buttonsVisible ? 17 : 28, Number((card as any).heroSubtitleSize || 14) * (buttonsVisible ? 0.86 : 1) * mobileTextDesign.subtitleRatio));
+    const descriptionSize = Math.max(9, Math.min(buttonsVisible ? 20 : 32, Number((card as any).heroDescriptionSize || 22) * (buttonsVisible ? 0.72 : 1) * mobileTextDesign.descriptionRatio));
     const boxStyle = layeredTextBoxStyle();
     const textZoneStyle: React.CSSProperties = {
       top: heroTop,
       bottom: safeBottom,
       display: 'flex',
-      alignItems: buttonsVisible ? 'center' : 'center',
-      justifyContent: 'center',
+      alignItems: mobileTextDesign.alignItems,
+      justifyContent: mobileTextDesign.justifyContent,
     };
 
     return (
       <div onClick={(e) => { e.stopPropagation(); if (isPreview && onEditText) onEditText(); }} className={`absolute left-1/2 -translate-x-1/2 ${widthClass} z-[12] overflow-hidden ${isPreview ? 'pointer-events-auto cursor-pointer' : 'pointer-events-none'} transition-all duration-500`} style={textZoneStyle}>
-        <div className={`relative w-full max-h-full overflow-hidden rounded-3xl border ${buttonsVisible ? 'px-3 py-2' : 'px-5 py-5'} text-center shadow-2xl shadow-black/20 ureel-ad-anim-${layeredTemplate.animation || 'fade'}`} style={{ ...boxStyle, animationDuration: `${Number((card as any).adAnimationDuration || 1.2)}s` }}>
+        <div className={`relative w-full max-h-full overflow-hidden border ${buttonsVisible ? 'px-3 py-2' : 'px-5 py-5'} shadow-2xl shadow-black/20 ureel-ad-anim-${layeredTemplate.animation || 'fade'}`} style={{ ...boxStyle, ...mobileTextDesign.extraBox, borderRadius: mobileTextDesign.borderRadius, textAlign: mobileTextDesign.textAlign, animationDuration: `${Number((card as any).adAnimationDuration || 1.2)}s` }}>
           {layeredFrameType === 'corner' && <><span className="absolute left-2 top-2 w-5 h-5 border-l-2 border-t-2" style={{ borderColor: layeredAccent }} /><span className="absolute right-2 top-2 w-5 h-5 border-r-2 border-t-2" style={{ borderColor: layeredAccent }} /><span className="absolute left-2 bottom-2 w-5 h-5 border-l-2 border-b-2" style={{ borderColor: layeredAccent }} /><span className="absolute right-2 bottom-2 w-5 h-5 border-r-2 border-b-2" style={{ borderColor: layeredAccent }} /></>}
           {layeredFrameType === 'thin' && <span className="absolute inset-2 rounded-2xl border border-dashed pointer-events-none" style={{ borderColor: `${layeredAccent}77` }} />}
           {layeredFrameType === 'side_line' && <span className="absolute left-3 top-5 bottom-5 w-1 rounded-full" style={{ background: layeredAccent }} />}
           {layeredFrameType === 'badge' && visibleSubtitle && <div className="inline-flex mb-2 px-3 py-1 rounded-full border text-[8px] font-black uppercase tracking-widest" style={{ borderColor: `${layeredAccent}66`, color: layeredAccent }}>{subtitle}</div>}
           <div className={layeredFrameType === 'side_line' ? 'pl-4' : ''}>
-            {visibleTitle && layerTextWithHighlight(title, 'block font-black uppercase leading-[0.92] break-words', { fontSize: titleSize, fontFamily: layeredFont, letterSpacing: layeredTemplate.fontStyle === 'elegant' ? '0.10em' : layeredTemplate.fontStyle === 'condensed' ? '0.02em' : '-0.03em', color: (card as any).heroTitleTextColor || (layeredBoxType === 'light' ? '#151515' : '#F5F2EA') })}
+            {visibleTitle && layerTextWithHighlight(title, 'block font-black leading-[0.92] break-words', { fontSize: titleSize, fontFamily: layeredFont, textTransform: mobileTextDesign.titleTransform, letterSpacing: mobileTextDesign.letterSpacing, color: (card as any).heroTitleTextColor || (layeredBoxType === 'light' ? '#151515' : '#F5F2EA') })}
             {visibleSubtitle && layeredFrameType !== 'badge' && <span className="block mt-2 font-black uppercase leading-tight break-words" style={{ fontSize: subtitleSize, fontFamily: layeredFont, color: (card as any).heroSubtitleTextColor || (layeredBoxType === 'light' ? '#3A3732' : layeredAccent), letterSpacing: '0.06em' }}>{subtitle}</span>}
-            {visibleDescription && <span className="block mt-2 font-semibold leading-snug break-words" style={{ fontSize: descriptionSize, fontFamily: layeredFont, color: (card as any).heroDescTextColor || (layeredBoxType === 'light' ? '#3A3732' : '#E8DCC2') }}>{description}</span>}
+            {visibleDescription && <span className="block mt-2 leading-snug break-words" style={{ fontSize: descriptionSize, fontFamily: layeredFont, fontWeight: mobileTextDesign.descriptionWeight, color: (card as any).heroDescTextColor || (layeredBoxType === 'light' ? '#3A3732' : '#E8DCC2') }}>{description}</span>}
             {layeredFrameType === 'underline' && <span className="block mt-4 h-1 rounded-full mx-auto w-2/3" style={{ background: layeredAccent }} />}
           </div>
         </div>
@@ -1272,7 +1316,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                       else if (!isPreview && handleButtonClick) handleButtonClick(btn);
                     }}
                     lang={lang}
-                    forceSquare={false}
+                    forceSquare={true}
                     forceSizePx={safePreviewSize}
                   />
                 );

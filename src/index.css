@@ -4769,3 +4769,73 @@ body {
   outline: none;
 }
 .ureel-studio-preview-panel .relative.shrink-0 { z-index: 90; }
+
+/* v52.5.4 – Mobile-only Werbetext design preview sync.
+   These classes intentionally affect only the mobile tap editor sample card. */
+@media (max-width: 767px) {
+  .ureel-mobile-text-preview-sample--premium_product {
+    align-items: flex-start !important;
+    text-align: left !important;
+    background: linear-gradient(135deg, rgba(245,242,234,.12), rgba(8,8,8,.82)) !important;
+    border-left: 5px solid #E8DCC2 !important;
+    border-radius: 28px !important;
+  }
+  .ureel-mobile-text-preview-sample--business_clean {
+    background: linear-gradient(180deg, rgba(245,242,234,.13), rgba(15,15,15,.52)) !important;
+    border-radius: 18px !important;
+  }
+  .ureel-mobile-text-preview-sample--social_reel {
+    justify-content: space-around !important;
+    background: linear-gradient(135deg, rgba(239,68,68,.28), rgba(8,8,8,.82)) !important;
+    border-bottom: 4px solid #EF4444 !important;
+    border-radius: 18px !important;
+    transform: rotate(-1deg) !important;
+  }
+  .ureel-mobile-text-preview-sample--luxury_frame {
+    background: radial-gradient(circle at 50% 0, rgba(232,220,194,.18), rgba(5,5,5,.84)) !important;
+    border: 1px solid rgba(232,220,194,.58) !important;
+    box-shadow: inset 0 0 0 7px rgba(232,220,194,.08) !important;
+    border-radius: 34px !important;
+  }
+  .ureel-mobile-text-preview-sample--offer_action {
+    background: linear-gradient(135deg, rgba(245,158,11,.30), rgba(10,10,10,.86)) !important;
+    border: 2px solid rgba(245,158,11,.7) !important;
+    border-radius: 20px !important;
+  }
+  .ureel-mobile-text-preview-sample--event_messe,
+  .ureel-mobile-text-preview-sample--startup_pitch {
+    align-items: flex-start !important;
+    text-align: left !important;
+    background: linear-gradient(135deg, rgba(56,189,248,.20), rgba(5,5,5,.82)) !important;
+    border-left: 4px solid #38BDF8 !important;
+    border-radius: 16px !important;
+  }
+  .ureel-mobile-text-preview-sample--contact_premium,
+  .ureel-mobile-text-preview-sample--real_estate {
+    background: linear-gradient(180deg, rgba(245,242,234,.20), rgba(8,8,8,.70)) !important;
+    border-radius: 30px !important;
+  }
+  .ureel-mobile-text-preview-sample--minimal_clear {
+    background: rgba(8,8,8,.62) !important;
+    border: 1px solid rgba(245,242,234,.20) !important;
+    border-radius: 12px !important;
+  }
+  .ureel-mobile-text-preview-sample--handwerk_bold,
+  .ureel-mobile-text-preview-sample--fitness_energy {
+    align-items: flex-start !important;
+    text-align: left !important;
+    justify-content: space-around !important;
+    background: linear-gradient(135deg, rgba(249,115,22,.28), rgba(8,8,8,.86)) !important;
+    border: 2px solid rgba(249,115,22,.58) !important;
+    border-radius: 14px !important;
+  }
+  .ureel-mobile-text-preview-sample--gastro_appetite {
+    background: radial-gradient(circle at top left, rgba(253,186,116,.32), rgba(10,10,10,.82)) !important;
+    border-radius: 30px !important;
+  }
+  .ureel-mobile-text-preview-sample--story_soft,
+  .ureel-mobile-text-preview-sample--beauty_premium {
+    background: radial-gradient(circle at top, rgba(233,168,184,.26), rgba(10,10,10,.80)) !important;
+    border-radius: 38px !important;
+  }
+}

@@ -1,3 +1,16 @@
+# CHANGELOG
+
+## v52.5.4 – Mobile Text Design & Button Renderer Sync Fix
+
+- Mobile-only Reparatur: Desktop-Version wird nicht bewusst verändert.
+- Werbetext-Vorlagen im mobilen Editor erzeugen sichtbare Designs mit anderer Ausrichtung, Box, Rahmen, Akzent und Größenwirkung.
+- Echte 9:16-Vorschaukarte liest dieselben mobilen Texttemplate-Daten, damit Designwechsel nicht nur im Editor sichtbar sind.
+- Mobile Kartenbuttons bleiben Quadrat, Kreis oder abgerundetes Quadrat und fallen nicht in Rechteck-/Pill-Formen zurück.
+- Buttoneditor-Preview und mobile Kartenbuttons nutzen denselben ButtonRenderer und dieselbe Force-Square-Größenlogik.
+- Icongrößen werden im mobilen Kartenraster auf eine sinnvolle Maximalgröße relativ zur Buttonfläche begrenzt.
+- Profilbild-Rendering bleibt geschützt.
+- Keine `RELEASE_NOTES_*.md` im Upload-Paket.
+
 ## v52.5.3 – Dashboard Routing, Button Visibility & Text Field Reset Fix
 
 - Dashboard-Einstieg bleibt sichtbar und öffnet Kartenverwaltung/Nutzerverwaltung über echte Panels.

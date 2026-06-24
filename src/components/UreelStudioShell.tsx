@@ -536,20 +536,30 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     const preset = UREEL_TEXT_TEMPLATES[styleId];
     if (!preset) return;
     const templateSizes: any = {
-      luxury: { heroTitleSize: 38, heroSubtitleSize: 24, heroDescriptionSize: 26 },
-      premium_product: { heroTitleSize: 36, heroSubtitleSize: 22, heroDescriptionSize: 25 },
-      social_reel: { heroTitleSize: 34, heroSubtitleSize: 23, heroDescriptionSize: 24 },
-      event_messe: { heroTitleSize: 35, heroSubtitleSize: 22, heroDescriptionSize: 24 },
-      real_estate: { heroTitleSize: 32, heroSubtitleSize: 21, heroDescriptionSize: 24 },
+      premium_product: { heroTitleSize: 34, heroSubtitleSize: 18, heroDescriptionSize: 18, heroTitleTextColor: '#F5F2EA', heroSubtitleTextColor: '#E8DCC2', heroDescTextColor: '#D8D2C5' },
+      business_clean: { heroTitleSize: 28, heroSubtitleSize: 16, heroDescriptionSize: 16, heroTitleTextColor: '#F5F2EA', heroSubtitleTextColor: '#F5F2EA', heroDescTextColor: '#D8D2C5' },
+      social_reel: { heroTitleSize: 36, heroSubtitleSize: 17, heroDescriptionSize: 15, heroTitleTextColor: '#FFFFFF', heroSubtitleTextColor: '#FDE68A', heroDescTextColor: '#F5F2EA' },
+      luxury_frame: { heroTitleSize: 32, heroSubtitleSize: 19, heroDescriptionSize: 16, heroTitleTextColor: '#FFF8E7', heroSubtitleTextColor: '#E8DCC2', heroDescTextColor: '#D8D2C5' },
+      offer_action: { heroTitleSize: 36, heroSubtitleSize: 15, heroDescriptionSize: 15, heroTitleTextColor: '#FFFFFF', heroSubtitleTextColor: '#F59E0B', heroDescTextColor: '#F5F2EA' },
+      event_messe: { heroTitleSize: 31, heroSubtitleSize: 15, heroDescriptionSize: 15, heroTitleTextColor: '#F5F2EA', heroSubtitleTextColor: '#38BDF8', heroDescTextColor: '#D8D2C5' },
+      contact_premium: { heroTitleSize: 29, heroSubtitleSize: 18, heroDescriptionSize: 15, heroTitleTextColor: '#F5F2EA', heroSubtitleTextColor: '#06B6D4', heroDescTextColor: '#D8D2C5' },
+      real_estate: { heroTitleSize: 30, heroSubtitleSize: 17, heroDescriptionSize: 17, heroTitleTextColor: '#F5F2EA', heroSubtitleTextColor: '#10B981', heroDescTextColor: '#D8D2C5' },
+      minimal_clear: { heroTitleSize: 26, heroSubtitleSize: 15, heroDescriptionSize: 14, heroTitleTextColor: '#FFFFFF', heroSubtitleTextColor: '#E8DCC2', heroDescTextColor: '#CFC7BA' },
+      handwerk_bold: { heroTitleSize: 36, heroSubtitleSize: 16, heroDescriptionSize: 15, heroTitleTextColor: '#FFFFFF', heroSubtitleTextColor: '#F97316', heroDescTextColor: '#F5F2EA' },
+      gastro_appetite: { heroTitleSize: 30, heroSubtitleSize: 17, heroDescriptionSize: 16, heroTitleTextColor: '#FFF7ED', heroSubtitleTextColor: '#FDBA74', heroDescTextColor: '#F5F2EA' },
+      story_soft: { heroTitleSize: 28, heroSubtitleSize: 16, heroDescriptionSize: 17, heroTitleTextColor: '#FDF2F8', heroSubtitleTextColor: '#E9A8B8', heroDescTextColor: '#F5F2EA' },
+      startup_pitch: { heroTitleSize: 34, heroSubtitleSize: 15, heroDescriptionSize: 15, heroTitleTextColor: '#E0F2FE', heroSubtitleTextColor: '#38BDF8', heroDescTextColor: '#D8D2C5' },
+      beauty_premium: { heroTitleSize: 28, heroSubtitleSize: 17, heroDescriptionSize: 16, heroTitleTextColor: '#FFF1F2', heroSubtitleTextColor: '#E9A8B8', heroDescTextColor: '#F5F2EA' },
+      fitness_energy: { heroTitleSize: 37, heroSubtitleSize: 16, heroDescriptionSize: 14, heroTitleTextColor: '#FFFFFF', heroSubtitleTextColor: '#22C55E', heroDescTextColor: '#F5F2EA' },
     };
-    const sizePatch = templateSizes[preset.id] || { heroTitleSize: 32, heroSubtitleSize: 21, heroDescriptionSize: 24 };
+    const sizePatch = templateSizes[preset.id] || { heroTitleSize: 30, heroSubtitleSize: 16, heroDescriptionSize: 15, heroTitleTextColor: '#F5F2EA', heroSubtitleTextColor: '#E8DCC2', heroDescTextColor: '#D8D2C5' };
     await syncCardUpdate({
       ...sizePatch,
       description: activeCard.description || activeCard.heroDescription || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.',
       heroDescription: activeCard.description || activeCard.heroDescription || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.',
-      heroTitleTextColor: (activeCard as any).heroTitleTextColor || '#F5F2EA',
-      heroSubtitleTextColor: (activeCard as any).heroSubtitleTextColor || '#E8DCC2',
-      heroDescTextColor: (activeCard as any).heroDescTextColor || '#D8D2C5',
+      heroTitleTextColor: sizePatch.heroTitleTextColor,
+      heroSubtitleTextColor: sizePatch.heroSubtitleTextColor,
+      heroDescTextColor: sizePatch.heroDescTextColor,
       videoBackgroundConfig: {
         ...(activeCard.videoBackgroundConfig || {}),
         profileTextReveals: ['title','subtitle','description'].map((fieldKey: any) => ({
@@ -1950,6 +1960,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
 
+
+  const getMobileTextPreviewClass = () => {
+    const style = String(currentTextTemplate.style || 'none').replace(/[^a-z0-9_-]/gi, '');
+    return `ureel-mobile-text-preview-sample ureel-mobile-text-preview-sample--${style || 'none'}`;
+  };
+
   const getTextTemplatePreviewStyle = () => {
     const style = currentTextTemplate.style || 'none';
     const frameType = currentTextTemplate.frame?.type || selectedTextTemplatePreset?.defaultFrame || 'none';
@@ -1960,7 +1976,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       : fontStyle === 'condensed' || fontStyle === 'bold'
         ? 'Arial Narrow, Inter, sans-serif'
         : 'Inter, system-ui, sans-serif';
-    const alignment = frameType === 'side_line' ? 'left' : frameType === 'underline' ? 'center' : 'center';
+    const designAlign: Record<string, 'left' | 'center'> = { premium_product: 'left', event_messe: 'left', handwerk_bold: 'left', startup_pitch: 'left' };
+    const alignment = designAlign[style] || (frameType === 'side_line' ? 'left' : frameType === 'underline' ? 'center' : 'center');
     const border = frameType === 'none' ? '1px solid rgba(232,220,194,.18)' : frameType === 'underline' ? '0 0 2px 0 rgba(232,220,194,.85)' : '0 0 0 1px rgba(232,220,194,.32)';
     const boxBg = boxType === 'none'
       ? 'radial-gradient(circle at top, rgba(232,220,194,.10), rgba(8,8,8,.45))'
@@ -1978,7 +1995,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       border: border.includes('solid') ? border : undefined,
       borderLeft: frameType === 'side_line' ? `3px solid ${currentTextTemplate.frame?.color || '#E8DCC2'}` : undefined,
       borderBottom: frameType === 'underline' ? `2px solid ${currentTextTemplate.frame?.color || '#E8DCC2'}` : undefined,
-      borderRadius: style === 'luxury' || style === 'premium_product' ? 28 : 22,
+      borderRadius: style === 'luxury_frame' || style === 'beauty_premium' || style === 'story_soft' ? 34 : style === 'premium_product' ? 28 : style === 'minimal_clear' ? 12 : 22,
+      justifyContent: style === 'social_reel' || style === 'fitness_energy' ? 'space-around' : 'center',
     };
   };
 
@@ -2094,7 +2112,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           button={button}
           mode="editor"
           lang={lang}
-          forceSquare={false}
+          forceSquare={true}
           forceSizePx={size}
         />
       </div>
@@ -4913,7 +4931,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <div className="ureel-tap-config">
               <div className="ureel-mobile-text-preview-card">
                 <div className="ureel-mobile-text-preview-top"><span>Werbetext-Vorschau</span><small>← Wischen: neues Design · {currentTextTemplate.style === 'none' ? 'Klar' : `Design ${Math.max(1, Object.values(UREEL_TEXT_TEMPLATES).findIndex((t) => t.id === currentTextTemplate.style) + 1)} / 15`}</small></div>
-                <div className="ureel-mobile-text-preview-sample" style={getTextTemplatePreviewStyle()}>
+                <div className={getMobileTextPreviewClass()} style={getTextTemplatePreviewStyle()}>
                   <b style={{ fontSize: clampTextSize((activeCard as any).heroTitleSize, 30, 16, 56), color: (activeCard as any).heroTitleTextColor || '#F5F2EA' }}>{getTextLayerDraftValue('title') || 'Dein Titel'}</b>
                   <strong style={{ fontSize: clampTextSize((activeCard as any).heroSubtitleSize, 24, 12, 64), color: (activeCard as any).heroSubtitleTextColor || '#E8DCC2' }}>{getTextLayerDraftValue('subtitle') || 'Dein Untertitel'}</strong>
                   <p style={{ fontSize: clampTextSize((activeCard as any).heroDescriptionSize, 24, 12, 56), color: (activeCard as any).heroDescTextColor || '#D8D2C5' }}>{getTextLayerDraftValue('description') || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.'}</p>
