@@ -48,11 +48,17 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
     if (fam.includes('mono') || fam.includes('jetbrains')) {
       return '"JetBrains Mono", monospace';
     }
-    if (fam.includes('outfit')) {
+    if (fam.includes('outfit') || fam.includes('avant')) {
       return '"Outfit", sans-serif';
     }
-    if (fam.includes('nunito') || fam.includes('rund')) {
+    if (fam.includes('space') || fam.includes('grotesk') || fam.includes('modern')) {
+      return '"Space Grotesk", sans-serif';
+    }
+    if (fam.includes('nunito') || fam.includes('rund') || fam.includes('round')) {
       return '"Nunito", "Inter", sans-serif';
+    }
+    if (fam.includes('mono') || fam.includes('jetbrains') || fam.includes('code')) {
+      return '"JetBrains Mono", monospace';
     }
     if (fam.includes('georgia') || fam.includes('elegant') || fam.includes('serif') || fam.includes('playfair')) {
       return '"Playfair Display", Georgia, serif';
@@ -234,12 +240,20 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const hasUsableIcon = btn.iconEnabled !== false && !!btn.icon;
   const baseFontSize = btn.fontSize !== undefined ? btn.fontSize : 12;
   const lengthPenalty = forceSizePx
-    ? (labelLength > 28 ? 2.6 : labelLength > 20 ? 1.8 : labelLength > 14 ? 1.0 : 0)
+    ? (labelLength > 28 ? 2.2 : labelLength > 20 ? 1.45 : labelLength > 14 ? 0.75 : labelLength > 9 ? 0.35 : 0)
     : (labelLength > 28 ? 4 : labelLength > 20 ? 3 : labelLength > 14 ? 1.8 : labelLength > 10 ? 0.8 : 0);
-  const forcedTextCap = hasUsableIcon ? 10.8 : 12.4;
-  const forcedTextFloor = hasUsableIcon ? (isTinyTile ? 6.8 : 7.4) : (isTinyTile ? 8.2 : 8.8);
+  // v52.5.9 mobile parity: forced 3x2 card tiles need preset-specific limits.
+  // The previous cap made "klein" too large and "sehr groß" too similar, and short
+  // labels such as Telefon/Mail could still hyphenate.  These caps keep 6-9 letters
+  // clean inside the tile while making each preset visually distinct.
+  const forcedTextCap = forceSizePx
+    ? (hasUsableIcon
+      ? (baseFontSize <= 9.5 ? 7.6 : baseFontSize <= 11.8 ? 8.6 : baseFontSize <= 13.5 ? 9.8 : 11.0)
+      : (baseFontSize <= 9.5 ? 8.7 : baseFontSize <= 11.8 ? 10.0 : baseFontSize <= 13.5 ? 11.5 : 13.0))
+    : (hasUsableIcon ? 10.8 : 12.4);
+  const forcedTextFloor = hasUsableIcon ? (isTinyTile ? 6.4 : 6.9) : (isTinyTile ? 7.8 : 8.4);
   const autoFitFontSize = forceSizePx
-    ? Math.max(forcedTextFloor, Math.min(forcedTextCap, (baseFontSize * fontScale * (hasUsableIcon ? 0.74 : 0.88)) - lengthPenalty))
+    ? Math.max(forcedTextFloor, Math.min(forcedTextCap, (baseFontSize * fontScale * (hasUsableIcon ? 0.64 : 0.84)) - lengthPenalty))
     : Math.max(isTinyTile ? 6.2 : 7, Math.round((baseFontSize * fontScale) - lengthPenalty));
   const sizeStyle = `${Number(autoFitFontSize.toFixed(1))}px`;
 
@@ -379,7 +393,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const iconColor = btn.iconColor || '#1E1E1E';
   const requestedIconSize = Math.round((btn.iconSize || 18) * iconScale);
   const iconSize = forceSizePx
-    ? Math.max(isTinyTile ? 8 : 10, Math.min(Math.round(requestedIconSize * 0.72), Math.round(forceSizePx * 0.26)))
+    ? Math.max(isTinyTile ? 7 : 9, Math.min(Math.round(requestedIconSize * 0.62), Math.round(forceSizePx * 0.23)))
     : requestedIconSize;
 
 
@@ -398,6 +412,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
     buttonTextLines.push(lang === 'en' ? 'Untitled' : 'Ohne Titel');
   }
   const hasSecondButtonLine = buttonTextLines.length > 1;
+  const compactSingleLine = !!forceSizePx && !hasSecondButtonLine && (buttonTextLines[0] || '').length <= 9;
 
   // Render Image Layer
   const buttonImageUrlToUse = btn.buttonImageUrl || btn.imageUrl || '';
@@ -550,10 +565,13 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
               letterSpacing: btn.letterSpacing ? `${btn.letterSpacing}px` : undefined,
               textShadow: textShadowVal,
               color: textColor,
-              lineHeight: hasSecondButtonLine ? 1.02 : 1.08,
-              overflowWrap: 'anywhere',
-              wordBreak: 'break-word',
-              hyphens: 'auto',
+              lineHeight: hasSecondButtonLine ? 1.02 : 1.06,
+              overflowWrap: compactSingleLine ? 'normal' : 'anywhere',
+              wordBreak: compactSingleLine ? 'keep-all' : 'break-word',
+              whiteSpace: compactSingleLine ? 'nowrap' : 'normal',
+              hyphens: compactSingleLine ? 'manual' : 'auto',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
             }}
           >
             {hasSecondButtonLine ? (

@@ -1,3 +1,19 @@
+# CHANGELOG
+
+## v52.5.9 – Mobile Button Font Control & Text Animation Parity Fix
+
+- Mobile-only Reparatur: Desktop-Version wird nicht bewusst verändert.
+- Mobile Button-Schriftarten auf fünf Optionen erweitert: Klar, Rund, Elegant, Modern und Mono.
+- Schriftart-Erkennung im mobilen Buttoneditor case-insensitive normalisiert, damit Klar/Rund/Elegant/Modern/Mono exklusiv aktiv sind.
+- Schriftgewicht Normal/Fett wird sauber in den Buttondaten gespeichert und vom ButtonRenderer ausgewertet.
+- ButtonRenderer: Forced mobile Tiles bekommen neue preset-spezifische Textcaps für Klein/Normal/Groß/Sehr groß.
+- Kurze Buttontexte bis neun Zeichen werden in mobilen Kartentiles nicht mehr unnötig getrennt oder hypheniert.
+- Icongröße in mobilen Kartentiles wurde reduziert, damit Icons nicht klobiger als im Editor wirken.
+- Look-Tab/Design übertragen nimmt jetzt auch Font-Family, Font-Weight, Letter-Spacing und Text-Wrap mit.
+- Mobile Werbetext-Editorvorschau rendert dunkle Textfarben auf dunklen Designs mit lesbarem Fallback.
+- Werbetext-Animationen werden in der Editor-Vorschau eingefroren, damit die Karte die finale Konfiguration zeigt; öffentliche Animation bleibt vorbereitet.
+- Keine `RELEASE_NOTES_*.md` im Upload-Paket.
+
 
 ## v52.5.8 – Mobile Text Visibility, Button Proportion & Toggle Fix
 
