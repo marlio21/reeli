@@ -1046,6 +1046,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   };
 
   const layeredTemplate = card.ureelTextTemplate || {} as any;
+  const mobileWerbetextEnabled = (card as any).ureelTextEnabled !== false && layeredTemplate.enabled !== false;
   const layeredAccent = layeredTemplate.frame?.color || layeredTemplate.emphasis?.color || '#E8DCC2';
   const mobileTextBackgroundEnabled = layeredTemplate.box?.enabled !== false;
   const layeredFrameType = mobileTextBackgroundEnabled ? (layeredTemplate.frame?.type || 'corner') : 'none';
@@ -1178,6 +1179,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   };
 
   const renderLayeredAdText = () => {
+    if (!mobileWerbetextEnabled) return null;
     const title = (mappedCardData.title || mappedCardData.heroTitle || '').trim();
     const subtitle = (mappedCardData.subtitle || mappedCardData.heroSubtitle || '').trim();
     const description = (mappedCardData.description || mappedCardData.heroDescription || '').trim();
@@ -1204,6 +1206,17 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     const subtitleSize = Math.max(8, Math.min(buttonsVisible ? 17 : 28, Number((card as any).heroSubtitleSize || 14) * (buttonsVisible ? 0.86 : 1) * mobileTextDesign.subtitleRatio));
     const descriptionSize = Math.max(9, Math.min(buttonsVisible ? 20 : 32, Number((card as any).heroDescriptionSize || 22) * (buttonsVisible ? 0.72 : 1) * mobileTextDesign.descriptionRatio));
     const boxStyle = layeredTextBoxStyle();
+    const isLightTextBox = layeredBoxType === 'light';
+    const readableOnDark = (value: any, fallback: string) => {
+      const v = String(value || '').trim();
+      if (!v || isLightTextBox) return value || fallback;
+      const m = /^#([0-9a-f]{6})$/i.exec(v);
+      if (!m) return value || fallback;
+      const n = parseInt(m[1], 16);
+      const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+      const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b);
+      return luminance < 120 ? fallback : v;
+    };
     const textZoneStyle: React.CSSProperties = {
       top: heroTop,
       bottom: safeBottom,
@@ -1220,9 +1233,9 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
           {layeredFrameType === 'side_line' && <span className="absolute left-3 top-5 bottom-5 w-1 rounded-full" style={{ background: layeredAccent }} />}
           {layeredFrameType === 'badge' && visibleSubtitle && <div className="inline-flex mb-2 px-3 py-1 rounded-full border text-[8px] font-black uppercase tracking-widest" style={{ borderColor: `${layeredAccent}66`, color: layeredAccent }}>{subtitle}</div>}
           <div className={layeredFrameType === 'side_line' ? 'pl-4' : ''}>
-            {visibleTitle && layerTextWithHighlight(title, 'block font-black leading-[0.92] break-words', { fontSize: titleSize, fontFamily: layeredFont, textTransform: mobileTextDesign.titleTransform, letterSpacing: mobileTextDesign.letterSpacing, color: (card as any).heroTitleTextColor || (layeredBoxType === 'light' ? '#151515' : '#F5F2EA') })}
-            {visibleSubtitle && layeredFrameType !== 'badge' && <span className="block mt-2 font-black uppercase leading-tight break-words" style={{ fontSize: subtitleSize, fontFamily: layeredFont, color: (card as any).heroSubtitleTextColor || (layeredBoxType === 'light' ? '#3A3732' : layeredAccent), letterSpacing: '0.06em' }}>{subtitle}</span>}
-            {visibleDescription && <span className="block mt-2 leading-snug break-words" style={{ fontSize: descriptionSize, fontFamily: layeredFont, fontWeight: mobileTextDesign.descriptionWeight, color: (card as any).heroDescTextColor || (layeredBoxType === 'light' ? '#3A3732' : '#E8DCC2') }}>{description}</span>}
+            {visibleTitle && layerTextWithHighlight(title, 'block font-black leading-[0.92] break-words', { fontSize: titleSize, fontFamily: layeredFont, textTransform: mobileTextDesign.titleTransform, letterSpacing: mobileTextDesign.letterSpacing, color: readableOnDark((card as any).heroTitleTextColor, layeredBoxType === 'light' ? '#151515' : '#F5F2EA') })}
+            {visibleSubtitle && layeredFrameType !== 'badge' && <span className="block mt-2 font-black uppercase leading-tight break-words" style={{ fontSize: subtitleSize, fontFamily: layeredFont, color: readableOnDark((card as any).heroSubtitleTextColor, layeredBoxType === 'light' ? '#3A3732' : layeredAccent), letterSpacing: '0.06em' }}>{subtitle}</span>}
+            {visibleDescription && <span className="block mt-2 leading-snug break-words" style={{ fontSize: descriptionSize, fontFamily: layeredFont, fontWeight: mobileTextDesign.descriptionWeight, color: readableOnDark((card as any).heroDescTextColor, layeredBoxType === 'light' ? '#3A3732' : '#E8DCC2') }}>{description}</span>}
             {layeredFrameType === 'underline' && <span className="block mt-4 h-1 rounded-full mx-auto w-2/3" style={{ background: layeredAccent }} />}
           </div>
         </div>

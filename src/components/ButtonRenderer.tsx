@@ -51,8 +51,11 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
     if (fam.includes('outfit')) {
       return '"Outfit", sans-serif';
     }
-    if (fam.includes('serif') || fam.includes('playfair')) {
-      return '"Playfair Display", serif';
+    if (fam.includes('nunito') || fam.includes('rund')) {
+      return '"Nunito", "Inter", sans-serif';
+    }
+    if (fam.includes('georgia') || fam.includes('elegant') || fam.includes('serif') || fam.includes('playfair')) {
+      return '"Playfair Display", Georgia, serif';
     }
     return '"Inter", sans-serif';
   };
@@ -228,14 +231,17 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const iconScale = forceSizePx ? tileRatio : Math.min(scaleFactor, isTinyTile ? 0.92 : 1.15);
 
   const labelLength = (btn.title || '').trim().length;
+  const hasUsableIcon = btn.iconEnabled !== false && !!btn.icon;
   const baseFontSize = btn.fontSize !== undefined ? btn.fontSize : 12;
   const lengthPenalty = forceSizePx
-    ? (labelLength > 28 ? 2.2 : labelLength > 20 ? 1.5 : labelLength > 14 ? 0.8 : 0)
+    ? (labelLength > 28 ? 2.6 : labelLength > 20 ? 1.8 : labelLength > 14 ? 1.0 : 0)
     : (labelLength > 28 ? 4 : labelLength > 20 ? 3 : labelLength > 14 ? 1.8 : labelLength > 10 ? 0.8 : 0);
+  const forcedTextCap = hasUsableIcon ? 10.8 : 12.4;
+  const forcedTextFloor = hasUsableIcon ? (isTinyTile ? 6.8 : 7.4) : (isTinyTile ? 8.2 : 8.8);
   const autoFitFontSize = forceSizePx
-    ? Math.max(isTinyTile ? 6.8 : 7.6, Math.min(12.0, Math.round((baseFontSize * fontScale * 0.82) - lengthPenalty)))
+    ? Math.max(forcedTextFloor, Math.min(forcedTextCap, (baseFontSize * fontScale * (hasUsableIcon ? 0.74 : 0.88)) - lengthPenalty))
     : Math.max(isTinyTile ? 6.2 : 7, Math.round((baseFontSize * fontScale) - lengthPenalty));
-  const sizeStyle = `${autoFitFontSize}px`;
+  const sizeStyle = `${Number(autoFitFontSize.toFixed(1))}px`;
 
   const fontWeights: any = {
     light: '300',
@@ -244,8 +250,15 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
     semibold: '600',
     bold: '700',
     extrabold: '800',
+    '300': '300',
+    '400': '400',
+    '500': '500',
+    '600': '600',
+    '700': '700',
+    '800': '800',
+    '900': '900',
   };
-  const weightStyle = btn.fontWeight ? fontWeights[btn.fontWeight.toLowerCase()] || '500' : '500';
+  const weightStyle = btn.fontWeight ? fontWeights[String(btn.fontWeight).toLowerCase()] || '500' : '500';
 
   // Text Shadow Style
   let textShadowVal = 'none';
@@ -343,6 +356,10 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   };
 
   const getTextPositionClass = () => {
+    // v52.5.8: if the user disables the icon, keep the text visually centered.
+    // Starter action buttons often store textPosition='bottom' for icon+label;
+    // without an icon that made the label stick to the lower edge.
+    if (btn.iconEnabled === false || !btn.icon) return 'justify-center';
     if (btn.textPosition === 'top') return 'justify-start';
     if (btn.textPosition === 'bottom') return 'justify-end';
     return 'justify-center';
@@ -362,7 +379,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const iconColor = btn.iconColor || '#1E1E1E';
   const requestedIconSize = Math.round((btn.iconSize || 18) * iconScale);
   const iconSize = forceSizePx
-    ? Math.max(isTinyTile ? 8 : 10, Math.min(Math.round(requestedIconSize * 0.82), Math.round(forceSizePx * 0.30)))
+    ? Math.max(isTinyTile ? 8 : 10, Math.min(Math.round(requestedIconSize * 0.72), Math.round(forceSizePx * 0.26)))
     : requestedIconSize;
 
 

@@ -1,4 +1,16 @@
 
+## v52.5.8 – Mobile Text Visibility, Button Proportion & Toggle Fix
+
+- Mobile-only: Werbetext kann oben im Texteditor aktiviert/deaktiviert werden.
+- Beschreibungstext bleibt im mobilen Werbetext-Vorschaueditor sichtbar und aktualisiert sich beim Bearbeiten.
+- Dunkle Textfarben auf dunklen Werbetext-Designs werden in der mobilen Karte auf lesbare Fallbackfarben gehoben.
+- ButtonRenderer: Icon-Aus zentriert den Buttontext, Icon-Aus kann durch erneute Icon-Auswahl wieder aktiviert werden.
+- ButtonRenderer: Klein/Groß/Sehr groß wurden für mobile Kartentiles neu begrenzt, damit Text und Icon sauberer im Verhältnis bleiben.
+- Buttoneditor: Schriftart und Schriftgewicht bleiben getrennt; Rund und Klar werden nicht gleichzeitig als Schriftart aktiv markiert.
+- Mobile Design-Hintergrund-Schaltung wurde breiter/zweispaltig stabilisiert.
+- Desktop wurde nicht bewusst verändert.
+
+
 ## v52.5.7 – Mobile Final Renderer Parity Fix
 
 - Mobile Buttoneditor-Vorschau rendert dieselbe echte Kartenkachel und wird nur visuell vergrößert.

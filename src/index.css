@@ -4969,3 +4969,87 @@ body {
     touch-action: pan-y !important;
   }
 }
+
+
+/* v52.5.8 – Mobile final proportion and text visibility fixes. */
+@media (max-width: 767px) {
+  .ureel-mobile-adtext-master-toggle {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    margin: 0 0 12px 0 !important;
+    padding: 12px !important;
+    border: 1px solid #D8D2C5 !important;
+    border-radius: 18px !important;
+    background: #FDFBF6 !important;
+  }
+  .ureel-mobile-adtext-master-toggle span {
+    color: #8A6F23 !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+    letter-spacing: .08em !important;
+    text-transform: uppercase !important;
+  }
+  .ureel-mobile-adtext-master-toggle button {
+    min-height: 40px !important;
+    border-radius: 999px !important;
+    border: 1px solid #D8D2C5 !important;
+    padding: 0 16px !important;
+    background: #111 !important;
+    color: #F5F2EA !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .06em !important;
+  }
+  .ureel-mobile-adtext-master-toggle button:not(.is-active) {
+    background: #fff !important;
+    color: #8A6F23 !important;
+  }
+  .ureel-mobile-text-preview-sample {
+    min-height: 176px !important;
+    padding: 16px 14px !important;
+    gap: 7px !important;
+  }
+  .ureel-mobile-text-preview-sample b {
+    font-size: min(var(--dummy, 28px), 28px) !important;
+  }
+  .ureel-mobile-text-preview-sample strong {
+    font-size: min(var(--dummy, 18px), 18px) !important;
+  }
+  .ureel-mobile-text-preview-sample p {
+    display: block !important;
+    visibility: visible !important;
+    color: #E8DCC2 !important;
+    opacity: 1 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    line-height: 1.2 !important;
+  }
+  .ureel-mobile-text-preview-sample--disabled {
+    opacity: .42 !important;
+    filter: grayscale(.3) !important;
+  }
+  .ureel-mobile-text-preview-sample--disabled::after {
+    content: 'Werbetext deaktiviert' !important;
+    margin-top: 8px !important;
+    color: #F5F2EA !important;
+    font-size: 10px !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .08em !important;
+  }
+  .ureel-mobile-text-bg-toggle {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+    overflow: visible !important;
+  }
+  .ureel-mobile-text-bg-toggle button {
+    min-width: 0 !important;
+    white-space: normal !important;
+    line-height: 1.05 !important;
+    min-height: 54px !important;
+  }
+}

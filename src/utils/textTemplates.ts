@@ -259,7 +259,8 @@ export function normalizeUreelTextTemplate(template?: Partial<UreelTextTemplate>
       enabled: true,
     },
     fontStyle: 'modern',
-  };
+    enabled: true as any,
+  } as any;
 
   if (!template) return defaultTemplate;
 
@@ -286,7 +287,8 @@ export function normalizeUreelTextTemplate(template?: Partial<UreelTextTemplate>
       enabled: template.box?.enabled !== false,
     },
     fontStyle: template.fontStyle || (p ? p.defaultFontStyle : 'modern'),
-  };
+    enabled: (template as any).enabled !== false,
+  } as any;
 }
 
 /**
