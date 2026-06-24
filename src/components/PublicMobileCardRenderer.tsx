@@ -42,6 +42,7 @@ export const PublicMobileCardRenderer: React.FC<PublicMobileCardRendererProps> =
           isPreview={false}
           cleanPreview={true}
           previewFocus="full"
+          visualMode="final"
           onButtonClick={onButtonClick}
           onContactSave={onContactSave}
           onShare={onShare}

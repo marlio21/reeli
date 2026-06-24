@@ -1,3 +1,16 @@
+# CHANGELOG
+
+## v52.5.15 – Final Visual Mode Parity Fix
+
+- Public-/Live-Link und Studio-Vorschau verwenden jetzt einen expliziten finalen visuellen Render-Modus.
+- `isPreview` darf in der Unified Mobile Surface nicht mehr Layout, Animation, Timeline oder Buttongrößen verändern, sondern nur Editor-Interaktion/Klickbarkeit.
+- Werbetext-Animationen und Timeline-Reveals werden im finalen Modus eingefroren, damit Public und Vorschau denselben Endzustand zeigen.
+- Buttons in der Layered-Ureel-Karte nutzen in Public und Preview dieselbe Mobile-Tile-Größenlogik.
+- Endcard/Replay-Zustand wird im finalen visuellen Vergleichsmodus nicht automatisch über die Karte gelegt.
+- Public-Link, mobile Studio-Vorschau und Desktop-Phone-Preview bleiben auf der gemeinsamen 390×693 Kartenbasis.
+- Desktop-Editor nicht bewusst umgebaut.
+- Keine `RELEASE_NOTES_*.md` im Upload-Paket.
+
 
 ## v52.5.14 – Public Renderer Hard Switch Fix
 

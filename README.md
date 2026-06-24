@@ -1,13 +1,13 @@
-# ureel.me v52.5.14
+# ureel.me v52.5.15
 
-Public Renderer Hard Switch Fix.
+Final Visual Mode Parity Fix.
 
-- Public-Link, mobile Studio-Vorschau und Desktop-Phone-Preview nutzen jetzt eine gemeinsame mobile 9:16-Live-Surface.
-- Die Karte rendert intern auf einer festen 390×693-Basis und wird danach nur skaliert, damit Buttontext, Icons und Werbetext nicht pro Ansicht neu umbrechen.
-- Ziel: Die geteilte Karte soll optisch viel näher an der Editor-/Monitor-Vorschau liegen.
-- Desktop-Preview-Chrome bereinigt: zusätzliche Dashboard-/Start-Schaltflächen in der rechten Desktop-Vorschau wurden ausgeblendet.
-- Der Desktop-Editor selbst wurde nicht bewusst umgebaut.
-- Profilbild, Public Link und bestehende Kartenlogik bleiben erhalten.
+- Neuer finaler visueller Render-Modus: Public-Link und Studio-Vorschau unterscheiden sich nicht mehr über `isPreview`.
+- `isPreview` steuert nur noch Editor-Klickbarkeit; Layout, Button-Fit, Werbetext und Timing nutzen in der Unified Mobile Surface denselben Endzustand.
+- Timeline/Animationen werden im finalen visuellen Modus eingefroren, damit die geteilte Karte wie die Vorschaukarte aussieht.
+- Kartenbuttons verwenden in Public und Vorschau dieselbe begrenzte Mobile-Tile-Größe.
+- Public-Link, mobile Studio-Vorschau und Desktop-Phone-Preview bleiben auf der gemeinsamen 390×693 Kartenbasis.
+- Desktop-Editor wurde nicht bewusst umgebaut.
 - Keine `RELEASE_NOTES_*.md`.
 
 ## Projekt

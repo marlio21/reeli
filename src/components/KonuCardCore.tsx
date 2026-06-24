@@ -57,6 +57,12 @@ export interface KonuCardCoreProps {
   cleanPreview?: boolean;
   previewFocus?: 'full' | 'background';
   hideActionButtons?: boolean;
+  /**
+   * Visual mode separates rendering from editability.
+   * `isPreview` may only control click/edit chrome. In `final` mode the card
+   * uses the same visual end state in Studio preview and Public/Live links.
+   */
+  visualMode?: 'live' | 'final';
 }
 
 export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
@@ -67,6 +73,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   cleanPreview = false,
   previewFocus = 'full',
   hideActionButtons = false,
+  visualMode = 'live',
   videoBackgroundPreviewState,
 
   isReelView = false,
@@ -98,6 +105,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   setShowShareModal,
 }) => {
   const t = TRANSLATIONS[lang];
+  const finalVisualMode = visualMode === 'final' || cleanPreview;
 
   // Video background state & timeline logic using the unified getReelTimelineState engine
   const [currentTime, setCurrentTime] = React.useState(0);
@@ -207,6 +215,10 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
 
   // Track the elapsed timeline counter smoothly
   React.useEffect(() => {
+    if (finalVisualMode) {
+      setElapsed(0);
+      return;
+    }
     const stepMs = 100;
     const interval = setInterval(() => {
       setElapsed(prev => {
@@ -220,22 +232,22 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     }, stepMs);
 
     return () => clearInterval(interval);
-  }, [hasEndCard, endCardConfig.enabled, effectiveEndCardAt]);
+  }, [hasEndCard, endCardConfig.enabled, effectiveEndCardAt, finalVisualMode]);
 
   const textRevealEnabled = React.useCallback((fieldKey: 'title' | 'subtitle' | 'description') => {
     const reveal = card.videoBackgroundConfig?.profileTextReveals?.find((item: any) => item.fieldKey === fieldKey);
     return reveal?.enabled !== false;
   }, [card.videoBackgroundConfig?.profileTextReveals]);
 
-  const showTitle = textRevealEnabled('title') && ((card as any).ureelTimeline?.titleAtEnabled === false || !hasTimeline || elapsed >= timelineConfig.titleAt);
-  const showSubtitle = textRevealEnabled('subtitle') && ((card as any).ureelTimeline?.subtitleAtEnabled === false || !hasTimeline || elapsed >= timelineConfig.subtitleAt);
-  const showDescription = textRevealEnabled('description') && ((card as any).ureelTimeline?.descriptionAtEnabled === false || !hasTimeline || elapsed >= timelineConfig.descriptionAt);
+  const showTitle = textRevealEnabled('title') && (finalVisualMode || (card as any).ureelTimeline?.titleAtEnabled === false || !hasTimeline || elapsed >= timelineConfig.titleAt);
+  const showSubtitle = textRevealEnabled('subtitle') && (finalVisualMode || (card as any).ureelTimeline?.subtitleAtEnabled === false || !hasTimeline || elapsed >= timelineConfig.subtitleAt);
+  const showDescription = textRevealEnabled('description') && (finalVisualMode || (card as any).ureelTimeline?.descriptionAtEnabled === false || !hasTimeline || elapsed >= timelineConfig.descriptionAt);
   const rawTimeline: any = (card as any).ureelTimeline || {};
-  const showButtons = (!hasTimeline || rawTimeline.buttonsAtEnabled === false || elapsed >= timelineConfig.buttonsAt);
-  const showProfileImageTimed = rawTimeline.profileImageAtEnabled === false || !hasTimeline || elapsed >= Number(rawTimeline.profileImageAt || 0);
-  const showProfileTextTimed = rawTimeline.profileTextAtEnabled === false || !hasTimeline || elapsed >= Number(rawTimeline.profileTextAt || 0);
+  const showButtons = finalVisualMode || !hasTimeline || rawTimeline.buttonsAtEnabled === false || elapsed >= timelineConfig.buttonsAt;
+  const showProfileImageTimed = finalVisualMode || rawTimeline.profileImageAtEnabled === false || !hasTimeline || elapsed >= Number(rawTimeline.profileImageAt || 0);
+  const showProfileTextTimed = finalVisualMode || rawTimeline.profileTextAtEnabled === false || !hasTimeline || elapsed >= Number(rawTimeline.profileTextAt || 0);
 
-  const showEndCard = hasEndCard && endCardConfig.enabled && elapsed >= effectiveEndCardAt;
+  const showEndCard = !finalVisualMode && hasEndCard && endCardConfig.enabled && elapsed >= effectiveEndCardAt;
   const backgroundOnlyPreview = cleanPreview && previewFocus === 'background';
 
   const handleReplay = () => {
@@ -1227,7 +1239,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     // v52.5.9: in the editor, show the final configured text state. The public card
     // may animate, but the edit preview must not temporarily scale/slide/clip text,
     // because that looked different from the end configuration.
-    const layeredAnimationClass = isPreview ? '' : `ureel-ad-anim-${layeredTemplate.animation || 'fade'}`;
+    const layeredAnimationClass = finalVisualMode ? '' : (isPreview ? '' : `ureel-ad-anim-${layeredTemplate.animation || 'fade'}`);
 
     return (
       <div onClick={(e) => { e.stopPropagation(); if (isPreview && onEditText) onEditText(); }} className={`absolute left-1/2 -translate-x-1/2 ${widthClass} z-[12] overflow-hidden ${isPreview ? 'pointer-events-auto cursor-pointer' : 'pointer-events-none'} transition-all duration-500`} style={textZoneStyle}>
@@ -1323,7 +1335,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               {filteredLayeredButtons.map((btn, index) => {
                 // v52.5.7: use the exact same mobile tile bound as the editor's
                 // enlarged tile preview. One renderer, one size, one fitting result.
-                const safePreviewSize = isPreview ? Math.max(42, Math.min(Number(gridLayout.buttonSizePx || 52), 52)) : gridLayout.buttonSizePx;
+                const safePreviewSize = Math.max(42, Math.min(Number(gridLayout.buttonSizePx || 58), 58));
                 return (
                   <ButtonRenderer
                     key={btn.id}
@@ -1344,7 +1356,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             </div>
           </div>
         )}
-        {!backgroundOnlyPreview && elapsed >= effectiveEndCardAt && (
+        {!backgroundOnlyPreview && !finalVisualMode && elapsed >= effectiveEndCardAt && (
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); handleReplay(); }}

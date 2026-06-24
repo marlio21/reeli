@@ -17,6 +17,7 @@ interface UnifiedMobileLiveCardSurfaceProps {
   cleanPreview?: boolean;
   previewFocus?: 'full' | 'background';
   hideActionButtons?: boolean;
+  visualMode?: 'live' | 'final';
   className?: string;
   innerClassName?: string;
   onButtonClick?: (btn: CardButton) => void;
@@ -41,6 +42,7 @@ export const UnifiedMobileLiveCardSurface: React.FC<UnifiedMobileLiveCardSurface
   cleanPreview = false,
   previewFocus = 'full',
   hideActionButtons = false,
+  visualMode = 'final',
   className = '',
   innerClassName = '',
   onButtonClick,
@@ -89,6 +91,7 @@ export const UnifiedMobileLiveCardSurface: React.FC<UnifiedMobileLiveCardSurface
           cleanPreview={cleanPreview}
           previewFocus={previewFocus}
           hideActionButtons={hideActionButtons}
+          visualMode={visualMode}
           handleButtonClick={onButtonClick}
           triggerVCardDownload={onContactSave}
           handleCtaClick={onShare}

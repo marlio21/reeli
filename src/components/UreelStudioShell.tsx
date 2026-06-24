@@ -2164,6 +2164,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             isPreview={true}
             cleanPreview={true}
             previewFocus="full"
+            visualMode="final"
           />
           {renderMobileTextHotspots()}
         </div>

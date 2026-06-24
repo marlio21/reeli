@@ -600,6 +600,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
               isPreview={false}
               cleanPreview={true}
               previewFocus="full"
+              visualMode="final"
               onButtonClick={handleButtonClick}
               onContactSave={triggerVCardDownload}
               onShare={() => setShowShareModal(true)}
@@ -702,6 +703,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
           triggerVCardDownload={triggerVCardDownload}
           handleCtaClick={handleCtaClick}
           setShowShareModal={setShowShareModal}
+          visualMode="final"
         />
       </div> {/* closing visual card container */}
 

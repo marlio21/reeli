@@ -99,6 +99,7 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
           isPreview={isStudioPreview}
           cleanPreview={isStudioPreview}
           previewFocus="full"
+          visualMode="final"
           hideActionButtons={desktopPage.showPhoneButtons !== true}
           onButtonClick={onButtonClick}
           onContactSave={onContactSave}
