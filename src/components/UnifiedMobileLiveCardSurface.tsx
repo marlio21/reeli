@@ -18,6 +18,7 @@ interface UnifiedMobileLiveCardSurfaceProps {
   previewFocus?: 'full' | 'background';
   hideActionButtons?: boolean;
   visualMode?: 'live' | 'final';
+  timelineMode?: 'live' | 'final';
   className?: string;
   innerClassName?: string;
   onButtonClick?: (btn: CardButton) => void;
@@ -43,6 +44,7 @@ export const UnifiedMobileLiveCardSurface: React.FC<UnifiedMobileLiveCardSurface
   previewFocus = 'full',
   hideActionButtons = false,
   visualMode = 'final',
+  timelineMode = 'live',
   className = '',
   innerClassName = '',
   onButtonClick,
@@ -92,6 +94,7 @@ export const UnifiedMobileLiveCardSurface: React.FC<UnifiedMobileLiveCardSurface
           previewFocus={previewFocus}
           hideActionButtons={hideActionButtons}
           visualMode={visualMode}
+          timelineMode={timelineMode}
           handleButtonClick={onButtonClick}
           triggerVCardDownload={onContactSave}
           handleCtaClick={onShare}

@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v52.5.16 – Public Timing Restore, Text Scale & Button Size Fix
+
+Mobile/Public correction after the final visual mode rollout.
+
+- Restores live timeline reveals in Public and preview while keeping the unified visual scale.
+- Separates timeline behavior from visual parity with `timelineMode`.
+- Brings back the replay/“Spot neu starten” control after the configured spot duration.
+- Increases mobile/Public Werbetext scaling so it better matches the editor preview.
+- Increases the final mobile button tile baseline so Public buttons are no longer overly small.
+- Keeps Desktop editor changes protected.
+
 ## v52.5.15 – Final Visual Mode Parity Fix
 
 - Public-/Live-Link und Studio-Vorschau verwenden jetzt einen expliziten finalen visuellen Render-Modus.

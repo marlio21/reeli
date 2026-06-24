@@ -63,6 +63,12 @@ export interface KonuCardCoreProps {
    * uses the same visual end state in Studio preview and Public/Live links.
    */
   visualMode?: 'live' | 'final';
+  /**
+   * Timeline mode is intentionally separate from visual mode.
+   * Public/live cards need the same visual scale as the Studio preview,
+   * but still have to respect the configured reveal timing and replay controls.
+   */
+  timelineMode?: 'live' | 'final';
 }
 
 export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
@@ -74,6 +80,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   previewFocus = 'full',
   hideActionButtons = false,
   visualMode = 'live',
+  timelineMode = 'live',
   videoBackgroundPreviewState,
 
   isReelView = false,
@@ -106,6 +113,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
 }) => {
   const t = TRANSLATIONS[lang];
   const finalVisualMode = visualMode === 'final' || cleanPreview;
+  const freezeTimeline = timelineMode === 'final';
 
   // Video background state & timeline logic using the unified getReelTimelineState engine
   const [currentTime, setCurrentTime] = React.useState(0);
@@ -215,7 +223,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
 
   // Track the elapsed timeline counter smoothly
   React.useEffect(() => {
-    if (finalVisualMode) {
+    if (freezeTimeline) {
       setElapsed(0);
       return;
     }
@@ -232,22 +240,22 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     }, stepMs);
 
     return () => clearInterval(interval);
-  }, [hasEndCard, endCardConfig.enabled, effectiveEndCardAt, finalVisualMode]);
+  }, [hasEndCard, endCardConfig.enabled, effectiveEndCardAt, freezeTimeline]);
 
   const textRevealEnabled = React.useCallback((fieldKey: 'title' | 'subtitle' | 'description') => {
     const reveal = card.videoBackgroundConfig?.profileTextReveals?.find((item: any) => item.fieldKey === fieldKey);
     return reveal?.enabled !== false;
   }, [card.videoBackgroundConfig?.profileTextReveals]);
 
-  const showTitle = textRevealEnabled('title') && (finalVisualMode || (card as any).ureelTimeline?.titleAtEnabled === false || !hasTimeline || elapsed >= timelineConfig.titleAt);
-  const showSubtitle = textRevealEnabled('subtitle') && (finalVisualMode || (card as any).ureelTimeline?.subtitleAtEnabled === false || !hasTimeline || elapsed >= timelineConfig.subtitleAt);
-  const showDescription = textRevealEnabled('description') && (finalVisualMode || (card as any).ureelTimeline?.descriptionAtEnabled === false || !hasTimeline || elapsed >= timelineConfig.descriptionAt);
+  const showTitle = textRevealEnabled('title') && (freezeTimeline || (card as any).ureelTimeline?.titleAtEnabled === false || !hasTimeline || elapsed >= timelineConfig.titleAt);
+  const showSubtitle = textRevealEnabled('subtitle') && (freezeTimeline || (card as any).ureelTimeline?.subtitleAtEnabled === false || !hasTimeline || elapsed >= timelineConfig.subtitleAt);
+  const showDescription = textRevealEnabled('description') && (freezeTimeline || (card as any).ureelTimeline?.descriptionAtEnabled === false || !hasTimeline || elapsed >= timelineConfig.descriptionAt);
   const rawTimeline: any = (card as any).ureelTimeline || {};
-  const showButtons = finalVisualMode || !hasTimeline || rawTimeline.buttonsAtEnabled === false || elapsed >= timelineConfig.buttonsAt;
-  const showProfileImageTimed = finalVisualMode || rawTimeline.profileImageAtEnabled === false || !hasTimeline || elapsed >= Number(rawTimeline.profileImageAt || 0);
-  const showProfileTextTimed = finalVisualMode || rawTimeline.profileTextAtEnabled === false || !hasTimeline || elapsed >= Number(rawTimeline.profileTextAt || 0);
+  const showButtons = freezeTimeline || !hasTimeline || rawTimeline.buttonsAtEnabled === false || elapsed >= timelineConfig.buttonsAt;
+  const showProfileImageTimed = freezeTimeline || rawTimeline.profileImageAtEnabled === false || !hasTimeline || elapsed >= Number(rawTimeline.profileImageAt || 0);
+  const showProfileTextTimed = freezeTimeline || rawTimeline.profileTextAtEnabled === false || !hasTimeline || elapsed >= Number(rawTimeline.profileTextAt || 0);
 
-  const showEndCard = !finalVisualMode && hasEndCard && endCardConfig.enabled && elapsed >= effectiveEndCardAt;
+  const showEndCard = !freezeTimeline && hasEndCard && endCardConfig.enabled && elapsed >= effectiveEndCardAt;
   const backgroundOnlyPreview = cleanPreview && previewFocus === 'background';
 
   const handleReplay = () => {
@@ -1213,10 +1221,11 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     const heroTop = mobileTextDesign.top || defaultHeroTop;
     const safeBottom = mobileTextDesign.bottom || (buttonsVisible ? (filteredLayeredButtons.length > 6 ? '48%' : '42%') : '7%');
     const widthClass = layeredFrameType === 'badge' ? 'max-w-[78%]' : mobileTextDesign.widthClass;
-    const compactRatio = buttonsVisible ? (isHero || endcardVideoActive ? 0.62 : 0.74) : 0.96;
-    const titleSize = Math.max(15, Math.min(buttonsVisible ? 29 : 42, Number((card as any).heroTitleSize || 30) * compactRatio * mobileTextDesign.titleRatio));
-    const subtitleSize = Math.max(10, Math.min(buttonsVisible ? 22 : 30, Number((card as any).heroSubtitleSize || 14) * (buttonsVisible ? 1.02 : 1) * mobileTextDesign.subtitleRatio));
-    const descriptionSize = Math.max(10.5, Math.min(buttonsVisible ? 20 : 32, Number((card as any).heroDescriptionSize || 22) * (buttonsVisible ? 0.82 : 1) * mobileTextDesign.descriptionRatio));
+    const compactRatio = buttonsVisible ? (isHero || endcardVideoActive ? 0.78 : 0.88) : 1.0;
+    const finalScaleBoost = finalVisualMode ? 1.08 : 1;
+    const titleSize = Math.max(16, Math.min(buttonsVisible ? 38 : 46, Number((card as any).heroTitleSize || 30) * compactRatio * mobileTextDesign.titleRatio * finalScaleBoost));
+    const subtitleSize = Math.max(11, Math.min(buttonsVisible ? 26 : 32, Number((card as any).heroSubtitleSize || 14) * (buttonsVisible ? 1.08 : 1) * mobileTextDesign.subtitleRatio * finalScaleBoost));
+    const descriptionSize = Math.max(11.5, Math.min(buttonsVisible ? 24 : 34, Number((card as any).heroDescriptionSize || 22) * (buttonsVisible ? 0.94 : 1) * mobileTextDesign.descriptionRatio * finalScaleBoost));
     const boxStyle = layeredTextBoxStyle();
     const isLightTextBox = layeredBoxType === 'light';
     const readableOnDark = (value: any, fallback: string) => {
@@ -1335,7 +1344,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               {filteredLayeredButtons.map((btn, index) => {
                 // v52.5.7: use the exact same mobile tile bound as the editor's
                 // enlarged tile preview. One renderer, one size, one fitting result.
-                const safePreviewSize = Math.max(42, Math.min(Number(gridLayout.buttonSizePx || 58), 58));
+                const safePreviewSize = Math.max(58, Math.min(Number(gridLayout.buttonSizePx || 66), 76));
                 return (
                   <ButtonRenderer
                     key={btn.id}
@@ -1356,7 +1365,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             </div>
           </div>
         )}
-        {!backgroundOnlyPreview && !finalVisualMode && elapsed >= effectiveEndCardAt && (
+        {!backgroundOnlyPreview && !freezeTimeline && elapsed >= effectiveEndCardAt && (
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); handleReplay(); }}
