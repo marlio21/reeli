@@ -214,7 +214,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const isTinyTile = !!forcedPx && forcedPx <= 58;
   const isExtremeShape = shape === 'round';
   const paddingStyle = isExtremeShape 
-    ? (isTinyTile ? '9% 8%' : '15% 15%') 
+    ? (isTinyTile ? '7% 7%' : '12% 12%') 
     : (paddingYStyle && paddingXStyle 
         ? `${paddingYStyle} ${paddingXStyle}` 
         : (btn.textPadding !== undefined ? `${Math.round(btn.textPadding * scaleFactor)}px` : `${Math.round(10 * scaleFactor)}px`));
@@ -223,7 +223,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   // scale as the button editor preview.  Older logic multiplied by the grid
   // scale factor, so text stayed tiny on the real 9:16 card although the editor
   // looked correct.  For forced mobile tiles we scale from the actual tile size.
-  const tileRatio = forceSizePx ? Math.max(0.82, Math.min(1.36, forceSizePx / 42)) : 1;
+  const tileRatio = forceSizePx ? Math.max(0.78, Math.min(1.12, forceSizePx / 56)) : 1;
   const fontScale = forceSizePx ? tileRatio : Math.min(scaleFactor, isTinyTile ? 1.0 : 1.12);
   const iconScale = forceSizePx ? tileRatio : Math.min(scaleFactor, isTinyTile ? 0.92 : 1.15);
 
@@ -233,7 +233,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
     ? (labelLength > 28 ? 2.2 : labelLength > 20 ? 1.5 : labelLength > 14 ? 0.8 : 0)
     : (labelLength > 28 ? 4 : labelLength > 20 ? 3 : labelLength > 14 ? 1.8 : labelLength > 10 ? 0.8 : 0);
   const autoFitFontSize = forceSizePx
-    ? Math.max(isTinyTile ? 7.8 : 8.8, Math.min(16, Math.round((baseFontSize * fontScale * 1.16) - lengthPenalty)))
+    ? Math.max(isTinyTile ? 7.2 : 8.2, Math.min(13.2, Math.round((baseFontSize * fontScale * 0.98) - lengthPenalty)))
     : Math.max(isTinyTile ? 6.2 : 7, Math.round((baseFontSize * fontScale) - lengthPenalty));
   const sizeStyle = `${autoFitFontSize}px`;
 
@@ -358,7 +358,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const iconColor = btn.iconColor || '#1E1E1E';
   const requestedIconSize = Math.round((btn.iconSize || 18) * iconScale);
   const iconSize = forceSizePx
-    ? Math.max(isTinyTile ? 11 : 13, Math.min(requestedIconSize, Math.round(forceSizePx * 0.46)))
+    ? Math.max(isTinyTile ? 9 : 11, Math.min(requestedIconSize, Math.round(forceSizePx * 0.34)))
     : requestedIconSize;
 
 

@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v52.5.6 – Mobile Button Tile Parity, Text Background Toggle & Account Scroll Fix
+
+- Mobile-only Reparatur: Desktop-Version wird nicht bewusst verändert.
+- Ursache für den fehlenden Beschreibungstext im Werbetexteditor geklärt: Die echte mobile 9:16-Karte renderte den Beschreibungstext aus `description/heroDescription`, der Editor-Vorschau-Block verwendete aber deutlich größere eigene Schrift-Caps und schnitt die Beschreibung durch `overflow:hidden` ab.
+- Werbetexteditor-Vorschau nutzt jetzt kompaktere mobile Preview-Größen, damit Titel, Untertitel und Beschreibung gleichzeitig sichtbar bleiben.
+- `box.enabled` ist jetzt offizieller Bestandteil des Ureel-Texttemplate-Modells und bleibt beim Normalisieren/Speichern erhalten.
+- Design-Hintergrund AN/AUS wirkt jetzt in der mobilen Editor-Vorschau und in der echten mobilen 9:16-Karte, inklusive CSS-Override für alle Template-Skins.
+- Mobile Button-Tiles wurden neu abgestimmt: Icon- und Textgrößen werden in echten Kartenbuttons weniger klobig skaliert und bleiben näher am Buttoneditor.
+- Mobile Buttoneditor-Mittelvorschau rendert eine vergrößerte echte Kartenkachel, damit Buttonform, Text und Icon nicht mehr mit einem anderen Layout berechnet werden.
+- Nutzerverwaltung/Konto ist mobil scrollbar und behält den Header erreichbar.
+- Profilbild-Rendering bleibt geschützt.
+- Keine `RELEASE_NOTES_*.md` im Upload-Paket.
+
 ## v52.5.5 – Mobile Preview Sync, Button Scale & Dashboard Access Fix
 
 - Mobile-only Reparatur: Desktop-Version wird nicht bewusst verändert.

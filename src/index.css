@@ -4903,3 +4903,22 @@ body {
     border-radius: 38px !important;
   }
 }
+
+
+/* v52.5.6 mobile fixes: background toggle must override every template-specific skin. */
+@media (max-width: 767px) {
+  .ureel-mobile-text-preview-sample.ureel-mobile-text-preview-sample--no-bg,
+  .ureel-mobile-text-preview-sample.ureel-mobile-text-preview-sample--no-bg[class*="ureel-mobile-text-preview-sample--"] {
+    background: transparent !important;
+    border-color: transparent !important;
+    border-left-color: transparent !important;
+    border-bottom-color: transparent !important;
+    box-shadow: none !important;
+  }
+  .ureel-mobile-text-preview-sample p {
+    display: block !important;
+    flex-shrink: 0 !important;
+    max-height: 3.8em !important;
+    overflow: hidden !important;
+  }
+}

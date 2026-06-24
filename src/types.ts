@@ -548,6 +548,7 @@ export interface UreelTextTemplate {
   box?: {
     type: 'none' | 'transparent' | 'glass' | 'dark' | 'light';
     opacity?: number;
+    enabled?: boolean;
   };
   fontStyle?: 'modern' | 'elegant' | 'serif' | 'condensed' | 'tech';
 }

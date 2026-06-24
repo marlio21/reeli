@@ -520,12 +520,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
   const updateTextTemplate = async (fields: any) => {
     const current = normalizeUreelTextTemplate(activeCard?.ureelTextTemplate);
-    await syncCardUpdate({
-      ureelTextTemplate: {
-        ...current,
-        ...fields,
-      } as any,
-    });
+    const nextTemplate = normalizeUreelTextTemplate({
+      ...current,
+      ...fields,
+      emphasis: fields.emphasis ? { ...current.emphasis, ...fields.emphasis } : current.emphasis,
+      frame: fields.frame ? { ...current.frame, ...fields.frame } : current.frame,
+      box: fields.box ? { ...current.box, ...fields.box } : current.box,
+    } as any);
+    await syncCardUpdate({ ureelTextTemplate: nextTemplate as any });
   };
 
   const applyTextTemplatePreset = async (styleId: string) => {
@@ -577,7 +579,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         animation: preset.defaultAnimation,
         emphasis: { ...preset.defaultEmphasis, word: currentTextTemplate.emphasis?.word || '' },
         frame: { type: preset.defaultFrame, color: currentTextTemplate.frame?.color || '#E8DCC2', opacity: 100 },
-        box: { type: preset.defaultBox, opacity: currentTextTemplate.box?.opacity || 85 },
+        box: {
+          type: currentTextTemplate.box?.enabled === false ? 'none' : preset.defaultBox,
+          opacity: currentTextTemplate.box?.opacity || 85,
+          enabled: currentTextTemplate.box?.enabled !== false,
+        },
         fontStyle: preset.defaultFontStyle,
         animationDuration: (activeCard.ureelTextTemplate as any)?.animationDuration ?? 0.8,
         blockModeEnabled: (activeCard.ureelTextTemplate as any)?.blockModeEnabled ?? false,
@@ -656,7 +662,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         animation: preset.defaultAnimation,
         emphasis: { ...preset.defaultEmphasis },
         frame: { type: preset.defaultFrame, color: '#E8DCC2', opacity: 100 },
-        box: { type: preset.defaultBox, opacity: 85 },
+        box: { type: preset.defaultBox, opacity: 85, enabled: true },
         fontStyle: preset.defaultFontStyle,
       } as any : activeCard.ureelTextTemplate,
     });
@@ -934,7 +940,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       animation: 'fade',
       animationDuration: 1.2,
       frame: { type: 'corner', color: '#E8DCC2', opacity: 100 },
-      box: { type: 'glass', opacity: 72 },
+      box: { type: 'glass', opacity: 72, enabled: true },
       fontStyle: 'elegant',
       emphasis: { mode: 'last_word', color: '#E8DCC2' },
       blockMode: true,
@@ -2003,6 +2009,19 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     };
   };
 
+  const getMobileTextEditorPreviewSizes = () => {
+    // v52.5.6: the small editor card must not use the large hero font caps.
+    // The real phone preview compacts text when buttons are visible; the editor
+    // preview now uses a similar compact cap so the description remains visible.
+    const style = currentTextTemplate.style || 'none';
+    const titleRatio = ['luxury_frame', 'contact_premium', 'real_estate'].includes(style) ? 0.92 : ['minimal_clear', 'story_soft', 'beauty_premium'].includes(style) ? 0.82 : 1;
+    return {
+      title: Math.max(18, Math.min(34, clampTextSize((activeCard as any).heroTitleSize, 30, 16, 56) * titleRatio)),
+      subtitle: Math.max(12, Math.min(22, clampTextSize((activeCard as any).heroSubtitleSize, 16, 10, 40))),
+      description: Math.max(12, Math.min(18, clampTextSize((activeCard as any).heroDescriptionSize, 14, 10, 32))),
+    };
+  };
+
   const adTextSizePreset = () => {
     const title = clampTextSize(activeCard.heroTitleSize, 28, 16, 52);
     if (title <= 22) return 'compact';
@@ -2442,7 +2461,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       return (
         <div className="ureel-three-orbit-preview ureel-three-orbit-preview--button">
           <span>Aktueller Button</span>
-          <ButtonRenderer button={editingButton} mode="designer" lang={lang} forceSquare={false} previewScale={1.06} />
+          <div className="scale-[1.55]"><ButtonRenderer button={editingButton} mode="designer" lang={lang} forceSquare={true} forceSizePx={64} /></div>
         </div>
       );
     }
@@ -4942,13 +4961,13 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <div className="ureel-mobile-text-preview-card">
                 <div className="ureel-mobile-text-preview-top"><span>Werbetext-Vorschau</span><small>← Wischen: neues Design · {currentTextTemplate.style === 'none' ? 'Klar' : `Design ${Math.max(1, Object.values(UREEL_TEXT_TEMPLATES).findIndex((t) => t.id === currentTextTemplate.style) + 1)} / 15`}</small></div>
                 <div className={`${getMobileTextPreviewClass()} ${(currentTextTemplate.box as any)?.enabled === false ? 'ureel-mobile-text-preview-sample--no-bg' : ''}`} style={getTextTemplatePreviewStyle()}>
-                  <b style={{ fontSize: clampTextSize((activeCard as any).heroTitleSize, 30, 16, 56), color: (activeCard as any).heroTitleTextColor || '#F5F2EA' }}>{getTextLayerDraftValue('title') || 'Dein Titel'}</b>
-                  <strong style={{ fontSize: clampTextSize((activeCard as any).heroSubtitleSize, 24, 12, 64), color: (activeCard as any).heroSubtitleTextColor || '#E8DCC2' }}>{getTextLayerDraftValue('subtitle') || 'Dein Untertitel'}</strong>
-                  <p style={{ fontSize: Math.max(13, Math.min(22, clampTextSize((activeCard as any).heroDescriptionSize, 16, 12, 32))), color: (activeCard as any).heroDescTextColor || '#E8DCC2', opacity: 0.95 }}>{getTextLayerDraftValue('description') || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.'}</p>
+                  <b style={{ fontSize: getMobileTextEditorPreviewSizes().title, color: (activeCard as any).heroTitleTextColor || '#F5F2EA' }}>{getTextLayerDraftValue('title') || 'Dein Titel'}</b>
+                  <strong style={{ fontSize: getMobileTextEditorPreviewSizes().subtitle, color: (activeCard as any).heroSubtitleTextColor || '#E8DCC2' }}>{getTextLayerDraftValue('subtitle') || 'Dein Untertitel'}</strong>
+                  <p style={{ fontSize: getMobileTextEditorPreviewSizes().description, color: (activeCard as any).heroDescTextColor || '#E8DCC2', opacity: 0.95 }}>{getTextLayerDraftValue('description') || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.'}</p>
                 </div>
                 <div className="ureel-tap-chip-row" style={{ marginTop: 10 }}>
-                  <button type="button" className={(currentTextTemplate.box as any)?.enabled === false ? '' : 'is-active'} onClick={() => updateTextTemplate({ box: { ...currentTextTemplate.box, enabled: true, type: currentTextTemplate.box?.type && currentTextTemplate.box?.type !== 'none' ? currentTextTemplate.box.type : (selectedTextTemplatePreset?.defaultBox || 'glass') } as any })}>Design-Hintergrund AN</button>
-                  <button type="button" className={(currentTextTemplate.box as any)?.enabled === false ? 'is-active' : ''} onClick={() => updateTextTemplate({ box: { ...currentTextTemplate.box, enabled: false, type: 'none' } as any })}>Design-Hintergrund AUS</button>
+                  <button type="button" className={(currentTextTemplate.box as any)?.enabled === false ? '' : 'is-active'} onClick={() => updateTextTemplate({ box: { enabled: true, type: currentTextTemplate.box?.type && currentTextTemplate.box?.type !== 'none' ? currentTextTemplate.box.type : (selectedTextTemplatePreset?.defaultBox || 'glass'), opacity: currentTextTemplate.box?.opacity || 85 } as any })}>Design-Hintergrund AN</button>
+                  <button type="button" className={(currentTextTemplate.box as any)?.enabled === false ? 'is-active' : ''} onClick={() => updateTextTemplate({ box: { enabled: false, type: 'none', opacity: currentTextTemplate.box?.opacity || 85 } as any })}>Design-Hintergrund AUS</button>
                 </div>
                 <div className="ureel-mobile-text-template-strip">
                   <button type="button" className={currentTextTemplate.style === 'none' ? 'is-active' : ''} onClick={() => applyTextTemplatePreset('none')}><b>Klar</b><small>Neutral</small></button>
@@ -5106,8 +5125,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       {(accountPanelOpen || teamPanelOpen) && (
         <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-end md:items-center justify-center p-3">
           <div className="absolute inset-0" onClick={() => { setAccountPanelOpen(false); setTeamPanelOpen(false); }} />
-          <div className="relative w-full max-w-5xl max-h-[92dvh] overflow-hidden rounded-t-3xl md:rounded-3xl border border-[#3A3732] bg-[#111111] shadow-2xl text-[#F5F2EA]">
-            <div className="flex items-center justify-between gap-3 border-b border-[#3A3732] px-5 py-4">
+          <div className="relative w-full max-w-5xl h-[92dvh] max-h-[92dvh] overflow-hidden rounded-t-3xl md:rounded-3xl border border-[#3A3732] bg-[#111111] shadow-2xl text-[#F5F2EA] flex flex-col">
+            <div className="shrink-0 flex items-center justify-between gap-3 border-b border-[#3A3732] px-5 py-4">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-11 h-11 rounded-2xl bg-[#F5F2EA] text-[#101010] flex items-center justify-center font-black text-lg">{(profile?.displayName || user?.email || 'U').slice(0,1).toUpperCase()}</div>
                 <div className="min-w-0">
@@ -5118,8 +5137,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <button onClick={() => { setAccountPanelOpen(false); setTeamPanelOpen(false); }} className="w-10 h-10 rounded-xl border border-[#3A3732] bg-[#181818] flex items-center justify-center hover:bg-[#252525]"><LucideIcons.X size={16} /></button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-[230px_1fr] max-h-[calc(92dvh-80px)] overflow-hidden">
-              <div className="border-b md:border-b-0 md:border-r border-[#3A3732] bg-[#0F0F0F] p-4 space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-[230px_1fr] flex-1 min-h-0 overflow-hidden">
+              <div className="shrink-0 border-b md:border-b-0 md:border-r border-[#3A3732] bg-[#0F0F0F] p-4 space-y-2 overflow-x-auto md:overflow-x-visible">
                 {[
                   { id: 'profile', label: 'Persönliche Daten', icon: LucideIcons.UserCog, hint: 'Profil & Kontakt' },
                   { id: 'billing', label: 'Plan & Zahlung', icon: LucideIcons.CreditCard, hint: 'Abo, Rechnung, Speicher' },
@@ -5138,7 +5157,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <button onClick={logout} className="mt-4 w-full h-11 rounded-2xl border border-red-950/50 bg-red-950/20 text-red-200 font-black uppercase text-[10px] tracking-wider flex items-center justify-center gap-2"><LucideIcons.LogOut size={14} /> Abmelden</button>
               </div>
 
-              <div className="overflow-y-auto p-5">
+              <div className="min-h-0 overflow-y-auto overscroll-contain p-5 pb-24">
                 {accountManagerTab === 'profile' && (
                   <div className="space-y-5">
                     <div>

@@ -256,6 +256,7 @@ export function normalizeUreelTextTemplate(template?: Partial<UreelTextTemplate>
     box: {
       type: 'none',
       opacity: 80,
+      enabled: true,
     },
     fontStyle: 'modern',
   };
@@ -282,6 +283,7 @@ export function normalizeUreelTextTemplate(template?: Partial<UreelTextTemplate>
     box: {
       type: template.box?.type || (p ? p.defaultBox : 'none'),
       opacity: typeof template.box?.opacity === 'number' ? template.box.opacity : 80,
+      enabled: template.box?.enabled !== false,
     },
     fontStyle: template.fontStyle || (p ? p.defaultFontStyle : 'modern'),
   };

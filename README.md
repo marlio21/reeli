@@ -1,12 +1,12 @@
-# ureel.me v52.5.5
+# ureel.me v52.5.6
 
-Mobile Preview Sync, Button Scale & Dashboard Access Fix.
+Mobile Button Tile Parity, Text Background Toggle & Account Scroll Fix.
 
 - Änderungen bewusst auf die Mobile-Version / mobile 9:16-Karte begrenzt.
-- Werbetext-Designs werden im mobilen Werbetext-Editor und in der echten 9:16-Vorschaukarte stärker synchronisiert.
-- Beschreibungstext bleibt im mobilen Werbetext-Vorschaueditor sichtbar und wird nicht durch zu dunkle Standardfarbe versteckt.
-- Neuer Mobile-Schalter: Design-Hintergrund AN/AUS für Werbetextvorlagen.
-- Buttontext und Icongrößen skalieren in mobilen 3×2-Kartenbuttons sichtbarer und näher am Buttoneditor.
-- Mobile Buttonformen bleiben Quadrat, Kreis oder abgerundetes Quadrat.
-- Mobile Dashboard-Schnellzugriff zeigt Kartenverwaltung, Nutzerverwaltung und Neue Karte direkt im Tap-to-Edit Studio.
-- Profilbild, Public Link und Desktop-Renderer wurden nicht bewusst umgebaut.
+- Beschreibungstext-Problem geklärt und repariert: Der mobile Werbetexteditor nutzte bisher andere, zu große Text-Caps als die echte Vorschaukarte. Dadurch wurde die Beschreibung in der Editor-Vorschau abgeschnitten, obwohl sie in der echten Karte sichtbar war.
+- Werbetext-Vorschaueditor nutzt jetzt kompaktere mobile Vorschaugrößen, damit Titel, Untertitel und Beschreibung gemeinsam sichtbar bleiben.
+- Design-Hintergrund AN/AUS speichert jetzt `box.enabled` sauber im Texttemplate und überschreibt auch template-spezifische CSS-Hintergründe.
+- Button-Tiles in der mobilen 9:16-Vorschau werden feiner skaliert: Icon und Text werden nicht mehr klobig aufgeblasen.
+- Buttoneditor-Mittelvorschau nutzt eine vergrößerte echte mobile Kachel statt einer anders berechneten Buttondarstellung.
+- Nutzerverwaltung/Konto ist mobil scrollbar.
+- Desktop, Public Link und Profilbild wurden nicht bewusst umgebaut.

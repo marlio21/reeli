@@ -1304,7 +1304,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               style={{ gap: `${gridLayout.gapPx}px`, justifyItems: 'center' }}
             >
               {filteredLayeredButtons.map((btn, index) => {
-                const safePreviewSize = isPreview ? Math.min(Number(gridLayout.buttonSizePx || 42), 44) : gridLayout.buttonSizePx;
+                const safePreviewSize = isPreview ? Math.max(42, Math.min(Number(gridLayout.buttonSizePx || 50), 52)) : gridLayout.buttonSizePx;
                 return (
                   <ButtonRenderer
                     key={btn.id}
