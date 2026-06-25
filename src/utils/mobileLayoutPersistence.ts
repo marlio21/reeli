@@ -1,5 +1,5 @@
 /**
- * v52.5.26 Realtime Hydration, Fresh Grid Snapshot & Tile Shape Fix
+ * v52.5.27 Public Snapshot Priority & Shape Control Fix
  *
  * The editor preview can read local in-memory values immediately. The public
  * card, however, reads Firestore data. To prevent public views from falling
@@ -27,17 +27,10 @@ export const deriveCanonicalButtonGridLayout = (
   const mobileSnapshot: any = (card as any)?.mobileLayout || {};
   const publicButtons: any = publicSnapshot.buttons || {};
   const mobileButtons: any = mobileSnapshot.buttons || {};
-  const snapshotIsFresh = publicSnapshot.version === 'v52.5.26' || mobileSnapshot.version === 'v52.5.26' || publicSnapshot.version === 'v52.5.25' || mobileSnapshot.version === 'v52.5.25';
-  const hasLiveGridValue = gl.buttonSizePx !== undefined || gl.tileSizePx !== undefined || (card as any)?.buttonSizePx !== undefined;
-
-  // v52.5.26: snapshots are only canonical when they were produced by the
-  // current layout persistence version. Older v52.5.19-v52.5.24 snapshots may
-  // be stale and must not override freshly edited buttonGridLayout values.
-  // During save/update, explicit live editor fields always win.
-  const preferLive = !!options?.preferLiveFields || (!snapshotIsFresh && hasLiveGridValue);
-  const canonicalButtons: any = preferLive
-    ? { ...publicButtons, ...mobileButtons, ...gl }
-    : { ...gl, ...mobileButtons, ...publicButtons };
+  // v52.5.27: Top-level/live layout fields must always win over snapshots.
+  // Snapshots are fallbacks for legacy Public cards only. This prevents a stale
+  // publicLayoutSnapshot from keeping buttons/text at old sizes after edits.
+  const canonicalButtons: any = { ...publicButtons, ...mobileButtons, ...gl };
 
   const ureel = isUreelCard(card);
   const rawSize = canonicalButtons.buttonSizePx ?? canonicalButtons.tileSizePx ?? (card as any)?.buttonSizePx ?? 80;
@@ -62,7 +55,7 @@ export const buildMobileLayoutSnapshot = (card: Partial<Card>, options?: { prefe
   const subtitleSize = clamp((card as any).heroSubtitleSize ?? (card as any).mobileLayout?.text?.subtitleSizePx, 10, 40, 14);
   const descriptionSize = clamp((card as any).heroDescriptionSize ?? (card as any).mobileLayout?.text?.descriptionSizePx, 10, 40, 22);
   return {
-    version: 'v52.5.26',
+    version: 'v52.5.27',
     buttons: {
       mode: grid.mode,
       cols: grid.cols,
@@ -110,7 +103,7 @@ export const persistMobileLayoutFields = <T extends Partial<Card>>(updates: T, b
       : baseAny.ureelTextTemplate,
   };
 
-  // v52.5.26: when the editor sends a fresh buttonGridLayout update, build the
+  // v52.5.27: when the editor sends a fresh buttonGridLayout update, build the
   // persisted grid snapshot from that fresh update path only. Older
   // mobileLayout/publicLayoutSnapshot values from base must not be mixed back in,
   // otherwise the Public card can fall back to stale/smaller button sizes.
@@ -138,11 +131,11 @@ export const persistMobileLayoutFields = <T extends Partial<Card>>(updates: T, b
       ...(baseAny.mobileLayout || {}),
       ...(updateAny.mobileLayout || {}),
       ...snapshot,
-      version: 'v52.5.26',
+      version: 'v52.5.27',
     } as any,
     publicLayoutSnapshot: {
       ...snapshot,
-      version: 'v52.5.26',
+      version: 'v52.5.27',
     } as any,
     ureelTextTemplate: updateAny.ureelTextTemplate
       ? normalizeUreelTextTemplate({ ...(baseAny.ureelTextTemplate || {}), ...(updateAny.ureelTextTemplate || {}) } as any) as any
@@ -164,7 +157,7 @@ export const hydrateCardMobileLayout = <T extends Partial<Card> | null | undefin
     buttonGridCols: grid.cols as any,
     buttonSizePx: grid.buttonSizePx,
     buttonGapPx: grid.gapPx,
-    // v52.5.26: explicit top-level editor values win over stale snapshots.
+    // v52.5.27: explicit top-level editor values win over stale snapshots.
     // Snapshots remain fallback for old saved public cards.
     heroTitleSize,
     heroSubtitleSize,

@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v52.5.27 – Public Snapshot Priority & Button Shape Restore Fix
+
+- Restores visible button shape control in mobile card tiles: Kreis, Eckig and Abgerundet are no longer overwritten by the forced square tile mode.
+- `forceSquare` now means square dimensions only; it no longer forces every card button to the same rounded visual shape.
+- Changes canonical button-grid priority so top-level/live `buttonGridLayout` values win over stale `mobileLayout`/`publicLayoutSnapshot` values.
+- Keeps snapshots as fallback only for old public cards that do not yet have current top-level layout fields.
+- Versions new mobile/public layout snapshots as `v52.5.27`.
+- No new features, no renderer rewrite, no intentional Desktop-editor changes, and ZIP remains without `dist/`.
+
 ## v52.5.26 – Sofortplan Hydration, Fresh Grid Snapshot & Tile Shape Fix
 
 - Keeps the critical Public realtime hydration path explicit: Firestore `onSnapshot` data is passed through `hydrateCardMobileLayout()` before `setVisitorCard()`.

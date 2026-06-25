@@ -188,12 +188,9 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
     shape = 'rounded';
   }
 
-  // v52.5.26: forced mobile card tiles must use the grid shape, not a legacy
-  // per-button radius. This prevents saved pill/circle radius values from
-  // turning square 3x2 card tiles into circles/ovals in Public.
-  if (forceSizePx !== undefined && forceSquare) {
-    shape = 'rounded';
-  }
+  // v52.5.27: forceSquare means the tile keeps square dimensions only.
+  // The user-selected visual shape (circle, square, rounded) must still render
+  // in Editor Preview, Mobile Preview and Public View.
 
   const bSize = btn.buttonSize;
   const scaleFactor = getButtonScaleFactor(btn);

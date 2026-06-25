@@ -1,8 +1,20 @@
 # ureel.me / reeli
 
-Aktuelle Version: **v52.5.26 – Sofortplan Hydration, Fresh Grid Snapshot & Tile Shape Fix**
+Aktuelle Version: **v52.5.27 – Public Snapshot Priority & Button Shape Restore Fix**
 
 Hinweis: Der ZIP-Upload enthält bewusst keinen `dist/`-Ordner. Vercel baut den Ordner selbst beim Deployment neu.
+
+
+# ureel.me v52.5.27
+
+Public Snapshot Priority & Button Shape Restore Fix.
+
+- Buttonform in mobilen Kartenkacheln wieder steuerbar: Kreis, Eckig und Abgerundet werden nicht mehr durch `forceSquare` überschrieben.
+- `forceSquare` hält nur die Kachelmaße quadratisch, nicht die visuelle Form.
+- Top-Level-/Live-Layoutwerte aus dem Editor gewinnen vor alten `mobileLayout`/`publicLayoutSnapshot`-Werten.
+- Alte Snapshots bleiben nur Fallback für Legacy-Karten.
+- Kein neuer Renderer-Umbau, Desktop nicht bewusst verändert.
+- ZIP bleibt dist-free für Vercel.
 
 # ureel.me v52.5.25
 
