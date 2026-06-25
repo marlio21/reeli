@@ -1,5 +1,5 @@
 /**
- * v52.5.27 Public Snapshot Priority & Shape Control Fix
+ * v52.5.29 Public Button Shape & Layout Writer Fix
  *
  * The editor preview can read local in-memory values immediately. The public
  * card, however, reads Firestore data. To prevent public views from falling
@@ -55,7 +55,7 @@ export const buildMobileLayoutSnapshot = (card: Partial<Card>, options?: { prefe
   const subtitleSize = clamp((card as any).heroSubtitleSize ?? (card as any).mobileLayout?.text?.subtitleSizePx, 10, 40, 14);
   const descriptionSize = clamp((card as any).heroDescriptionSize ?? (card as any).mobileLayout?.text?.descriptionSizePx, 10, 40, 22);
   return {
-    version: 'v52.5.27',
+    version: 'v52.5.29',
     buttons: {
       mode: grid.mode,
       cols: grid.cols,
@@ -131,11 +131,11 @@ export const persistMobileLayoutFields = <T extends Partial<Card>>(updates: T, b
       ...(baseAny.mobileLayout || {}),
       ...(updateAny.mobileLayout || {}),
       ...snapshot,
-      version: 'v52.5.27',
+      version: 'v52.5.29',
     } as any,
     publicLayoutSnapshot: {
       ...snapshot,
-      version: 'v52.5.27',
+      version: 'v52.5.29',
     } as any,
     ureelTextTemplate: updateAny.ureelTextTemplate
       ? normalizeUreelTextTemplate({ ...(baseAny.ureelTextTemplate || {}), ...(updateAny.ureelTextTemplate || {}) } as any) as any

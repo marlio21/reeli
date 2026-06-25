@@ -1,3 +1,13 @@
+
+## v52.5.29 – Public Button Shape & Layout Writer Fix
+
+- Mobile Buttonform wieder sauber als Kreis / Eckig / Abgerundet normalisiert.
+- `forceSquare` hält nur Breite/Höhe quadratisch und überschreibt nicht mehr die sichtbare Form.
+- Button-Size-Presets schreiben jetzt echte Public-Grid-Werte: 58 / 72 / 88 px statt alter 42 / 50 / 58 px.
+- Size-Preset ändert nicht mehr versehentlich die gewählte Buttonform.
+- Layout-Snapshot-Version auf v52.5.29 angehoben.
+- ZIP bleibt ohne `dist`, ohne `node_modules`, ohne `RELEASE_NOTES`.
+
 ## v52.5.28 – Public Layout Debug Inspector
 
 - Public View zeigt temporär einen Layout-Debug-Inspector mit geladenen Grid-/Textwerten.

@@ -173,24 +173,33 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
     return backgroundStyle;
   };
 
-  // Normalize button shape to one of 'rounded', 'round', 'square'
-  const rawShape = (btn.buttonShape || btn.radius || 'classic').toString().toLowerCase();
+  // Normalize button shape to one of 'rounded', 'round', 'square'.
+  // v52.5.29: The mobile UI label "Rund / Kreis" must mean an actual
+  // circle in forced square card tiles.  Older data may store the same choice
+  // as buttonShape='round', radius='pill', shape='circle', or German labels.
+  // "Abgerundet" remains the rounded-square option.
+  const shapeSources = [
+    (btn as any).buttonShape,
+    (btn as any).shape,
+    (btn as any).style?.shape,
+    btn.radius,
+    (btn as any).style?.radius,
+    (btn as any).borderRadius,
+  ]
+    .filter((value) => value !== undefined && value !== null && String(value).trim() !== '')
+    .map((value) => String(value).toLowerCase().trim());
+
   let shape: 'rounded' | 'round' | 'square' = 'rounded';
-  if (rawShape === 'round' || rawShape === 'pill' || rawShape === 'circle' || rawShape === 'kreis') {
+  if (shapeSources.some((value) => ['round', 'pill', 'circle', 'kreis', 'rundkreis', 'rund / kreis'].includes(value))) {
     shape = 'round';
-  } else if (rawShape === 'square' || rawShape === 'eckig') {
+  } else if (shapeSources.some((value) => ['square', 'eckig', 'corner', 'sharp', 'none'].includes(value))) {
     shape = 'square';
-  } else if (rawShape === 'classic' || rawShape === 'rounded' || rawShape === 'rund' || rawShape === 'abgerundet') {
-    if (btn.radius === 'square') shape = 'square';
-    else if (btn.radius === 'pill') shape = 'round';
-    else shape = 'rounded';
-  } else {
+  } else if (shapeSources.some((value) => ['rounded', 'classic', 'abgerundet', 'soft', 'rund'].includes(value))) {
     shape = 'rounded';
   }
 
-  // v52.5.27: forceSquare means the tile keeps square dimensions only.
-  // The user-selected visual shape (circle, square, rounded) must still render
-  // in Editor Preview, Mobile Preview and Public View.
+  // v52.5.27/v52.5.29: forceSquare means the tile keeps square dimensions
+  // only. It must never overwrite the visual shape chosen by the user.
 
   const bSize = btn.buttonSize;
   const scaleFactor = getButtonScaleFactor(btn);
