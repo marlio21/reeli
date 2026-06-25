@@ -1,3 +1,13 @@
+# v52.5.34
+
+Button tile cleanup and public loading performance fix.
+
+- Action buttons in the 9:16 preview/public card are clamped to safe mobile tile sizes.
+- Size presets write smaller, usable public values: 44/52/58/66px.
+- Icon/text stack is centered and slightly lifted inside the tile.
+- Layout debug is hidden by default and no longer appears with normal debug URLs.
+- Public video backgrounds use metadata preload and stop showing the loading pill to visitors.
+
 
 
 ## v52.5.32 – Mobile Button Scale Balance & Smaller Text Range Fix

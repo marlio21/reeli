@@ -234,14 +234,14 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   // Padding & Text properties
   const forcedPx = typeof forceSizePx === 'number' ? forceSizePx : undefined;
   const isTinyTile = !!forcedPx && forcedPx <= 54;
-  const isLargeForcedTile = !!forcedPx && forcedPx >= 74;
+  const isLargeForcedTile = !!forcedPx && forcedPx >= 66;
   const isExtremeShape = shape === 'round';
   // Forced mobile card tiles are real square buttons in a small 3x2 grid.
   // Pixel padding from the large editor preview makes the visible text area too
   // narrow and clips labels such as Company/Telefon. Use proportional padding
   // in forced tiles so Editor, Preview and Public calculate the same usable box.
   const paddingStyle = forceSizePx
-    ? (isExtremeShape ? (isLargeForcedTile ? '12% 12%' : '9% 9%') : (isLargeForcedTile ? '10% 10%' : '8% 8%'))
+    ? (isExtremeShape ? (isLargeForcedTile ? '10% 10%' : '8% 8%') : (isLargeForcedTile ? '9% 9%' : '7% 7%'))
     : (isExtremeShape 
         ? (isTinyTile ? '7% 7%' : '12% 12%') 
         : (paddingYStyle && paddingXStyle 
@@ -252,9 +252,9 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   // scale as the button editor preview.  Older logic multiplied by the grid
   // scale factor, so text stayed tiny on the real 9:16 card although the editor
   // looked correct.  For forced mobile tiles we scale from the actual tile size.
-  const tileRatio = forceSizePx ? Math.max(0.72, Math.min(1.02, forceSizePx / 76)) : 1;
+  const tileRatio = forceSizePx ? Math.max(0.68, Math.min(0.96, forceSizePx / 68)) : 1;
   const fontScale = forceSizePx ? tileRatio : Math.min(scaleFactor, isTinyTile ? 1.0 : 1.12);
-  const iconScale = forceSizePx ? Math.max(0.76, Math.min(0.98, forceSizePx / 88)) : Math.min(scaleFactor, isTinyTile ? 0.92 : 1.15);
+  const iconScale = forceSizePx ? Math.max(0.72, Math.min(0.92, forceSizePx / 76)) : Math.min(scaleFactor, isTinyTile ? 0.92 : 1.15);
 
   const labelLength = (btn.title || '').trim().length;
   const hasUsableIcon = btn.iconEnabled !== false && !!btn.icon;
@@ -278,10 +278,10 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const isLargeTextPreset = baseFontSize >= 13.2 && baseFontSize < 15.4;
   const forcedTextCap = forceSizePx
     ? (hasUsableIcon
-      ? (isSmallTextPreset ? 8.2 : isNormalTextPreset ? 9.3 : isLargeTextPreset ? 10.4 : 11.2)
+      ? (isSmallTextPreset ? 7.6 : isNormalTextPreset ? 8.6 : isLargeTextPreset ? 9.6 : 10.4)
       : (isSmallTextPreset ? 9.4 : isNormalTextPreset ? 10.8 : isLargeTextPreset ? 12.0 : 13.0))
     : (hasUsableIcon ? 11.2 : 13.2);
-  const forcedTextFloor = hasUsableIcon ? (isTinyTile ? 6.8 : 7.2) : (isTinyTile ? 8.0 : 8.6);
+  const forcedTextFloor = hasUsableIcon ? (isTinyTile ? 6.2 : 6.8) : (isTinyTile ? 7.4 : 8.0);
   const iconTextFactor = hasUsableIcon ? (isSmallTextPreset ? 0.82 : isNormalTextPreset ? 0.9 : isLargeTextPreset ? 0.96 : 1.02) : 1.0;
   const widthFitCap = forceSizePx && labelLength > 0
     ? Math.max(forcedTextFloor, (forceSizePx * (hasUsableIcon ? 0.84 : 0.9)) / Math.max(1, labelLength * 0.56))
@@ -322,7 +322,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
     if (shape === 'round') return 'rounded-full';
     return 'rounded-[18px]'; // standard ureel rounded-rectangle button style
   };
-  const radiusStyleValue = shape === 'square' ? '6px' : shape === 'round' ? '999px' : (forceSizePx ? `${Math.max(10, Math.round(forceSizePx * 0.22))}px` : '20px');
+  const radiusStyleValue = shape === 'square' ? (forceSizePx ? '8px' : '6px') : shape === 'round' ? '999px' : (forceSizePx ? `${Math.max(10, Math.round(forceSizePx * 0.18))}px` : '20px');
 
   // Render internal Icon
   const renderIcon = (iconId: string, color: string, size = 18) => {
@@ -432,7 +432,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const iconColor = btn.iconColor || '#1E1E1E';
   const requestedIconSize = Math.round((btn.iconSize || 18) * iconScale);
   const iconSize = forceSizePx
-    ? Math.max(isTinyTile ? 8 : 10, Math.min(Math.round(requestedIconSize * 0.58), Math.round(forceSizePx * 0.18)))
+    ? Math.max(isTinyTile ? 8 : 10, Math.min(Math.round(requestedIconSize * 0.52), Math.round(forceSizePx * 0.16)))
     : requestedIconSize;
 
 
@@ -496,8 +496,11 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   // needs a real min-height. Otherwise the visible card button becomes a thin line.
   if (forceSizePx !== undefined) {
     inlineStyles.width = `${forceSizePx}px`;
+    inlineStyles.maxWidth = `${forceSizePx}px`;
+    inlineStyles.flex = '0 0 auto';
     if (isSquare) {
       inlineStyles.height = `${forceSizePx}px`;
+      inlineStyles.maxHeight = `${forceSizePx}px`;
       inlineStyles.minHeight = `${forceSizePx}px`;
     } else {
       inlineStyles.minHeight = `${Math.max(32, Math.round(forceSizePx * 0.72))}px`;
@@ -582,7 +585,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
           className={`flex ${(effectiveIconPosition === 'top' || effectiveIconPosition === 'bottom' || effectiveIconPosition === 'center') ? 'flex-col' : 'flex-row'} items-center max-w-full ${getTextAlignClass()} pointer-events-none`}
           style={{
             gap: `${Math.round(((effectiveIconPosition === 'top' || effectiveIconPosition === 'bottom' || effectiveIconPosition === 'center') ? (isTinyTile ? 2 : 3) : 5) * scaleFactor)}px`,
-            transform: forceSizePx ? 'translateY(-4%)' : undefined
+            transform: forceSizePx ? 'translateY(-10%)' : undefined
           }}
         >
           
@@ -640,7 +643,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   );
 
   const containerClasses = `
-    relative overflow-hidden cursor-pointer select-none w-full flex flex-col justify-center items-center shadow-md transition-all duration-150
+    relative overflow-hidden cursor-pointer select-none flex flex-col justify-center items-center shadow-md transition-all duration-150
     ${isSquare ? 'aspect-square h-full' : ''}
     ${getRadiusClass()}
     ${getGlowStyles()}

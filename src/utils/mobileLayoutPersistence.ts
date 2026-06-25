@@ -38,8 +38,8 @@ export const deriveCanonicalButtonGridLayout = (
   // saved snapshot value (for example 58px) could override a fresh
   // buttonSizePx=88 update when no full buttonGridLayout object was present.
   const rawSize = options?.preferLiveFields
-    ? (gl.buttonSizePx ?? gl.tileSizePx ?? (card as any)?.buttonSizePx ?? mobileButtons.buttonSizePx ?? mobileButtons.tileSizePx ?? publicButtons.buttonSizePx ?? publicButtons.tileSizePx ?? 80)
-    : (gl.buttonSizePx ?? gl.tileSizePx ?? mobileButtons.buttonSizePx ?? mobileButtons.tileSizePx ?? publicButtons.buttonSizePx ?? publicButtons.tileSizePx ?? (card as any)?.buttonSizePx ?? 80);
+    ? (gl.buttonSizePx ?? gl.tileSizePx ?? (card as any)?.buttonSizePx ?? mobileButtons.buttonSizePx ?? mobileButtons.tileSizePx ?? publicButtons.buttonSizePx ?? publicButtons.tileSizePx ?? 52)
+    : (gl.buttonSizePx ?? gl.tileSizePx ?? mobileButtons.buttonSizePx ?? mobileButtons.tileSizePx ?? publicButtons.buttonSizePx ?? publicButtons.tileSizePx ?? (card as any)?.buttonSizePx ?? 52);
   const rawGap = options?.preferLiveFields
     ? (gl.gapPx ?? gl.gap ?? (card as any)?.buttonGapPx ?? mobileButtons.gapPx ?? mobileButtons.gap ?? publicButtons.gapPx ?? publicButtons.gap ?? 10)
     : (gl.gapPx ?? gl.gap ?? mobileButtons.gapPx ?? mobileButtons.gap ?? publicButtons.gapPx ?? publicButtons.gap ?? (card as any)?.buttonGapPx ?? 10);
@@ -63,7 +63,7 @@ export const buildMobileLayoutSnapshot = (card: Partial<Card>, options?: { prefe
   const subtitleSize = clamp((card as any).heroSubtitleSize ?? (card as any).mobileLayout?.text?.subtitleSizePx, 8, 40, 14);
   const descriptionSize = clamp((card as any).heroDescriptionSize ?? (card as any).mobileLayout?.text?.descriptionSizePx, 8, 36, 12);
   return {
-    version: 'v52.5.33',
+    version: 'v52.5.34',
     buttons: {
       mode: grid.mode,
       cols: grid.cols,
@@ -139,11 +139,11 @@ export const persistMobileLayoutFields = <T extends Partial<Card>>(updates: T, b
       ...(baseAny.mobileLayout || {}),
       ...(updateAny.mobileLayout || {}),
       ...snapshot,
-      version: 'v52.5.33',
+      version: 'v52.5.34',
     } as any,
     publicLayoutSnapshot: {
       ...snapshot,
-      version: 'v52.5.33',
+      version: 'v52.5.34',
     } as any,
     ureelTextTemplate: updateAny.ureelTextTemplate
       ? normalizeUreelTextTemplate({ ...(baseAny.ureelTextTemplate || {}), ...(updateAny.ureelTextTemplate || {}) } as any) as any

@@ -1355,7 +1355,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                 // v52.5.18: one final mobile layout model. Do not re-cap the
                 // public/preview tile at legacy sizes; normalizeButtonGridLayout
                 // already preserves the user's selected Look size safely.
-                const safePreviewSize = Math.max(48, Math.min(Number(gridLayout.buttonSizePx || (card as any).buttonSizePx || 72), 112));
+                const safePreviewSize = Math.max(40, Math.min(Number(gridLayout.buttonSizePx || (card as any).buttonSizePx || 52), 72));
                 return (
                   <ButtonRenderer
                     key={btn.id}
@@ -1475,35 +1475,30 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                       muted
                       loop={hasUreelScene ? true : (normalized.loop?.enabled ?? false)}
                       playsInline
-                      preload="auto"
+                      preload="metadata"
                       onLoadStart={() => {
                         console.log(`[VIDEO EVENTS BI] onLoadStart triggered for: ${videoSrc}`);
-                        setVideoStatus('loading');
+                        setVideoStatus((prev) => prev === 'ready' ? 'ready' : 'loading');
                       }}
                       onLoadedMetadata={() => {
-                        console.log(`[VIDEO DIAGNOSTIC] Metadata loaded for source: ${videoSrc}`);
-                        console.log(`[VIDEO EVENTS BI] onLoadedMetadata triggered`);
+                        setVideoStatus('ready');
                         if (hasUreelScene && activeSceneVideoResult.startAt && videoRef.current) {
                           videoRef.current.currentTime = activeSceneVideoResult.startAt;
                         }
                       }}
                       onLoadedData={() => {
-                        console.log(`[VIDEO DIAGNOSTIC] Data loaded for source: ${videoSrc}`);
-                        console.log(`[VIDEO EVENTS BI] onLoadedData triggered`);
+                        
                       }}
                       onCanPlay={() => {
-                        console.log(`[VIDEO DIAGNOSTIC] Can play source: ${videoSrc}`);
-                        console.log(`[VIDEO EVENTS BI] onCanPlay triggered`);
+                        
                         setVideoStatus('ready');
                       }}
                       onPlay={() => {
-                        console.log(`[VIDEO DIAGNOSTIC] Play started: ${videoSrc}`);
-                        console.log(`[VIDEO EVENTS BI] onPlay triggered`);
+                        
                         setVideoStatus('ready');
                       }}
                       onPause={() => {
-                        console.log(`[VIDEO DIAGNOSTIC] Play paused/stopped: ${videoSrc}`);
-                        console.log(`[VIDEO EVENTS BI] onPause triggered`);
+                        
                       }}
                       onError={(e) => {
                         console.error(`[VIDEO DIAGNOSTIC] Playback error for source: ${videoSrc}`, e);
@@ -1518,7 +1513,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                     />
 
                     {/* Non-blocking loading indicator overlay */}
-                    {videoStatus === 'loading' && (
+                    {isPreview && videoStatus === 'loading' && (
                       <div id="video-loading-indicator" className="absolute top-4 left-4 z-20 bg-stone-950/85 border border-stone-800/80 backdrop-blur-md px-3.5 py-1.5 rounded-full flex items-center justify-center gap-2 text-stone-300 shadow-xl pointer-events-none select-none">
                         <LucideIcons.Loader2 size={11} className="text-[#A855F7] animate-spin" />
                         <span className="text-[9px] uppercase font-black tracking-widest text-stone-205">
@@ -1830,8 +1825,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                         isDragTarget ? 'border-2 border-dashed border-[#A855F7] scale-[1.08] animate-none' : ''
                       } ${isSelectedForSwap ? 'ring-2 ring-[#A855F7] scale-[1.06] border-2 border-[#A855F7] animate-pulse' : ''}`}
                       style={{
-                        width: gridLayout.buttonSizePx ? `${gridLayout.buttonSizePx}px` : `${scaleFactor * 100}%`,
-                        height: gridLayout.buttonSizePx ? `${gridLayout.buttonSizePx}px` : (gridLayout.square ? '100%' : `${scaleFactor * 100}%`),
+                        width: gridLayout.buttonSizePx ? `${Math.max(40, Math.min(Number(gridLayout.buttonSizePx), 72))}px` : `${scaleFactor * 100}%`,
+                        height: gridLayout.buttonSizePx ? `${Math.max(40, Math.min(Number(gridLayout.buttonSizePx), 72))}px` : (gridLayout.square ? '100%' : `${scaleFactor * 100}%`),
                         margin: 'auto',
                       }}
                     >
@@ -1842,7 +1837,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                         isSortingMode={isSortingMode}
                         lang={lang}
                         forceSquare={gridLayout.square}
-                        forceSizePx={gridLayout.buttonSizePx}
+                        forceSizePx={gridLayout.buttonSizePx ? Math.max(40, Math.min(Number(gridLayout.buttonSizePx), 72)) : undefined}
                       />
 
                       {/* Interactive Edit/Move Badge Overlay */}
@@ -2341,8 +2336,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                   isDragTarget ? 'border-2 border-dashed border-[#A855F7] scale-[1.08] animate-none' : ''
                 } ${isSelectedForSwap ? 'ring-2 ring-[#A855F7] scale-[1.06] border-2 border-[#A855F7] animate-pulse' : ''}`}
                 style={{
-                  width: gridLayout.buttonSizePx ? `${gridLayout.buttonSizePx}px` : `${scaleFactor * 100}%`,
-                  height: gridLayout.buttonSizePx ? `${gridLayout.buttonSizePx}px` : (gridLayout.square ? '100%' : `${scaleFactor * 100}%`),
+                  width: gridLayout.buttonSizePx ? `${Math.max(40, Math.min(Number(gridLayout.buttonSizePx), 72))}px` : `${scaleFactor * 100}%`,
+                  height: gridLayout.buttonSizePx ? `${Math.max(40, Math.min(Number(gridLayout.buttonSizePx), 72))}px` : (gridLayout.square ? '100%' : `${scaleFactor * 100}%`),
                   margin: 'auto',
                 }}
               >
@@ -2353,7 +2348,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                     isSortingMode={isSortingMode}
                     lang={lang}
                     forceSquare={gridLayout.square}
-                    forceSizePx={gridLayout.buttonSizePx}
+                    forceSizePx={gridLayout.buttonSizePx ? Math.max(40, Math.min(Number(gridLayout.buttonSizePx), 72)) : undefined}
                   />
 
                   {/* Interactive Edit/Move Badge Overlay */}
@@ -2401,7 +2396,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                     onClick={() => {}}
                     lang={lang}
                     forceSquare={gridLayout.square}
-                    forceSizePx={gridLayout.buttonSizePx}
+                    forceSizePx={gridLayout.buttonSizePx ? Math.max(40, Math.min(Number(gridLayout.buttonSizePx), 72)) : undefined}
                   />
                   {isBtnHidden && (
                     <div className="absolute inset-0 bg-stone-950/40 rounded-xl flex items-center justify-center">
@@ -2421,7 +2416,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                 onClick={onEditButton ? () => onEditButton(btn) : (!isPreview && handleButtonClick ? () => handleButtonClick(btn) : undefined)}
                 lang={lang}
                 forceSquare={gridLayout.square}
-                forceSizePx={gridLayout.buttonSizePx}
+                forceSizePx={gridLayout.buttonSizePx ? Math.max(40, Math.min(Number(gridLayout.buttonSizePx), 72)) : undefined}
               />
             );
           })}
