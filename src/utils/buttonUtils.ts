@@ -776,43 +776,8 @@ export function getButtonScaleFactor(btn: any): number {
 }
 
 export function normalizeButtonGridLayout(card: Partial<Card> | undefined): Required<ButtonGridLayout> {
-  const defaultLayout: Required<ButtonGridLayout> = {
-    mode: 'list',
-    cols: 3,
-    square: false,
-    gapPx: 12,
-    buttonSizePx: 72,
-    gap: 12,
-    align: 'center',
-  };
-
-  if (!card) return defaultLayout;
-
-  const gl = card.buttonGridLayout;
-  
-  // Decide default mode based on whether the card is a ureel card or has specified values
-  const isUreel = !!(card.ureelTimeline || card.ureelEndCard || card.ureelScene);
-  const defaultMode = isUreel ? 'grid' : 'list';
-  const defaultSquare = isUreel;
-  const rawGap = typeof gl?.gapPx === 'number' ? gl.gapPx : (typeof card.buttonGapPx === 'number' ? card.buttonGapPx : 12);
-  const rawButtonSize = typeof gl?.buttonSizePx === 'number' ? gl.buttonSizePx : (typeof card.buttonSizePx === 'number' ? card.buttonSizePx : 72);
-
-  // v52.5.18: the mobile editor, preview and public link must read one
-  // persisted layout value. The old Ureel normalizer capped buttonSizePx at
-  // 66px before the renderer ever saw it; later renderer fixes therefore could
-  // never make the public card match the Look editor. Keep only a broad safety
-  // range that prevents impossible layouts while preserving user-selected size.
-  const safeButtonSize = isUreel ? Math.max(48, Math.min(rawButtonSize, 112)) : rawButtonSize;
-  const safeGap = isUreel ? Math.max(4, Math.min(rawGap, 18)) : rawGap;
-
-  return {
-    mode: (gl?.mode || defaultMode) as any,
-    cols: typeof gl?.cols === 'number' ? Math.max(1, Math.min(gl.cols, 3)) : 3,
-    square: gl?.square !== undefined ? !!gl.square : defaultSquare,
-    gapPx: safeGap,
-    buttonSizePx: safeButtonSize,
-    gap: typeof gl?.gap === 'number' ? (isUreel ? Math.max(4, Math.min(gl.gap, 18)) : gl.gap) : safeGap,
-    align: gl?.align || 'center',
-  };
+  // v52.5.19: single source of truth for editor preview and public cards.
+  // Reads persisted mobileLayout/publicLayoutSnapshot first, then legacy fields.
+  return deriveCanonicalButtonGridLayout(card);
 }
 

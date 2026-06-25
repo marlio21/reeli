@@ -32,6 +32,7 @@ import { normalizeSlug } from '../utils/slugUtils';
 import { db } from '../firebase';
 import { doc, getDoc, setDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { getTodayDateString } from '../utils/analytics';
+import { persistMobileLayoutFields, hydrateCardMobileLayout } from '../utils/mobileLayoutPersistence';
 import QRCode from 'qrcode';
 
 const COLOR_PRESETS = [
@@ -2595,7 +2596,7 @@ Jetzt kommt der KONU Admin JSON Export:`;
       if (snapshot.exists()) {
         const updatedCard = snapshot.data() as Card;
         if (JSON.stringify(updatedCard) !== JSON.stringify(activeCard)) {
-          setActiveCard(updatedCard);
+          setActiveCard(hydrateCardMobileLayout(updatedCard) as Card);
         }
       }
     }, (error) => {
@@ -2653,8 +2654,9 @@ Jetzt kommt der KONU Admin JSON Export:`;
   const syncCardUpdate = async (updates: Partial<Card>) => {
     if (!activeCard) return;
     try {
-      await updateCard(activeCard.cardId, updates);
-      setActiveCard((prev) => (prev ? { ...prev, ...updates } : null));
+      const persistedUpdates = persistMobileLayoutFields(updates, activeCard);
+      await updateCard(activeCard.cardId, persistedUpdates);
+      setActiveCard((prev) => (prev ? hydrateCardMobileLayout({ ...prev, ...persistedUpdates } as Card) as Card : null));
       triggerSaveToast();
     } catch (err: any) {
       triggerToast(

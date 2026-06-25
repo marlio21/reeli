@@ -1229,9 +1229,13 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     // mobile text in final visual mode.
     const finalScaleBoost = finalVisualMode ? 1.14 : 1;
     const publicTextRatio = finalVisualMode ? 1 : compactRatio;
-    const titleSize = Math.max(16, Math.min(buttonsVisible ? 46 : 50, Number((card as any).heroTitleSize || 30) * publicTextRatio * mobileTextDesign.titleRatio * finalScaleBoost));
-    const subtitleSize = Math.max(11, Math.min(buttonsVisible ? 32 : 36, Number((card as any).heroSubtitleSize || 14) * (buttonsVisible && !finalVisualMode ? 1.08 : 1) * mobileTextDesign.subtitleRatio * finalScaleBoost));
-    const descriptionSize = Math.max(11.5, Math.min(buttonsVisible ? 30 : 36, Number((card as any).heroDescriptionSize || 22) * (buttonsVisible && !finalVisualMode ? 0.94 : 1) * mobileTextDesign.descriptionRatio * finalScaleBoost));
+    const persistedTextLayout = (card as any).mobileLayout?.text || (card as any).publicLayoutSnapshot?.text || {};
+    const persistedTitleSize = Number((card as any).heroTitleSize ?? persistedTextLayout.heroTitleSize ?? persistedTextLayout.titleSizePx ?? 30);
+    const persistedSubtitleSize = Number((card as any).heroSubtitleSize ?? persistedTextLayout.heroSubtitleSize ?? persistedTextLayout.subtitleSizePx ?? 14);
+    const persistedDescriptionSize = Number((card as any).heroDescriptionSize ?? persistedTextLayout.heroDescriptionSize ?? persistedTextLayout.descriptionSizePx ?? 22);
+    const titleSize = Math.max(16, Math.min(buttonsVisible ? 56 : 60, persistedTitleSize * publicTextRatio * mobileTextDesign.titleRatio * finalScaleBoost));
+    const subtitleSize = Math.max(11, Math.min(buttonsVisible ? 40 : 44, persistedSubtitleSize * (buttonsVisible && !finalVisualMode ? 1.08 : 1) * mobileTextDesign.subtitleRatio * finalScaleBoost));
+    const descriptionSize = Math.max(11.5, Math.min(buttonsVisible ? 40 : 44, persistedDescriptionSize * (buttonsVisible && !finalVisualMode ? 0.94 : 1) * mobileTextDesign.descriptionRatio * finalScaleBoost));
     const boxStyle = layeredTextBoxStyle();
     const isLightTextBox = layeredBoxType === 'light';
     const readableOnDark = (value: any, fallback: string) => {

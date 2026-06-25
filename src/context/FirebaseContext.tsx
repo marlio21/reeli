@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { persistMobileLayoutFields, hydrateCardMobileLayout } from '../utils/mobileLayoutPersistence';
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { 
   signInWithPopup, 
@@ -799,12 +800,13 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     try {
-      await setDoc(doc(db, 'cards', cardId), cleanCard);
+      const persistedCard = persistMobileLayoutFields(cleanCard, cleanCard) as Card;
+      await setDoc(doc(db, 'cards', cardId), persistedCard);
       setCards((prev) => {
         if (prev.some((c) => c.cardId === cardId)) return prev;
-        return [...prev, cleanCard];
+        return [...prev, persistedCard];
       });
-      return cleanCard;
+      return persistedCard;
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, `cards/${cardId}`);
       throw error;
@@ -822,7 +824,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const getCardBySlug = async (slug: string, onlyPublished?: boolean): Promise<Card | null> => {
     const cleanSlug = slug.toLowerCase().trim();
     if (cleanSlug === 'ceo' || cleanSlug === 'autohaus' || cleanSlug === 'schwimmverband') {
-      return DEMO_CARDS[cleanSlug] || null;
+      return hydrateCardMobileLayout(DEMO_CARDS[cleanSlug] || null) as Card | null;
     }
     try {
       const q = query(
@@ -835,7 +837,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (querySnap.empty) return null;
       let targetCard: Card | null = null;
       querySnap.forEach((doc) => {
-        targetCard = doc.data() as Card;
+        targetCard = hydrateCardMobileLayout(doc.data() as Card) as Card;
       });
       return targetCard;
     } catch (error: any) {
@@ -882,12 +884,14 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (!user) return;
     try {
       const cardRef = doc(db, 'cards', cardId);
-      const cleanUpdates = cleanUndefined(updates);
+      const existingCard = cards.find((c) => c.cardId === cardId) || null;
+      const persistedUpdates = persistMobileLayoutFields(updates, existingCard);
+      const cleanUpdates = cleanUndefined(persistedUpdates);
       await updateDoc(cardRef, {
         ...cleanUpdates,
         updatedAt: new Date().toISOString()
       });
-      setCards((prev) => prev.map((c) => c.cardId === cardId ? { ...c, ...updates } : c));
+      setCards((prev) => prev.map((c) => c.cardId === cardId ? hydrateCardMobileLayout({ ...c, ...persistedUpdates, updatedAt: new Date().toISOString() } as Card) as Card : c));
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, `cards/${cardId}`);
     }

@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## v52.5.20 – Public Sync Debug & Hard Publish Fix
+
+- Ergänzt im mobilen Dashboard einen Button **Public aktualisieren** für einen harten Public-Sync der aktuell sichtbaren Karte.
+- Schreibt `publicLayoutSnapshot`, `mobileLayout`, Legacy-Felder und Debugwerte zusammen, damit Public nicht weiter alte Defaults rendert.
+- `deriveCanonicalButtonGridLayout` bevorzugt gespeicherte Public-/Mobile-Snapshots vor alten `buttonGridLayout`-Restwerten.
+- `hydrateCardMobileLayout` bevorzugt Public-Snapshot-Textgrößen vor alten Hero-Size-Feldern.
+- Public- und Editor-Realtime-Listener hydrieren Firestore-Snapshots erneut, bevor sie in den State gehen.
+- Ziel: beweisen und erzwingen, dass Public dieselben mobilen Layoutwerte bekommt wie die Editor-Vorschau.
+- Desktop-Editor wurde nicht bewusst umgebaut.
+
+## v52.5.19 – Public Save Hydration & Layout Persistence Fix
+
+- Public-Speicherpfad für mobile Layoutwerte gehärtet.
+- Buttongröße, Buttonabstand und Raster werden als mobileLayout/publicLayoutSnapshot mitgespeichert.
+- Public-Link hydriert alte Karten aus den gespeicherten mobilen Layoutwerten, bevor gerendert wird.
+- Werbetextgrößen werden ebenfalls im mobilen Layout-Snapshot persistiert und im Public-Renderer gelesen.
+- ButtonRenderer bleibt unverändert; Fokus liegt auf Datenpersistenz statt kosmetischer Größenkorrektur.
+- Desktop-Editor wurde nicht bewusst umgebaut.
+
 ## v52.5.18 – Mobile Layout Model Hard Fix
 
 - Removes the old Ureel `normalizeButtonGridLayout` cap that reduced saved mobile button sizes to 66px before the renderer could use them.
