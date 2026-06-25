@@ -251,9 +251,9 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   // scale as the button editor preview.  Older logic multiplied by the grid
   // scale factor, so text stayed tiny on the real 9:16 card although the editor
   // looked correct.  For forced mobile tiles we scale from the actual tile size.
-  const tileRatio = forceSizePx ? Math.max(0.78, Math.min(1.32, forceSizePx / 72)) : 1;
+  const tileRatio = forceSizePx ? Math.max(0.76, Math.min(1.16, forceSizePx / 76)) : 1;
   const fontScale = forceSizePx ? tileRatio : Math.min(scaleFactor, isTinyTile ? 1.0 : 1.12);
-  const iconScale = forceSizePx ? Math.max(0.82, Math.min(1.18, forceSizePx / 78)) : Math.min(scaleFactor, isTinyTile ? 0.92 : 1.15);
+  const iconScale = forceSizePx ? Math.max(0.82, Math.min(1.08, forceSizePx / 82)) : Math.min(scaleFactor, isTinyTile ? 0.92 : 1.15);
 
   const labelLength = (btn.title || '').trim().length;
   const hasUsableIcon = btn.iconEnabled !== false && !!btn.icon;
@@ -277,8 +277,8 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const isLargeTextPreset = baseFontSize >= 13.2 && baseFontSize < 15.4;
   const forcedTextCap = forceSizePx
     ? (hasUsableIcon
-      ? (isSmallTextPreset ? 9.4 : isNormalTextPreset ? 10.8 : isLargeTextPreset ? 12.2 : 13.6)
-      : (isSmallTextPreset ? 11.2 : isNormalTextPreset ? 12.8 : isLargeTextPreset ? 14.6 : 15.8))
+      ? (isSmallTextPreset ? 8.8 : isNormalTextPreset ? 10.0 : isLargeTextPreset ? 11.4 : 12.6)
+      : (isSmallTextPreset ? 10.2 : isNormalTextPreset ? 11.8 : isLargeTextPreset ? 13.4 : 14.6))
     : (hasUsableIcon ? 11.2 : 13.2);
   const forcedTextFloor = hasUsableIcon ? (isTinyTile ? 7.0 : 7.8) : (isTinyTile ? 8.4 : 9.2);
   const iconTextFactor = hasUsableIcon ? (isSmallTextPreset ? 0.82 : isNormalTextPreset ? 0.9 : isLargeTextPreset ? 0.96 : 1.02) : 1.0;

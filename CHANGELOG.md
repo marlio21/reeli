@@ -1,9 +1,20 @@
-## v52.5.31 – Mobile Editor Public Size Writer Fix
+
+
+## v52.5.32 – Mobile Button Scale Balance & Smaller Text Range Fix
+
+- Rebalanced mobile button size presets so Public and Editor no longer jump to oversized 104px tiles.
+- New mobile button preset sizes: Klein 52px, Normal 64px, Groß 76px, Sehr groß 88px.
+- Capped canonical mobile tile sizes to a safer range (44–96px) to keep the 3-column 9:16 card readable.
+- Button editor preview now uses a bounded visual zoom so large tiles do not explode inside the Look editor.
+- Werbetext sliders now allow smaller values: title down to 10px, subtitle/description down to 8px.
+- Text layout snapshots persist the smaller text sizes so Public can match the editor.
+- No new renderer architecture changes; focused on scale balance and writer ranges.
+## v52.5.32 – Mobile Editor Public Size Writer Fix
 
 - Button size presets now write the canonical public fields directly: `buttonSizePx`, `buttonGridLayout.buttonSizePx`, `mobileLayout.buttons.buttonSizePx`, and `publicLayoutSnapshot.buttons.buttonSizePx`.
 - Added `Sehr groß` button size preset at 104px.
 - Hydration now lets live top-level editor values win over stale public/mobile snapshots when `preferLiveFields` is active.
-- Debug label updated to v52.5.31.
+- Debug label updated to v52.5.32.
 
 
 ## v52.5.29 – Public Button Shape & Layout Writer Fix

@@ -739,12 +739,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     // too small in the actual Public card. The renderer can now handle larger
     // canonical grid sizes, so the UI must write those values too.
     const values = preset === 'compact'
-      ? { px: 58, gap: 7, fontSize: 10.5, iconSize: 18, textPadding: 4, borderWidth: 'thin' as const, scale: 0.78, radius: 'rounded' as const }
+      ? { px: 52, gap: 7, fontSize: 10.0, iconSize: 18, textPadding: 4, borderWidth: 'thin' as const, scale: 0.76, radius: 'rounded' as const }
       : preset === 'large'
-        ? { px: 88, gap: 9, fontSize: 13.8, iconSize: 26, textPadding: 6, borderWidth: 'medium' as const, scale: 1.02, radius: 'rounded' as const }
+        ? { px: 76, gap: 8, fontSize: 12.8, iconSize: 24, textPadding: 5, borderWidth: 'medium' as const, scale: 0.98, radius: 'rounded' as const }
         : preset === 'xlarge'
-          ? { px: 104, gap: 10, fontSize: 15.2, iconSize: 32, textPadding: 7, borderWidth: 'medium' as const, scale: 1.12, radius: 'rounded' as const }
-          : { px: 72, gap: 8, fontSize: 12.2, iconSize: 22, textPadding: 5, borderWidth: 'thin' as const, scale: 0.92, radius: 'rounded' as const };
+          ? { px: 88, gap: 9, fontSize: 13.8, iconSize: 27, textPadding: 6, borderWidth: 'medium' as const, scale: 1.04, radius: 'rounded' as const }
+          : { px: 64, gap: 8, fontSize: 11.4, iconSize: 21, textPadding: 5, borderWidth: 'thin' as const, scale: 0.88, radius: 'rounded' as const };
 
     const updatedButtons = (activeCard.buttons || []).map((button) => button.id === btnId ? {
       ...button,
@@ -779,7 +779,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       } as any,
       mobileLayout: {
         ...(activeCard as any).mobileLayout,
-        version: 'v52.5.31',
+        version: 'v52.5.32',
         buttons: {
           ...((activeCard as any).mobileLayout?.buttons || {}),
           mode: 'grid',
@@ -794,7 +794,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       } as any,
       publicLayoutSnapshot: {
         ...((activeCard as any).publicLayoutSnapshot || {}),
-        version: 'v52.5.31',
+        version: 'v52.5.32',
         buttons: {
           ...((activeCard as any).publicLayoutSnapshot?.buttons || {}),
           mode: 'grid',
@@ -1474,7 +1474,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const buttonGridCols = activeCard.buttonGridCols || activeCard.buttonGridLayout?.cols || 3;
   const buttonSizePx = activeCard.buttonGridLayout?.buttonSizePx || activeCard.buttonSizePx || 72;
   const buttonGapPx = activeCard.buttonGridLayout?.gapPx || activeCard.buttonGridLayout?.gap || activeCard.buttonGapPx || 10;
-  const getMobileCardButtonTilePx = (value: any = buttonSizePx) => Math.max(48, Math.min(Number(value || 72), 112));
+  const getMobileCardButtonTilePx = (value: any = buttonSizePx) => Math.max(44, Math.min(Number(value || 64), 96));
   const visibleButtonsAt = Number(timeline.buttonsAt || 0.6);
   const buttonsCurrentlyVisible = timelineSec >= visibleButtonsAt || !isPlaying;
 
@@ -2134,9 +2134,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     return {
       // v52.5.8: the editor sample is a compact design card; cap title/subtitle
       // harder so the description remains visible while typing.
-      title: Math.max(17, Math.min(28, clampTextSize((activeCard as any).heroTitleSize, 30, 16, 56) * titleRatio)),
-      subtitle: Math.max(11, Math.min(18, clampTextSize((activeCard as any).heroSubtitleSize, 16, 10, 40))),
-      description: Math.max(12, Math.min(16, clampTextSize((activeCard as any).heroDescriptionSize, 14, 10, 32))),
+      title: Math.max(12, Math.min(28, clampTextSize((activeCard as any).heroTitleSize, 24, 10, 56) * titleRatio)),
+      subtitle: Math.max(8, Math.min(18, clampTextSize((activeCard as any).heroSubtitleSize, 14, 8, 40))),
+      description: Math.max(8, Math.min(16, clampTextSize((activeCard as any).heroDescriptionSize, 12, 8, 32))),
     };
   };
 
@@ -2249,7 +2249,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     // where the editor calculated a large preview while the card calculated a
     // small 3x2 grid tile with different text/icon fitting.
     const realTileSize = getMobileCardButtonTilePx();
-    const zoom = compact ? 1 : 2.12;
+    // v52.5.32: keep the editor preview readable but stop it from exploding
+    // when the real card tile is large. The card/public renderer still uses
+    // the real pixel size; only this inspection preview is visually zoomed.
+    const maxStage = compact ? realTileSize : 176;
+    const zoom = compact ? 1 : Math.max(1.18, Math.min(1.9, maxStage / Math.max(1, realTileSize)));
     const stageSize = Math.round(realTileSize * zoom);
     return (
       <div key={button.id} className={`relative flex items-center justify-center ${compact ? 'ureel-button-preview-tile--compact' : 'ureel-button-preview-tile--large'}`} style={{ width: stageSize, height: stageSize }}>
@@ -3502,7 +3506,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <LucideIcons.Hand size={16} className="text-[#E8DCC2]" />
                   </div>
                   <div className="rounded-3xl border border-[#E8DCC2]/18 bg-black/30 p-4 text-center shadow-inner">
-                    <div className="font-black uppercase leading-[0.92]" style={{ fontSize: clampTextSize((activeCard as any).heroTitleSize, 30, 16, 52), color: (activeCard as any).heroTitleTextColor || '#F5F2EA' }}>{textDraft.title || activeCard.title || 'Dein Titel'}</div>
+                    <div className="font-black uppercase leading-[0.92]" style={{ fontSize: clampTextSize((activeCard as any).heroTitleSize, 24, 10, 52), color: (activeCard as any).heroTitleTextColor || '#F5F2EA' }}>{textDraft.title || activeCard.title || 'Dein Titel'}</div>
                     <div className="mt-2 font-black uppercase tracking-wider" style={{ fontSize: clampTextSize((activeCard as any).heroSubtitleSize, 12, 8, 24), color: (activeCard as any).heroSubtitleTextColor || '#E8DCC2' }}>{textDraft.subtitle || activeCard.subtitle || 'Dein Untertitel'}</div>
                     <div className="mt-2 font-semibold leading-snug" style={{ fontSize: clampTextSize((activeCard as any).heroDescriptionSize, 11, 8, 22), color: (activeCard as any).heroDescTextColor || '#D8D2C5' }}>{textDraft.description || activeCard.description || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.'}</div>
                   </div>
@@ -4198,7 +4202,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   {activeSubSection === 'buttons-size' && (
                     <div className="space-y-3">
                       <div className="flex justify-between text-[10px] uppercase font-bold text-stone-450"><span>Buttongröße</span><span>{buttonSizePx}px</span></div>
-                      <input type="range" min={48} max={112} step={2} value={buttonSizePx} onChange={(e) => syncCardUpdate({ buttonSizePx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), buttonSizePx: Number(e.target.value) } as any })} className="w-full accent-[#E8DCC2]" />
+                      <input type="range" min={44} max={96} step={2} value={buttonSizePx} onChange={(e) => syncCardUpdate({ buttonSizePx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), buttonSizePx: Number(e.target.value) } as any })} className="w-full accent-[#E8DCC2]" />
                     </div>
                   )}
 
@@ -4403,7 +4407,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
                     <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Raster-Einstellungen</span>
                     <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3.5"><div className="flex items-center justify-between gap-3"><div><span className="text-[10.5px] font-black text-[#F5F2EA] block uppercase tracking-wide leading-none">3er Raster</span><span className="text-[8.5px] text-stone-500 mt-1 leading-snug block">ureel-Standard: drei Buttons pro Reihe, identisch für Szene und öffentliche Karte.</span></div><button type="button" onClick={async () => { await syncCardUpdate({ buttonGridCols: 3 as any, buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), mode: 'three_columns', cols: 3 as any, square: true } }); triggerToast(lang === 'de' ? '3er Raster aktiviert' : '3-column grid active', 'success'); }} className="h-9 px-3 rounded-xl bg-[#F5F2EA] text-[#101010] text-[8px] font-black uppercase tracking-wider">Aktivieren</button></div></div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2"><div><div className="flex items-center justify-between text-[10.5px] font-bold text-stone-400 mb-2"><span>Button-Größe</span><span className="text-[#E8DCC2] font-mono">{buttonSizePx}px</span></div><input type="range" min={48} max={112} step={2} value={buttonSizePx} onChange={(e) => syncCardUpdate({ buttonSizePx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), buttonSizePx: Number(e.target.value), cols: buttonGridCols as any, square: true } })} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" /></div><div><div className="flex items-center justify-between text-[10.5px] font-bold text-stone-400 mb-2"><span>Button-Abstand</span><span className="text-[#E8DCC2] font-mono">{buttonGapPx}px</span></div><input type="range" min={4} max={22} step={1} value={buttonGapPx} onChange={(e) => syncCardUpdate({ buttonGapPx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), gapPx: Number(e.target.value), gap: Number(e.target.value), cols: buttonGridCols as any, square: true } })} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" /></div></div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2"><div><div className="flex items-center justify-between text-[10.5px] font-bold text-stone-400 mb-2"><span>Button-Größe</span><span className="text-[#E8DCC2] font-mono">{buttonSizePx}px</span></div><input type="range" min={44} max={96} step={2} value={buttonSizePx} onChange={(e) => syncCardUpdate({ buttonSizePx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), buttonSizePx: Number(e.target.value), cols: buttonGridCols as any, square: true } })} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" /></div><div><div className="flex items-center justify-between text-[10.5px] font-bold text-stone-400 mb-2"><span>Button-Abstand</span><span className="text-[#E8DCC2] font-mono">{buttonGapPx}px</span></div><input type="range" min={4} max={22} step={1} value={buttonGapPx} onChange={(e) => syncCardUpdate({ buttonGapPx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), gapPx: Number(e.target.value), gap: Number(e.target.value), cols: buttonGridCols as any, square: true } })} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" /></div></div>
                   </div>
                 </div>
               )}
@@ -5119,9 +5123,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <span className="ureel-tap-mini-label">Schriftart</span>
               <div className="ureel-tap-chip-row"><button type="button" className={(currentTextTemplate.fontStyle || 'modern') === 'modern' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'modern' })}>Klar</button><button type="button" className={currentTextTemplate.fontStyle === 'elegant' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'elegant' })}>Elegant</button><button type="button" className={currentTextTemplate.fontStyle === 'serif' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'serif' })}>Serif</button><button type="button" className={currentTextTemplate.fontStyle === 'condensed' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'condensed' })}>Bold</button></div>
               {[
-                { key: 'heroTitleSize', label: 'Titelgröße', min: 16, max: 56, fallback: 30 },
-                { key: 'heroSubtitleSize', label: 'Untertitelgröße', min: 12, max: 64, fallback: 24 },
-                { key: 'heroDescriptionSize', label: 'Beschreibunggröße', min: 12, max: 56, fallback: 24 },
+                { key: 'heroTitleSize', label: 'Titelgröße', min: 10, max: 56, fallback: 24 },
+                { key: 'heroSubtitleSize', label: 'Untertitelgröße', min: 8, max: 40, fallback: 14 },
+                { key: 'heroDescriptionSize', label: 'Beschreibunggröße', min: 8, max: 36, fallback: 12 },
               ].map((item) => <div key={item.key} className="ureel-tap-slider-row"><label>{item.label} <b>{clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max).toFixed(0)}px</b></label><input type="range" min={item.min} max={item.max} step={1} value={clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max)} onChange={(e) => syncCardUpdate({ [item.key]: Number(e.target.value) } as any)} /></div>)}
               {[
                 { key: 'heroTitleTextColor', label: 'Titelfarbe', fallback: '#F5F2EA' },
@@ -5232,7 +5236,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 {(currentButton.buttonImageUrl || currentButton.imageUrl) && <button type="button" className="ureel-mobile-danger-inline" onClick={() => handleUpdateSingleButton(currentButton.id, { buttonImageUrl: '', imageUrl: '', buttonImageFileName: '', buttonImageOverlay: false } as any)}>Buttonbild entfernen</button>}
                 <span className="ureel-tap-mini-label">Buttongröße</span>
                 <div className="ureel-tap-chip-row"><button type="button" className={(currentButton.buttonSize as any)?.preset === 'compact' ? 'is-active' : ''} onClick={() => applyMobileButtonSizePreset(currentButton.id, 'compact')}>Klein</button><button type="button" className={!(currentButton.buttonSize as any)?.preset || (currentButton.buttonSize as any)?.preset === 'standard' ? 'is-active' : ''} onClick={() => applyMobileButtonSizePreset(currentButton.id, 'standard')}>Normal</button><button type="button" className={(currentButton.buttonSize as any)?.preset === 'large' ? 'is-active' : ''} onClick={() => applyMobileButtonSizePreset(currentButton.id, 'large')}>Groß</button><button type="button" className={(currentButton.buttonSize as any)?.preset === 'xlarge' ? 'is-active' : ''} onClick={() => applyMobileButtonSizePreset(currentButton.id, 'xlarge')}>Sehr groß</button></div>
-                <p className="ureel-tap-inline-hint">Klein 58px, Normal 72px, Groß 88px, Sehr groß 104px. Diese Werte werden direkt in alle Public-Layoutfelder geschrieben.</p>
+                <p className="ureel-tap-inline-hint">Klein 52px, Normal 64px, Groß 76px, Sehr groß 88px. Diese Werte werden direkt in alle Public-Layoutfelder geschrieben.</p>
                 <span className="ureel-tap-mini-label">Rahmen</span>
                 <div className="ureel-tap-chip-row"><button type="button" className={!currentButton.borderEnabled || currentButton.borderWidth === 'none' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: false, borderWidth: 'none' } as any)}>Kein</button><button type="button" className={currentButton.borderEnabled && currentButton.borderWidth === 'thin' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderWidth: 'thin', borderColor: currentButton.borderColor || '#D8CDB7' } as any)}>Klein</button><button type="button" className={currentButton.borderEnabled && currentButton.borderWidth === 'medium' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderWidth: 'medium', borderColor: currentButton.borderColor || '#D8CDB7' } as any)}>Mittel</button><button type="button" className={currentButton.borderEnabled && currentButton.borderWidth === 'thick' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderWidth: 'thick', borderColor: currentButton.borderColor || '#111111' } as any)}>Dick</button></div>
                 <SpectrumColorPicker label="Rahmenfarbe" value={(currentButton.borderColor || '#D8CDB7').startsWith('rgba') ? '#D8CDB7' : (currentButton.borderColor || '#D8CDB7')} fallback="#D8CDB7" onChange={(value) => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderColor: value, borderWidth: currentButton.borderWidth === 'none' || !currentButton.borderWidth ? 'thin' : currentButton.borderWidth } as any)} />

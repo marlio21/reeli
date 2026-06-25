@@ -1,15 +1,15 @@
-# ureel.me v52.5.31
+# ureel.me v52.5.32
 
 Mobile Editor Public Size Writer Fix. Vercel upload ZIP without dist/node_modules.
 
 # ureel.me / reeli
 
-Aktuelle Version: **v52.5.31 – Public Layout Debug Inspector**
+Aktuelle Version: **v52.5.32 – Public Layout Debug Inspector**
 
 Hinweis: Der ZIP-Upload enthält bewusst keinen `dist/`-Ordner. Vercel baut den Ordner selbst beim Deployment neu.
 
 
-# ureel.me v52.5.31
+# ureel.me v52.5.32
 
 Public Layout Debug Inspector.
 
@@ -59,7 +59,7 @@ React / Vite / TypeScript mit vorbereitetem Firebase-Setup und Vercel Deployment
 - Keine RELEASE_NOTES-Dateien.
 
 
-## v52.5.31 – Public Layout Debug Inspector
+## v52.5.32 – Public Layout Debug Inspector
 
 - Temporärer Layout-Debug-Overlay in Public View und zentralen Studio-Vorschauen.
 - Zeigt geladene Button-/Textgrößen aus buttonGridLayout, mobileLayout und publicLayoutSnapshot.
