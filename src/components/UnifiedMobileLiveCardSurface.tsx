@@ -40,6 +40,16 @@ const fmt = (value: any) => {
   return String(value);
 };
 
+const isLayoutDebugEnabled = () => {
+  if (typeof window === 'undefined') return false;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('debugLayout') === '1' || window.localStorage?.getItem('ureel.debugLayout') === '1';
+  } catch {
+    return false;
+  }
+};
+
 const MobileLayoutDebugInspector: React.FC<{
   card: Card;
   scale: number;
@@ -73,7 +83,7 @@ const MobileLayoutDebugInspector: React.FC<{
     <div className="absolute left-2 bottom-2 z-[9999] max-w-[240px] rounded-xl border border-amber-300/70 bg-black/82 p-2 text-[8px] leading-tight text-amber-50 shadow-2xl backdrop-blur-md">
       <div className="mb-1 flex items-center justify-between gap-2 border-b border-amber-300/25 pb-1">
         <span className="font-black uppercase tracking-widest text-amber-200">Layout Debug</span>
-        <span className="font-mono text-amber-100/70">v52.5.28</span>
+        <span className="font-mono text-amber-100/70">v52.5.30</span>
       </div>
       <div className="grid grid-cols-[96px_1fr] gap-x-2 gap-y-0.5 font-mono">
         {rows.map(([k, v]) => (
@@ -115,7 +125,8 @@ export const UnifiedMobileLiveCardSurface: React.FC<UnifiedMobileLiveCardSurface
   debugLabel,
 }) => {
   const hostRef = React.useRef<HTMLDivElement | null>(null);
-  const [scale, setScale] = React.useState(1);
+  const [scale, setScale] = React.useState(0);
+  const shouldShowLayoutDebug = showLayoutDebug && isLayoutDebugEnabled();
 
   React.useLayoutEffect(() => {
     const node = hostRef.current;
@@ -143,8 +154,10 @@ export const UnifiedMobileLiveCardSurface: React.FC<UnifiedMobileLiveCardSurface
         style={{
           width: MOBILE_LIVE_CARD_WIDTH,
           height: MOBILE_LIVE_CARD_HEIGHT,
-          transform: `translate(-50%, -50%) scale(${scale})`,
+          transform: `translate(-50%, -50%) scale(${scale || 0.1})`,
           transformOrigin: 'center center',
+          opacity: scale > 0 ? 1 : 0,
+          transition: 'opacity 120ms ease',
         }}
       >
         <KonuCardCore
@@ -163,7 +176,7 @@ export const UnifiedMobileLiveCardSurface: React.FC<UnifiedMobileLiveCardSurface
           onEditButton={onEditButton}
           onEditText={onEditText}
         />
-        {showLayoutDebug && (
+        {shouldShowLayoutDebug && (
           <MobileLayoutDebugInspector
             card={card}
             scale={scale}
