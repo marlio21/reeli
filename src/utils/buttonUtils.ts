@@ -797,11 +797,13 @@ export function normalizeButtonGridLayout(card: Partial<Card> | undefined): Requ
   const rawGap = typeof gl?.gapPx === 'number' ? gl.gapPx : (typeof card.buttonGapPx === 'number' ? card.buttonGapPx : 12);
   const rawButtonSize = typeof gl?.buttonSizePx === 'number' ? gl.buttonSizePx : (typeof card.buttonSizePx === 'number' ? card.buttonSizePx : 72);
 
-  // v52.4.3: Ureel cards must remain visually stable in the 9:16 frame.
-  // Old mobile tests could save oversized buttonSizePx values; clamp them for the real renderer
-  // so even a "Groß" preset stays in a clean 3-column grid instead of overlapping.
-  const safeButtonSize = isUreel ? Math.max(38, Math.min(rawButtonSize, 66)) : rawButtonSize;
-  const safeGap = isUreel ? Math.max(6, Math.min(rawGap, 12)) : rawGap;
+  // v52.5.18: the mobile editor, preview and public link must read one
+  // persisted layout value. The old Ureel normalizer capped buttonSizePx at
+  // 66px before the renderer ever saw it; later renderer fixes therefore could
+  // never make the public card match the Look editor. Keep only a broad safety
+  // range that prevents impossible layouts while preserving user-selected size.
+  const safeButtonSize = isUreel ? Math.max(48, Math.min(rawButtonSize, 112)) : rawButtonSize;
+  const safeGap = isUreel ? Math.max(4, Math.min(rawGap, 18)) : rawGap;
 
   return {
     mode: (gl?.mode || defaultMode) as any,
@@ -809,7 +811,7 @@ export function normalizeButtonGridLayout(card: Partial<Card> | undefined): Requ
     square: gl?.square !== undefined ? !!gl.square : defaultSquare,
     gapPx: safeGap,
     buttonSizePx: safeButtonSize,
-    gap: typeof gl?.gap === 'number' ? (isUreel ? Math.max(5, Math.min(gl.gap, 10)) : gl.gap) : safeGap,
+    gap: typeof gl?.gap === 'number' ? (isUreel ? Math.max(4, Math.min(gl.gap, 18)) : gl.gap) : safeGap,
     align: gl?.align || 'center',
   };
 }

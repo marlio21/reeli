@@ -1222,10 +1222,16 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     const safeBottom = mobileTextDesign.bottom || (buttonsVisible ? (filteredLayeredButtons.length > 6 ? '48%' : '42%') : '7%');
     const widthClass = layeredFrameType === 'badge' ? 'max-w-[78%]' : mobileTextDesign.widthClass;
     const compactRatio = buttonsVisible ? (isHero || endcardVideoActive ? 0.78 : 0.88) : 1.0;
-    const finalScaleBoost = finalVisualMode ? 1.08 : 1;
-    const titleSize = Math.max(16, Math.min(buttonsVisible ? 38 : 46, Number((card as any).heroTitleSize || 30) * compactRatio * mobileTextDesign.titleRatio * finalScaleBoost));
-    const subtitleSize = Math.max(11, Math.min(buttonsVisible ? 26 : 32, Number((card as any).heroSubtitleSize || 14) * (buttonsVisible ? 1.08 : 1) * mobileTextDesign.subtitleRatio * finalScaleBoost));
-    const descriptionSize = Math.max(11.5, Math.min(buttonsVisible ? 24 : 34, Number((card as any).heroDescriptionSize || 22) * (buttonsVisible ? 0.94 : 1) * mobileTextDesign.descriptionRatio * finalScaleBoost));
+    // v52.5.18: public and editor-preview must use the same configured text
+    // sizes. Earlier public paths applied additional compact ratios/caps when
+    // buttons were visible, so the public card stayed visibly smaller than the
+    // editor preview. Keep safety caps, but do not silently shrink configured
+    // mobile text in final visual mode.
+    const finalScaleBoost = finalVisualMode ? 1.14 : 1;
+    const publicTextRatio = finalVisualMode ? 1 : compactRatio;
+    const titleSize = Math.max(16, Math.min(buttonsVisible ? 46 : 50, Number((card as any).heroTitleSize || 30) * publicTextRatio * mobileTextDesign.titleRatio * finalScaleBoost));
+    const subtitleSize = Math.max(11, Math.min(buttonsVisible ? 32 : 36, Number((card as any).heroSubtitleSize || 14) * (buttonsVisible && !finalVisualMode ? 1.08 : 1) * mobileTextDesign.subtitleRatio * finalScaleBoost));
+    const descriptionSize = Math.max(11.5, Math.min(buttonsVisible ? 30 : 36, Number((card as any).heroDescriptionSize || 22) * (buttonsVisible && !finalVisualMode ? 0.94 : 1) * mobileTextDesign.descriptionRatio * finalScaleBoost));
     const boxStyle = layeredTextBoxStyle();
     const isLightTextBox = layeredBoxType === 'light';
     const readableOnDark = (value: any, fallback: string) => {
@@ -1342,9 +1348,10 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               style={{ gap: `${gridLayout.gapPx}px`, justifyItems: 'center' }}
             >
               {filteredLayeredButtons.map((btn, index) => {
-                // v52.5.7: use the exact same mobile tile bound as the editor's
-                // enlarged tile preview. One renderer, one size, one fitting result.
-                const safePreviewSize = Math.max(54, Math.min(Number(gridLayout.buttonSizePx || (card as any).buttonSizePx || 72), 104));
+                // v52.5.18: one final mobile layout model. Do not re-cap the
+                // public/preview tile at legacy sizes; normalizeButtonGridLayout
+                // already preserves the user's selected Look size safely.
+                const safePreviewSize = Math.max(48, Math.min(Number(gridLayout.buttonSizePx || (card as any).buttonSizePx || 72), 112));
                 return (
                   <ButtonRenderer
                     key={btn.id}

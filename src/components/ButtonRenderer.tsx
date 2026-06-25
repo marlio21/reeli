@@ -238,9 +238,9 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   // scale as the button editor preview.  Older logic multiplied by the grid
   // scale factor, so text stayed tiny on the real 9:16 card although the editor
   // looked correct.  For forced mobile tiles we scale from the actual tile size.
-  const tileRatio = forceSizePx ? Math.max(0.82, Math.min(1.12, forceSizePx / 60)) : 1;
+  const tileRatio = forceSizePx ? Math.max(0.78, Math.min(1.32, forceSizePx / 72)) : 1;
   const fontScale = forceSizePx ? tileRatio : Math.min(scaleFactor, isTinyTile ? 1.0 : 1.12);
-  const iconScale = forceSizePx ? tileRatio : Math.min(scaleFactor, isTinyTile ? 0.92 : 1.15);
+  const iconScale = forceSizePx ? Math.max(0.82, Math.min(1.18, forceSizePx / 78)) : Math.min(scaleFactor, isTinyTile ? 0.92 : 1.15);
 
   const labelLength = (btn.title || '').trim().length;
   const hasUsableIcon = btn.iconEnabled !== false && !!btn.icon;
@@ -264,13 +264,16 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const isLargeTextPreset = baseFontSize >= 13.2 && baseFontSize < 15.4;
   const forcedTextCap = forceSizePx
     ? (hasUsableIcon
-      ? (isSmallTextPreset ? 8.7 : isNormalTextPreset ? 9.8 : isLargeTextPreset ? 11.1 : 12.2)
-      : (isSmallTextPreset ? 10.2 : isNormalTextPreset ? 11.8 : isLargeTextPreset ? 13.4 : 14.6))
+      ? (isSmallTextPreset ? 9.4 : isNormalTextPreset ? 10.8 : isLargeTextPreset ? 12.2 : 13.6)
+      : (isSmallTextPreset ? 11.2 : isNormalTextPreset ? 12.8 : isLargeTextPreset ? 14.6 : 15.8))
     : (hasUsableIcon ? 11.2 : 13.2);
-  const forcedTextFloor = hasUsableIcon ? (isTinyTile ? 7.2 : 7.8) : (isTinyTile ? 8.6 : 9.2);
-  const iconTextFactor = hasUsableIcon ? (isSmallTextPreset ? 0.78 : isNormalTextPreset ? 0.82 : isLargeTextPreset ? 0.86 : 0.9) : 0.96;
+  const forcedTextFloor = hasUsableIcon ? (isTinyTile ? 7.0 : 7.8) : (isTinyTile ? 8.4 : 9.2);
+  const iconTextFactor = hasUsableIcon ? (isSmallTextPreset ? 0.82 : isNormalTextPreset ? 0.9 : isLargeTextPreset ? 0.96 : 1.02) : 1.0;
+  const widthFitCap = forceSizePx && labelLength > 0
+    ? Math.max(forcedTextFloor, (forceSizePx * (hasUsableIcon ? 0.84 : 0.9)) / Math.max(1, labelLength * 0.56))
+    : forcedTextCap;
   const autoFitFontSize = forceSizePx
-    ? Math.max(forcedTextFloor, Math.min(forcedTextCap, (baseFontSize * fontScale * iconTextFactor) - lengthPenalty))
+    ? Math.max(forcedTextFloor, Math.min(forcedTextCap, widthFitCap, (baseFontSize * fontScale * iconTextFactor) - lengthPenalty))
     : Math.max(isTinyTile ? 6.2 : 7, Math.round((baseFontSize * fontScale) - lengthPenalty));
   const sizeStyle = `${Number(autoFitFontSize.toFixed(1))}px`;
 
@@ -573,20 +576,24 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
               display: 'inline-flex',
               flexDirection: 'column',
               alignItems: btn.textAlign === 'left' ? 'flex-start' : btn.textAlign === 'right' ? 'flex-end' : 'center',
-              maxWidth: forceSizePx ? '96%' : '100%',
-              transform: btn.textFineTuneEnabled === true
-                ? `translate(${Number(btn.textOffsetX ?? 0)}px, ${Number(btn.textOffsetY ?? 0)}px)`
-                : undefined,
+              width: forceSizePx ? '100%' : undefined,
+              maxWidth: forceSizePx ? '100%' : '100%',
+              textAlign: btn.textAlign || 'center',
+              transform: forceSizePx
+                ? undefined
+                : (btn.textFineTuneEnabled === true
+                  ? `translate(${Number(btn.textOffsetX ?? 0)}px, ${Number(btn.textOffsetY ?? 0)}px)`
+                  : undefined),
               fontSize: sizeStyle,
               fontWeight: weightStyle,
               letterSpacing: btn.letterSpacing ? `${btn.letterSpacing}px` : undefined,
               textShadow: textShadowVal,
               color: textColor,
               lineHeight: hasSecondButtonLine ? 1.02 : 1.06,
-              overflowWrap: compactSingleLine || forceSizePx ? 'normal' : 'anywhere',
-              wordBreak: compactSingleLine || forceSizePx ? 'keep-all' : 'break-word',
-              whiteSpace: compactSingleLine ? 'nowrap' : 'normal',
-              hyphens: compactSingleLine || forceSizePx ? 'manual' : 'auto',
+              overflowWrap: forceSizePx ? 'normal' : (compactSingleLine ? 'normal' : 'anywhere'),
+              wordBreak: forceSizePx ? 'normal' : (compactSingleLine ? 'keep-all' : 'break-word'),
+              whiteSpace: forceSizePx && !hasSecondButtonLine ? 'nowrap' : (compactSingleLine ? 'nowrap' : 'normal'),
+              hyphens: forceSizePx ? 'manual' : (compactSingleLine ? 'manual' : 'auto'),
               overflow: 'hidden',
               textOverflow: 'ellipsis',
             }}

@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v52.5.18 – Mobile Layout Model Hard Fix
+
+- Removes the old Ureel `normalizeButtonGridLayout` cap that reduced saved mobile button sizes to 66px before the renderer could use them.
+- Preserves the user-selected `buttonGridLayout.buttonSizePx` across editor preview, public link and mobile card surface with a broad safe range up to 112px.
+- Aligns Studio monitor cleanup with the same mobile layout model instead of separately clamping to 104px.
+- Improves forced mobile button text fitting: public/preview tiles ignore fine-tune offsets that clipped labels and use full-width centered text for short labels.
+- Adjusts final mobile Werbetext scaling so Public and preview no longer apply separate compact shrink rules when buttons are visible.
+- Keeps live timing and replay behavior from v52.5.16/v52.5.17 and does not intentionally alter the Desktop editor.
+
 ## v52.5.17 – Mobile Button Size Persistence & Text Fit Hard Fix
 
 - Removes the remaining hard 76px cap for layered mobile card buttons.
