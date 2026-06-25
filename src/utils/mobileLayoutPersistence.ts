@@ -44,7 +44,7 @@ export const deriveCanonicalButtonGridLayout = (
     ? (gl.gapPx ?? gl.gap ?? (card as any)?.buttonGapPx ?? mobileButtons.gapPx ?? mobileButtons.gap ?? publicButtons.gapPx ?? publicButtons.gap ?? 10)
     : (gl.gapPx ?? gl.gap ?? mobileButtons.gapPx ?? mobileButtons.gap ?? publicButtons.gapPx ?? publicButtons.gap ?? (card as any)?.buttonGapPx ?? 10);
   const cols = clamp(canonicalButtons.cols ?? (card as any)?.buttonGridCols ?? 3, 1, 3, 3) as 1 | 2 | 3;
-  const size = ureel ? clamp(rawSize, 42, 84, 58) : num(rawSize, 80);
+  const size = ureel ? clamp(rawSize, 38, 68, 52) : num(rawSize, 80);
   const gap = ureel ? clamp(rawGap, 4, 22, 10) : num(rawGap, 12);
   return {
     mode: (canonicalButtons.mode || (ureel ? 'grid' : 'list')) as any,
@@ -63,7 +63,7 @@ export const buildMobileLayoutSnapshot = (card: Partial<Card>, options?: { prefe
   const subtitleSize = clamp((card as any).heroSubtitleSize ?? (card as any).mobileLayout?.text?.subtitleSizePx, 8, 40, 14);
   const descriptionSize = clamp((card as any).heroDescriptionSize ?? (card as any).mobileLayout?.text?.descriptionSizePx, 8, 36, 12);
   return {
-    version: 'v52.5.34',
+    version: 'v52.5.35',
     buttons: {
       mode: grid.mode,
       cols: grid.cols,
@@ -139,11 +139,11 @@ export const persistMobileLayoutFields = <T extends Partial<Card>>(updates: T, b
       ...(baseAny.mobileLayout || {}),
       ...(updateAny.mobileLayout || {}),
       ...snapshot,
-      version: 'v52.5.34',
+      version: 'v52.5.35',
     } as any,
     publicLayoutSnapshot: {
       ...snapshot,
-      version: 'v52.5.34',
+      version: 'v52.5.35',
     } as any,
     ureelTextTemplate: updateAny.ureelTextTemplate
       ? normalizeUreelTextTemplate({ ...(baseAny.ureelTextTemplate || {}), ...(updateAny.ureelTextTemplate || {}) } as any) as any

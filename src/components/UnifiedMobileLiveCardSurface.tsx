@@ -73,7 +73,7 @@ const MobileLayoutDebugInspector: React.FC<{
     <div className="absolute left-2 bottom-2 z-[9999] max-w-[240px] rounded-xl border border-amber-300/70 bg-black/82 p-2 text-[8px] leading-tight text-amber-50 shadow-2xl backdrop-blur-md">
       <div className="mb-1 flex items-center justify-between gap-2 border-b border-amber-300/25 pb-1">
         <span className="font-black uppercase tracking-widest text-amber-200">Layout Debug</span>
-        <span className="font-mono text-amber-100/70">v52.5.34</span>
+        <span className="font-mono text-amber-100/70">v52.5.35</span>
       </div>
       <div className="grid grid-cols-[96px_1fr] gap-x-2 gap-y-0.5 font-mono">
         {rows.map(([k, v]) => (
@@ -139,7 +139,8 @@ export const UnifiedMobileLiveCardSurface: React.FC<UnifiedMobileLiveCardSurface
   const debugEnabled = showLayoutDebug && typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debugLayout') === 'force';
 
   return (
-    <div ref={hostRef} className={`relative h-full w-full overflow-hidden bg-black ${className}`}>
+    <div ref={hostRef} className={`relative h-full w-full overflow-hidden bg-[#111] ${className}`}>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(232,220,194,0.08),transparent_42%),linear-gradient(180deg,#151515,#050505)]" aria-hidden="true" />
       <div
         className={`absolute left-1/2 top-1/2 overflow-hidden bg-black ${innerClassName}`}
         style={{

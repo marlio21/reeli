@@ -201,6 +201,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   const timelineConfig = React.useMemo(() => normalizeUreelTimeline(card), [card]);
   const endCardConfig = React.useMemo(() => normalizeUreelEndCard(card), [card]);
   const gridLayout = React.useMemo(() => normalizeButtonGridLayout(card), [card]);
+  const clampCardTileSizePx = (value: any) => Math.max(38, Math.min(Number(value || 52), 68));
 
   const hasTimeline = !!card.ureelTimeline;
   const hasEndCard = !!card.ureelEndCard;
@@ -332,7 +333,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             muted
             loop
             playsInline
-            preload="metadata"
+            preload="auto"
             className="absolute inset-0 w-full h-full object-cover"
           />
         )}
@@ -828,7 +829,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               autoPlay
               muted
               playsInline
-              preload="metadata"
+              preload="auto"
               onLoadStart={() => setVideoStatus('loading')}
               onCanPlay={() => setVideoStatus('ready')}
               onPlay={() => setVideoStatus('ready')}
@@ -1168,6 +1169,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         frameBorder="0"
         allow="autoplay; encrypted-media"
         title="ureel scene video"
+        loading="eager"
         style={{ pointerEvents: 'none' }}
       />
     );
@@ -1185,7 +1187,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       return (
         <div className={`${heroCompact ? 'absolute top-3 left-[6%] right-[6%] z-[8]' : 'absolute top-0 left-0 right-0 z-[8]'} aspect-video overflow-hidden ${heroCompact ? 'rounded-2xl border border-[#F5F2EA]/25 shadow-2xl' : 'rounded-none border-0'}`}>
           {isYt && embed && renderLayeredYoutube(embed, heroCompact ? 'heroCompact' : 'heroWide')}
-          {!isYt && src && <video key={`scene-video-${replaySeed}-${src}`} src={src} autoPlay muted playsInline preload="metadata" className="absolute inset-0 w-full h-full object-cover" />}
+          {!isYt && src && <video key={`scene-video-${replaySeed}-${src}`} src={src} autoPlay muted playsInline preload="auto" className="absolute inset-0 w-full h-full object-cover" />}
         </div>
       );
     }
@@ -1193,7 +1195,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     return (
       <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
         {isYt && embed && renderLayeredYoutube(embed, 'cover')}
-        {!isYt && src && <video key={`scene-video-${replaySeed}-${src}`} src={src} autoPlay muted playsInline preload="metadata" className="absolute inset-0 w-full h-full object-cover" />}
+        {!isYt && src && <video key={`scene-video-${replaySeed}-${src}`} src={src} autoPlay muted playsInline preload="auto" className="absolute inset-0 w-full h-full object-cover" />}
       </div>
     );
   };
@@ -1279,7 +1281,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   };
 
   if (useLayeredUreelCard) {
-    const buttonDockMaxHeight = filteredLayeredButtons.length > 6 ? 'max-h-[46%]' : 'max-h-[42%]';
+    const buttonDockMaxHeight = filteredLayeredButtons.length > 6 ? 'max-h-[38%]' : 'max-h-[34%]';
     return (
       <div
         onClick={() => {
@@ -1344,7 +1346,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         {/* Layer 3: timed action dock. More than six buttons scroll inside the phone, the background remains fixed behind it. */}
         {!backgroundOnlyPreview && showButtons && filteredLayeredButtons.length > 0 && (
           <div
-            className={`absolute left-3 right-3 bottom-3 z-[20] ${buttonDockMaxHeight} overflow-y-auto overflow-x-hidden scrollbar-none rounded-[24px] p-1 transition-all duration-500`}
+            className={`absolute left-4 right-4 bottom-6 z-[20] ${buttonDockMaxHeight} overflow-y-auto overflow-x-hidden scrollbar-none rounded-[24px] p-1 transition-all duration-500`}
             style={buttonRevealStyle}
           >
             <div
@@ -1355,7 +1357,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                 // v52.5.18: one final mobile layout model. Do not re-cap the
                 // public/preview tile at legacy sizes; normalizeButtonGridLayout
                 // already preserves the user's selected Look size safely.
-                const safePreviewSize = Math.max(40, Math.min(Number(gridLayout.buttonSizePx || (card as any).buttonSizePx || 52), 72));
+                const safePreviewSize = clampCardTileSizePx(gridLayout.buttonSizePx || (card as any).buttonSizePx || 52);
                 return (
                   <ButtonRenderer
                     key={btn.id}
@@ -1475,7 +1477,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                       muted
                       loop={hasUreelScene ? true : (normalized.loop?.enabled ?? false)}
                       playsInline
-                      preload="metadata"
+                      preload="auto"
                       onLoadStart={() => {
                         console.log(`[VIDEO EVENTS BI] onLoadStart triggered for: ${videoSrc}`);
                         setVideoStatus((prev) => prev === 'ready' ? 'ready' : 'loading');
@@ -1825,8 +1827,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                         isDragTarget ? 'border-2 border-dashed border-[#A855F7] scale-[1.08] animate-none' : ''
                       } ${isSelectedForSwap ? 'ring-2 ring-[#A855F7] scale-[1.06] border-2 border-[#A855F7] animate-pulse' : ''}`}
                       style={{
-                        width: gridLayout.buttonSizePx ? `${Math.max(40, Math.min(Number(gridLayout.buttonSizePx), 72))}px` : `${scaleFactor * 100}%`,
-                        height: gridLayout.buttonSizePx ? `${Math.max(40, Math.min(Number(gridLayout.buttonSizePx), 72))}px` : (gridLayout.square ? '100%' : `${scaleFactor * 100}%`),
+                        width: gridLayout.buttonSizePx ? `${clampCardTileSizePx(gridLayout.buttonSizePx)}px` : `${scaleFactor * 100}%`,
+                        height: gridLayout.buttonSizePx ? `${clampCardTileSizePx(gridLayout.buttonSizePx)}px` : (gridLayout.square ? '100%' : `${scaleFactor * 100}%`),
                         margin: 'auto',
                       }}
                     >
@@ -1837,7 +1839,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                         isSortingMode={isSortingMode}
                         lang={lang}
                         forceSquare={gridLayout.square}
-                        forceSizePx={gridLayout.buttonSizePx ? Math.max(40, Math.min(Number(gridLayout.buttonSizePx), 72)) : undefined}
+                        forceSizePx={gridLayout.buttonSizePx ? clampCardTileSizePx(gridLayout.buttonSizePx) : undefined}
                       />
 
                       {/* Interactive Edit/Move Badge Overlay */}
@@ -2336,8 +2338,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                   isDragTarget ? 'border-2 border-dashed border-[#A855F7] scale-[1.08] animate-none' : ''
                 } ${isSelectedForSwap ? 'ring-2 ring-[#A855F7] scale-[1.06] border-2 border-[#A855F7] animate-pulse' : ''}`}
                 style={{
-                  width: gridLayout.buttonSizePx ? `${Math.max(40, Math.min(Number(gridLayout.buttonSizePx), 72))}px` : `${scaleFactor * 100}%`,
-                  height: gridLayout.buttonSizePx ? `${Math.max(40, Math.min(Number(gridLayout.buttonSizePx), 72))}px` : (gridLayout.square ? '100%' : `${scaleFactor * 100}%`),
+                  width: gridLayout.buttonSizePx ? `${clampCardTileSizePx(gridLayout.buttonSizePx)}px` : `${scaleFactor * 100}%`,
+                  height: gridLayout.buttonSizePx ? `${clampCardTileSizePx(gridLayout.buttonSizePx)}px` : (gridLayout.square ? '100%' : `${scaleFactor * 100}%`),
                   margin: 'auto',
                 }}
               >
@@ -2348,7 +2350,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                     isSortingMode={isSortingMode}
                     lang={lang}
                     forceSquare={gridLayout.square}
-                    forceSizePx={gridLayout.buttonSizePx ? Math.max(40, Math.min(Number(gridLayout.buttonSizePx), 72)) : undefined}
+                    forceSizePx={gridLayout.buttonSizePx ? clampCardTileSizePx(gridLayout.buttonSizePx) : undefined}
                   />
 
                   {/* Interactive Edit/Move Badge Overlay */}
@@ -2396,7 +2398,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                     onClick={() => {}}
                     lang={lang}
                     forceSquare={gridLayout.square}
-                    forceSizePx={gridLayout.buttonSizePx ? Math.max(40, Math.min(Number(gridLayout.buttonSizePx), 72)) : undefined}
+                    forceSizePx={gridLayout.buttonSizePx ? clampCardTileSizePx(gridLayout.buttonSizePx) : undefined}
                   />
                   {isBtnHidden && (
                     <div className="absolute inset-0 bg-stone-950/40 rounded-xl flex items-center justify-center">
@@ -2416,7 +2418,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                 onClick={onEditButton ? () => onEditButton(btn) : (!isPreview && handleButtonClick ? () => handleButtonClick(btn) : undefined)}
                 lang={lang}
                 forceSquare={gridLayout.square}
-                forceSizePx={gridLayout.buttonSizePx ? Math.max(40, Math.min(Number(gridLayout.buttonSizePx), 72)) : undefined}
+                forceSizePx={gridLayout.buttonSizePx ? clampCardTileSizePx(gridLayout.buttonSizePx) : undefined}
               />
             );
           })}

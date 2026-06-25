@@ -396,3 +396,13 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Button icon/text fitting made calmer for forced tiles: smaller icon cap, lower text caps, less bottom bias.
 - Button editor large preview reduced so it no longer exaggerates the real card button.
 - Werbetext size controls get more room toward small values for title, subtitle and description.
+
+## v52.5.35 – Button Preview Restore & Public First Frame Fix
+
+- Rebuilt the mobile button tile size mapping after v52.5.31–v52.5.34 caused oversized/warped tiles.
+- Unified card tile clamps across Studio preview, clean preview and Public view to 38–68px.
+- Balanced presets: compact 42px, standard 50px, large 58px, xlarge 66px.
+- Reduced forced-tile icon/text scale and kept content centered slightly above optical center.
+- Moved the layered action dock slightly upward and reduced its max height to avoid clipped semicircle buttons.
+- Public/direct videos now use preload="auto" again to reduce the temporary empty surface before playback.
+- Layout debug remains off by default and only appears with ?debugLayout=force.
