@@ -2170,6 +2170,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             cleanPreview={true}
             previewFocus="full"
             visualMode="final"
+            showLayoutDebug={true}
+            debugLabel="studio-text-monitor"
           />
           {renderMobileTextHotspots()}
         </div>
@@ -4808,6 +4810,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       isPreview={true}
                       cleanPreview={true}
                       previewFocus="full"
+                      showLayoutDebug={true}
+                      debugLabel="studio-button-card"
                       onEditButton={(btn) => {
                         setTapEditTarget('button');
                         setEditingBtnId(btn.id);
@@ -4860,6 +4864,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   isPreview={true}
                   cleanPreview={true}
                   previewFocus="full"
+                  showLayoutDebug={true}
+                  debugLabel="studio-main-card"
                   onEditButton={(btn) => {
                     setTapEditTarget('button');
                     setEditingBtnId(btn.id);

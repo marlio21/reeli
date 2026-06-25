@@ -1,3 +1,11 @@
+## v52.5.28 – Public Layout Debug Inspector
+
+- Public View zeigt temporär einen Layout-Debug-Inspector mit geladenen Grid-/Textwerten.
+- Studio-Vorschau zeigt denselben Inspector zum direkten Vergleich.
+- Ausgegeben werden u. a. buttonGridLayout.buttonSizePx, canonical.buttonSizePx, publicLayoutSnapshot, mobileLayout, heroTitleSize und Layout-Version.
+- Zweck: Public-View-Problem nicht weiter raten, sondern Firestore-/Hydration-/Overwrite-Pfad sichtbar machen.
+- ZIP bleibt ohne dist/, node_modules und RELEASE_NOTES.
+
 # CHANGELOG
 
 ## v52.5.27 – Public Snapshot Priority & Button Shape Restore Fix

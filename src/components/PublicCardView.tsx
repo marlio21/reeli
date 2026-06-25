@@ -636,6 +636,8 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
                 cleanPreview={true}
                 previewFocus="full"
                 visualMode="final"
+                showLayoutDebug={true}
+                debugLabel="public-view"
                 onButtonClick={handleButtonClick}
                 onContactSave={triggerVCardDownload}
                 onShare={() => setShowShareModal(true)}

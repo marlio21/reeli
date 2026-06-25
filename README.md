@@ -1,13 +1,13 @@
 # ureel.me / reeli
 
-Aktuelle Version: **v52.5.27 – Public Snapshot Priority & Button Shape Restore Fix**
+Aktuelle Version: **v52.5.28 – Public Layout Debug Inspector**
 
 Hinweis: Der ZIP-Upload enthält bewusst keinen `dist/`-Ordner. Vercel baut den Ordner selbst beim Deployment neu.
 
 
-# ureel.me v52.5.27
+# ureel.me v52.5.28
 
-Public Snapshot Priority & Button Shape Restore Fix.
+Public Layout Debug Inspector.
 
 - Buttonform in mobilen Kartenkacheln wieder steuerbar: Kreis, Eckig und Abgerundet werden nicht mehr durch `forceSquare` überschrieben.
 - `forceSquare` hält nur die Kachelmaße quadratisch, nicht die visuelle Form.
@@ -53,3 +53,11 @@ React / Vite / TypeScript mit vorbereitetem Firebase-Setup und Vercel Deployment
 - Mobile Editor-/Preview-Fortschritte aus v52.5.19 bleiben erhalten.
 - Kein zusätzlicher Public-Aktualisieren-Button im Dashboard in dieser Hotfix-Version.
 - Keine RELEASE_NOTES-Dateien.
+
+
+## v52.5.28 – Public Layout Debug Inspector
+
+- Temporärer Layout-Debug-Overlay in Public View und zentralen Studio-Vorschauen.
+- Zeigt geladene Button-/Textgrößen aus buttonGridLayout, mobileLayout und publicLayoutSnapshot.
+- Ziel: Nachweis, ob Public falsche Firestore-Werte lädt oder richtige Werte später überschrieben werden.
+- Kein neuer Renderer-Umbau, kein dist/ im ZIP.
