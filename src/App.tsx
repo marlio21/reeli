@@ -254,10 +254,13 @@ const AppContent: React.FC = () => {
     const unsubscribe = onSnapshot(doc(db, 'cards', cardId), (snapshot) => {
       if (snapshot.exists()) {
         const updatedCard = hydrateCardMobileLayout(snapshot.data() as Card) as Card;
-        // v52.5.30: hydrate every realtime update, but avoid the expensive
-        // JSON.stringify full-card comparison on Public View. The listener is already
-        // scoped by cardId, so a direct hydrated state update is safer and faster.
-        setVisitorCard(updatedCard);
+        setVisitorCard((current) => {
+          if (!current || JSON.stringify(updatedCard) !== JSON.stringify(current)) {
+            console.info("[Real-time Sync Info] Visitor card changed in database, hydrating and updating state.");
+            return updatedCard;
+          }
+          return current;
+        });
       }
     }, (error) => {
       console.warn("[Real-time Sync Info] Listener error:", error);

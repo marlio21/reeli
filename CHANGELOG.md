@@ -1,11 +1,9 @@
-## v52.5.30 – Public Loading Performance & Debug Gate Fix
+## v52.5.31 – Mobile Editor Public Size Writer Fix
 
-- Public Layout Debug Inspector ist nicht mehr dauerhaft sichtbar; er erscheint nur noch mit `?debugLayout=1` oder `localStorage.ureel.debugLayout=1`.
-- Entfernt die Recovery-Logik aus v52.5.22, die bei jedem Seitenladen Service Worker und Browser-Caches gelöscht hat. Das sollte die sehr langen Public-Ladezeiten auf Mobile deutlich reduzieren.
-- Unified Mobile Surface startet nun mit `scale=0` und blendet die Karte erst ein, sobald die reale Containergröße berechnet ist. Dadurch werden schwarze/überlaufende Zwischenzustände beim ersten Paint reduziert.
-- Public-Realtime-Listener in `App.tsx` vermeidet den teuren Full-Card-`JSON.stringify`-Vergleich und setzt den bereits hydrierten Snapshot direkt.
-- Keine Änderungen an Button-/Werbetextgrößen, kein neuer Renderer-Umbau, Desktop nicht bewusst verändert.
-- ZIP bleibt ohne `dist/`, ohne `node_modules`, ohne `RELEASE_NOTES`.
+- Button size presets now write the canonical public fields directly: `buttonSizePx`, `buttonGridLayout.buttonSizePx`, `mobileLayout.buttons.buttonSizePx`, and `publicLayoutSnapshot.buttons.buttonSizePx`.
+- Added `Sehr groß` button size preset at 104px.
+- Hydration now lets live top-level editor values win over stale public/mobile snapshots when `preferLiveFields` is active.
+- Debug label updated to v52.5.31.
 
 
 ## v52.5.29 – Public Button Shape & Layout Writer Fix

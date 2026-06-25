@@ -731,7 +731,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     return handleUpdateSingleButton(btnId, normalizedUpdates);
   };
 
-  const applyMobileButtonSizePreset = async (btnId: string, preset: 'compact' | 'standard' | 'large') => {
+  const applyMobileButtonSizePreset = async (btnId: string, preset: 'compact' | 'standard' | 'large' | 'xlarge') => {
     // v52.4.3: safe 3-column mobile sizes.
     // The grid and the selected button scale together, but never so far that the 9:16 card breaks.
     // v52.5.29: These are true 390x693 card tile sizes. Older values
@@ -742,7 +742,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       ? { px: 58, gap: 7, fontSize: 10.5, iconSize: 18, textPadding: 4, borderWidth: 'thin' as const, scale: 0.78, radius: 'rounded' as const }
       : preset === 'large'
         ? { px: 88, gap: 9, fontSize: 13.8, iconSize: 26, textPadding: 6, borderWidth: 'medium' as const, scale: 1.02, radius: 'rounded' as const }
-        : { px: 72, gap: 8, fontSize: 12.2, iconSize: 22, textPadding: 5, borderWidth: 'thin' as const, scale: 0.92, radius: 'rounded' as const };
+        : preset === 'xlarge'
+          ? { px: 104, gap: 10, fontSize: 15.2, iconSize: 32, textPadding: 7, borderWidth: 'medium' as const, scale: 1.12, radius: 'rounded' as const }
+          : { px: 72, gap: 8, fontSize: 12.2, iconSize: 22, textPadding: 5, borderWidth: 'thin' as const, scale: 0.92, radius: 'rounded' as const };
 
     const updatedButtons = (activeCard.buttons || []).map((button) => button.id === btnId ? {
       ...button,
@@ -770,9 +772,40 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         cols: 3,
         square: true,
         buttonSizePx: values.px,
+        tileSizePx: values.px,
         gapPx: values.gap,
         gap: values.gap,
         align: 'center',
+      } as any,
+      mobileLayout: {
+        ...(activeCard as any).mobileLayout,
+        version: 'v52.5.31',
+        buttons: {
+          ...((activeCard as any).mobileLayout?.buttons || {}),
+          mode: 'grid',
+          cols: 3,
+          square: true,
+          buttonSizePx: values.px,
+          tileSizePx: values.px,
+          gapPx: values.gap,
+          gap: values.gap,
+          align: 'center',
+        },
+      } as any,
+      publicLayoutSnapshot: {
+        ...((activeCard as any).publicLayoutSnapshot || {}),
+        version: 'v52.5.31',
+        buttons: {
+          ...((activeCard as any).publicLayoutSnapshot?.buttons || {}),
+          mode: 'grid',
+          cols: 3,
+          square: true,
+          buttonSizePx: values.px,
+          tileSizePx: values.px,
+          gapPx: values.gap,
+          gap: values.gap,
+          align: 'center',
+        },
       } as any,
     } as any);
   };
@@ -5198,8 +5231,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <label className="ureel-tap-upload"><LucideIcons.ImagePlus size={16}/> Buttonbild hochladen<input type="file" accept="image/*" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleButtonImageUpload(currentButton.id, file); e.currentTarget.value = ''; }} /></label>
                 {(currentButton.buttonImageUrl || currentButton.imageUrl) && <button type="button" className="ureel-mobile-danger-inline" onClick={() => handleUpdateSingleButton(currentButton.id, { buttonImageUrl: '', imageUrl: '', buttonImageFileName: '', buttonImageOverlay: false } as any)}>Buttonbild entfernen</button>}
                 <span className="ureel-tap-mini-label">Buttongröße</span>
-                <div className="ureel-tap-chip-row"><button type="button" className={(currentButton.buttonSize as any)?.preset === 'compact' ? 'is-active' : ''} onClick={() => applyMobileButtonSizePreset(currentButton.id, 'compact')}>Klein</button><button type="button" className={!(currentButton.buttonSize as any)?.preset || (currentButton.buttonSize as any)?.preset === 'standard' ? 'is-active' : ''} onClick={() => applyMobileButtonSizePreset(currentButton.id, 'standard')}>Normal</button><button type="button" className={(currentButton.buttonSize as any)?.preset === 'large' ? 'is-active' : ''} onClick={() => applyMobileButtonSizePreset(currentButton.id, 'large')}>Groß</button></div>
-                <p className="ureel-tap-inline-hint">Klein 58px, Normal 72px, Groß 88px. Diese Werte werden als echtes Public-Grid gespeichert.</p>
+                <div className="ureel-tap-chip-row"><button type="button" className={(currentButton.buttonSize as any)?.preset === 'compact' ? 'is-active' : ''} onClick={() => applyMobileButtonSizePreset(currentButton.id, 'compact')}>Klein</button><button type="button" className={!(currentButton.buttonSize as any)?.preset || (currentButton.buttonSize as any)?.preset === 'standard' ? 'is-active' : ''} onClick={() => applyMobileButtonSizePreset(currentButton.id, 'standard')}>Normal</button><button type="button" className={(currentButton.buttonSize as any)?.preset === 'large' ? 'is-active' : ''} onClick={() => applyMobileButtonSizePreset(currentButton.id, 'large')}>Groß</button><button type="button" className={(currentButton.buttonSize as any)?.preset === 'xlarge' ? 'is-active' : ''} onClick={() => applyMobileButtonSizePreset(currentButton.id, 'xlarge')}>Sehr groß</button></div>
+                <p className="ureel-tap-inline-hint">Klein 58px, Normal 72px, Groß 88px, Sehr groß 104px. Diese Werte werden direkt in alle Public-Layoutfelder geschrieben.</p>
                 <span className="ureel-tap-mini-label">Rahmen</span>
                 <div className="ureel-tap-chip-row"><button type="button" className={!currentButton.borderEnabled || currentButton.borderWidth === 'none' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: false, borderWidth: 'none' } as any)}>Kein</button><button type="button" className={currentButton.borderEnabled && currentButton.borderWidth === 'thin' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderWidth: 'thin', borderColor: currentButton.borderColor || '#D8CDB7' } as any)}>Klein</button><button type="button" className={currentButton.borderEnabled && currentButton.borderWidth === 'medium' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderWidth: 'medium', borderColor: currentButton.borderColor || '#D8CDB7' } as any)}>Mittel</button><button type="button" className={currentButton.borderEnabled && currentButton.borderWidth === 'thick' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderWidth: 'thick', borderColor: currentButton.borderColor || '#111111' } as any)}>Dick</button></div>
                 <SpectrumColorPicker label="Rahmenfarbe" value={(currentButton.borderColor || '#D8CDB7').startsWith('rgba') ? '#D8CDB7' : (currentButton.borderColor || '#D8CDB7')} fallback="#D8CDB7" onChange={(value) => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderColor: value, borderWidth: currentButton.borderWidth === 'none' || !currentButton.borderWidth ? 'thin' : currentButton.borderWidth } as any)} />

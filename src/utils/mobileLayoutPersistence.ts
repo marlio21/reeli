@@ -1,5 +1,5 @@
 /**
- * v52.5.29 Public Button Shape & Layout Writer Fix
+ * v52.5.31 Mobile Editor Public Size Writer Fix
  *
  * The editor preview can read local in-memory values immediately. The public
  * card, however, reads Firestore data. To prevent public views from falling
@@ -33,8 +33,16 @@ export const deriveCanonicalButtonGridLayout = (
   const canonicalButtons: any = { ...publicButtons, ...mobileButtons, ...gl };
 
   const ureel = isUreelCard(card);
-  const rawSize = canonicalButtons.buttonSizePx ?? canonicalButtons.tileSizePx ?? (card as any)?.buttonSizePx ?? 80;
-  const rawGap = canonicalButtons.gapPx ?? canonicalButtons.gap ?? (card as any)?.buttonGapPx ?? 10;
+  // v52.5.31: when the editor/persist path provides live top-level values,
+  // those values must win over stale mobile/public snapshots. Previously a
+  // saved snapshot value (for example 58px) could override a fresh
+  // buttonSizePx=88 update when no full buttonGridLayout object was present.
+  const rawSize = options?.preferLiveFields
+    ? (gl.buttonSizePx ?? gl.tileSizePx ?? (card as any)?.buttonSizePx ?? mobileButtons.buttonSizePx ?? mobileButtons.tileSizePx ?? publicButtons.buttonSizePx ?? publicButtons.tileSizePx ?? 80)
+    : (gl.buttonSizePx ?? gl.tileSizePx ?? mobileButtons.buttonSizePx ?? mobileButtons.tileSizePx ?? publicButtons.buttonSizePx ?? publicButtons.tileSizePx ?? (card as any)?.buttonSizePx ?? 80);
+  const rawGap = options?.preferLiveFields
+    ? (gl.gapPx ?? gl.gap ?? (card as any)?.buttonGapPx ?? mobileButtons.gapPx ?? mobileButtons.gap ?? publicButtons.gapPx ?? publicButtons.gap ?? 10)
+    : (gl.gapPx ?? gl.gap ?? mobileButtons.gapPx ?? mobileButtons.gap ?? publicButtons.gapPx ?? publicButtons.gap ?? (card as any)?.buttonGapPx ?? 10);
   const cols = clamp(canonicalButtons.cols ?? (card as any)?.buttonGridCols ?? 3, 1, 3, 3) as 1 | 2 | 3;
   const size = ureel ? clamp(rawSize, 48, 112, 80) : num(rawSize, 80);
   const gap = ureel ? clamp(rawGap, 4, 22, 10) : num(rawGap, 12);
@@ -55,7 +63,7 @@ export const buildMobileLayoutSnapshot = (card: Partial<Card>, options?: { prefe
   const subtitleSize = clamp((card as any).heroSubtitleSize ?? (card as any).mobileLayout?.text?.subtitleSizePx, 10, 40, 14);
   const descriptionSize = clamp((card as any).heroDescriptionSize ?? (card as any).mobileLayout?.text?.descriptionSizePx, 10, 40, 22);
   return {
-    version: 'v52.5.29',
+    version: 'v52.5.31',
     buttons: {
       mode: grid.mode,
       cols: grid.cols,
@@ -131,11 +139,11 @@ export const persistMobileLayoutFields = <T extends Partial<Card>>(updates: T, b
       ...(baseAny.mobileLayout || {}),
       ...(updateAny.mobileLayout || {}),
       ...snapshot,
-      version: 'v52.5.29',
+      version: 'v52.5.31',
     } as any,
     publicLayoutSnapshot: {
       ...snapshot,
-      version: 'v52.5.29',
+      version: 'v52.5.31',
     } as any,
     ureelTextTemplate: updateAny.ureelTextTemplate
       ? normalizeUreelTextTemplate({ ...(baseAny.ureelTextTemplate || {}), ...(updateAny.ureelTextTemplate || {}) } as any) as any
