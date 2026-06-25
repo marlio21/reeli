@@ -1426,7 +1426,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const buttonGridCols = activeCard.buttonGridCols || activeCard.buttonGridLayout?.cols || 3;
   const buttonSizePx = activeCard.buttonGridLayout?.buttonSizePx || activeCard.buttonSizePx || 72;
   const buttonGapPx = activeCard.buttonGridLayout?.gapPx || activeCard.buttonGridLayout?.gap || activeCard.buttonGapPx || 10;
-  const getMobileCardButtonTilePx = (value: any = buttonSizePx) => Math.max(42, Math.min(Number(value || 60), 66));
+  const getMobileCardButtonTilePx = (value: any = buttonSizePx) => Math.max(54, Math.min(Number(value || 72), 104));
   const visibleButtonsAt = Number(timeline.buttonsAt || 0.6);
   const buttonsCurrentlyVisible = timelineSec >= visibleButtonsAt || !isPlaying;
 
@@ -2259,11 +2259,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         mode: 'grid',
         cols: 3,
         square: true,
-        buttonSizePx: Math.max(34, Math.min(58, Number((card.buttonGridLayout as any)?.buttonSizePx || (card as any).buttonSizePx || 44))),
+        buttonSizePx: Math.max(54, Math.min(104, Number((card.buttonGridLayout as any)?.buttonSizePx || (card as any).buttonSizePx || 72))),
         gapPx: Math.max(5, Math.min(8, Number((card.buttonGridLayout as any)?.gapPx || (card as any).buttonGapPx || 6))),
         align: 'center',
       } as any,
-      buttonSizePx: Math.max(34, Math.min(58, Number((card as any).buttonSizePx || 44))) as any,
+      buttonSizePx: Math.max(54, Math.min(104, Number((card as any).buttonSizePx || 72))) as any,
       buttonGapPx: Math.max(5, Math.min(8, Number((card as any).buttonGapPx || 6))) as any,
     };
   };

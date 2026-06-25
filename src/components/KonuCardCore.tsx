@@ -1344,7 +1344,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               {filteredLayeredButtons.map((btn, index) => {
                 // v52.5.7: use the exact same mobile tile bound as the editor's
                 // enlarged tile preview. One renderer, one size, one fitting result.
-                const safePreviewSize = Math.max(58, Math.min(Number(gridLayout.buttonSizePx || 66), 76));
+                const safePreviewSize = Math.max(54, Math.min(Number(gridLayout.buttonSizePx || (card as any).buttonSizePx || 72), 104));
                 return (
                   <ButtonRenderer
                     key={btn.id}

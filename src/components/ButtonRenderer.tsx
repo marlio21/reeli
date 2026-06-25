@@ -222,11 +222,17 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const forcedPx = typeof forceSizePx === 'number' ? forceSizePx : undefined;
   const isTinyTile = !!forcedPx && forcedPx <= 58;
   const isExtremeShape = shape === 'round';
-  const paddingStyle = isExtremeShape 
-    ? (isTinyTile ? '7% 7%' : '12% 12%') 
-    : (paddingYStyle && paddingXStyle 
-        ? `${paddingYStyle} ${paddingXStyle}` 
-        : (btn.textPadding !== undefined ? `${Math.round(btn.textPadding * scaleFactor)}px` : `${Math.round(10 * scaleFactor)}px`));
+  // Forced mobile card tiles are real square buttons in a small 3x2 grid.
+  // Pixel padding from the large editor preview makes the visible text area too
+  // narrow and clips labels such as Company/Telefon. Use proportional padding
+  // in forced tiles so Editor, Preview and Public calculate the same usable box.
+  const paddingStyle = forceSizePx
+    ? (isExtremeShape ? '8% 8%' : '7% 7%')
+    : (isExtremeShape 
+        ? (isTinyTile ? '7% 7%' : '12% 12%') 
+        : (paddingYStyle && paddingXStyle 
+            ? `${paddingYStyle} ${paddingXStyle}` 
+            : (btn.textPadding !== undefined ? `${Math.round(btn.textPadding * scaleFactor)}px` : `${Math.round(10 * scaleFactor)}px`)));
 
   // v52.5.5 mobile sync: forced 3x2 card tiles must use the same visible
   // scale as the button editor preview.  Older logic multiplied by the grid
@@ -238,6 +244,14 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
 
   const labelLength = (btn.title || '').trim().length;
   const hasUsableIcon = btn.iconEnabled !== false && !!btn.icon;
+  // On forced square mobile tiles, left/right icon layout leaves too little
+  // horizontal room for labels and clips first/last characters. The full-size
+  // editor tile can still show left/right, but the real 9:16 card tile uses a
+  // stacked layout for readable public buttons.
+  const rawIconPosition = btn.iconPosition;
+  const effectiveIconPosition = forceSizePx && hasUsableIcon && (rawIconPosition === 'left' || rawIconPosition === 'right')
+    ? 'top'
+    : rawIconPosition;
   const baseFontSize = btn.fontSize !== undefined ? btn.fontSize : 12;
   const lengthPenalty = forceSizePx
     ? (labelLength > 28 ? 2.4 : labelLength > 20 ? 1.55 : labelLength > 14 ? 0.82 : labelLength > 9 ? 0.28 : 0)
@@ -396,7 +410,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const iconColor = btn.iconColor || '#1E1E1E';
   const requestedIconSize = Math.round((btn.iconSize || 18) * iconScale);
   const iconSize = forceSizePx
-    ? Math.max(isTinyTile ? 8 : 10, Math.min(Math.round(requestedIconSize * 0.72), Math.round(forceSizePx * 0.24)))
+    ? Math.max(isTinyTile ? 8 : 10, Math.min(Math.round(requestedIconSize * 0.68), Math.round(forceSizePx * 0.22)))
     : requestedIconSize;
 
 
@@ -543,15 +557,15 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
         }}
       >
         <div 
-          className={`flex ${(btn.iconPosition === 'top' || btn.iconPosition === 'bottom' || btn.iconPosition === 'center') ? 'flex-col' : 'flex-row'} items-center max-w-full ${getTextAlignClass()} pointer-events-none`}
+          className={`flex ${(effectiveIconPosition === 'top' || effectiveIconPosition === 'bottom' || effectiveIconPosition === 'center') ? 'flex-col' : 'flex-row'} items-center max-w-full ${getTextAlignClass()} pointer-events-none`}
           style={{
-            gap: `${Math.round(((btn.iconPosition === 'top' || btn.iconPosition === 'bottom' || btn.iconPosition === 'center') ? (isTinyTile ? 2 : 4) : 6) * scaleFactor)}px`
+            gap: `${Math.round(((effectiveIconPosition === 'top' || effectiveIconPosition === 'bottom' || effectiveIconPosition === 'center') ? (isTinyTile ? 2 : 4) : 6) * scaleFactor)}px`
           }}
         >
           
-          {(btn.iconPosition === 'top' || btn.iconPosition === 'center') && renderIconOrImage()}
+          {(effectiveIconPosition === 'top' || effectiveIconPosition === 'center') && renderIconOrImage()}
 
-          {btn.iconPosition === 'left' && renderIconOrImage()}
+          {effectiveIconPosition === 'left' && renderIconOrImage()}
 
           <span
             className={`font-semibold z-10 ${hasSecondButtonLine ? '' : getTextWrapClass()} pointer-events-none`}
@@ -559,7 +573,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
               display: 'inline-flex',
               flexDirection: 'column',
               alignItems: btn.textAlign === 'left' ? 'flex-start' : btn.textAlign === 'right' ? 'flex-end' : 'center',
-              maxWidth: '100%',
+              maxWidth: forceSizePx ? '96%' : '100%',
               transform: btn.textFineTuneEnabled === true
                 ? `translate(${Number(btn.textOffsetX ?? 0)}px, ${Number(btn.textOffsetY ?? 0)}px)`
                 : undefined,
@@ -589,9 +603,9 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
             )}
           </span>
 
-          {btn.iconPosition === 'right' && renderIconOrImage()}
+          {effectiveIconPosition === 'right' && renderIconOrImage()}
 
-          {btn.iconPosition === 'bottom' && renderIconOrImage()}
+          {effectiveIconPosition === 'bottom' && renderIconOrImage()}
 
         </div>
       </div>

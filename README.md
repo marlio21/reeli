@@ -1,12 +1,13 @@
-# ureel.me v52.5.16
+# ureel.me v52.5.17
 
-Final Visual Mode Parity Fix.
+Mobile Button Size Persistence & Text Fit Hard Fix.
 
-- Neuer finaler visueller Render-Modus: Public-Link und Studio-Vorschau unterscheiden sich nicht mehr über `isPreview`.
-- `isPreview` steuert nur noch Editor-Klickbarkeit; Layout, Button-Fit, Werbetext und Timing nutzen in der Unified Mobile Surface denselben Endzustand.
-- Timeline/Animationen werden im finalen visuellen Modus eingefroren, damit die geteilte Karte wie die Vorschaukarte aussieht.
-- Kartenbuttons verwenden in Public und Vorschau dieselbe begrenzte Mobile-Tile-Größe.
-- Public-Link, mobile Studio-Vorschau und Desktop-Phone-Preview bleiben auf der gemeinsamen 390×693 Kartenbasis.
+- Mobile Button-Kachelgröße wird in der echten 9:16-Karte nicht mehr hart auf 76px gekappt.
+- Look-/Größenregler kann nun bis 104px in Public, Studio-Vorschau und Buttoneditor-Vorschau sichtbar werden.
+- Buttontext-Fit in echten mobilen Kartentiles verbessert: weniger abgeschnittene Anfangs-/Endbuchstaben.
+- Links/Rechts-Iconposition wird in kleinen echten Kartentiles lesbarer gestapelt, damit Text nicht horizontal aus dem Button läuft.
+- Proportionales Padding für echte mobile Kartentiles statt zu großer Editor-Pixelabstände.
+- Public, mobile Vorschau und Buttoneditor bleiben auf derselben 390×693-Kartenbasis.
 - Desktop-Editor wurde nicht bewusst umgebaut.
 - Keine `RELEASE_NOTES_*.md`.
 

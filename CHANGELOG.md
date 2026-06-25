@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v52.5.17 – Mobile Button Size Persistence & Text Fit Hard Fix
+
+- Removes the remaining hard 76px cap for layered mobile card buttons.
+- Uses the saved Look/Grid `buttonSizePx` in Public, Studio preview and mobile button preview up to 104px.
+- Updates forced mobile button tiles to use proportional padding, so labels do not lose first/last characters.
+- Stacks left/right icon layouts in small real card tiles to keep text readable.
+- Keeps timeline/live behavior from v52.5.16 and does not intentionally alter the Desktop editor.
+
 ## v52.5.16 – Public Timing Restore, Text Scale & Button Size Fix
 
 Mobile/Public correction after the final visual mode rollout.
