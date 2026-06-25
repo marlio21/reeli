@@ -1,8 +1,20 @@
 # ureel.me / reeli
 
-Aktuelle Version: **v52.5.24 – Dist-free Upload & Public Snapshot Priority Fix**
+Aktuelle Version: **v52.5.26 – Sofortplan Hydration, Fresh Grid Snapshot & Tile Shape Fix**
 
 Hinweis: Der ZIP-Upload enthält bewusst keinen `dist/`-Ordner. Vercel baut den Ordner selbst beim Deployment neu.
+
+# ureel.me v52.5.25
+
+Public Snapshot Staleness & Live Layout Priority Fix.
+
+- Stale `publicLayoutSnapshot`/`mobileLayout` values from v52.5.19–v52.5.24 no longer override freshly edited `buttonGridLayout` values.
+- During save/update, explicit live editor fields now win over old snapshots.
+- New snapshots are versioned as `v52.5.25`.
+- `heroTitleSize`, `heroSubtitleSize`, and `heroDescriptionSize` are persisted as top-level fields as well as in the public layout snapshot.
+- Hydration now uses explicit top-level text sizes before falling back to snapshots.
+- No renderer redesign, no new features, no intentional Desktop editor changes.
+- ZIP remains dist-free for Vercel.
 
 # ureel.me v52.5.24
 

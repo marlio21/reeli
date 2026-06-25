@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## v52.5.26 – Sofortplan Hydration, Fresh Grid Snapshot & Tile Shape Fix
+
+- Keeps the critical Public realtime hydration path explicit: Firestore `onSnapshot` data is passed through `hydrateCardMobileLayout()` before `setVisitorCard()`.
+- Keeps `deriveCanonicalButtonGridLayout` explicitly imported in `buttonUtils.ts`, preventing missing canonical layout fallback behavior.
+- Hardens `persistMobileLayoutFields()` so fresh `updates.buttonGridLayout` values are written into `mobileLayout`/`publicLayoutSnapshot` without being remixed with stale snapshot values from the base card.
+- Makes forced mobile button tiles respect `forceSquare=true` over legacy per-button radius data in `ButtonRenderer.tsx`.
+- No renderer rewrite, no new features, no intentional Desktop-editor changes, and ZIP remains without `dist/`.
+
+## v52.5.25 – Public Snapshot Staleness & Live Layout Priority Fix
+
+- Fixes the root cause where stale `publicLayoutSnapshot`/`mobileLayout` data could override newly edited button-grid values during save/hydration.
+- Adds live-field priority during `persistMobileLayoutFields()`, so changed `buttonGridLayout.buttonSizePx` and `buttonGapPx` are written into the new public snapshot.
+- Versions new layout snapshots as `v52.5.25`, allowing old snapshots to be treated as potentially stale.
+- Persists `heroTitleSize`, `heroSubtitleSize`, and `heroDescriptionSize` as top-level Firestore fields in addition to the snapshot.
+- Keeps the fix intentionally small: no renderer rewrite and no intentional Desktop-editor changes.
+
+
 
 
 ## v52.5.24 – Dist-free Upload & Public Snapshot Priority Fix
