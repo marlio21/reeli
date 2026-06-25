@@ -17,7 +17,6 @@ import * as LucideIcons from 'lucide-react';
 import { getSafeLocalStorage, setSafeLocalStorage, getSafeSessionStorage } from './utils/safeStorage';
 import { resolvedConfig, db } from './firebase';
 import { onSnapshot, doc } from 'firebase/firestore';
-import { hydrateCardMobileLayout } from './utils/mobileLayoutPersistence';
 
 /**
  * Clean & extremely robust slug extraction utility
@@ -190,7 +189,7 @@ const AppContent: React.FC = () => {
             setVisitorErrorType('private');
             setDiagnostics(diagData);
           } else {
-            setVisitorCard(hydrateCardMobileLayout(card) as Card);
+            setVisitorCard(card);
             setDiagnostics(diagData);
           }
         }
@@ -254,7 +253,7 @@ const AppContent: React.FC = () => {
         const updatedCard = snapshot.data() as Card;
         if (JSON.stringify(updatedCard) !== JSON.stringify(visitorCard)) {
           console.info("[Real-time Sync Info] Visitor card changed in database, updating state.");
-          setVisitorCard(hydrateCardMobileLayout(updatedCard) as Card);
+          setVisitorCard(updatedCard);
         }
       }
     }, (error) => {

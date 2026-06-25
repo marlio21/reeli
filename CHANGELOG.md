@@ -1,15 +1,5 @@
 # CHANGELOG
 
-## v52.5.20 – Public Sync Debug & Hard Publish Fix
-
-- Ergänzt im mobilen Dashboard einen Button **Public aktualisieren** für einen harten Public-Sync der aktuell sichtbaren Karte.
-- Schreibt `publicLayoutSnapshot`, `mobileLayout`, Legacy-Felder und Debugwerte zusammen, damit Public nicht weiter alte Defaults rendert.
-- `deriveCanonicalButtonGridLayout` bevorzugt gespeicherte Public-/Mobile-Snapshots vor alten `buttonGridLayout`-Restwerten.
-- `hydrateCardMobileLayout` bevorzugt Public-Snapshot-Textgrößen vor alten Hero-Size-Feldern.
-- Public- und Editor-Realtime-Listener hydrieren Firestore-Snapshots erneut, bevor sie in den State gehen.
-- Ziel: beweisen und erzwingen, dass Public dieselben mobilen Layoutwerte bekommt wie die Editor-Vorschau.
-- Desktop-Editor wurde nicht bewusst umgebaut.
-
 ## v52.5.19 – Public Save Hydration & Layout Persistence Fix
 
 - Public-Speicherpfad für mobile Layoutwerte gehärtet.
@@ -287,3 +277,11 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Farbeditor startet geschlossen und nutzt ein echtes Spektrumfeld mit Pointer-Capture, Hue-Leiste und Hex-Code.
 - ButtonRenderer erzwingt in der echten Kartenvorschau keine Quadratform mehr; abgerundete Buttons bleiben sichtbar.
 - Profilbild-Rendering wird nicht verändert.
+
+
+## v52.5.21 – Public Black Screen Hotfix
+
+- Hotfix: riskante v52.5.20-Hydration im Public-Realtime-Pfad zurückgenommen.
+- Hotfix: Dashboard-Aktion „Public aktualisieren“ aus dieser Version entfernt, bis der Public-Speicherpfad sicher geprüft ist.
+- Public View soll wieder rendern statt schwarzem Bildschirm.
+- Basis: v52.5.19 mit stabilem Public-Save-Hydration-Stand.

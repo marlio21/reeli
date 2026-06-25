@@ -2596,7 +2596,7 @@ Jetzt kommt der KONU Admin JSON Export:`;
       if (snapshot.exists()) {
         const updatedCard = snapshot.data() as Card;
         if (JSON.stringify(updatedCard) !== JSON.stringify(activeCard)) {
-          setActiveCard(hydrateCardMobileLayout(updatedCard) as Card);
+          setActiveCard(updatedCard);
         }
       }
     }, (error) => {

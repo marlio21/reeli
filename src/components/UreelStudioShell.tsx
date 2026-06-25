@@ -319,31 +319,6 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     const persisted = persistMobileLayoutFields(updates, activeCard);
     await rawSyncCardUpdate(persisted);
   }, [rawSyncCardUpdate, activeCard]);
-
-  const hardPublishPublicLayout = React.useCallback(async () => {
-    if (!activeCard) return;
-    const persistedFullCard = persistMobileLayoutFields({
-      ...activeCard,
-      isPublished: true,
-      visibility: 'public' as any,
-      publicSyncDebug: {
-        version: 'v52.5.20',
-        reason: 'manual-public-sync',
-        source: 'mobile-dashboard',
-        buttonGridLayout: (activeCard as any).buttonGridLayout || null,
-        buttonSizePx: (activeCard as any).buttonSizePx || (activeCard as any).buttonGridLayout?.buttonSizePx || null,
-        heroTitleSize: (activeCard as any).heroTitleSize || null,
-        heroSubtitleSize: (activeCard as any).heroSubtitleSize || null,
-        heroDescriptionSize: (activeCard as any).heroDescriptionSize || null,
-        syncedAt: new Date().toISOString(),
-      } as any,
-      updatedAt: new Date().toISOString(),
-    } as Partial<Card>, activeCard);
-    await rawSyncCardUpdate(persistedFullCard);
-    setActiveCard(hydrateCardMobileLayout({ ...activeCard, ...persistedFullCard } as Card) as Card);
-    triggerToast(lang === 'de' ? 'Public-Link wurde mit den aktuellen Layoutwerten aktualisiert.' : 'Public link updated with current layout values.', 'success');
-  }, [activeCard, rawSyncCardUpdate, setActiveCard, triggerToast, lang]);
-
   const currentSlugUrl = activeCard ? getPublicCardUrl(activeCard.slug) : '';
 
   const makeSafeSlug = (value?: string) => {
@@ -4937,7 +4912,6 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           <button type="button" onClick={() => { setAccountManagerTab('profile'); setAccountPanelOpen(true); }}><LucideIcons.UserCog size={14}/> Nutzerverwaltung</button>
           <button type="button" onClick={handleCreateNewUreel}><LucideIcons.Plus size={14}/> Neue Karte</button>
           <button type="button" onClick={shareLiveLink}><LucideIcons.Share2 size={14}/> Teilen</button>
-          <button type="button" onClick={hardPublishPublicLayout} title="Public-Link mit aktueller Karte synchronisieren"><LucideIcons.RefreshCw size={14}/> Public aktualisieren</button>
         </section>
 
         <section className="ureel-tap-preview-shell" aria-label="Echte 9:16 ureel Vorschau">
