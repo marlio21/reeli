@@ -1,12 +1,12 @@
-# ureel.me v52.5.21
+# ureel.me v52.5.23
 
-Public Save Hydration & Layout Persistence Fix.
+Realtime Hydration & Canonical Layout Import Fix.
 
-- Alte Ureel-Buttonkappung auf 66px in der Layout-Normalisierung entfernt.
-- Ein sichtbarer Mobile-Layoutwert `buttonGridLayout.buttonSizePx` wird für Editor, Vorschau und Public erhalten.
-- Mobile Buttonkacheln erlauben jetzt einen stabilen Bereich bis 112px, ohne dass der Public-Link sie vorher wieder verkleinert.
-- Buttontext-Fit in echten 9:16-Kacheln härter repariert: Text-Offsets werden in Public/Preview nicht mehr angewandt und kurze Labels bleiben zentriert.
-- Werbetext-Skalierung in finaler Mobile/Public-Darstellung liest die konfigurierten Größen ohne zusätzliche Preview/Public-Schrumpfung.
+- Public-Realtime-Updates werden jetzt vor `setVisitorCard` immer durch `hydrateCardMobileLayout()` geschickt.
+- Der initiale Public-Ladeweg hydriert die Karte ebenfalls direkt vor dem Rendern.
+- `buttonUtils.ts` importiert `deriveCanonicalButtonGridLayout` korrekt aus `mobileLayoutPersistence`.
+- Dadurch sollen Rohdaten aus Firestore nicht mehr den vorbereiteten Mobile/Public-Layout-State überschreiben.
+- Build erfolgreich geprüft.
 - Desktop-Editor wurde nicht bewusst umgebaut.
 - Keine `RELEASE_NOTES_*.md`.
 
@@ -16,8 +16,7 @@ ureel.me / reeli – Aus Video wird Aktion.
 
 React / Vite / TypeScript mit vorbereitetem Firebase-Setup und Vercel Deployment.
 
-
-## v52.5.21 – Public Black Screen Hotfix
+## v52.5.22 – Public Black Screen Hotfix
 
 - v52.5.20 Public-Hydration/Hard-Publish-Änderung zurückgenommen, weil sie im Public View einen schwarzen Bildschirm auslösen konnte.
 - Public View fällt wieder auf den stabilen v52.5.19-Ladepfad zurück.

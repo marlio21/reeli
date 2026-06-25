@@ -17,6 +17,8 @@ import * as LucideIcons from 'lucide-react';
 import { getSafeLocalStorage, setSafeLocalStorage, getSafeSessionStorage } from './utils/safeStorage';
 import { resolvedConfig, db } from './firebase';
 import { onSnapshot, doc } from 'firebase/firestore';
+import { hydrateCardMobileLayout } from './utils/mobileLayoutPersistence';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 /**
  * Clean & extremely robust slug extraction utility
@@ -189,7 +191,8 @@ const AppContent: React.FC = () => {
             setVisitorErrorType('private');
             setDiagnostics(diagData);
           } else {
-            setVisitorCard(card);
+            const hydratedCard = hydrateCardMobileLayout(card) as Card;
+            setVisitorCard(hydratedCard);
             setDiagnostics(diagData);
           }
         }
@@ -250,11 +253,14 @@ const AppContent: React.FC = () => {
     console.info(`[Real-time Sync Info] Registering live observer for card: ${cardId}`);
     const unsubscribe = onSnapshot(doc(db, 'cards', cardId), (snapshot) => {
       if (snapshot.exists()) {
-        const updatedCard = snapshot.data() as Card;
-        if (JSON.stringify(updatedCard) !== JSON.stringify(visitorCard)) {
-          console.info("[Real-time Sync Info] Visitor card changed in database, updating state.");
-          setVisitorCard(updatedCard);
-        }
+        const updatedCard = hydrateCardMobileLayout(snapshot.data() as Card) as Card;
+        setVisitorCard((current) => {
+          if (!current || JSON.stringify(updatedCard) !== JSON.stringify(current)) {
+            console.info("[Real-time Sync Info] Visitor card changed in database, hydrating and updating state.");
+            return updatedCard;
+          }
+          return current;
+        });
       }
     }, (error) => {
       console.warn("[Real-time Sync Info] Listener error:", error);
@@ -451,11 +457,25 @@ const AppContent: React.FC = () => {
 
     if (visitorCard) {
       return (
-        <PublicCardView 
-          card={visitorCard} 
-          lang={activeLang} 
-          setLang={setActiveLang} 
-        />
+        <ErrorBoundary
+          lang={activeLang}
+          fallbackNode={
+            <div className="min-h-screen bg-[#0B0B0B] text-[#F5F2EA] flex flex-col items-center justify-center p-6 text-center">
+              <div className="max-w-sm rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-2xl">
+                <div className="text-xs uppercase tracking-[0.24em] text-[#D7C9A0] font-black mb-2">ureel recovery</div>
+                <h1 className="text-2xl font-black mb-3">{activeLang === 'de' ? 'Karte konnte nicht angezeigt werden' : 'Card could not be displayed'}</h1>
+                <p className="text-sm text-stone-300 leading-relaxed">{activeLang === 'de' ? 'Der Public-Renderer wurde abgefangen, damit kein schwarzer Bildschirm bleibt. Bitte lade die Seite neu.' : 'The public renderer was caught so the screen does not stay black. Please reload the page.'}</p>
+                <button type="button" onClick={() => window.location.reload()} className="mt-5 w-full rounded-2xl bg-[#F5F2EA] text-black font-black py-3 uppercase text-xs tracking-widest">{activeLang === 'de' ? 'Neu laden' : 'Reload'}</button>
+              </div>
+            </div>
+          }
+        >
+          <PublicCardView 
+            card={visitorCard} 
+            lang={activeLang} 
+            setLang={setActiveLang} 
+          />
+        </ErrorBoundary>
       );
     }
   }

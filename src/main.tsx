@@ -11,11 +11,23 @@ if (typeof window !== 'undefined') {
     console.log('beforeinstallprompt captured globally');
   });
 
+  // v52.5.22 Recovery: disable the old service worker during active public-render debugging.
+  // Some mobile browsers can keep a broken JS chunk after rapid ZIP deployments.
+  // Removing the worker/caches forces the Public Link to use the newest Vercel build.
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(reg => console.log('KONU Service Worker registered with scope:', reg.scope))
-        .catch(err => console.error('KONU Service Worker registration failed:', err));
+      navigator.serviceWorker.getRegistrations()
+        .then((regs) => Promise.all(regs.map((reg) => reg.unregister())))
+        .then(() => console.log('ureel service workers cleared for recovery build'))
+        .catch((err) => console.warn('ureel service worker cleanup failed', err));
+    });
+  }
+  if ('caches' in window) {
+    window.addEventListener('load', () => {
+      caches.keys()
+        .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+        .then(() => console.log('ureel runtime caches cleared for recovery build'))
+        .catch((err) => console.warn('ureel cache cleanup failed', err));
     });
   }
 }

@@ -19,12 +19,46 @@ import { ShareExportModal } from './ShareExportModal';
 import { KonuLogo } from './KonuLogo';
 import { ButtonRenderer } from './ButtonRenderer';
 import { UnifiedMobileLiveCardSurface } from './UnifiedMobileLiveCardSurface';
+import { ErrorBoundary } from './ErrorBoundary';
 import QRCode from 'qrcode';
 import { parseVideoUrl } from '../utils/video';
 import { executeButtonAction as runButtonAction, normalizeButtons, buildButtonActionUrl } from '../utils/buttonUtils';
 import { getSafeLocalStorage, setSafeLocalStorage } from '../utils/safeStorage';
 import { canUseFeature } from '../config/plans';
 import { trackCardView, trackButtonClick } from '../utils/analytics';
+
+
+
+const PublicRecoveryFallback: React.FC<{ card: Card; lang: 'de' | 'en'; onRetry?: () => void }> = ({ card, lang, onRetry }) => {
+  const title = card.heroTitle || card.title || card.businessName || 'ureel';
+  const subtitle = card.heroSubtitle || card.subtitle || '';
+  const description = card.heroDescription || card.description || '';
+  const buttons = normalizeButtons(card.buttons || []).filter((b: any) => b?.isVisible !== false).slice(0, 6);
+  const bg = card.ureelScene?.posterUrl || card.imageUrl || card.logoUrl || '';
+  return (
+    <main className="fixed inset-0 h-[100svh] w-screen overflow-hidden bg-black text-[#F5F2EA] flex items-center justify-center">
+      <div className="relative h-[100svh] w-screen sm:h-[min(96svh,760px)] sm:w-auto sm:aspect-[9/16] overflow-hidden bg-[#0B0B0B] sm:rounded-[36px] sm:border-[8px] sm:border-[#111]">
+        {bg ? <img src={bg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-70" /> : null}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/10 to-black/55" />
+        <div className="absolute left-[8%] right-[8%] top-[24%] rounded-[28px] border border-white/20 bg-black/55 p-5 text-center backdrop-blur-md">
+          <div className="text-[26px] leading-[0.95] font-black uppercase tracking-tight whitespace-pre-line">{title}</div>
+          {subtitle ? <div className="mt-3 text-[18px] leading-tight font-extrabold uppercase tracking-wider">{subtitle}</div> : null}
+          {description ? <div className="mt-3 text-[14px] leading-snug font-bold text-white/90">{description}</div> : null}
+        </div>
+        <div className="absolute left-[7%] right-[7%] bottom-[7%] grid grid-cols-3 gap-3">
+          {buttons.map((b: any) => (
+            <button key={b.id || b.label} type="button" className="aspect-square rounded-[18px] border border-white/25 bg-[#2F6074]/75 text-white shadow-lg backdrop-blur-sm flex flex-col items-center justify-center px-2 text-center">
+              <span className="text-[12px] font-black leading-tight break-words">{b.label || b.text || b.title || 'Button'}</span>
+            </button>
+          ))}
+        </div>
+        <button type="button" onClick={onRetry || (() => window.location.reload())} className="absolute right-4 top-4 rounded-full border border-white/25 bg-black/55 px-4 py-2 text-[11px] font-black uppercase tracking-wider">
+          {lang === 'de' ? 'Neu laden' : 'Reload'}
+        </button>
+      </div>
+    </main>
+  );
+};
 
 interface PublicCardViewProps {
   card: Card;
@@ -594,17 +628,19 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
             className="relative h-[100svh] w-screen sm:h-[min(96svh,760px)] sm:w-auto sm:aspect-[9/16] overflow-hidden bg-black sm:rounded-[36px] sm:border-[8px] sm:border-[#111] sm:shadow-2xl"
             aria-label="ureel public unified mobile live card"
           >
-            <UnifiedMobileLiveCardSurface
-              card={card}
-              lang={lang}
-              isPreview={false}
-              cleanPreview={true}
-              previewFocus="full"
-              visualMode="final"
-              onButtonClick={handleButtonClick}
-              onContactSave={triggerVCardDownload}
-              onShare={() => setShowShareModal(true)}
-            />
+            <ErrorBoundary lang={lang} fallbackNode={<PublicRecoveryFallback card={card} lang={lang} />}>
+              <UnifiedMobileLiveCardSurface
+                card={card}
+                lang={lang}
+                isPreview={false}
+                cleanPreview={true}
+                previewFocus="full"
+                visualMode="final"
+                onButtonClick={handleButtonClick}
+                onContactSave={triggerVCardDownload}
+                onShare={() => setShowShareModal(true)}
+              />
+            </ErrorBoundary>
           </div>
         </main>
         <AnimatePresence>{showShareModal && <ShareExportModal card={card} lang={lang} isOpen={showShareModal} onClose={() => setShowShareModal(false)} />}</AnimatePresence>

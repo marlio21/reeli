@@ -4,6 +4,7 @@ interface ErrorBoundaryProps {
   children: React.ReactNode;
   fallbackMessageDe?: string;
   fallbackMessageEn?: string;
+  fallbackNode?: React.ReactNode;
   lang?: string;
 }
 
@@ -27,6 +28,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
   render() {
     if (this.state.hasError) {
+      if (this.props.fallbackNode) return this.props.fallbackNode;
       const isDe = this.props.lang === 'de';
       const msg = isDe
         ? (this.props.fallbackMessageDe || 'Dieser Bereich konnte nicht geladen werden.')

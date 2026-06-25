@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## v52.5.23 – Realtime Hydration & Canonical Layout Import Fix
+
+- Fixes the Public realtime Firestore listener: snapshot data is hydrated with `hydrateCardMobileLayout()` before entering React state.
+- Initial Public slug loading also sets the hydrated card explicitly.
+- Adds the missing `deriveCanonicalButtonGridLayout` import in `buttonUtils.ts`.
+- Prevents raw Firestore updates from replacing canonical mobile button/text layout fields with incomplete legacy data.
+- Keeps this release intentionally small: no renderer redesign, no new features, no intentional Desktop-editor changes.
+- Build verified successfully.
+
+
+## v52.5.22 – Public Recovery & Cache Clear Hotfix
+
+- Public route now unregisters old service workers and clears runtime caches to prevent stale broken bundles.
+- Public card rendering is wrapped in an ErrorBoundary with a visible recovery fallback instead of a black screen.
+- Visitor realtime updates are hydrated through the mobile layout persistence path before rendering.
+- Build verified successfully.
+- No RELEASE_NOTES files.
+
+# CHANGELOG
+
 ## v52.5.19 – Public Save Hydration & Layout Persistence Fix
 
 - Public-Speicherpfad für mobile Layoutwerte gehärtet.

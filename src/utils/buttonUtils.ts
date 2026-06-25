@@ -1,5 +1,6 @@
 import { Card, CardButton, ButtonGridLayout } from '../types';
 import { downloadVCardFileFromCard } from './vcard-wrapper';
+import { deriveCanonicalButtonGridLayout } from './mobileLayoutPersistence';
 
 /**
  * Normalizes a raw button object supporting both legacy fields and new unified fields.
