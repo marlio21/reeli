@@ -1,6 +1,16 @@
 # CHANGELOG
 
-## v52.5.23 – Realtime Hydration & Canonical Layout Import Fix
+
+
+## v52.5.24 – Dist-free Upload & Public Snapshot Priority Fix
+
+- `dist/` aus dem ZIP entfernt, damit Vercel immer frisch aus dem Quellcode baut.
+- Aktive Editor-Realtime-Updates werden jetzt ebenfalls vor `setActiveCard()` hydriert.
+- Public/mobile Layout-Snapshots haben bei Buttonraster und Textgrößen Vorrang vor alten Top-Level-/Legacy-Feldern.
+- Legacy-Fallback für mobile Buttongröße von 72px auf 80px angehoben.
+- Kein Renderer-Umbau, keine neuen Features, Desktop nicht bewusst verändert.
+
+## v52.5.24 – Realtime Hydration & Canonical Layout Import Fix
 
 - Fixes the Public realtime Firestore listener: snapshot data is hydrated with `hydrateCardMobileLayout()` before entering React state.
 - Initial Public slug loading also sets the hydrated card explicitly.

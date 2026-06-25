@@ -1,4 +1,10 @@
-# ureel.me v52.5.23
+# ureel.me / reeli
+
+Aktuelle Version: **v52.5.24 – Dist-free Upload & Public Snapshot Priority Fix**
+
+Hinweis: Der ZIP-Upload enthält bewusst keinen `dist/`-Ordner. Vercel baut den Ordner selbst beim Deployment neu.
+
+# ureel.me v52.5.24
 
 Realtime Hydration & Canonical Layout Import Fix.
 

@@ -20,21 +20,26 @@ const isUreelCard = (card: Partial<Card> | undefined) => !!(card && (card.ureelT
 
 export const deriveCanonicalButtonGridLayout = (card: Partial<Card> | undefined): Required<ButtonGridLayout> => {
   const gl: any = card?.buttonGridLayout || {};
-  const mobileButtons: any = (card as any)?.mobileLayout?.buttons || (card as any)?.publicLayoutSnapshot?.buttons || {};
+  const publicButtons: any = (card as any)?.publicLayoutSnapshot?.buttons || {};
+  const mobileButtons: any = (card as any)?.mobileLayout?.buttons || {};
+  // v52.5.24: public/mobile snapshots are the canonical persisted layout.
+  // Legacy buttonGridLayout is only a fallback, otherwise stale top-level values
+  // can keep public cards small even after the editor has saved a newer snapshot.
+  const canonicalButtons: any = { ...gl, ...mobileButtons, ...publicButtons };
   const ureel = isUreelCard(card);
-  const rawSize = gl.buttonSizePx ?? mobileButtons.buttonSizePx ?? mobileButtons.tileSizePx ?? (card as any)?.buttonSizePx ?? 72;
-  const rawGap = gl.gapPx ?? gl.gap ?? mobileButtons.gapPx ?? (card as any)?.buttonGapPx ?? 10;
-  const cols = clamp(gl.cols ?? mobileButtons.cols ?? (card as any)?.buttonGridCols ?? 3, 1, 3, 3) as 1 | 2 | 3;
-  const size = ureel ? clamp(rawSize, 48, 112, 72) : num(rawSize, 72);
+  const rawSize = canonicalButtons.buttonSizePx ?? canonicalButtons.tileSizePx ?? (card as any)?.buttonSizePx ?? 80;
+  const rawGap = canonicalButtons.gapPx ?? canonicalButtons.gap ?? (card as any)?.buttonGapPx ?? 10;
+  const cols = clamp(canonicalButtons.cols ?? (card as any)?.buttonGridCols ?? 3, 1, 3, 3) as 1 | 2 | 3;
+  const size = ureel ? clamp(rawSize, 48, 112, 80) : num(rawSize, 80);
   const gap = ureel ? clamp(rawGap, 4, 18, 10) : num(rawGap, 12);
   return {
-    mode: (gl.mode || mobileButtons.mode || (ureel ? 'grid' : 'list')) as any,
+    mode: (canonicalButtons.mode || (ureel ? 'grid' : 'list')) as any,
     cols,
-    square: gl.square !== undefined ? !!gl.square : (mobileButtons.square !== undefined ? !!mobileButtons.square : ureel),
+    square: canonicalButtons.square !== undefined ? !!canonicalButtons.square : ureel,
     gapPx: gap,
     buttonSizePx: size,
     gap,
-    align: (gl.align || mobileButtons.align || 'center') as any,
+    align: (canonicalButtons.align || 'center') as any,
   };
 };
 
@@ -106,16 +111,18 @@ export const hydrateCardMobileLayout = <T extends Partial<Card> | null | undefin
   if (!card) return card;
   const grid = deriveCanonicalButtonGridLayout(card);
   const snapshot = buildMobileLayoutSnapshot({ ...card, buttonGridLayout: grid });
-  const text: any = (card as any).mobileLayout?.text || (card as any).publicLayoutSnapshot?.text || {};
+  const text: any = { ...((card as any).mobileLayout?.text || {}), ...((card as any).publicLayoutSnapshot?.text || {}) };
   return {
     ...(card as any),
     buttonGridLayout: grid,
     buttonGridCols: grid.cols as any,
     buttonSizePx: grid.buttonSizePx,
     buttonGapPx: grid.gapPx,
-    heroTitleSize: (card as any).heroTitleSize ?? text.heroTitleSize ?? text.titleSizePx,
-    heroSubtitleSize: (card as any).heroSubtitleSize ?? text.heroSubtitleSize ?? text.subtitleSizePx,
-    heroDescriptionSize: (card as any).heroDescriptionSize ?? text.heroDescriptionSize ?? text.descriptionSizePx,
+    // Snapshot-first: the public/editor saved mobile layout is canonical.
+    // Top-level legacy fields remain as fallback only.
+    heroTitleSize: text.heroTitleSize ?? text.titleSizePx ?? (card as any).heroTitleSize,
+    heroSubtitleSize: text.heroSubtitleSize ?? text.subtitleSizePx ?? (card as any).heroSubtitleSize,
+    heroDescriptionSize: text.heroDescriptionSize ?? text.descriptionSizePx ?? (card as any).heroDescriptionSize,
     mobileLayout: {
       ...((card as any).mobileLayout || {}),
       ...snapshot,

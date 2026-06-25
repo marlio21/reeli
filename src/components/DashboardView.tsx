@@ -2594,7 +2594,10 @@ Jetzt kommt der KONU Admin JSON Export:`;
 
     const unsubscribe = onSnapshot(doc(db, 'cards', cardId), (snapshot) => {
       if (snapshot.exists()) {
-        const updatedCard = snapshot.data() as Card;
+        // v52.5.24: never let raw Firestore card data overwrite the hydrated
+        // mobile/public layout model. The editor preview and the public view
+        // must both pass through the same hydration before entering React state.
+        const updatedCard = hydrateCardMobileLayout(snapshot.data() as Card) as Card;
         if (JSON.stringify(updatedCard) !== JSON.stringify(activeCard)) {
           setActiveCard(updatedCard);
         }
