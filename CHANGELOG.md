@@ -377,3 +377,12 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Hotfix: Dashboard-Aktion „Public aktualisieren“ aus dieser Version entfernt, bis der Public-Speicherpfad sicher geprüft ist.
 - Public View soll wieder rendern statt schwarzem Bildschirm.
 - Basis: v52.5.19 mit stabilem Public-Save-Hydration-Stand.
+
+## v52.5.33 – Button Tile Cleanup & Debug Off
+- Mobile/Public debug overlay hidden by default. It appears only with `?debugLayout=1`.
+- Button tile sizes rebalanced again for 3-column 9:16 cards: 46 / 56 / 66 / 76px.
+- Live mobile button tile clamp reduced to 42–84px to prevent oversized circles/vertical pills from breaking the card.
+- Forced card tiles center icon/text vertically and nudge content slightly upward toward the visual middle.
+- Button icon/text fitting made calmer for forced tiles: smaller icon cap, lower text caps, less bottom bias.
+- Button editor large preview reduced so it no longer exaggerates the real card button.
+- Werbetext size controls get more room toward small values for title, subtitle and description.

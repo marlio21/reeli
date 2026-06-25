@@ -233,14 +233,15 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
 
   // Padding & Text properties
   const forcedPx = typeof forceSizePx === 'number' ? forceSizePx : undefined;
-  const isTinyTile = !!forcedPx && forcedPx <= 58;
+  const isTinyTile = !!forcedPx && forcedPx <= 54;
+  const isLargeForcedTile = !!forcedPx && forcedPx >= 74;
   const isExtremeShape = shape === 'round';
   // Forced mobile card tiles are real square buttons in a small 3x2 grid.
   // Pixel padding from the large editor preview makes the visible text area too
   // narrow and clips labels such as Company/Telefon. Use proportional padding
   // in forced tiles so Editor, Preview and Public calculate the same usable box.
   const paddingStyle = forceSizePx
-    ? (isExtremeShape ? '8% 8%' : '7% 7%')
+    ? (isExtremeShape ? (isLargeForcedTile ? '12% 12%' : '9% 9%') : (isLargeForcedTile ? '10% 10%' : '8% 8%'))
     : (isExtremeShape 
         ? (isTinyTile ? '7% 7%' : '12% 12%') 
         : (paddingYStyle && paddingXStyle 
@@ -251,9 +252,9 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   // scale as the button editor preview.  Older logic multiplied by the grid
   // scale factor, so text stayed tiny on the real 9:16 card although the editor
   // looked correct.  For forced mobile tiles we scale from the actual tile size.
-  const tileRatio = forceSizePx ? Math.max(0.76, Math.min(1.16, forceSizePx / 76)) : 1;
+  const tileRatio = forceSizePx ? Math.max(0.72, Math.min(1.02, forceSizePx / 76)) : 1;
   const fontScale = forceSizePx ? tileRatio : Math.min(scaleFactor, isTinyTile ? 1.0 : 1.12);
-  const iconScale = forceSizePx ? Math.max(0.82, Math.min(1.08, forceSizePx / 82)) : Math.min(scaleFactor, isTinyTile ? 0.92 : 1.15);
+  const iconScale = forceSizePx ? Math.max(0.76, Math.min(0.98, forceSizePx / 88)) : Math.min(scaleFactor, isTinyTile ? 0.92 : 1.15);
 
   const labelLength = (btn.title || '').trim().length;
   const hasUsableIcon = btn.iconEnabled !== false && !!btn.icon;
@@ -277,10 +278,10 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const isLargeTextPreset = baseFontSize >= 13.2 && baseFontSize < 15.4;
   const forcedTextCap = forceSizePx
     ? (hasUsableIcon
-      ? (isSmallTextPreset ? 8.8 : isNormalTextPreset ? 10.0 : isLargeTextPreset ? 11.4 : 12.6)
-      : (isSmallTextPreset ? 10.2 : isNormalTextPreset ? 11.8 : isLargeTextPreset ? 13.4 : 14.6))
+      ? (isSmallTextPreset ? 8.2 : isNormalTextPreset ? 9.3 : isLargeTextPreset ? 10.4 : 11.2)
+      : (isSmallTextPreset ? 9.4 : isNormalTextPreset ? 10.8 : isLargeTextPreset ? 12.0 : 13.0))
     : (hasUsableIcon ? 11.2 : 13.2);
-  const forcedTextFloor = hasUsableIcon ? (isTinyTile ? 7.0 : 7.8) : (isTinyTile ? 8.4 : 9.2);
+  const forcedTextFloor = hasUsableIcon ? (isTinyTile ? 6.8 : 7.2) : (isTinyTile ? 8.0 : 8.6);
   const iconTextFactor = hasUsableIcon ? (isSmallTextPreset ? 0.82 : isNormalTextPreset ? 0.9 : isLargeTextPreset ? 0.96 : 1.02) : 1.0;
   const widthFitCap = forceSizePx && labelLength > 0
     ? Math.max(forcedTextFloor, (forceSizePx * (hasUsableIcon ? 0.84 : 0.9)) / Math.max(1, labelLength * 0.56))
@@ -403,6 +404,11 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   };
 
   const getTextPositionClass = () => {
+    // v52.5.33: forced card tiles must keep icon/text centered. Legacy starter
+    // buttons often store textPosition='bottom', which pushed content to the
+    // lower edge on the live card. The editor field may still store bottom, but
+    // the real 9:16 tile uses a clean centered stack.
+    if (forceSizePx) return 'justify-center';
     // v52.5.8: if the user disables the icon, keep the text visually centered.
     // Starter action buttons often store textPosition='bottom' for icon+label;
     // without an icon that made the label stick to the lower edge.
@@ -426,7 +432,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const iconColor = btn.iconColor || '#1E1E1E';
   const requestedIconSize = Math.round((btn.iconSize || 18) * iconScale);
   const iconSize = forceSizePx
-    ? Math.max(isTinyTile ? 8 : 10, Math.min(Math.round(requestedIconSize * 0.68), Math.round(forceSizePx * 0.22)))
+    ? Math.max(isTinyTile ? 8 : 10, Math.min(Math.round(requestedIconSize * 0.58), Math.round(forceSizePx * 0.18)))
     : requestedIconSize;
 
 
@@ -575,7 +581,8 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
         <div 
           className={`flex ${(effectiveIconPosition === 'top' || effectiveIconPosition === 'bottom' || effectiveIconPosition === 'center') ? 'flex-col' : 'flex-row'} items-center max-w-full ${getTextAlignClass()} pointer-events-none`}
           style={{
-            gap: `${Math.round(((effectiveIconPosition === 'top' || effectiveIconPosition === 'bottom' || effectiveIconPosition === 'center') ? (isTinyTile ? 2 : 4) : 6) * scaleFactor)}px`
+            gap: `${Math.round(((effectiveIconPosition === 'top' || effectiveIconPosition === 'bottom' || effectiveIconPosition === 'center') ? (isTinyTile ? 2 : 3) : 5) * scaleFactor)}px`,
+            transform: forceSizePx ? 'translateY(-4%)' : undefined
           }}
         >
           
