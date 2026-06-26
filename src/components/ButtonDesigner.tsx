@@ -1049,8 +1049,8 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
     const currentMode = gl.mode || (defaultIsUreel ? 'grid' : 'list');
     const isSquare = gl.square !== undefined ? !!gl.square : defaultIsUreel;
     const currentCols = gl.cols !== undefined ? gl.cols : (activeCard.buttonGridCols || 3);
-    const currentGapVal = gl.gapPx !== undefined ? gl.gapPx : (activeCard.buttonGapPx || 12);
-    const currentSizeVal = gl.buttonSizePx !== undefined ? gl.buttonSizePx : (activeCard.buttonSizePx || 72);
+    const currentGapVal = gl.gapPx !== undefined ? gl.gapPx : (activeCard.buttonGapPx || 18);
+    const currentSizeVal = gl.buttonSizePx !== undefined ? gl.buttonSizePx : (activeCard.buttonSizePx || 124);
 
     const saveGridLayout = async (updates: Partial<typeof gl>) => {
       if (!onSaveAllButtons) return;
@@ -1058,9 +1058,9 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
         mode: gl.mode || (defaultIsUreel ? 'grid' : 'list'),
         cols: typeof gl.cols === 'number' ? gl.cols : (activeCard.buttonGridCols || 3),
         square: gl.square !== undefined ? !!gl.square : defaultIsUreel,
-        gapPx: typeof gl.gapPx === 'number' ? gl.gapPx : (activeCard.buttonGapPx || 12),
-        buttonSizePx: typeof gl.buttonSizePx === 'number' ? gl.buttonSizePx : (activeCard.buttonSizePx || 72),
-        gap: typeof gl.gap === 'number' ? gl.gap : 12,
+        gapPx: typeof gl.gapPx === 'number' ? gl.gapPx : (activeCard.buttonGapPx || 18),
+        buttonSizePx: typeof gl.buttonSizePx === 'number' ? gl.buttonSizePx : (activeCard.buttonSizePx || 124),
+        gap: typeof gl.gap === 'number' ? gl.gap : 18,
         align: gl.align || 'center',
         ...updates
       };
@@ -1161,7 +1161,7 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
             />
           </div>
 
-          {/* Size Slider (48px - 112px, default 72px) */}
+          {/* Size Slider (96px - 168px, default 124px) */}
           <div className="space-y-1 bg-stone-950 p-3 rounded-xl border border-stone-900/50">
             <div className="flex justify-between items-center text-[10px] font-bold text-stone-400 select-none">
               <span>{lang === 'de' ? 'Button-Größe' : 'Button Size'}</span>
@@ -1169,21 +1169,21 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
             </div>
             <input
               type="range"
-              min="48"
-              max="112"
+              min="96"
+              max="168"
               step="2"
               value={currentSizeVal}
               onChange={(e) => saveGridLayout({ buttonSizePx: parseInt(e.target.value, 10) })}
               className="w-full h-1 bg-stone-850 rounded-xl appearance-none cursor-pointer accent-[#A855F7]"
             />
             <div className="flex justify-between text-[8px] text-stone-500 font-medium">
-              <span>48px</span>
-              <span>72px ({lang === 'de' ? 'Standard' : 'Default'})</span>
-              <span>112px</span>
+              <span>96px</span>
+              <span>124px ({lang === 'de' ? 'Standard' : 'Default'})</span>
+              <span>168px</span>
             </div>
           </div>
 
-          {/* Spacing / Gap Slider (4px - 24px, default 12px) */}
+          {/* Spacing / Gap Slider (8px - 36px, default 18px) */}
           <div className="space-y-1 bg-stone-950 p-3 rounded-xl border border-stone-900/50">
             <div className="flex justify-between items-center text-[10px] font-bold text-stone-400 select-none">
               <span>{lang === 'de' ? 'Button-Abstand' : 'Button Spacing (Gap)'}</span>
@@ -1191,17 +1191,17 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
             </div>
             <input
               type="range"
-              min="4"
-              max="24"
+              min="8"
+              max="36"
               step="1"
               value={currentGapVal}
               onChange={(e) => saveGridLayout({ gapPx: parseInt(e.target.value, 10) })}
               className="w-full h-1 bg-stone-850 rounded-xl appearance-none cursor-pointer accent-[#A855F7]"
             />
             <div className="flex justify-between text-[8px] text-stone-500 font-medium">
-              <span>4px</span>
-              <span>12px ({lang === 'de' ? 'Standard' : 'Default'})</span>
-              <span>24px</span>
+              <span>8px</span>
+              <span>18px ({lang === 'de' ? 'Standard' : 'Default'})</span>
+              <span>36px</span>
             </div>
           </div>
 

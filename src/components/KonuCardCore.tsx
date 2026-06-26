@@ -201,7 +201,11 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   const timelineConfig = React.useMemo(() => normalizeUreelTimeline(card), [card]);
   const endCardConfig = React.useMemo(() => normalizeUreelEndCard(card), [card]);
   const gridLayout = React.useMemo(() => normalizeButtonGridLayout(card), [card]);
-  const clampCardTileSizePx = (value: any) => Math.max(42, Math.min(Number(value || 68), 100));
+  const clampCardTileSizePx = (value: any) => Math.max(66, Math.min(Number(value || 100), 160));
+  const getButtonGridGapStyle = (gapPx: number): React.CSSProperties => ({
+    columnGap: `${gapPx}px`,
+    rowGap: `${Math.min(gapPx + 8, 44)}px`,
+  });
 
   const hasTimeline = !!card.ureelTimeline;
   const hasEndCard = !!card.ureelEndCard;
@@ -1351,7 +1355,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
           >
             <div
               className={`grid ${gridLayout.cols === 1 ? 'grid-cols-1' : gridLayout.cols === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}
-              style={{ gap: `${gridLayout.gapPx}px`, justifyItems: 'center' }}
+              style={{ ...getButtonGridGapStyle(gridLayout.gapPx), justifyItems: 'center' }}
             >
               {filteredLayeredButtons.map((btn, index) => {
                 // v52.5.18: one final mobile layout model. Do not re-cap the
@@ -1376,6 +1380,76 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {/* v52.5.38: Public Layered/Ureel cards also need the fixed bottom actions. */}
+        {!backgroundOnlyPreview && !isReelView && (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="absolute left-0 right-0 bottom-0 z-[28] bg-[#111111]/96 border-t border-[#A855F7]/25 px-5 pt-3 pb-4 shadow-[0_-12px_30px_rgba(0,0,0,0.35)] select-none font-sans backdrop-blur-md"
+          >
+            {!isHidden && (
+              <div className="mb-2 flex items-center justify-center gap-1.5 py-0.5 select-none text-center">
+                <span className="w-4.5 h-4.5 rounded bg-purple-950/50 border border-[#A855F7]/40 flex items-center justify-center shrink-0">
+                  <LucideIcons.Tv size={12} className="text-[#A855F7]" />
+                </span>
+                <span className="text-[10px] uppercase tracking-widest font-extrabold text-[#A855F7]">ureel.me</span>
+                <span className="text-stone-600 text-[10px] font-bold">•</span>
+                <p className="text-[10px] font-medium text-stone-400 font-sans tracking-wide leading-none select-none">
+                  {t.brandSlogan}
+                </p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-3 gap-2 w-full border-t border-stone-850/50 pt-2.5">
+              <button
+                type="button"
+                onClick={() => setShowQrModal(true)}
+                title={lang === 'de' ? 'QR-Code anzeigen' : 'Show QR-Code'}
+                className="flex h-[52px] flex-col items-center justify-center gap-1 rounded-xl border border-stone-850 bg-stone-950 px-1 py-2 text-center text-stone-300 shadow-sm transition duration-150 hover:border-stone-700/80 hover:bg-stone-900 hover:text-white active:bg-stone-950 cursor-pointer select-none"
+              >
+                <LucideIcons.QrCode size={14} className="stroke-[2.5]" />
+                <span className="max-w-full truncate text-[9px] font-black uppercase leading-none tracking-wider">QR-Code</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowShareModal && setShowShareModal(true)}
+                title={lang === 'de' ? 'Teilen' : 'Share'}
+                className="flex h-[52px] flex-col items-center justify-center gap-1 rounded-xl border border-stone-850 bg-stone-950 px-1 py-2 text-center text-stone-300 shadow-sm transition duration-150 hover:border-stone-700/80 hover:bg-stone-900 hover:text-white active:bg-stone-950 cursor-pointer select-none"
+              >
+                <LucideIcons.Share2 size={14} className="stroke-[2.5]" />
+                <span className="max-w-full truncate text-[9px] font-black uppercase leading-none tracking-wider">
+                  {lang === 'de' ? 'Teilen' : 'Share'}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleCtaClick && handleCtaClick()}
+                title={t.createYourOwn || (lang === 'de' ? 'Eigene gratis Karte erstellen' : 'Create free card')}
+                className="flex h-[52px] flex-col items-center justify-center gap-1 rounded-xl border border-stone-850 bg-stone-950 px-1 py-2 text-center text-[#A855F7] shadow-sm transition duration-150 hover:border-[#A855F7]/50 hover:bg-stone-900 hover:text-white active:bg-stone-950 cursor-pointer select-none"
+              >
+                <LucideIcons.Sparkles size={14} className="stroke-[2.5]" />
+                <span className="max-w-full truncate text-[9px] font-black uppercase leading-none tracking-wider">
+                  {lang === 'de' ? 'Erstellen' : 'Create'}
+                </span>
+              </button>
+            </div>
+
+            {!isPreview && (
+              <div className="mt-1.5 flex justify-center border-t border-stone-850/30 pt-1.5 animate-fadeIn">
+                <button
+                  type="button"
+                  onClick={() => {}}
+                  className="bg-transparent border-0 text-[8px] font-bold uppercase tracking-wider text-stone-500 transition duration-150 hover:text-red-400 cursor-pointer select-none"
+                >
+                  <LucideIcons.AlertTriangle size={9} className="inline mr-1" />
+                  <span>{lang === 'de' ? 'Inhalt melden' : 'Report'}</span>
+                </button>
+              </div>
+            )}
           </div>
         )}
         {!backgroundOnlyPreview && !freezeTimeline && elapsed >= effectiveEndCardAt && (
@@ -1776,7 +1850,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             className={`w-full z-10 grid ${gridLayout.cols === 1 ? 'grid-cols-1' : gridLayout.cols === 2 ? 'grid-cols-2' : 'grid-cols-3'} mb-2 transition-all mt-auto`}
             style={{
               ...buttonRevealStyle,
-              gap: `${gridLayout.gapPx}px`,
+              ...getButtonGridGapStyle(gridLayout.gapPx),
               justifyContent: 'center',
               justifyItems: 'center',
             }}
@@ -2287,7 +2361,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         className={`w-full z-10 grid ${gridLayout.cols === 1 ? 'grid-cols-1' : gridLayout.cols === 2 ? 'grid-cols-2' : 'grid-cols-3'} mb-8 transition-all`}
         style={{
           ...buttonRevealStyle,
-          gap: `${gridLayout.gapPx}px`,
+          ...getButtonGridGapStyle(gridLayout.gapPx),
           justifyContent: 'center',
           justifyItems: 'center',
         }}

@@ -16,6 +16,15 @@ const num = (value: any, fallback: number) => {
 
 const clamp = (value: any, min: number, max: number, fallback: number) => Math.max(min, Math.min(max, num(value, fallback)));
 
+// v52.5.38: Button raster sizing was visually too small on the public 9:16
+// surface. Legacy saved values (48–112px) are now lifted by 24px so an old
+// "very large" value lands around the new lower/small range instead of
+// staying tiny. Newer values above the old range are respected as-is.
+const liftLegacyButtonSize = (value: any) => {
+  const n = num(value, 76);
+  return n <= 112 ? n + 24 : n;
+};
+
 const isUreelCard = (card: Partial<Card> | undefined) => !!(card && (card.ureelTimeline || card.ureelScene || card.ureelEndCard));
 
 export const deriveCanonicalButtonGridLayout = (
@@ -44,8 +53,8 @@ export const deriveCanonicalButtonGridLayout = (
     ? (gl.gapPx ?? gl.gap ?? (card as any)?.buttonGapPx ?? mobileButtons.gapPx ?? mobileButtons.gap ?? publicButtons.gapPx ?? publicButtons.gap ?? 10)
     : (gl.gapPx ?? gl.gap ?? mobileButtons.gapPx ?? mobileButtons.gap ?? publicButtons.gapPx ?? publicButtons.gap ?? (card as any)?.buttonGapPx ?? 10);
   const cols = clamp(canonicalButtons.cols ?? (card as any)?.buttonGridCols ?? 3, 1, 3, 3) as 1 | 2 | 3;
-  const size = ureel ? clamp(rawSize, 42, 100, 68) : num(rawSize, 80);
-  const gap = ureel ? clamp(rawGap, 4, 22, 10) : num(rawGap, 12);
+  const size = ureel ? clamp(liftLegacyButtonSize(rawSize), 66, 160, 100) : num(rawSize, 80);
+  const gap = ureel ? clamp(rawGap, 8, 36, 16) : num(rawGap, 12);
   return {
     mode: (canonicalButtons.mode || (ureel ? 'grid' : 'list')) as any,
     cols,
