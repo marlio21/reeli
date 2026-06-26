@@ -24,9 +24,9 @@ export const CARD_BUTTON_FONT_PRESETS: Record<CardButtonSizePreset, number> = {
 };
 
 export const CARD_BUTTON_ICON_PRESETS: Record<CardButtonSizePreset, number> = {
-  compact: 18,
-  standard: 21,
-  large: 23,
+  compact: 20,
+  standard: 28,
+  large: 34,
 };
 
 export const CARD_BUTTON_SCALE_PRESETS: Record<CardButtonSizePreset, number> = {

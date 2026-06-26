@@ -1281,7 +1281,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     const heroTop = mobileTextDesign.top || defaultHeroTop;
     const buttonDockLayoutForText = buttonsVisible ? getLayeredButtonDockLayout() : null;
     const safeBottom = mobileTextDesign.bottom || (buttonDockLayoutForText ? buttonDockLayoutForText.textBottomPercent : '7%');
-    const widthClass = layeredFrameType === 'badge' ? 'max-w-[96%]' : 'max-w-[98%]';
+    const widthClass = layeredFrameType === 'badge' ? 'w-[98%] max-w-[98%]' : 'w-[104%] max-w-[104%]';
     const compactRatio = buttonsVisible ? (isHero || endcardVideoActive ? 0.78 : 0.88) : 1.0;
     // v52.5.18: public and editor-preview must use the same configured text
     // sizes. Earlier public paths applied additional compact ratios/caps when

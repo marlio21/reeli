@@ -252,20 +252,25 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   // scale as the button editor preview.  Older logic multiplied by the grid
   // scale factor, so text stayed tiny on the real 9:16 card although the editor
   // looked correct.  For forced mobile tiles we scale from the actual tile size.
-  const tileRatio = forceSizePx ? Math.max(0.62, Math.min(0.88, forceSizePx / 72)) : 1;
+  const tileRatio = forceSizePx ? Math.max(0.72, Math.min(1.18, forceSizePx / 90)) : 1;
   const fontScale = forceSizePx ? tileRatio : Math.min(scaleFactor, isTinyTile ? 1.0 : 1.12);
-  const iconScale = forceSizePx ? Math.max(0.62, Math.min(0.86, forceSizePx / 82)) : Math.min(scaleFactor, isTinyTile ? 0.92 : 1.15);
+  const iconScale = forceSizePx ? Math.max(0.9, Math.min(1.24, forceSizePx / 90)) : Math.min(scaleFactor, isTinyTile ? 0.92 : 1.15);
 
   const labelLength = (btn.title || '').trim().length;
   const hasUsableIcon = btn.iconEnabled !== false && !!btn.icon;
+  // v52.5.39: in forced card tiles, Icongröße "Sehr groß" becomes an icon-only CTA.
+  // This keeps English/German button-size presets intact while adapting icons to 60/90/110px tiles.
+  const forceIconOnly = !!forceSizePx && hasUsableIcon && Number(btn.iconSize || 0) >= 40;
   // On forced square mobile tiles, left/right icon layout leaves too little
   // horizontal room for labels and clips first/last characters. The full-size
   // editor tile can still show left/right, but the real 9:16 card tile uses a
   // stacked layout for readable public buttons.
   const rawIconPosition = btn.iconPosition;
-  const effectiveIconPosition = forceSizePx && hasUsableIcon && (rawIconPosition === 'left' || rawIconPosition === 'right')
-    ? 'top'
-    : rawIconPosition;
+  const effectiveIconPosition = forceIconOnly
+    ? 'center'
+    : (forceSizePx && hasUsableIcon && (rawIconPosition === 'left' || rawIconPosition === 'right')
+      ? 'top'
+      : rawIconPosition);
   const baseFontSize = btn.fontSize !== undefined ? btn.fontSize : 12;
   const lengthPenalty = forceSizePx
     ? (labelLength > 28 ? 2.4 : labelLength > 20 ? 1.55 : labelLength > 14 ? 0.82 : labelLength > 9 ? 0.28 : 0)
@@ -277,17 +282,19 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const isNormalTextPreset = baseFontSize > 10.8 && baseFontSize < 13.2;
   const isLargeTextPreset = baseFontSize >= 13.2 && baseFontSize < 15.4;
   const forcedTextCap = forceSizePx
-    ? (hasUsableIcon
-      ? (isSmallTextPreset ? 7.0 : isNormalTextPreset ? 7.8 : isLargeTextPreset ? 8.6 : 9.2)
-      : (isSmallTextPreset ? 9.4 : isNormalTextPreset ? 10.8 : isLargeTextPreset ? 12.0 : 13.0))
+    ? (forceIconOnly
+      ? 0
+      : hasUsableIcon
+        ? Math.max(8.4, Math.min(12.8, forceSizePx * (isSmallTextPreset ? 0.115 : isNormalTextPreset ? 0.13 : isLargeTextPreset ? 0.145 : 0.155)))
+        : Math.max(10.2, Math.min(16.4, forceSizePx * (isSmallTextPreset ? 0.15 : isNormalTextPreset ? 0.17 : isLargeTextPreset ? 0.185 : 0.198))))
     : (hasUsableIcon ? 11.2 : 13.2);
-  const forcedTextFloor = hasUsableIcon ? (isTinyTile ? 5.8 : 6.3) : (isTinyTile ? 7.0 : 7.6);
-  const iconTextFactor = hasUsableIcon ? (isSmallTextPreset ? 0.82 : isNormalTextPreset ? 0.9 : isLargeTextPreset ? 0.96 : 1.02) : 1.0;
+  const forcedTextFloor = forceIconOnly ? 0 : (hasUsableIcon ? (isTinyTile ? 6.4 : 7.2) : (isTinyTile ? 7.8 : 8.8));
+  const iconTextFactor = hasUsableIcon ? (isSmallTextPreset ? 0.92 : isNormalTextPreset ? 1.0 : isLargeTextPreset ? 1.06 : 1.12) : 1.0;
   const widthFitCap = forceSizePx && labelLength > 0
-    ? Math.max(forcedTextFloor, (forceSizePx * (hasUsableIcon ? 0.84 : 0.9)) / Math.max(1, labelLength * 0.56))
+    ? Math.max(forcedTextFloor, (forceSizePx * (hasUsableIcon ? 0.92 : 0.96)) / Math.max(1, labelLength * 0.52))
     : forcedTextCap;
   const autoFitFontSize = forceSizePx
-    ? Math.max(forcedTextFloor, Math.min(forcedTextCap, widthFitCap, (baseFontSize * fontScale * iconTextFactor) - lengthPenalty))
+    ? (forceIconOnly ? 0 : Math.max(forcedTextFloor, Math.min(forcedTextCap, widthFitCap, (baseFontSize * fontScale * iconTextFactor) - lengthPenalty)))
     : Math.max(isTinyTile ? 6.2 : 7, Math.round((baseFontSize * fontScale) - lengthPenalty));
   const sizeStyle = `${Number(autoFitFontSize.toFixed(1))}px`;
 
@@ -432,7 +439,9 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   const iconColor = btn.iconColor || '#1E1E1E';
   const requestedIconSize = Math.round((btn.iconSize || 18) * iconScale);
   const iconSize = forceSizePx
-    ? Math.max(isTinyTile ? 7 : 9, Math.min(Math.round(requestedIconSize * 0.46), Math.round(forceSizePx * 0.14)))
+    ? (forceIconOnly
+      ? Math.max(Math.round(forceSizePx * 0.44), Math.min(Math.round(requestedIconSize * 1.18), Math.round(forceSizePx * 0.62)))
+      : Math.max(isTinyTile ? 12 : 15, Math.min(Math.round(requestedIconSize * 0.82), Math.round(forceSizePx * 0.36))))
     : requestedIconSize;
 
 
@@ -441,13 +450,15 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   // Action type / action label is never rendered as visible text.
   const rawVisibleTitle = (btn.title || '').toString().replace(/\r/g, '').trim();
   const rawVisibleSubtitle = ((btn as any).subtitle || '').toString().replace(/\r/g, '').trim();
-  const buttonTextLines = (rawVisibleSubtitle
-      ? [rawVisibleTitle || (lang === 'en' ? 'Untitled' : 'Ohne Titel'), rawVisibleSubtitle]
-      : (rawVisibleTitle ? rawVisibleTitle.split('\n') : [lang === 'en' ? 'Untitled' : 'Ohne Titel']))
+  const buttonTextLines = (forceIconOnly
+      ? []
+      : (rawVisibleSubtitle
+        ? [rawVisibleTitle || (lang === 'en' ? 'Untitled' : 'Ohne Titel'), rawVisibleSubtitle]
+        : (rawVisibleTitle ? rawVisibleTitle.split('\n') : [lang === 'en' ? 'Untitled' : 'Ohne Titel'])))
     .map((line) => line.trim())
     .filter(Boolean)
     .slice(0, 2);
-  if (buttonTextLines.length === 0) {
+  if (!forceIconOnly && buttonTextLines.length === 0) {
     buttonTextLines.push(lang === 'en' ? 'Untitled' : 'Ohne Titel');
   }
   const hasSecondButtonLine = buttonTextLines.length > 1;
@@ -601,8 +612,8 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
               display: 'inline-flex',
               flexDirection: 'column',
               alignItems: btn.textAlign === 'left' ? 'flex-start' : btn.textAlign === 'right' ? 'flex-end' : 'center',
-              width: forceSizePx ? '100%' : undefined,
-              maxWidth: forceSizePx ? '100%' : '100%',
+              width: forceSizePx ? (forceIconOnly ? '0' : '100%') : undefined,
+              maxWidth: forceSizePx ? (forceIconOnly ? '0' : '100%') : '100%',
               textAlign: btn.textAlign || 'center',
               transform: forceSizePx
                 ? undefined
@@ -621,9 +632,10 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
               hyphens: forceSizePx ? 'manual' : (compactSingleLine ? 'manual' : 'auto'),
               overflow: 'hidden',
               textOverflow: 'ellipsis',
+              opacity: forceIconOnly ? 0 : 1,
             }}
           >
-            {hasSecondButtonLine ? (
+            {!forceIconOnly && (hasSecondButtonLine ? (
               <>
                 <span className="block max-w-full truncate">{buttonTextLines[0]}</span>
                 <span className="block max-w-full truncate opacity-90" style={{ fontSize: `calc(${sizeStyle} * ${forceSizePx ? 0.72 : 0.72})`, fontWeight: 700 }}>
@@ -632,7 +644,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
               </>
             ) : (
               buttonTextLines[0]
-            )}
+            ))}
           </span>
 
           {effectiveIconPosition === 'right' && renderIconOrImage()}

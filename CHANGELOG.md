@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v52.5.39 – Button Text/Icon Scale & Wider Ad Text Fix
+
+- Keeps the canonical v52.5.38 card button size presets: 60 / 90 / 110px.
+- Adjusts forced-card-tile text scaling so labels fit the larger 90/110px buttons better.
+- Adjusts icon scaling relative to the actual card tile size.
+- Makes Icongröße “Sehr groß” an icon-only CTA in real card tiles: the icon is centered and the text is hidden only for this explicit very-large icon mode.
+- Keeps the large Button Editor preview unchanged.
+- Keeps English/German configuration behavior and the compact / standard / large preset model.
+- Gives layered Werbetext/ad-text boxes more horizontal width on the card.
+- ZIP remains dist-free and excludes node_modules / release notes.
+
 ## v52.5.38 – Central Button Size Scale & Loading Cleanup Fix
 
 - Adds a single canonical card/public button size table: Klein 60px, Normal 90px, Groß 110px.
@@ -124,6 +135,17 @@ Button tile cleanup and public loading performance fix.
 
 # CHANGELOG
 
+## v52.5.39 – Button Text/Icon Scale & Wider Ad Text Fix
+
+- Keeps the canonical v52.5.38 card button size presets: 60 / 90 / 110px.
+- Adjusts forced-card-tile text scaling so labels fit the larger 90/110px buttons better.
+- Adjusts icon scaling relative to the actual card tile size.
+- Makes Icongröße “Sehr groß” an icon-only CTA in real card tiles: the icon is centered and the text is hidden only for this explicit very-large icon mode.
+- Keeps the large Button Editor preview unchanged.
+- Keeps English/German configuration behavior and the compact / standard / large preset model.
+- Gives layered Werbetext/ad-text boxes more horizontal width on the card.
+- ZIP remains dist-free and excludes node_modules / release notes.
+
 ## v52.5.19 – Public Save Hydration & Layout Persistence Fix
 
 - Public-Speicherpfad für mobile Layoutwerte gehärtet.
@@ -214,6 +236,17 @@ Mobile/Public correction after the final visual mode rollout.
 
 # CHANGELOG
 
+## v52.5.39 – Button Text/Icon Scale & Wider Ad Text Fix
+
+- Keeps the canonical v52.5.38 card button size presets: 60 / 90 / 110px.
+- Adjusts forced-card-tile text scaling so labels fit the larger 90/110px buttons better.
+- Adjusts icon scaling relative to the actual card tile size.
+- Makes Icongröße “Sehr groß” an icon-only CTA in real card tiles: the icon is centered and the text is hidden only for this explicit very-large icon mode.
+- Keeps the large Button Editor preview unchanged.
+- Keeps English/German configuration behavior and the compact / standard / large preset model.
+- Gives layered Werbetext/ad-text boxes more horizontal width on the card.
+- ZIP remains dist-free and excludes node_modules / release notes.
+
 ## v52.5.10 – Mobile Share, Action Paste, Icon Library & Button Size Parity Fix
 
 - Mobile-only Reparatur: Desktop-Version wird nicht bewusst verändert.
@@ -266,6 +299,17 @@ Mobile/Public correction after the final visual mode rollout.
 - Desktop nicht bewusst verändert.
 
 # CHANGELOG
+
+## v52.5.39 – Button Text/Icon Scale & Wider Ad Text Fix
+
+- Keeps the canonical v52.5.38 card button size presets: 60 / 90 / 110px.
+- Adjusts forced-card-tile text scaling so labels fit the larger 90/110px buttons better.
+- Adjusts icon scaling relative to the actual card tile size.
+- Makes Icongröße “Sehr groß” an icon-only CTA in real card tiles: the icon is centered and the text is hidden only for this explicit very-large icon mode.
+- Keeps the large Button Editor preview unchanged.
+- Keeps English/German configuration behavior and the compact / standard / large preset model.
+- Gives layered Werbetext/ad-text boxes more horizontal width on the card.
+- ZIP remains dist-free and excludes node_modules / release notes.
 
 ## v52.5.6 – Mobile Button Tile Parity, Text Background Toggle & Account Scroll Fix
 
@@ -338,6 +382,17 @@ Mobile/Public correction after the final visual mode rollout.
 - Keine Kartenverwaltung/Nutzerverwaltung in dieser Reparaturversion; diese folgt separat.
 
 # CHANGELOG
+
+## v52.5.39 – Button Text/Icon Scale & Wider Ad Text Fix
+
+- Keeps the canonical v52.5.38 card button size presets: 60 / 90 / 110px.
+- Adjusts forced-card-tile text scaling so labels fit the larger 90/110px buttons better.
+- Adjusts icon scaling relative to the actual card tile size.
+- Makes Icongröße “Sehr groß” an icon-only CTA in real card tiles: the icon is centered and the text is hidden only for this explicit very-large icon mode.
+- Keeps the large Button Editor preview unchanged.
+- Keeps English/German configuration behavior and the compact / standard / large preset model.
+- Gives layered Werbetext/ad-text boxes more horizontal width on the card.
+- ZIP remains dist-free and excludes node_modules / release notes.
 
 ## v52.4.7 – Text Template Editor & Preview Button Fix
 

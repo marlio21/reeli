@@ -1,3 +1,16 @@
+# ureel v52.5.39 – Button Text/Icon Scale & Wider Ad Text Fix
+
+Diese Version baut auf der stabileren v52.5.38-Größenbasis auf. Die Kartenbutton-Größen bleiben bewusst bei Klein 60px, Normal 90px und Groß 110px. Darauf wurden Text- und Icon-Skalierung angepasst.
+
+## Fokus
+- Die zentrale 3er-Buttongrößenlogik bleibt erhalten.
+- Buttontext und Icons skalieren stärker passend zu 60/90/110px Kartenbuttons.
+- Icongröße „Sehr groß“ wird in echten Kartenkacheln zu einem Icon-only Button: großes Icon, kein Buttontext.
+- Die große Buttoneditor-Vorschau bleibt unverändert.
+- Englisch/Deutsch-Konfigurationen bleiben erhalten; Presets bleiben compact / standard / large.
+- Werbetext-Boxen bekommen mehr Breite auf der Karte.
+- ZIP bleibt ohne `dist/`, ohne `node_modules/` und ohne `RELEASE_NOTES_*.md`.
+
 # ureel v52.5.38 – Central Button Size Scale & Loading Cleanup Fix
 
 Diese Version bereinigt die Button-Größenlogik. Es gibt jetzt eine zentrale 3er-Größentabelle für Karten-/Public-Buttons:
