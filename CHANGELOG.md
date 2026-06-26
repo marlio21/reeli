@@ -1,3 +1,12 @@
+
+## v52.5.41 – Public Share Hydration & Six Button Cap Fix
+
+- Public/share links render from `hydrateCardMobileLayout(card)` before mounting the unified mobile surface.
+- Public View now uses the same final timeline mode as the clean editor card preview.
+- The layered 9:16 card renders at most six real card buttons; QR-Code, Teilen and Erstellen remain a separate system footer bar and are not counted as card buttons.
+- Fixes cases where old duplicate/legacy Firestore button entries appeared in Public although the editor showed six real buttons.
+- Keeps the v52.5.38 central button sizes and v52.5.40 empty-text behavior intact.
+
 ## v52.5.40 – Empty Button Text & Ad Text Height Slider Fix
 
 - Empty button titles now render as empty on the card instead of falling back to "Ohne Titel" / "Untitled".

@@ -1,4 +1,4 @@
-# ureel v52.5.40 – Empty Button Text & Ad Text Height Slider Fix
+# ureel v52.5.41 – Public Share Hydration & Six Button Cap Fix
 
 Diese Version baut auf v52.5.39 auf. Die funktionierende 60 / 90 / 110px Button-Größenlogik bleibt erhalten.
 

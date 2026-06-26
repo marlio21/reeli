@@ -1,5 +1,5 @@
 /**
- * v52.5.32 Mobile Editor Public Size Writer Fix
+ * v52.5.41 Public Share Hydration & Six Button Cap Fix
  *
  * The editor preview can read local in-memory values immediately. The public
  * card, however, reads Firestore data. To prevent public views from falling
@@ -68,7 +68,7 @@ export const buildMobileLayoutSnapshot = (card: Partial<Card>, options?: { prefe
   const descriptionSize = clamp((card as any).heroDescriptionSize ?? (card as any).mobileLayout?.text?.descriptionSizePx, 8, 36, 12);
   const textHeightPercent = clamp((card as any).heroTextHeightPercent ?? (card as any).mobileLayout?.text?.heightPercent ?? (card as any).publicLayoutSnapshot?.text?.heightPercent, 24, 76, 44);
   return {
-    version: 'v52.5.40',
+    version: 'v52.5.41',
     buttons: {
       mode: grid.mode,
       cols: grid.cols,
@@ -147,11 +147,11 @@ export const persistMobileLayoutFields = <T extends Partial<Card>>(updates: T, b
       ...(baseAny.mobileLayout || {}),
       ...(updateAny.mobileLayout || {}),
       ...snapshot,
-      version: 'v52.5.40',
+      version: 'v52.5.41',
     } as any,
     publicLayoutSnapshot: {
       ...snapshot,
-      version: 'v52.5.40',
+      version: 'v52.5.41',
     } as any,
     ureelTextTemplate: updateAny.ureelTextTemplate
       ? normalizeUreelTextTemplate({ ...(baseAny.ureelTextTemplate || {}), ...(updateAny.ureelTextTemplate || {}) } as any) as any

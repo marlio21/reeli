@@ -1173,9 +1173,16 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       // Do not also render helper/replay buttons inside the 3×2 action grid.
       if (actionType === 'video_replay' || /spot neu starten|video erneut ansehen|restart spot|watch again/i.test(label)) return false;
       return !/(editor|vorschau|bearbeiten|ureel live|konu live)/i.test(label);
-    });
+    })
+    // v52.5.41: Public and the editor card preview may only render the six real
+    // card buttons. Older Firestore cards can still contain legacy/duplicate
+    // entries after copy/reorder tests; without this hard cap the shared public
+    // link can show an apparent seventh card button, while the editor correctly
+    // says "6 echte Kartenbuttons". The QR/Share/Create footer is a separate
+    // system action bar and is intentionally not counted here.
+    .slice(0, 6);
 
-  // v52.5.41: one deterministic button zone for layered mobile cards.
+  // v52.5.41: one deterministic six-button zone for layered mobile cards.
   // The lower public action bar is reserved, the ad text owns the upper area,
   // and the user buttons are bottom-aligned in the remaining middle band.
   // More than six buttons scroll only inside this band.

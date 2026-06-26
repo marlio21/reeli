@@ -23,6 +23,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 import QRCode from 'qrcode';
 import { parseVideoUrl } from '../utils/video';
 import { executeButtonAction as runButtonAction, normalizeButtons, buildButtonActionUrl } from '../utils/buttonUtils';
+import { hydrateCardMobileLayout } from '../utils/mobileLayoutPersistence';
 import { getSafeLocalStorage, setSafeLocalStorage } from '../utils/safeStorage';
 import { canUseFeature } from '../config/plans';
 import { trackCardView, trackButtonClick } from '../utils/analytics';
@@ -177,6 +178,12 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
       }
     }
   }, [card.cardId, isPreview]);
+
+  // v52.5.41: Public/share links must render from the same hydrated card shape
+  // as the editor preview. This prevents stale publicLayoutSnapshot values or
+  // legacy raw Firestore documents from producing a different button/text layout
+  // when the user opens the copied share link in a fresh tab.
+  const hydratedPublicCard = React.useMemo(() => hydrateCardMobileLayout(card) as Card, [card]);
 
   // Generate QR Code representation
   useEffect(() => {
@@ -628,14 +635,15 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
             className="relative h-[100svh] w-screen sm:h-[min(96svh,760px)] sm:w-auto sm:aspect-[9/16] overflow-hidden bg-black sm:rounded-[36px] sm:border-[8px] sm:border-[#111] sm:shadow-2xl"
             aria-label="ureel public unified mobile live card"
           >
-            <ErrorBoundary lang={lang} fallbackNode={<PublicRecoveryFallback card={card} lang={lang} />}>
+            <ErrorBoundary lang={lang} fallbackNode={<PublicRecoveryFallback card={hydratedPublicCard} lang={lang} />}>
               <UnifiedMobileLiveCardSurface
-                card={card}
+                card={hydratedPublicCard}
                 lang={lang}
                 isPreview={false}
                 cleanPreview={true}
                 previewFocus="full"
                 visualMode="final"
+                timelineMode="final"
                 showLayoutDebug={false}
                 debugLabel="public-view"
                 onButtonClick={handleButtonClick}
@@ -645,7 +653,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
             </ErrorBoundary>
           </div>
         </main>
-        <AnimatePresence>{showShareModal && <ShareExportModal card={card} lang={lang} isOpen={showShareModal} onClose={() => setShowShareModal(false)} />}</AnimatePresence>
+        <AnimatePresence>{showShareModal && <ShareExportModal card={hydratedPublicCard} lang={lang} isOpen={showShareModal} onClose={() => setShowShareModal(false)} />}</AnimatePresence>
       </>
     );
   }
