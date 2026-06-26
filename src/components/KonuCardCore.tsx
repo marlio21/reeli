@@ -1387,7 +1387,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         {!backgroundOnlyPreview && !isReelView && (
           <div
             onClick={(e) => e.stopPropagation()}
-            className="absolute left-0 right-0 bottom-0 z-[28] bg-[#111111]/96 border-t border-[#A855F7]/25 px-5 pt-3 pb-4 shadow-[0_-12px_30px_rgba(0,0,0,0.35)] select-none font-sans backdrop-blur-md"
+            className="absolute left-0 right-0 bottom-0 z-[28] bg-transparent border-0 px-5 pt-2 pb-3 shadow-none select-none font-sans"
           >
             {!isHidden && (
               <div className="mb-2 flex items-center justify-center gap-1.5 py-0.5 select-none text-center">
@@ -1402,25 +1402,25 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               </div>
             )}
 
-            <div className="grid grid-cols-3 gap-2 w-full border-t border-stone-850/50 pt-2.5">
+            <div className="grid grid-cols-3 gap-2 w-full border-0 pt-1">
               <button
                 type="button"
                 onClick={() => setShowQrModal(true)}
                 title={lang === 'de' ? 'QR-Code anzeigen' : 'Show QR-Code'}
-                className="flex h-[52px] flex-col items-center justify-center gap-1 rounded-xl border border-stone-850 bg-stone-950 px-1 py-2 text-center text-stone-300 shadow-sm transition duration-150 hover:border-stone-700/80 hover:bg-stone-900 hover:text-white active:bg-stone-950 cursor-pointer select-none"
+                className="flex h-[44px] flex-col items-center justify-center gap-0.5 rounded-xl border border-transparent bg-transparent px-1 py-1 text-center text-stone-400/75 shadow-none transition duration-150 hover:text-white hover:bg-white/5 active:bg-white/0 cursor-pointer select-none"
               >
                 <LucideIcons.QrCode size={14} className="stroke-[2.5]" />
-                <span className="max-w-full truncate text-[9px] font-black uppercase leading-none tracking-wider">QR-Code</span>
+                <span className="max-w-full truncate text-[8px] font-black uppercase leading-none tracking-wider">QR-Code</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setShowShareModal && setShowShareModal(true)}
                 title={lang === 'de' ? 'Teilen' : 'Share'}
-                className="flex h-[52px] flex-col items-center justify-center gap-1 rounded-xl border border-stone-850 bg-stone-950 px-1 py-2 text-center text-stone-300 shadow-sm transition duration-150 hover:border-stone-700/80 hover:bg-stone-900 hover:text-white active:bg-stone-950 cursor-pointer select-none"
+                className="flex h-[44px] flex-col items-center justify-center gap-0.5 rounded-xl border border-transparent bg-transparent px-1 py-1 text-center text-stone-400/75 shadow-none transition duration-150 hover:text-white hover:bg-white/5 active:bg-white/0 cursor-pointer select-none"
               >
                 <LucideIcons.Share2 size={14} className="stroke-[2.5]" />
-                <span className="max-w-full truncate text-[9px] font-black uppercase leading-none tracking-wider">
+                <span className="max-w-full truncate text-[8px] font-black uppercase leading-none tracking-wider">
                   {lang === 'de' ? 'Teilen' : 'Share'}
                 </span>
               </button>
@@ -1429,10 +1429,10 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                 type="button"
                 onClick={() => handleCtaClick && handleCtaClick()}
                 title={t.createYourOwn || (lang === 'de' ? 'Eigene gratis Karte erstellen' : 'Create free card')}
-                className="flex h-[52px] flex-col items-center justify-center gap-1 rounded-xl border border-stone-850 bg-stone-950 px-1 py-2 text-center text-[#A855F7] shadow-sm transition duration-150 hover:border-[#A855F7]/50 hover:bg-stone-900 hover:text-white active:bg-stone-950 cursor-pointer select-none"
+                className="flex h-[44px] flex-col items-center justify-center gap-0.5 rounded-xl border border-transparent bg-transparent px-1 py-1 text-center text-[#A855F7]/75 shadow-none transition duration-150 hover:text-white hover:bg-white/5 active:bg-white/0 cursor-pointer select-none"
               >
                 <LucideIcons.Sparkles size={14} className="stroke-[2.5]" />
-                <span className="max-w-full truncate text-[9px] font-black uppercase leading-none tracking-wider">
+                <span className="max-w-full truncate text-[8px] font-black uppercase leading-none tracking-wider">
                   {lang === 'de' ? 'Erstellen' : 'Create'}
                 </span>
               </button>
@@ -2621,7 +2621,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       {!isReelView && (
         <div
           onClick={(e) => e.stopPropagation()}
-          className="w-full bg-[#111111] border-t border-[#A855F7]/25 p-5 mt-auto flex flex-col gap-4 z-10 shadow-lg select-none relative font-sans rounded-b-[23px]"
+          className="w-full bg-transparent border-0 px-5 pt-3 pb-4 mt-auto flex flex-col gap-2 z-10 shadow-none select-none relative font-sans rounded-b-[23px]"
         >
         {/* Zeile 1: Brand Header (Falls nicht versteckt durch Pro/Business plan) */}
         {!isHidden && (
@@ -2638,15 +2638,15 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         )}
 
         {/* v52.5.37: compact three-button system action bar under the card. */}
-        <div className="grid grid-cols-3 gap-1.5 w-full border-t border-stone-850/50 pt-3">
+        <div className="grid grid-cols-3 gap-1.5 w-full border-0 pt-1">
           {/* 1. QR-Code */}
           <button
             onClick={() => setShowQrModal(true)}
             title={lang === 'de' ? 'QR-Code anzeigen' : 'Show QR-Code'}
-            className="flex flex-col items-center justify-center gap-1 bg-stone-950 hover:bg-stone-900 active:bg-stone-950 text-stone-300 hover:text-white border border-stone-850 hover:border-stone-700/80 rounded-xl py-2 px-1 transition duration-150 shadow-sm cursor-pointer select-none text-center h-[48px]"
+            className="flex flex-col items-center justify-center gap-0.5 bg-transparent hover:bg-white/5 active:bg-transparent text-stone-400/75 hover:text-white border border-transparent rounded-xl py-1 px-1 transition duration-150 shadow-none cursor-pointer select-none text-center h-[42px]"
           >
             <LucideIcons.QrCode size={13} className="stroke-[2.5]" />
-            <span className="text-[8.5px] font-black uppercase tracking-wider truncate max-w-full leading-none">
+            <span className="text-[8px] font-black uppercase tracking-wider truncate max-w-full leading-none">
               QR-Code
             </span>
           </button>
@@ -2655,10 +2655,10 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
           <button
             onClick={() => setShowShareModal && setShowShareModal(true)}
             title={lang === 'de' ? 'Teilen' : 'Share'}
-            className="flex flex-col items-center justify-center gap-1 bg-stone-950 hover:bg-stone-900 active:bg-stone-950 text-stone-300 hover:text-white border border-stone-850 hover:border-stone-700/80 rounded-xl py-2 px-1 transition duration-150 shadow-sm cursor-pointer select-none text-center h-[48px]"
+            className="flex flex-col items-center justify-center gap-0.5 bg-transparent hover:bg-white/5 active:bg-transparent text-stone-400/75 hover:text-white border border-transparent rounded-xl py-1 px-1 transition duration-150 shadow-none cursor-pointer select-none text-center h-[42px]"
           >
             <LucideIcons.Share2 size={13} className="stroke-[2.5]" />
-            <span className="text-[8.5px] font-black uppercase tracking-wider truncate max-w-full leading-none">
+            <span className="text-[8px] font-black uppercase tracking-wider truncate max-w-full leading-none">
               {lang === 'de' ? 'Teilen' : 'Share'}
             </span>
           </button>
@@ -2667,10 +2667,10 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
           <button
             onClick={() => handleCtaClick && handleCtaClick()}
             title={t.createYourOwn || (lang === 'de' ? 'Eigene gratis Karte erstellen' : 'Create free card')}
-            className="flex flex-col items-center justify-center gap-1 bg-stone-950 hover:bg-stone-900 active:bg-stone-950 text-[#A855F7] hover:text-white border border-stone-850 hover:border-[#A855F7]/50 rounded-xl py-2 px-1 transition duration-150 shadow-sm cursor-pointer select-none text-center h-[48px]"
+            className="flex flex-col items-center justify-center gap-0.5 bg-transparent hover:bg-white/5 active:bg-transparent text-[#A855F7]/75 hover:text-white border border-transparent rounded-xl py-1 px-1 transition duration-150 shadow-none cursor-pointer select-none text-center h-[42px]"
           >
             <LucideIcons.Sparkles size={13} className="stroke-[2.5]" />
-            <span className="text-[8.5px] font-black uppercase tracking-wider truncate max-w-full leading-none">
+            <span className="text-[8px] font-black uppercase tracking-wider truncate max-w-full leading-none">
               {lang === 'de' ? 'Erstellen' : 'Create'}
             </span>
           </button>

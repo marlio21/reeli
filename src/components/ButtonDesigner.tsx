@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import * as LucideIcons from 'lucide-react';
-import { Card, CardButton } from '../types';
+import { Card, CardButton, ButtonGridLayout } from '../types';
 import { ButtonRenderer } from './ButtonRenderer';
 import { useFirebase } from '../context/FirebaseContext';
 import { compressAndSquareImage, compressImageBeforeUpload, formatImageOptimizationToast } from '../utils/image';
@@ -17,6 +17,7 @@ import {
   validateButton,
   buildButtonActionUrl,
 } from '../utils/buttonUtils';
+import { deriveCanonicalButtonGridLayout } from '../utils/mobileLayoutPersistence';
 
 // Modular tab component imports
 import { ButtonFaceTab } from './button-designer/ButtonFaceTab';
@@ -51,6 +52,13 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
   const { uploadFile, profile, effectivePlanId, user } = useFirebase();
   const currentPlan = effectivePlanId || getUserPlan(profile);
   const [upgradeModalFeature, setUpgradeModalFeature] = useState<any>('');
+  const [localGridLayout, setLocalGridLayout] = useState<Required<ButtonGridLayout>>(() =>
+    deriveCanonicalButtonGridLayout(activeCard, { preferLiveFields: true })
+  );
+
+  useEffect(() => {
+    setLocalGridLayout(deriveCanonicalButtonGridLayout(activeCard, { preferLiveFields: true }));
+  }, [activeCard?.id, activeCard?.buttonGridLayout, activeCard?.buttonSizePx, activeCard?.buttonGapPx, activeCard?.buttonGridCols]);
 
   // Active section to manage: 'face' | 'styling' | 'text' | 'function' | null
   const [activeTab, setActiveTab] = useState<'face' | 'styling' | 'text' | 'function' | null>(null);
@@ -1044,26 +1052,27 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
   };
 
   const renderButtonRasterMenu = () => {
-    const gl = activeCard.buttonGridLayout || {};
     const defaultIsUreel = !!(activeCard.ureelTimeline || activeCard.ureelEndCard || activeCard.ureelScene);
+    const gl = localGridLayout || deriveCanonicalButtonGridLayout(activeCard, { preferLiveFields: true });
     const currentMode = gl.mode || (defaultIsUreel ? 'grid' : 'list');
     const isSquare = gl.square !== undefined ? !!gl.square : defaultIsUreel;
     const currentCols = gl.cols !== undefined ? gl.cols : (activeCard.buttonGridCols || 3);
     const currentGapVal = gl.gapPx !== undefined ? gl.gapPx : (activeCard.buttonGapPx || 18);
     const currentSizeVal = gl.buttonSizePx !== undefined ? gl.buttonSizePx : (activeCard.buttonSizePx || 124);
 
-    const saveGridLayout = async (updates: Partial<typeof gl>) => {
+    const saveGridLayout = async (updates: Partial<ButtonGridLayout>) => {
       if (!onSaveAllButtons) return;
-      const newGridLayout = {
-        mode: gl.mode || (defaultIsUreel ? 'grid' : 'list'),
-        cols: typeof gl.cols === 'number' ? gl.cols : (activeCard.buttonGridCols || 3),
-        square: gl.square !== undefined ? !!gl.square : defaultIsUreel,
-        gapPx: typeof gl.gapPx === 'number' ? gl.gapPx : (activeCard.buttonGapPx || 18),
-        buttonSizePx: typeof gl.buttonSizePx === 'number' ? gl.buttonSizePx : (activeCard.buttonSizePx || 124),
-        gap: typeof gl.gap === 'number' ? gl.gap : 18,
-        align: gl.align || 'center',
-        ...updates
-      };
+      const newGridLayout = deriveCanonicalButtonGridLayout({
+        ...activeCard,
+        buttonGridLayout: {
+          ...gl,
+          ...updates,
+        },
+        buttonGridCols: (updates.cols ?? gl.cols) as any,
+        buttonGapPx: updates.gapPx ?? updates.gap ?? gl.gapPx,
+        buttonSizePx: updates.buttonSizePx ?? (updates as any).tileSizePx ?? gl.buttonSizePx,
+      }, { preferLiveFields: true });
+      setLocalGridLayout(newGridLayout);
       
       try {
         await onSaveAllButtons(activeCard.buttons || [], {
