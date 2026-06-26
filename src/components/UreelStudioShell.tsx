@@ -9,6 +9,7 @@ import { UnifiedMobileLiveCardSurface } from './UnifiedMobileLiveCardSurface';
 import { createDefaultButton, sanitizeButtonForFirestore } from '../utils/buttonUtils';
 import { UREEL_TEXT_TEMPLATES, normalizeUreelTextTemplate } from '../utils/textTemplates';
 import { persistMobileLayoutFields, hydrateCardMobileLayout } from '../utils/mobileLayoutPersistence';
+import { CARD_BUTTON_SIZE_PRESETS, CARD_BUTTON_GAP_PRESETS, CARD_BUTTON_FONT_PRESETS, CARD_BUTTON_ICON_PRESETS, CARD_BUTTON_SCALE_PRESETS, CARD_BUTTON_MIN_SIZE, CARD_BUTTON_DEFAULT_SIZE, CARD_BUTTON_MAX_SIZE, clampCardButtonSize, type CardButtonSizePreset } from '../utils/cardButtonSizePresets';
 import { storage } from '../firebase';
 
 interface UreelStudioShellProps {
@@ -731,13 +732,18 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     return handleUpdateSingleButton(btnId, normalizedUpdates);
   };
 
-  const applyMobileButtonSizePreset = async (btnId: string, preset: 'compact' | 'standard' | 'large') => {
-    // Final mobile size presets: only Klein, Normal and Groß. Groß is the cap.
-    const values = preset === 'compact'
-      ? { px: 60, gap: 8, fontSize: 9.0, iconSize: 18, textPadding: 4, borderWidth: 'thin' as const, scale: 0.74, radius: 'rounded' as const }
-      : preset === 'large'
-        ? { px: 110, gap: 6, fontSize: 11.2, iconSize: 23, textPadding: 5, borderWidth: 'thin' as const, scale: 0.94, radius: 'rounded' as const }
-        : { px: 90, gap: 7, fontSize: 10.5, iconSize: 21, textPadding: 5, borderWidth: 'thin' as const, scale: 0.86, radius: 'rounded' as const };
+  const applyMobileButtonSizePreset = async (btnId: string, preset: CardButtonSizePreset) => {
+    // v52.5.38: central card/public button size scale. No "Sehr groß" preset.
+    const values = {
+      px: CARD_BUTTON_SIZE_PRESETS[preset],
+      gap: CARD_BUTTON_GAP_PRESETS[preset],
+      fontSize: CARD_BUTTON_FONT_PRESETS[preset],
+      iconSize: CARD_BUTTON_ICON_PRESETS[preset],
+      textPadding: preset === 'compact' ? 4 : 5,
+      borderWidth: 'thin' as const,
+      scale: CARD_BUTTON_SCALE_PRESETS[preset],
+      radius: 'rounded' as const,
+    };
 
     const updatedButtons = (activeCard.buttons || []).map((button) => button.id === btnId ? {
       ...button,
@@ -772,7 +778,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       } as any,
       mobileLayout: {
         ...(activeCard as any).mobileLayout,
-        version: 'v52.5.37',
+        version: 'v52.5.38',
         buttons: {
           ...((activeCard as any).mobileLayout?.buttons || {}),
           mode: 'grid',
@@ -787,7 +793,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       } as any,
       publicLayoutSnapshot: {
         ...((activeCard as any).publicLayoutSnapshot || {}),
-        version: 'v52.5.37',
+        version: 'v52.5.38',
         buttons: {
           ...((activeCard as any).publicLayoutSnapshot?.buttons || {}),
           mode: 'grid',
@@ -2306,11 +2312,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         mode: 'grid',
         cols: 3,
         square: true,
-        buttonSizePx: Math.max(60, Math.min(110, Number((card.buttonGridLayout as any)?.buttonSizePx || (card as any).buttonSizePx || 90))),
+        buttonSizePx: clampCardButtonSize((card.buttonGridLayout as any)?.buttonSizePx || (card as any).buttonSizePx || CARD_BUTTON_DEFAULT_SIZE),
         gapPx: Math.max(4, Math.min(18, Number((card.buttonGridLayout as any)?.gapPx || (card as any).buttonGapPx || 6))),
         align: 'center',
       } as any,
-      buttonSizePx: Math.max(60, Math.min(110, Number((card as any).buttonSizePx || 90))) as any,
+      buttonSizePx: clampCardButtonSize((card as any).buttonSizePx || CARD_BUTTON_DEFAULT_SIZE) as any,
       buttonGapPx: Math.max(4, Math.min(18, Number((card as any).buttonGapPx || 6))) as any,
     };
   };
@@ -4195,7 +4201,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   {activeSubSection === 'buttons-size' && (
                     <div className="space-y-3">
                       <div className="flex justify-between text-[10px] uppercase font-bold text-stone-450"><span>Buttongröße</span><span>{buttonSizePx}px</span></div>
-                      <input type="range" min={60} max={110} step={1} value={buttonSizePx} onChange={(e) => syncCardUpdate({ buttonSizePx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), buttonSizePx: Number(e.target.value) } as any })} className="w-full accent-[#E8DCC2]" />
+                      <input type="range" min={CARD_BUTTON_MIN_SIZE} max={CARD_BUTTON_MAX_SIZE} step={1} value={buttonSizePx} onChange={(e) => syncCardUpdate({ buttonSizePx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), buttonSizePx: Number(e.target.value) } as any })} className="w-full accent-[#E8DCC2]" />
                     </div>
                   )}
 
@@ -4400,7 +4406,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
                     <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Raster-Einstellungen</span>
                     <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3.5"><div className="flex items-center justify-between gap-3"><div><span className="text-[10.5px] font-black text-[#F5F2EA] block uppercase tracking-wide leading-none">3er Raster</span><span className="text-[8.5px] text-stone-500 mt-1 leading-snug block">ureel-Standard: drei Buttons pro Reihe, identisch für Szene und öffentliche Karte.</span></div><button type="button" onClick={async () => { await syncCardUpdate({ buttonGridCols: 3 as any, buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), mode: 'three_columns', cols: 3 as any, square: true } }); triggerToast(lang === 'de' ? '3er Raster aktiviert' : '3-column grid active', 'success'); }} className="h-9 px-3 rounded-xl bg-[#F5F2EA] text-[#101010] text-[8px] font-black uppercase tracking-wider">Aktivieren</button></div></div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2"><div><div className="flex items-center justify-between text-[10.5px] font-bold text-stone-400 mb-2"><span>Button-Größe</span><span className="text-[#E8DCC2] font-mono">{buttonSizePx}px</span></div><input type="range" min={60} max={110} step={1} value={buttonSizePx} onChange={(e) => syncCardUpdate({ buttonSizePx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), buttonSizePx: Number(e.target.value), cols: buttonGridCols as any, square: true } })} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" /></div><div><div className="flex items-center justify-between text-[10.5px] font-bold text-stone-400 mb-2"><span>Button-Abstand</span><span className="text-[#E8DCC2] font-mono">{buttonGapPx}px</span></div><input type="range" min={4} max={22} step={1} value={buttonGapPx} onChange={(e) => syncCardUpdate({ buttonGapPx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), gapPx: Number(e.target.value), gap: Number(e.target.value), cols: buttonGridCols as any, square: true } })} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" /></div></div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2"><div><div className="flex items-center justify-between text-[10.5px] font-bold text-stone-400 mb-2"><span>Button-Größe</span><span className="text-[#E8DCC2] font-mono">{buttonSizePx}px</span></div><input type="range" min={CARD_BUTTON_MIN_SIZE} max={CARD_BUTTON_MAX_SIZE} step={1} value={buttonSizePx} onChange={(e) => syncCardUpdate({ buttonSizePx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), buttonSizePx: Number(e.target.value), cols: buttonGridCols as any, square: true } })} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" /></div><div><div className="flex items-center justify-between text-[10.5px] font-bold text-stone-400 mb-2"><span>Button-Abstand</span><span className="text-[#E8DCC2] font-mono">{buttonGapPx}px</span></div><input type="range" min={4} max={22} step={1} value={buttonGapPx} onChange={(e) => syncCardUpdate({ buttonGapPx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), gapPx: Number(e.target.value), gap: Number(e.target.value), cols: buttonGridCols as any, square: true } })} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" /></div></div>
                   </div>
                 </div>
               )}

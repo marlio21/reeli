@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v52.5.38 – Central Button Size Scale & Loading Cleanup Fix
+
+- Adds a single canonical card/public button size table: Klein 60px, Normal 90px, Groß 110px.
+- Removes the card-button “Sehr groß” preset from the public/card size scale.
+- Reuses the central size table in editor preset writing, monitor-card cleanup, mobile hydration, public snapshots and card rendering.
+- Removes scattered local button clamps such as 56–100/112 and keeps card values in the 60–110px canonical range.
+- Keeps the large Button Editor preview untouched; the cleanup targets the 9:16 card preview and Public card values.
+- Moves Service Worker/cache clearing out of the normal startup path; it now only runs with `?clearUreelCache=1`.
+- ZIP remains dist-free and excludes node_modules / release notes.
+
+
 ## v52.5.37 – Larger Card Buttons & Public Action Bar Fix
 
 - Increases card/Public button size presets to 56 / 68 / 80 / 100px.

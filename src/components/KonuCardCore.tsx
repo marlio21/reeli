@@ -13,6 +13,7 @@ import { normalizeButtons, getButtonScaleFactor, normalizeButtonGridLayout } fro
 import { canUseFeature } from '../config/plans';
 import { parseVideoUrl, resolveUreelVideo } from '../utils/video';
 import { getReelTimelineState, normalizeVideoBackgroundConfig, normalizeUreelScene, normalizeUreelTimeline, normalizeUreelEndCard } from '../utils/timeline';
+import { clampCardButtonSize, CARD_BUTTON_DEFAULT_SIZE, CARD_BUTTON_MIN_SIZE } from '../utils/cardButtonSizePresets';
 
 export interface KonuCardCoreProps {
   card: Card;
@@ -201,7 +202,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   const timelineConfig = React.useMemo(() => normalizeUreelTimeline(card), [card]);
   const endCardConfig = React.useMemo(() => normalizeUreelEndCard(card), [card]);
   const gridLayout = React.useMemo(() => normalizeButtonGridLayout(card), [card]);
-  const clampCardTileSizePx = (value: any) => Math.max(60, Math.min(Number(value || 90), 110));
+  const clampCardTileSizePx = (value: any) => clampCardButtonSize(value ?? CARD_BUTTON_DEFAULT_SIZE);
   // The mobile card is a fixed 390px surface. With three columns, 110px buttons
   // can otherwise touch/overflow the edges and look clipped. Keep the saved
   // value at 110px, but render a safe in-card size/gap when needed.
@@ -212,7 +213,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     const safeGap = getSafeCardButtonGapPx(requested, Number(gapPx || 8));
     const safeCardWidth = 390 - 16;
     const maxByWidth = Math.floor((safeCardWidth - safeGap * (safeCols - 1)) / safeCols);
-    return Math.max(60, Math.min(requested, maxByWidth));
+    return Math.max(CARD_BUTTON_MIN_SIZE, Math.min(requested, maxByWidth));
   };
   const getButtonGridGapStyle = (gapPx: number, sizePx: number = clampCardTileSizePx(gridLayout.buttonSizePx)): React.CSSProperties => {
     const safeGap = getSafeCardButtonGapPx(sizePx, Number(gapPx || 8));
@@ -1180,7 +1181,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   // More than six buttons scroll only inside this band.
   const getLayeredButtonDockLayout = () => {
     const cols = Math.max(1, Math.min(Number(gridLayout.cols || 3), 3));
-    const requestedSize = clampCardTileSizePx(gridLayout.buttonSizePx || (card as any).buttonSizePx || 90);
+    const requestedSize = clampCardTileSizePx(gridLayout.buttonSizePx || (card as any).buttonSizePx || CARD_BUTTON_DEFAULT_SIZE);
     const tilePx = getSafeCardButtonTilePx(requestedSize, cols, gridLayout.gapPx);
     const safeGap = getSafeCardButtonGapPx(tilePx, Number(gridLayout.gapPx || 8));
     const rowGapPx = Math.min(safeGap + 10, 28);
