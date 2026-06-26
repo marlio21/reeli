@@ -108,7 +108,7 @@ export const getKonuStarterCardTemplate = (
     textWrap: 'single',
     textAlign: 'center',
     textPosition: 'bottom',
-    buttonSize: { preset: 'standard', scale: 0.76 } as any,
+    buttonSize: { preset: 'standard', scale: 0.86 } as any,
   });
 
   const defaultButtons: CardButton[] = [
@@ -143,11 +143,11 @@ export const getKonuStarterCardTemplate = (
     cardBackgroundGradientColor: '#312A22',
     cardBackgroundGradientDirection: '135deg',
     buttonGridCols: 3 as any,
-    buttonSizePx: 52 as any,
+    buttonSizePx: 90 as any,
     buttonGapPx: 10 as any,
     buttonColor: '#F5F2EA',
     buttonTextColor: '#1A1A1A',
-    buttonGridLayout: { mode: 'grid', cols: 3, square: true, buttonSizePx: 52, gapPx: 10, gap: 10, align: 'center' } as any,
+    buttonGridLayout: { mode: 'grid', cols: 3, square: true, buttonSizePx: 90, gapPx: 7, gap: 7, align: 'center' } as any,
     ureelScene: {
       mode: 'gradient',
       backgroundImageUrl: '',

@@ -201,18 +201,18 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   const timelineConfig = React.useMemo(() => normalizeUreelTimeline(card), [card]);
   const endCardConfig = React.useMemo(() => normalizeUreelEndCard(card), [card]);
   const gridLayout = React.useMemo(() => normalizeButtonGridLayout(card), [card]);
-  const clampCardTileSizePx = (value: any) => Math.max(56, Math.min(Number(value || 80), 122));
-  // The mobile card is a fixed 390px surface. With three columns, 122px buttons
+  const clampCardTileSizePx = (value: any) => Math.max(60, Math.min(Number(value || 90), 110));
+  // The mobile card is a fixed 390px surface. With three columns, 110px buttons
   // can otherwise touch/overflow the edges and look clipped. Keep the saved
-  // value at 122px, but render a safe in-card size/gap when needed.
-  const getSafeCardButtonGapPx = (sizePx: number, gapPx: number) => sizePx >= 120 ? Math.min(Math.max(2, gapPx), 4) : gapPx;
+  // value at 110px, but render a safe in-card size/gap when needed.
+  const getSafeCardButtonGapPx = (sizePx: number, gapPx: number) => sizePx >= 108 ? Math.min(Math.max(2, gapPx), 6) : gapPx;
   const getSafeCardButtonTilePx = (value: any, cols: number = gridLayout.cols, gapPx: number = gridLayout.gapPx) => {
     const requested = clampCardTileSizePx(value);
     const safeCols = Math.max(1, Math.min(Number(cols || 3), 3));
     const safeGap = getSafeCardButtonGapPx(requested, Number(gapPx || 8));
     const safeCardWidth = 390 - 16;
     const maxByWidth = Math.floor((safeCardWidth - safeGap * (safeCols - 1)) / safeCols);
-    return Math.max(56, Math.min(requested, maxByWidth));
+    return Math.max(60, Math.min(requested, maxByWidth));
   };
   const getButtonGridGapStyle = (gapPx: number, sizePx: number = clampCardTileSizePx(gridLayout.buttonSizePx)): React.CSSProperties => {
     const safeGap = getSafeCardButtonGapPx(sizePx, Number(gapPx || 8));
@@ -1180,22 +1180,20 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   // More than six buttons scroll only inside this band.
   const getLayeredButtonDockLayout = () => {
     const cols = Math.max(1, Math.min(Number(gridLayout.cols || 3), 3));
-    const requestedSize = clampCardTileSizePx(gridLayout.buttonSizePx || (card as any).buttonSizePx || 80);
+    const requestedSize = clampCardTileSizePx(gridLayout.buttonSizePx || (card as any).buttonSizePx || 90);
     const tilePx = getSafeCardButtonTilePx(requestedSize, cols, gridLayout.gapPx);
     const safeGap = getSafeCardButtonGapPx(tilePx, Number(gridLayout.gapPx || 8));
-    const rowGapPx = Math.min(safeGap + 12, 44);
+    const rowGapPx = Math.min(safeGap + 10, 28);
     const rows = Math.max(1, Math.ceil(filteredLayeredButtons.length / cols));
     const visibleRows = Math.min(rows, 2);
-    const footerReservePx = 142;
-    const footerTopPx = 693 - footerReservePx;
-    const bottomClearancePx = 10;
+    // Fixed geometry for the 390x693 public card: footerReserve is the top edge
+    // of the lower QR/Share/Create panel. The first 6 buttons are bottom-anchored
+    // just above that panel; only button 7+ turns the dock into a scroll area.
+    const footerReservePx = 126;
+    const bottomClearancePx = 3;
     const blockHeightPx = (visibleRows * tilePx) + Math.max(0, visibleRows - 1) * rowGapPx;
-    const bottomAlignedTopPx = footerTopPx - bottomClearancePx - blockHeightPx;
-    const minScrollTopPx = 284;
-    const maxTopPx = 424;
-    const topPx = rows > 2
-      ? Math.max(minScrollTopPx, Math.min(bottomAlignedTopPx, 318))
-      : Math.max(minScrollTopPx, Math.min(bottomAlignedTopPx, maxTopPx));
+    const scrollTopPx = 276;
+    const topPx = Math.max(250, Math.min(693 - footerReservePx - bottomClearancePx - blockHeightPx, 410));
     return {
       cols,
       tilePx,
@@ -1203,9 +1201,11 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       rowGapPx,
       rows,
       topPx,
-      bottomPx: footerReservePx,
-      textBottomPercent: `${Math.max(34, Math.min(48, ((topPx - 16) / 693) * 100))}%`,
-    };
+      bottomPx: footerReservePx + bottomClearancePx,
+      blockHeightPx,
+      scrollTopPx,
+      textBottomPercent: `${Math.max(42, Math.min(58, ((rows > 2 ? scrollTopPx : topPx) - 8) / 693 * 100))}%`,
+    } as any;
   };
 
   const renderLayeredYoutube = (embedUrl: string, mode: 'cover' | 'contain' | 'heroWide' | 'heroCompact') => {
@@ -1280,7 +1280,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     const heroTop = mobileTextDesign.top || defaultHeroTop;
     const buttonDockLayoutForText = buttonsVisible ? getLayeredButtonDockLayout() : null;
     const safeBottom = mobileTextDesign.bottom || (buttonDockLayoutForText ? buttonDockLayoutForText.textBottomPercent : '7%');
-    const widthClass = layeredFrameType === 'badge' ? 'max-w-[90%]' : 'max-w-[94%]';
+    const widthClass = layeredFrameType === 'badge' ? 'max-w-[96%]' : 'max-w-[98%]';
     const compactRatio = buttonsVisible ? (isHero || endcardVideoActive ? 0.78 : 0.88) : 1.0;
     // v52.5.18: public and editor-preview must use the same configured text
     // sizes. Earlier public paths applied additional compact ratios/caps when
@@ -1407,8 +1407,9 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             className="absolute left-0 right-0 z-[20] overflow-y-auto overflow-x-hidden scrollbar-thin rounded-[24px] px-0 py-0 transition-all duration-500"
             style={{
               ...buttonRevealStyle,
-              top: `${layeredButtonDockLayout.topPx}px`,
-              bottom: `${layeredButtonDockLayout.bottomPx}px`,
+              ...(layeredButtonDockLayout.rows <= 2
+                ? { bottom: `${layeredButtonDockLayout.bottomPx}px`, height: `${layeredButtonDockLayout.blockHeightPx}px`, overflowY: 'visible' as const }
+                : { top: `${layeredButtonDockLayout.scrollTopPx}px`, bottom: `${layeredButtonDockLayout.bottomPx}px`, overflowY: 'auto' as const }),
               overscrollBehavior: 'contain',
             }}
           >

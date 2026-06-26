@@ -351,6 +351,17 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
     buttonShape: btnButtonShape,
   };
 
+  const getGridSizeFromButtonSize = (size: any): number => {
+    if (!size) return 90;
+    if (size.preset === 'compact') return 60;
+    if (size.preset === 'large') return 110;
+    if (size.preset === 'standard') return 90;
+    const scale = Number(size.scale || 100);
+    if (scale <= 90) return 60;
+    if (scale >= 115) return 110;
+    return 90;
+  };
+
   const previewRadiusClass = localButton.radius === 'square' ? 'rounded-none' : localButton.radius === 'pill' ? 'rounded-full' : 'rounded-[22px]';
   const previewDesktopRadiusClass = localButton.radius === 'square' ? 'rounded-none' : localButton.radius === 'pill' ? 'rounded-full' : 'rounded-[26px]';
 
@@ -592,6 +603,31 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
         rawPassword: rawPwd || undefined,
         imageMeta: btnImageMeta || undefined,
       });
+
+      // Keep the public/preview 9:16 grid in sync with the visible button-size control.
+      // The public renderer reads card-level grid fields, not only the single-button draft.
+      if (onSaveAllButtons) {
+        const nextPx = getGridSizeFromButtonSize(enrichedButtonObj.buttonSize);
+        const nextGap = nextPx >= 108 ? 6 : 9;
+        const updatedButtons = (activeCard.buttons || []).map((b) => b.id === enrichedButtonObj.id ? enrichedButtonObj : b);
+        await onSaveAllButtons(updatedButtons, {
+          buttonGridCols: 3 as any,
+          buttonSizePx: nextPx as any,
+          buttonGapPx: nextGap as any,
+          buttonGridLayout: {
+            ...(activeCard.buttonGridLayout || {}),
+            mode: 'grid',
+            cols: 3,
+            square: true,
+            buttonSizePx: nextPx,
+            tileSizePx: nextPx,
+            gapPx: nextGap,
+            gap: nextGap,
+            align: 'center',
+          } as any,
+        });
+      }
+
       setIsDraftDirty(false);
       onClose();
     } catch (err: any) {
@@ -1170,7 +1206,7 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
             />
           </div>
 
-          {/* Size Slider (56px - 122px, max 122px = Sehr groß) */}
+          {/* Size Slider (60px - 110px, max 110px = Groß) */}
           <div className="space-y-1 bg-stone-950 p-3 rounded-xl border border-stone-900/50">
             <div className="flex justify-between items-center text-[10px] font-bold text-stone-400 select-none">
               <span>{lang === 'de' ? 'Button-Größe' : 'Button Size'}</span>
@@ -1178,17 +1214,17 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
             </div>
             <input
               type="range"
-              min="56"
-              max="122"
+              min="60"
+              max="110"
               step="2"
               value={currentSizeVal}
               onChange={(e) => saveGridLayout({ buttonSizePx: parseInt(e.target.value, 10) })}
               className="w-full h-1 bg-stone-850 rounded-xl appearance-none cursor-pointer accent-[#A855F7]"
             />
             <div className="flex justify-between text-[8px] text-stone-500 font-medium">
-              <span>56px ({lang === 'de' ? 'Klein' : 'Small'})</span>
-              <span>80px ({lang === 'de' ? 'Standard' : 'Default'})</span>
-              <span>122px ({lang === 'de' ? 'Sehr groß' : 'Very large'})</span>
+              <span>60px ({lang === 'de' ? 'Klein' : 'Small'})</span>
+              <span>90px ({lang === 'de' ? 'Normal' : 'Default'})</span>
+              <span>110px ({lang === 'de' ? 'Groß' : 'Large'})</span>
             </div>
           </div>
 

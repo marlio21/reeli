@@ -17,9 +17,9 @@ const num = (value: any, fallback: number) => {
 const clamp = (value: any, min: number, max: number, fallback: number) => Math.max(min, Math.min(max, num(value, fallback)));
 
 // v52.5.39: Keep the mobile button scale conservative. The previous lower
-// upper edge (122px) is now the "very large" cap. Extra rows still append downward
+// upper edge (112px) is now the "Groß" cap. Extra rows still append downward
 // and scroll inside the card instead of pushing the upper area away.
-const normalizeMobileButtonSize = (value: any) => clamp(value, 56, 122, 80);
+const normalizeMobileButtonSize = (value: any) => clamp(value, 56, 112, 68);
 
 const isUreelCard = (card: Partial<Card> | undefined) => !!(card && (card.ureelTimeline || card.ureelScene || card.ureelEndCard));
 
