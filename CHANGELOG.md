@@ -1,3 +1,11 @@
+## v52.5.40 – Empty Button Text & Ad Text Height Slider Fix
+
+- Empty button titles now render as empty on the card instead of falling back to "Ohne Titel" / "Untitled".
+- Keeps the v52.5.39 icon scaling: icon size "Sehr groß" is icon-only in the real card tile.
+- Adds a mobile ad-text height slider so the Werbetext zone can be made taller/shorter without changing font sizes.
+- Persists `heroTextHeightPercent` into `mobileLayout.text` and `publicLayoutSnapshot.text` for editor/public parity.
+- Keeps the canonical 60 / 90 / 110px button-size system from v52.5.38.
+
 # CHANGELOG
 
 ## v52.5.39 – Button Text/Icon Scale & Wider Ad Text Fix

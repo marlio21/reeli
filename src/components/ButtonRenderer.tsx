@@ -450,17 +450,16 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
   // Action type / action label is never rendered as visible text.
   const rawVisibleTitle = (btn.title || '').toString().replace(/\r/g, '').trim();
   const rawVisibleSubtitle = ((btn as any).subtitle || '').toString().replace(/\r/g, '').trim();
+  // v52.5.40: empty Buttontext stays empty. Do not render "Ohne Titel" / "Untitled"
+  // on the public card when the user intentionally leaves the title field blank.
   const buttonTextLines = (forceIconOnly
       ? []
       : (rawVisibleSubtitle
-        ? [rawVisibleTitle || (lang === 'en' ? 'Untitled' : 'Ohne Titel'), rawVisibleSubtitle]
-        : (rawVisibleTitle ? rawVisibleTitle.split('\n') : [lang === 'en' ? 'Untitled' : 'Ohne Titel'])))
+        ? [rawVisibleTitle, rawVisibleSubtitle]
+        : (rawVisibleTitle ? rawVisibleTitle.split('\n') : [])))
     .map((line) => line.trim())
     .filter(Boolean)
     .slice(0, 2);
-  if (!forceIconOnly && buttonTextLines.length === 0) {
-    buttonTextLines.push(lang === 'en' ? 'Untitled' : 'Ohne Titel');
-  }
   const hasSecondButtonLine = buttonTextLines.length > 1;
   const compactSingleLine = !!forceSizePx && !hasSecondButtonLine && (buttonTextLines[0] || '').length <= 10;
 

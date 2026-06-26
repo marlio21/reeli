@@ -1,3 +1,13 @@
+# ureel v52.5.40 – Empty Button Text & Ad Text Height Slider Fix
+
+Diese Version baut auf v52.5.39 auf. Die funktionierende 60 / 90 / 110px Button-Größenlogik bleibt erhalten.
+
+- Leerer Buttontext bleibt jetzt leer. Es erscheint nicht mehr automatisch "Ohne Titel" / "Untitled" auf der Public Card.
+- Icongröße "Sehr groß" bleibt als Icon-only-Button erhalten.
+- Im mobilen Werbetext-Editor gibt es einen neuen Regler "Texthöhe".
+- Die Texthöhe wird in mobileLayout und publicLayoutSnapshot gespeichert, damit Editor-Vorschau und Public View denselben Wert verwenden.
+- Werbetext-Breite aus v52.5.39 bleibt erhalten.
+
 # ureel v52.5.39 – Button Text/Icon Scale & Wider Ad Text Fix
 
 Diese Version baut auf der stabileren v52.5.38-Größenbasis auf. Die Kartenbutton-Größen bleiben bewusst bei Klein 60px, Normal 90px und Groß 110px. Darauf wurden Text- und Icon-Skalierung angepasst.

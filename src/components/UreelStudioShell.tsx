@@ -778,7 +778,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       } as any,
       mobileLayout: {
         ...(activeCard as any).mobileLayout,
-        version: 'v52.5.38',
+        version: 'v52.5.40',
         buttons: {
           ...((activeCard as any).mobileLayout?.buttons || {}),
           mode: 'grid',
@@ -793,7 +793,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       } as any,
       publicLayoutSnapshot: {
         ...((activeCard as any).publicLayoutSnapshot || {}),
-        version: 'v52.5.38',
+        version: 'v52.5.40',
         buttons: {
           ...((activeCard as any).publicLayoutSnapshot?.buttons || {}),
           mode: 'grid',
@@ -5130,6 +5130,17 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 { key: 'heroSubtitleSize', label: 'Untertitelgröße', min: 6, max: 40, fallback: 12 },
                 { key: 'heroDescriptionSize', label: 'Beschreibunggröße', min: 6, max: 36, fallback: 10 },
               ].map((item) => <div key={item.key} className="ureel-tap-slider-row"><label>{item.label} <b>{clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max).toFixed(0)}px</b></label><input type="range" min={item.min} max={item.max} step={1} value={clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max)} onChange={(e) => syncCardUpdate({ [item.key]: Number(e.target.value) } as any)} /></div>)}
+              <div className="ureel-tap-slider-row">
+                <label>Texthöhe <b>{Math.max(24, Math.min(76, Number((activeCard as any).heroTextHeightPercent || (activeCard as any).mobileLayout?.text?.heightPercent || (activeCard as any).publicLayoutSnapshot?.text?.heightPercent || 44))).toFixed(0)}%</b></label>
+                <input
+                  type="range"
+                  min={24}
+                  max={76}
+                  step={1}
+                  value={Math.max(24, Math.min(76, Number((activeCard as any).heroTextHeightPercent || (activeCard as any).mobileLayout?.text?.heightPercent || (activeCard as any).publicLayoutSnapshot?.text?.heightPercent || 44)))}
+                  onChange={(e) => syncCardUpdate({ heroTextHeightPercent: Number(e.target.value) } as any)}
+                />
+              </div>
               {[
                 { key: 'heroTitleTextColor', label: 'Titelfarbe', fallback: '#F5F2EA' },
                 { key: 'heroSubtitleTextColor', label: 'Untertitelfarbe', fallback: '#E8DCC2' },
