@@ -202,10 +202,29 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   const endCardConfig = React.useMemo(() => normalizeUreelEndCard(card), [card]);
   const gridLayout = React.useMemo(() => normalizeButtonGridLayout(card), [card]);
   const clampCardTileSizePx = (value: any) => Math.max(56, Math.min(Number(value || 80), 128));
-  const getButtonGridGapStyle = (gapPx: number): React.CSSProperties => ({
-    columnGap: `${gapPx}px`,
-    rowGap: `${Math.min(gapPx + 8, 44)}px`,
-  });
+  // The mobile card is a fixed 390px surface. With three columns, 128px buttons
+  // can otherwise touch/overflow the edges and look clipped. Keep the saved
+  // value at 128px, but render a safe in-card size/gap when needed.
+  const getSafeCardButtonGapPx = (sizePx: number, gapPx: number) => sizePx >= 124 ? Math.min(Math.max(2, gapPx), 4) : gapPx;
+  const getSafeCardButtonTilePx = (value: any, cols: number = gridLayout.cols, gapPx: number = gridLayout.gapPx) => {
+    const requested = clampCardTileSizePx(value);
+    const safeCols = Math.max(1, Math.min(Number(cols || 3), 3));
+    const safeGap = getSafeCardButtonGapPx(requested, Number(gapPx || 8));
+    const safeCardWidth = 390 - 16;
+    const maxByWidth = Math.floor((safeCardWidth - safeGap * (safeCols - 1)) / safeCols);
+    return Math.max(56, Math.min(requested, maxByWidth));
+  };
+  const getButtonGridGapStyle = (gapPx: number, sizePx: number = clampCardTileSizePx(gridLayout.buttonSizePx)): React.CSSProperties => {
+    const safeGap = getSafeCardButtonGapPx(sizePx, Number(gapPx || 8));
+    return {
+      columnGap: `${safeGap}px`,
+      rowGap: `${Math.min(safeGap + 12, 44)}px`,
+    };
+  };
+  const goToUreelHome = () => {
+    if (typeof window !== 'undefined') window.location.href = window.location.origin;
+    else if (handleCtaClick) handleCtaClick();
+  };
 
   const hasTimeline = !!card.ureelTimeline;
   const hasEndCard = !!card.ureelEndCard;
@@ -1084,7 +1103,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   const getLayeredMobileTextDesign = () => {
     const style = String(layeredTemplate.style || 'none');
     const base = {
-      widthClass: 'max-w-[82%]',
+      widthClass: 'max-w-[88%]',
       top: '',
       bottom: '',
       textAlign: 'center' as const,
@@ -1101,21 +1120,21 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       descriptionWeight: 700 as React.CSSProperties['fontWeight'],
     };
     const map: Record<string, Partial<typeof base>> = {
-      premium_product: { widthClass: 'max-w-[78%]', textAlign: 'left', alignItems: 'flex-start', borderRadius: 28, titleRatio: 0.96, subtitleRatio: 0.88, descriptionRatio: 0.86, extraBox: { boxShadow: `0 16px 46px rgba(0,0,0,.36), inset 5px 0 0 ${layeredAccent}` } },
-      business_clean: { widthClass: 'max-w-[84%]', borderRadius: 18, titleRatio: 0.84, subtitleRatio: 0.9, descriptionRatio: 0.9, extraBox: { boxShadow: '0 12px 30px rgba(0,0,0,.18)' } },
-      social_reel: { widthClass: 'max-w-[86%]', borderRadius: 18, titleRatio: 1.08, subtitleRatio: 0.95, descriptionRatio: 0.78, letterSpacing: '0.01em', extraBox: { transform: 'rotate(-1deg)' } },
-      luxury_frame: { widthClass: 'max-w-[80%]', borderRadius: 34, titleRatio: 1.0, subtitleRatio: 1.02, descriptionRatio: 0.84, letterSpacing: '0.12em', extraBox: { boxShadow: `0 0 0 1px ${layeredAccent}55, 0 18px 50px rgba(0,0,0,.36)` } },
-      offer_action: { widthClass: 'max-w-[74%]', borderRadius: 20, titleRatio: 1.04, subtitleRatio: 0.82, descriptionRatio: 0.76, extraBox: { boxShadow: `0 0 0 2px ${layeredAccent}AA, 0 14px 38px rgba(0,0,0,.42)` } },
-      event_messe: { widthClass: 'max-w-[80%]', textAlign: 'left', alignItems: 'flex-start', borderRadius: 16, titleRatio: 0.92, subtitleRatio: 0.86, descriptionRatio: 0.8, letterSpacing: '0.02em' },
-      contact_premium: { widthClass: 'max-w-[78%]', borderRadius: 32, titleRatio: 0.88, subtitleRatio: 0.94, descriptionRatio: 0.82 },
-      real_estate: { widthClass: 'max-w-[84%]', borderRadius: 26, titleRatio: 0.9, subtitleRatio: 0.92, descriptionRatio: 0.86, extraBox: { boxShadow: '0 14px 42px rgba(0,0,0,.28)' } },
-      minimal_clear: { widthClass: 'max-w-[86%]', borderRadius: 12, titleRatio: 0.78, subtitleRatio: 0.84, descriptionRatio: 0.78, extraBox: { boxShadow: 'none' } },
-      handwerk_bold: { widthClass: 'max-w-[86%]', textAlign: 'left', alignItems: 'flex-start', borderRadius: 14, titleRatio: 1.08, subtitleRatio: 0.84, descriptionRatio: 0.76, letterSpacing: '0.015em' },
-      gastro_appetite: { widthClass: 'max-w-[80%]', borderRadius: 30, titleRatio: 0.94, subtitleRatio: 0.9, descriptionRatio: 0.86 },
-      story_soft: { widthClass: 'max-w-[82%]', borderRadius: 34, titleTransform: 'none', titleRatio: 0.84, subtitleRatio: 0.88, descriptionRatio: 0.9, descriptionWeight: 600 },
-      startup_pitch: { widthClass: 'max-w-[84%]', textAlign: 'left', alignItems: 'flex-start', borderRadius: 18, titleRatio: 0.98, subtitleRatio: 0.82, descriptionRatio: 0.76, letterSpacing: '-0.01em' },
-      beauty_premium: { widthClass: 'max-w-[78%]', borderRadius: 38, titleTransform: 'none', titleRatio: 0.88, subtitleRatio: 0.9, descriptionRatio: 0.82 },
-      fitness_energy: { widthClass: 'max-w-[86%]', borderRadius: 18, titleRatio: 1.12, subtitleRatio: 0.9, descriptionRatio: 0.74, letterSpacing: '0.01em', extraBox: { transform: 'skewY(-1deg)' } },
+      premium_product: { widthClass: 'max-w-[84%]', textAlign: 'left', alignItems: 'flex-start', borderRadius: 28, titleRatio: 0.96, subtitleRatio: 0.88, descriptionRatio: 0.86, extraBox: { boxShadow: `0 16px 46px rgba(0,0,0,.36), inset 5px 0 0 ${layeredAccent}` } },
+      business_clean: { widthClass: 'max-w-[88%]', borderRadius: 18, titleRatio: 0.84, subtitleRatio: 0.9, descriptionRatio: 0.9, extraBox: { boxShadow: '0 12px 30px rgba(0,0,0,.18)' } },
+      social_reel: { widthClass: 'max-w-[90%]', borderRadius: 18, titleRatio: 1.08, subtitleRatio: 0.95, descriptionRatio: 0.78, letterSpacing: '0.01em', extraBox: { transform: 'rotate(-1deg)' } },
+      luxury_frame: { widthClass: 'max-w-[86%]', borderRadius: 34, titleRatio: 1.0, subtitleRatio: 1.02, descriptionRatio: 0.84, letterSpacing: '0.12em', extraBox: { boxShadow: `0 0 0 1px ${layeredAccent}55, 0 18px 50px rgba(0,0,0,.36)` } },
+      offer_action: { widthClass: 'max-w-[80%]', borderRadius: 20, titleRatio: 1.04, subtitleRatio: 0.82, descriptionRatio: 0.76, extraBox: { boxShadow: `0 0 0 2px ${layeredAccent}AA, 0 14px 38px rgba(0,0,0,.42)` } },
+      event_messe: { widthClass: 'max-w-[86%]', textAlign: 'left', alignItems: 'flex-start', borderRadius: 16, titleRatio: 0.92, subtitleRatio: 0.86, descriptionRatio: 0.8, letterSpacing: '0.02em' },
+      contact_premium: { widthClass: 'max-w-[84%]', borderRadius: 32, titleRatio: 0.88, subtitleRatio: 0.94, descriptionRatio: 0.82 },
+      real_estate: { widthClass: 'max-w-[88%]', borderRadius: 26, titleRatio: 0.9, subtitleRatio: 0.92, descriptionRatio: 0.86, extraBox: { boxShadow: '0 14px 42px rgba(0,0,0,.28)' } },
+      minimal_clear: { widthClass: 'max-w-[90%]', borderRadius: 12, titleRatio: 0.78, subtitleRatio: 0.84, descriptionRatio: 0.78, extraBox: { boxShadow: 'none' } },
+      handwerk_bold: { widthClass: 'max-w-[90%]', textAlign: 'left', alignItems: 'flex-start', borderRadius: 14, titleRatio: 1.08, subtitleRatio: 0.84, descriptionRatio: 0.76, letterSpacing: '0.015em' },
+      gastro_appetite: { widthClass: 'max-w-[86%]', borderRadius: 30, titleRatio: 0.94, subtitleRatio: 0.9, descriptionRatio: 0.86 },
+      story_soft: { widthClass: 'max-w-[88%]', borderRadius: 34, titleTransform: 'none', titleRatio: 0.84, subtitleRatio: 0.88, descriptionRatio: 0.9, descriptionWeight: 600 },
+      startup_pitch: { widthClass: 'max-w-[88%]', textAlign: 'left', alignItems: 'flex-start', borderRadius: 18, titleRatio: 0.98, subtitleRatio: 0.82, descriptionRatio: 0.76, letterSpacing: '-0.01em' },
+      beauty_premium: { widthClass: 'max-w-[84%]', borderRadius: 38, titleTransform: 'none', titleRatio: 0.88, subtitleRatio: 0.9, descriptionRatio: 0.82 },
+      fitness_energy: { widthClass: 'max-w-[90%]', borderRadius: 18, titleRatio: 1.12, subtitleRatio: 0.9, descriptionRatio: 0.74, letterSpacing: '0.01em', extraBox: { transform: 'skewY(-1deg)' } },
     };
     return { ...base, ...(map[style] || {}) };
   };
@@ -1226,7 +1245,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       : (buttonsVisible ? '8%' : '14%');
     const heroTop = mobileTextDesign.top || defaultHeroTop;
     const safeBottom = mobileTextDesign.bottom || (buttonsVisible ? (filteredLayeredButtons.length > 6 ? '48%' : '42%') : '7%');
-    const widthClass = layeredFrameType === 'badge' ? 'max-w-[78%]' : mobileTextDesign.widthClass;
+    const widthClass = layeredFrameType === 'badge' ? 'max-w-[84%]' : mobileTextDesign.widthClass;
     const compactRatio = buttonsVisible ? (isHero || endcardVideoActive ? 0.78 : 0.88) : 1.0;
     // v52.5.18: public and editor-preview must use the same configured text
     // sizes. Earlier public paths applied additional compact ratios/caps when
@@ -1350,18 +1369,18 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         {/* Layer 3: timed action dock. More than six buttons scroll inside the phone, the background remains fixed behind it. */}
         {!backgroundOnlyPreview && showButtons && filteredLayeredButtons.length > 0 && (
           <div
-            className={`absolute left-4 right-4 top-[58%] bottom-[112px] z-[20] ${buttonDockMaxHeight} overflow-y-auto overflow-x-hidden scrollbar-thin rounded-[24px] p-1 transition-all duration-500`}
+            className={`absolute left-2 right-2 top-[48%] bottom-[142px] z-[20] ${buttonDockMaxHeight} overflow-y-auto overflow-x-hidden scrollbar-thin rounded-[24px] px-0.5 py-1 transition-all duration-500`}
             style={buttonRevealStyle}
           >
             <div
               className={`grid ${gridLayout.cols === 1 ? 'grid-cols-1' : gridLayout.cols === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}
-              style={{ ...getButtonGridGapStyle(gridLayout.gapPx), justifyItems: 'center' }}
+              style={{ ...getButtonGridGapStyle(gridLayout.gapPx, getSafeCardButtonTilePx(gridLayout.buttonSizePx || (card as any).buttonSizePx || 52)), justifyItems: 'center' }}
             >
               {filteredLayeredButtons.map((btn, index) => {
                 // v52.5.18: one final mobile layout model. Do not re-cap the
                 // public/preview tile at legacy sizes; normalizeButtonGridLayout
                 // already preserves the user's selected Look size safely.
-                const safePreviewSize = clampCardTileSizePx(gridLayout.buttonSizePx || (card as any).buttonSizePx || 52);
+                const safePreviewSize = getSafeCardButtonTilePx(gridLayout.buttonSizePx || (card as any).buttonSizePx || 52);
                 return (
                   <ButtonRenderer
                     key={btn.id}
@@ -1396,7 +1415,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                 </span>
                 <span className="text-[10px] uppercase tracking-widest font-extrabold text-[#A855F7]">ureel.me</span>
                 <span className="text-stone-600 text-[10px] font-bold">•</span>
-                <p className="text-[10px] font-medium text-stone-400 font-sans tracking-wide leading-none select-none">
+                <p className="text-[10px] font-medium text-stone-300 font-sans tracking-wide leading-none select-none whitespace-nowrap">
                   {t.brandSlogan}
                 </p>
               </div>
@@ -1405,8 +1424,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             <div className="grid grid-cols-3 gap-2 w-full border-0 pt-1">
               <button
                 type="button"
-                onClick={() => setShowQrModal(true)}
-                title={lang === 'de' ? 'QR-Code anzeigen' : 'Show QR-Code'}
+                onClick={goToUreelHome}
+                title={lang === 'de' ? 'Zur ureel Startseite' : 'Go to ureel home'}
                 className="flex h-[40px] flex-col items-center justify-center gap-0.5 rounded-xl border border-white/10 bg-black/20 px-1 py-1 text-center text-white shadow-none backdrop-blur-[1px] transition duration-150 hover:text-white hover:bg-black/30 active:bg-black/20 cursor-pointer select-none"
               >
                 <LucideIcons.QrCode size={14} className="stroke-[2.5]" />
@@ -1427,8 +1446,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
 
               <button
                 type="button"
-                onClick={() => handleCtaClick && handleCtaClick()}
-                title={t.createYourOwn || (lang === 'de' ? 'Eigene gratis Karte erstellen' : 'Create free card')}
+                onClick={goToUreelHome}
+                title={lang === 'de' ? 'Zur ureel Startseite' : 'Go to ureel home'}
                 className="flex h-[40px] flex-col items-center justify-center gap-0.5 rounded-xl border border-[#A855F7]/15 bg-black/20 px-1 py-1 text-center text-white shadow-none backdrop-blur-[1px] transition duration-150 hover:text-white hover:bg-black/30 active:bg-black/20 cursor-pointer select-none"
               >
                 <LucideIcons.Sparkles size={14} className="stroke-[2.5]" />
@@ -1850,7 +1869,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             className={`w-full z-10 grid ${gridLayout.cols === 1 ? 'grid-cols-1' : gridLayout.cols === 2 ? 'grid-cols-2' : 'grid-cols-3'} mb-2 transition-all mt-auto`}
             style={{
               ...buttonRevealStyle,
-              ...getButtonGridGapStyle(gridLayout.gapPx),
+              ...getButtonGridGapStyle(gridLayout.gapPx, getSafeCardButtonTilePx(gridLayout.buttonSizePx || (card as any).buttonSizePx || 52)),
               justifyContent: 'center',
               justifyItems: 'center',
             }}
@@ -1901,8 +1920,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                         isDragTarget ? 'border-2 border-dashed border-[#A855F7] scale-[1.08] animate-none' : ''
                       } ${isSelectedForSwap ? 'ring-2 ring-[#A855F7] scale-[1.06] border-2 border-[#A855F7] animate-pulse' : ''}`}
                       style={{
-                        width: gridLayout.buttonSizePx ? `${clampCardTileSizePx(gridLayout.buttonSizePx)}px` : `${scaleFactor * 100}%`,
-                        height: gridLayout.buttonSizePx ? `${clampCardTileSizePx(gridLayout.buttonSizePx)}px` : (gridLayout.square ? '100%' : `${scaleFactor * 100}%`),
+                        width: gridLayout.buttonSizePx ? `${getSafeCardButtonTilePx(gridLayout.buttonSizePx)}px` : `${scaleFactor * 100}%`,
+                        height: gridLayout.buttonSizePx ? `${getSafeCardButtonTilePx(gridLayout.buttonSizePx)}px` : (gridLayout.square ? '100%' : `${scaleFactor * 100}%`),
                         margin: 'auto',
                       }}
                     >
@@ -1913,7 +1932,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                         isSortingMode={isSortingMode}
                         lang={lang}
                         forceSquare={gridLayout.square}
-                        forceSizePx={gridLayout.buttonSizePx ? clampCardTileSizePx(gridLayout.buttonSizePx) : undefined}
+                        forceSizePx={gridLayout.buttonSizePx ? getSafeCardButtonTilePx(gridLayout.buttonSizePx) : undefined}
                       />
 
                       {/* Interactive Edit/Move Badge Overlay */}
@@ -2025,7 +2044,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               </span>
               <span className="text-[10px] uppercase tracking-widest font-extrabold text-[#A855F7]">ureel.me</span>
               <span className="text-stone-600 text-[10px] font-bold">•</span>
-              <p className="text-[10px] font-medium text-stone-400 font-sans tracking-wide leading-none select-none">
+              <p className="text-[10px] font-medium text-stone-300 font-sans tracking-wide leading-none select-none whitespace-nowrap">
                 {t.brandSlogan}
               </p>
             </div>
@@ -2361,7 +2380,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         className={`w-full z-10 grid ${gridLayout.cols === 1 ? 'grid-cols-1' : gridLayout.cols === 2 ? 'grid-cols-2' : 'grid-cols-3'} mb-8 transition-all`}
         style={{
           ...buttonRevealStyle,
-          ...getButtonGridGapStyle(gridLayout.gapPx),
+          ...getButtonGridGapStyle(gridLayout.gapPx, getSafeCardButtonTilePx(gridLayout.buttonSizePx || (card as any).buttonSizePx || 52)),
           justifyContent: 'center',
           justifyItems: 'center',
         }}
@@ -2412,8 +2431,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                   isDragTarget ? 'border-2 border-dashed border-[#A855F7] scale-[1.08] animate-none' : ''
                 } ${isSelectedForSwap ? 'ring-2 ring-[#A855F7] scale-[1.06] border-2 border-[#A855F7] animate-pulse' : ''}`}
                 style={{
-                  width: gridLayout.buttonSizePx ? `${clampCardTileSizePx(gridLayout.buttonSizePx)}px` : `${scaleFactor * 100}%`,
-                  height: gridLayout.buttonSizePx ? `${clampCardTileSizePx(gridLayout.buttonSizePx)}px` : (gridLayout.square ? '100%' : `${scaleFactor * 100}%`),
+                  width: gridLayout.buttonSizePx ? `${getSafeCardButtonTilePx(gridLayout.buttonSizePx)}px` : `${scaleFactor * 100}%`,
+                  height: gridLayout.buttonSizePx ? `${getSafeCardButtonTilePx(gridLayout.buttonSizePx)}px` : (gridLayout.square ? '100%' : `${scaleFactor * 100}%`),
                   margin: 'auto',
                 }}
               >
@@ -2424,7 +2443,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                     isSortingMode={isSortingMode}
                     lang={lang}
                     forceSquare={gridLayout.square}
-                    forceSizePx={gridLayout.buttonSizePx ? clampCardTileSizePx(gridLayout.buttonSizePx) : undefined}
+                    forceSizePx={gridLayout.buttonSizePx ? getSafeCardButtonTilePx(gridLayout.buttonSizePx) : undefined}
                   />
 
                   {/* Interactive Edit/Move Badge Overlay */}
@@ -2472,7 +2491,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                     onClick={() => {}}
                     lang={lang}
                     forceSquare={gridLayout.square}
-                    forceSizePx={gridLayout.buttonSizePx ? clampCardTileSizePx(gridLayout.buttonSizePx) : undefined}
+                    forceSizePx={gridLayout.buttonSizePx ? getSafeCardButtonTilePx(gridLayout.buttonSizePx) : undefined}
                   />
                   {isBtnHidden && (
                     <div className="absolute inset-0 bg-stone-950/40 rounded-xl flex items-center justify-center">
@@ -2492,7 +2511,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                 onClick={onEditButton ? () => onEditButton(btn) : (!isPreview && handleButtonClick ? () => handleButtonClick(btn) : undefined)}
                 lang={lang}
                 forceSquare={gridLayout.square}
-                forceSizePx={gridLayout.buttonSizePx ? clampCardTileSizePx(gridLayout.buttonSizePx) : undefined}
+                forceSizePx={gridLayout.buttonSizePx ? getSafeCardButtonTilePx(gridLayout.buttonSizePx) : undefined}
               />
             );
           })}
@@ -2631,7 +2650,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             </span>
             <span className="text-[10px] uppercase tracking-widest font-extrabold text-[#A855F7]">ureel.me</span>
             <span className="text-stone-600 text-[10px] font-bold">•</span>
-            <p className="text-[10px] font-medium text-stone-400 font-sans tracking-wide leading-none select-none">
+            <p className="text-[10px] font-medium text-stone-300 font-sans tracking-wide leading-none select-none whitespace-nowrap">
               {t.brandSlogan}
             </p>
           </div>
@@ -2641,8 +2660,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         <div className="grid grid-cols-3 gap-1.5 w-full border-0 pt-1">
           {/* 1. QR-Code */}
           <button
-            onClick={() => setShowQrModal(true)}
-            title={lang === 'de' ? 'QR-Code anzeigen' : 'Show QR-Code'}
+            onClick={goToUreelHome}
+            title={lang === 'de' ? 'Zur ureel Startseite' : 'Go to ureel home'}
             className="flex flex-col items-center justify-center gap-0.5 bg-black/20 hover:bg-black/30 active:bg-black/20 text-white hover:text-white border border-white/10 rounded-xl py-1 px-1 transition duration-150 shadow-none backdrop-blur-[1px] cursor-pointer select-none text-center h-[40px]"
           >
             <LucideIcons.QrCode size={13} className="stroke-[2.5]" />
@@ -2665,8 +2684,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
 
           {/* 3. Eigene ureel erstellen */}
           <button
-            onClick={() => handleCtaClick && handleCtaClick()}
-            title={t.createYourOwn || (lang === 'de' ? 'Eigene gratis Karte erstellen' : 'Create free card')}
+            onClick={goToUreelHome}
+            title={lang === 'de' ? 'Zur ureel Startseite' : 'Go to ureel home'}
             className="flex flex-col items-center justify-center gap-0.5 bg-black/20 hover:bg-black/30 active:bg-black/20 text-white hover:text-white border border-[#A855F7]/15 rounded-xl py-1 px-1 transition duration-150 shadow-none backdrop-blur-[1px] cursor-pointer select-none text-center h-[40px]"
           >
             <LucideIcons.Sparkles size={13} className="stroke-[2.5]" />
