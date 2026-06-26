@@ -1058,7 +1058,7 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
     const isSquare = gl.square !== undefined ? !!gl.square : defaultIsUreel;
     const currentCols = gl.cols !== undefined ? gl.cols : (activeCard.buttonGridCols || 3);
     const currentGapVal = gl.gapPx !== undefined ? gl.gapPx : (activeCard.buttonGapPx || 18);
-    const currentSizeVal = gl.buttonSizePx !== undefined ? gl.buttonSizePx : (activeCard.buttonSizePx || 124);
+    const currentSizeVal = gl.buttonSizePx !== undefined ? gl.buttonSizePx : (activeCard.buttonSizePx || 80);
 
     const saveGridLayout = async (updates: Partial<ButtonGridLayout>) => {
       if (!onSaveAllButtons) return;
@@ -1170,7 +1170,7 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
             />
           </div>
 
-          {/* Size Slider (96px - 168px, default 124px) */}
+          {/* Size Slider (56px - 135px, max 135px = Sehr groß) */}
           <div className="space-y-1 bg-stone-950 p-3 rounded-xl border border-stone-900/50">
             <div className="flex justify-between items-center text-[10px] font-bold text-stone-400 select-none">
               <span>{lang === 'de' ? 'Button-Größe' : 'Button Size'}</span>
@@ -1178,17 +1178,17 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
             </div>
             <input
               type="range"
-              min="96"
-              max="168"
+              min="56"
+              max="135"
               step="2"
               value={currentSizeVal}
               onChange={(e) => saveGridLayout({ buttonSizePx: parseInt(e.target.value, 10) })}
               className="w-full h-1 bg-stone-850 rounded-xl appearance-none cursor-pointer accent-[#A855F7]"
             />
             <div className="flex justify-between text-[8px] text-stone-500 font-medium">
-              <span>96px</span>
-              <span>124px ({lang === 'de' ? 'Standard' : 'Default'})</span>
-              <span>168px</span>
+              <span>56px ({lang === 'de' ? 'Klein' : 'Small'})</span>
+              <span>80px ({lang === 'de' ? 'Standard' : 'Default'})</span>
+              <span>135px ({lang === 'de' ? 'Sehr groß' : 'Very large'})</span>
             </div>
           </div>
 
