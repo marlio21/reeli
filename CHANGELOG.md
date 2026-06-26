@@ -1,3 +1,15 @@
+# CHANGELOG
+
+## v52.5.37 – Larger Card Buttons & Public Action Bar Fix
+
+- Increases card/Public button size presets to 56 / 68 / 80 / 100px.
+- Raises canonical mobile button-size clamp to 100px so xlarge persists into Public view.
+- Moves the button dock higher in the 9:16 card to leave room for the system action bar.
+- Replaces the old bottom action row with a compact 3-button bar: QR-Code, Teilen, Erstellen.
+- Keeps the large Button Editor preview untouched.
+- Keeps the v52.5.36 card-preview scale parity model intact.
+- ZIP remains dist-free and excludes node_modules / release notes.
+
 # v52.5.34
 
 Button tile cleanup and public loading performance fix.
@@ -44,7 +56,6 @@ Button tile cleanup and public loading performance fix.
 - Zweck: Public-View-Problem nicht weiter raten, sondern Firestore-/Hydration-/Overwrite-Pfad sichtbar machen.
 - ZIP bleibt ohne dist/, node_modules und RELEASE_NOTES.
 
-# CHANGELOG
 
 ## v52.5.27 – Public Snapshot Priority & Button Shape Restore Fix
 
