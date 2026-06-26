@@ -2022,7 +2022,7 @@ body {
 
   .ureel-three-orbit-preview--button .ureel-button-renderer,
   .ureel-three-orbit-preview--button button {
-    max-width: 128px !important;
+    max-width: 122px !important;
     transform-origin: center !important;
   }
 

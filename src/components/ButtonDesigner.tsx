@@ -1170,7 +1170,7 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
             />
           </div>
 
-          {/* Size Slider (56px - 128px, max 128px = Sehr groß) */}
+          {/* Size Slider (56px - 122px, max 122px = Sehr groß) */}
           <div className="space-y-1 bg-stone-950 p-3 rounded-xl border border-stone-900/50">
             <div className="flex justify-between items-center text-[10px] font-bold text-stone-400 select-none">
               <span>{lang === 'de' ? 'Button-Größe' : 'Button Size'}</span>
@@ -1179,7 +1179,7 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
             <input
               type="range"
               min="56"
-              max="128"
+              max="122"
               step="2"
               value={currentSizeVal}
               onChange={(e) => saveGridLayout({ buttonSizePx: parseInt(e.target.value, 10) })}
@@ -1188,7 +1188,7 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
             <div className="flex justify-between text-[8px] text-stone-500 font-medium">
               <span>56px ({lang === 'de' ? 'Klein' : 'Small'})</span>
               <span>80px ({lang === 'de' ? 'Standard' : 'Default'})</span>
-              <span>128px ({lang === 'de' ? 'Sehr groß' : 'Very large'})</span>
+              <span>122px ({lang === 'de' ? 'Sehr groß' : 'Very large'})</span>
             </div>
           </div>
 

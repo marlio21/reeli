@@ -201,11 +201,11 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   const timelineConfig = React.useMemo(() => normalizeUreelTimeline(card), [card]);
   const endCardConfig = React.useMemo(() => normalizeUreelEndCard(card), [card]);
   const gridLayout = React.useMemo(() => normalizeButtonGridLayout(card), [card]);
-  const clampCardTileSizePx = (value: any) => Math.max(56, Math.min(Number(value || 80), 128));
-  // The mobile card is a fixed 390px surface. With three columns, 128px buttons
+  const clampCardTileSizePx = (value: any) => Math.max(56, Math.min(Number(value || 80), 122));
+  // The mobile card is a fixed 390px surface. With three columns, 122px buttons
   // can otherwise touch/overflow the edges and look clipped. Keep the saved
-  // value at 128px, but render a safe in-card size/gap when needed.
-  const getSafeCardButtonGapPx = (sizePx: number, gapPx: number) => sizePx >= 124 ? Math.min(Math.max(2, gapPx), 4) : gapPx;
+  // value at 122px, but render a safe in-card size/gap when needed.
+  const getSafeCardButtonGapPx = (sizePx: number, gapPx: number) => sizePx >= 120 ? Math.min(Math.max(2, gapPx), 4) : gapPx;
   const getSafeCardButtonTilePx = (value: any, cols: number = gridLayout.cols, gapPx: number = gridLayout.gapPx) => {
     const requested = clampCardTileSizePx(value);
     const safeCols = Math.max(1, Math.min(Number(cols || 3), 3));
@@ -1245,7 +1245,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       : (buttonsVisible ? '8%' : '14%');
     const heroTop = mobileTextDesign.top || defaultHeroTop;
     const safeBottom = mobileTextDesign.bottom || (buttonsVisible ? (filteredLayeredButtons.length > 6 ? '48%' : '42%') : '7%');
-    const widthClass = layeredFrameType === 'badge' ? 'max-w-[84%]' : mobileTextDesign.widthClass;
+    const widthClass = layeredFrameType === 'badge' ? 'max-w-[90%]' : 'max-w-[94%]';
     const compactRatio = buttonsVisible ? (isHero || endcardVideoActive ? 0.78 : 0.88) : 1.0;
     // v52.5.18: public and editor-preview must use the same configured text
     // sizes. Earlier public paths applied additional compact ratios/caps when
@@ -1369,7 +1369,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         {/* Layer 3: timed action dock. More than six buttons scroll inside the phone, the background remains fixed behind it. */}
         {!backgroundOnlyPreview && showButtons && filteredLayeredButtons.length > 0 && (
           <div
-            className={`absolute left-2 right-2 top-[48%] bottom-[142px] z-[20] ${buttonDockMaxHeight} overflow-y-auto overflow-x-hidden scrollbar-thin rounded-[24px] px-0.5 py-1 transition-all duration-500`}
+            className={`absolute left-1 right-1 top-[42%] bottom-[142px] z-[20] ${buttonDockMaxHeight} overflow-y-auto overflow-x-hidden scrollbar-thin rounded-[24px] px-0 py-0 transition-all duration-500`}
             style={buttonRevealStyle}
           >
             <div
@@ -1424,8 +1424,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             <div className="grid grid-cols-3 gap-2 w-full border-0 pt-1">
               <button
                 type="button"
-                onClick={goToUreelHome}
-                title={lang === 'de' ? 'Zur ureel Startseite' : 'Go to ureel home'}
+                onClick={() => setShowQrModal(true)}
+                title={lang === 'de' ? 'QR-Code anzeigen' : 'Show QR code'}
                 className="flex h-[40px] flex-col items-center justify-center gap-0.5 rounded-xl border border-white/10 bg-black/20 px-1 py-1 text-center text-white shadow-none backdrop-blur-[1px] transition duration-150 hover:text-white hover:bg-black/30 active:bg-black/20 cursor-pointer select-none"
               >
                 <LucideIcons.QrCode size={14} className="stroke-[2.5]" />
@@ -1469,6 +1469,51 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                 </button>
               </div>
             )}
+          </div>
+        )}
+
+        {showQrModal && (
+          <div
+            className="fixed inset-0 bg-black/85 flex items-center justify-center p-4 z-50 animate-fadeIn cursor-default backdrop-blur-xs"
+            onClick={() => setShowQrModal(false)}
+          >
+            <div
+              className="bg-stone-900 border border-stone-800 rounded-2xl p-5 max-w-[340px] w-full text-center relative shadow-2xl space-y-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={() => setShowQrModal(false)}
+                className="absolute top-3 right-3 text-stone-400 hover:text-[#A855F7] transition cursor-pointer"
+              >
+                <LucideIcons.X size={16} />
+              </button>
+              <div className="space-y-1">
+                <h3 className="text-sm font-black uppercase text-white tracking-wider flex items-center justify-center gap-1.5 pt-1.5">
+                  <LucideIcons.QrCode size={15} className="text-[#A855F7]" />
+                  <span>QR-Code</span>
+                </h3>
+                <p className="text-[9px] font-semibold text-stone-400 uppercase tracking-widest leading-none">
+                  {lang === 'de' ? 'Scannen zum Öffnen' : 'Scan to view'}
+                </p>
+              </div>
+              <div className="bg-white p-4 rounded-2xl inline-block mx-auto border border-stone-805 shadow-xl">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=360x360&color=0b0b0b&bgcolor=ffffff&data=${encodeURIComponent(getPublicCardUrl(card.slug) || window.location.href)}`}
+                  alt="QR Code"
+                  className="w-64 h-64 object-contain"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-[10px] font-mono text-stone-350 select-all truncate bg-stone-950/80 px-2 py-1.5 rounded-lg border border-stone-850">
+                  {getPublicCardUrl(card.slug) || window.location.href}
+                </p>
+                <p className="text-[8px] text-stone-500 uppercase font-bold tracking-wider">
+                  {lang === 'de' ? 'QR-Code enthält exakt diesen Link' : 'QR code contains exactly this link'}
+                </p>
+              </div>
+            </div>
           </div>
         )}
         {!backgroundOnlyPreview && !freezeTimeline && elapsed >= effectiveEndCardAt && (
@@ -1634,7 +1679,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               if (isUploadProcessing) {
                 // Return a beautiful, subtle overlay notification instead of complete screen-block, letting standard background image show as fallback!
                 return (
-                  <div id="video-placeholder-container" className="absolute top-4 right-4 z-[999] bg-stone-950/80 border border-stone-800/85 backdrop-blur-md px-3.5 py-1.5 rounded-full flex flex-col items-stretch justify-center gap-1 text-stone-300 shadow-xl select-none animate-pulse max-w-[280px]">
+                  <div id="video-placeholder-container" className="absolute top-4 right-4 z-[999] bg-stone-950/80 border border-stone-800/85 backdrop-blur-md px-3.5 py-1.5 rounded-full flex flex-col items-stretch justify-center gap-1 text-stone-300 shadow-xl select-none animate-pulse max-w-[340px]">
                     <div className="flex items-center justify-center gap-2">
                       <LucideIcons.Loader2 size={12} className="text-[#A855F7] animate-spin" />
                       <span className="text-[9.5px] uppercase font-black tracking-widest text-[#A855F7]">
@@ -2660,8 +2705,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         <div className="grid grid-cols-3 gap-1.5 w-full border-0 pt-1">
           {/* 1. QR-Code */}
           <button
-            onClick={goToUreelHome}
-            title={lang === 'de' ? 'Zur ureel Startseite' : 'Go to ureel home'}
+            onClick={() => setShowQrModal(true)}
+            title={lang === 'de' ? 'QR-Code anzeigen' : 'Show QR code'}
             className="flex flex-col items-center justify-center gap-0.5 bg-black/20 hover:bg-black/30 active:bg-black/20 text-white hover:text-white border border-white/10 rounded-xl py-1 px-1 transition duration-150 shadow-none backdrop-blur-[1px] cursor-pointer select-none text-center h-[40px]"
           >
             <LucideIcons.QrCode size={13} className="stroke-[2.5]" />
@@ -2716,7 +2761,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             onClick={() => setShowQrModal(false)}
           >
             <div 
-              className="bg-stone-900 border border-stone-800 rounded-2xl p-5 max-w-[280px] w-full text-center relative shadow-2xl space-y-4" 
+              className="bg-stone-900 border border-stone-800 rounded-2xl p-5 max-w-[340px] w-full text-center relative shadow-2xl space-y-4" 
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -2737,11 +2782,11 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                 </p>
               </div>
 
-              <div className="bg-white p-3 rounded-2xl inline-block mx-auto border border-stone-805">
+              <div className="bg-white p-4 rounded-2xl inline-block mx-auto border border-stone-805 shadow-xl">
                 <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=0b0b0b&data=${encodeURIComponent(getPublicCardUrl(card.slug) || window.location.href)}`}
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=360x360&color=0b0b0b&bgcolor=ffffff&data=${encodeURIComponent(getPublicCardUrl(card.slug) || window.location.href)}`}
                   alt="QR Code"
-                  className="w-36 h-36 object-contain"
+                  className="w-64 h-64 object-contain"
                   referrerPolicy="no-referrer"
                 />
               </div>
