@@ -1174,6 +1174,40 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       return !/(editor|vorschau|bearbeiten|ureel live|konu live)/i.test(label);
     });
 
+  // v52.5.41: one deterministic button zone for layered mobile cards.
+  // The lower public action bar is reserved, the ad text owns the upper area,
+  // and the user buttons are bottom-aligned in the remaining middle band.
+  // More than six buttons scroll only inside this band.
+  const getLayeredButtonDockLayout = () => {
+    const cols = Math.max(1, Math.min(Number(gridLayout.cols || 3), 3));
+    const requestedSize = clampCardTileSizePx(gridLayout.buttonSizePx || (card as any).buttonSizePx || 80);
+    const tilePx = getSafeCardButtonTilePx(requestedSize, cols, gridLayout.gapPx);
+    const safeGap = getSafeCardButtonGapPx(tilePx, Number(gridLayout.gapPx || 8));
+    const rowGapPx = Math.min(safeGap + 12, 44);
+    const rows = Math.max(1, Math.ceil(filteredLayeredButtons.length / cols));
+    const visibleRows = Math.min(rows, 2);
+    const footerReservePx = 142;
+    const footerTopPx = 693 - footerReservePx;
+    const bottomClearancePx = 10;
+    const blockHeightPx = (visibleRows * tilePx) + Math.max(0, visibleRows - 1) * rowGapPx;
+    const bottomAlignedTopPx = footerTopPx - bottomClearancePx - blockHeightPx;
+    const minScrollTopPx = 284;
+    const maxTopPx = 424;
+    const topPx = rows > 2
+      ? Math.max(minScrollTopPx, Math.min(bottomAlignedTopPx, 318))
+      : Math.max(minScrollTopPx, Math.min(bottomAlignedTopPx, maxTopPx));
+    return {
+      cols,
+      tilePx,
+      safeGap,
+      rowGapPx,
+      rows,
+      topPx,
+      bottomPx: footerReservePx,
+      textBottomPercent: `${Math.max(34, Math.min(48, ((topPx - 16) / 693) * 100))}%`,
+    };
+  };
+
   const renderLayeredYoutube = (embedUrl: string, mode: 'cover' | 'contain' | 'heroWide' | 'heroCompact') => {
     const isHero = mode === 'heroWide' || mode === 'heroCompact';
     // YouTube embeds render the actual movie inside a 16:9 player. To make a normal
@@ -1244,7 +1278,8 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       ? (activeSceneVideoResult.heroSize === 'compact' ? '29%' : '33.5%')
       : (buttonsVisible ? '8%' : '14%');
     const heroTop = mobileTextDesign.top || defaultHeroTop;
-    const safeBottom = mobileTextDesign.bottom || (buttonsVisible ? (filteredLayeredButtons.length > 6 ? '48%' : '42%') : '7%');
+    const buttonDockLayoutForText = buttonsVisible ? getLayeredButtonDockLayout() : null;
+    const safeBottom = mobileTextDesign.bottom || (buttonDockLayoutForText ? buttonDockLayoutForText.textBottomPercent : '7%');
     const widthClass = layeredFrameType === 'badge' ? 'max-w-[90%]' : 'max-w-[94%]';
     const compactRatio = buttonsVisible ? (isHero || endcardVideoActive ? 0.78 : 0.88) : 1.0;
     // v52.5.18: public and editor-preview must use the same configured text
@@ -1304,7 +1339,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   };
 
   if (useLayeredUreelCard) {
-    const buttonDockMaxHeight = ''; // v52.5.39: dock is top-anchored so extra rows append downward and scroll.
+    const layeredButtonDockLayout = getLayeredButtonDockLayout();
     return (
       <div
         onClick={() => {
@@ -1369,18 +1404,23 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         {/* Layer 3: timed action dock. More than six buttons scroll inside the phone, the background remains fixed behind it. */}
         {!backgroundOnlyPreview && showButtons && filteredLayeredButtons.length > 0 && (
           <div
-            className={`absolute left-1 right-1 top-[42%] bottom-[142px] z-[20] ${buttonDockMaxHeight} overflow-y-auto overflow-x-hidden scrollbar-thin rounded-[24px] px-0 py-0 transition-all duration-500`}
-            style={buttonRevealStyle}
+            className="absolute left-0 right-0 z-[20] overflow-y-auto overflow-x-hidden scrollbar-thin rounded-[24px] px-0 py-0 transition-all duration-500"
+            style={{
+              ...buttonRevealStyle,
+              top: `${layeredButtonDockLayout.topPx}px`,
+              bottom: `${layeredButtonDockLayout.bottomPx}px`,
+              overscrollBehavior: 'contain',
+            }}
           >
             <div
-              className={`grid ${gridLayout.cols === 1 ? 'grid-cols-1' : gridLayout.cols === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}
-              style={{ ...getButtonGridGapStyle(gridLayout.gapPx, getSafeCardButtonTilePx(gridLayout.buttonSizePx || (card as any).buttonSizePx || 52)), justifyItems: 'center' }}
+              className={`grid ${layeredButtonDockLayout.cols === 1 ? 'grid-cols-1' : layeredButtonDockLayout.cols === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}
+              style={{ columnGap: `${layeredButtonDockLayout.safeGap}px`, rowGap: `${layeredButtonDockLayout.rowGapPx}px`, justifyItems: 'center' }}
             >
               {filteredLayeredButtons.map((btn, index) => {
                 // v52.5.18: one final mobile layout model. Do not re-cap the
                 // public/preview tile at legacy sizes; normalizeButtonGridLayout
                 // already preserves the user's selected Look size safely.
-                const safePreviewSize = getSafeCardButtonTilePx(gridLayout.buttonSizePx || (card as any).buttonSizePx || 52);
+                const safePreviewSize = layeredButtonDockLayout.tilePx;
                 return (
                   <ButtonRenderer
                     key={btn.id}

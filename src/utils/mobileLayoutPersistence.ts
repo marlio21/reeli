@@ -19,7 +19,7 @@ const clamp = (value: any, min: number, max: number, fallback: number) => Math.m
 // v52.5.39: Keep the mobile button scale conservative. The previous lower
 // upper edge (122px) is now the "very large" cap. Extra rows still append downward
 // and scroll inside the card instead of pushing the upper area away.
-const normalizeMobileButtonSize = (value: any) => clamp(value, 56, 135, 80);
+const normalizeMobileButtonSize = (value: any) => clamp(value, 56, 122, 80);
 
 const isUreelCard = (card: Partial<Card> | undefined) => !!(card && (card.ureelTimeline || card.ureelScene || card.ureelEndCard));
 
@@ -68,7 +68,7 @@ export const buildMobileLayoutSnapshot = (card: Partial<Card>, options?: { prefe
   const subtitleSize = clamp((card as any).heroSubtitleSize ?? (card as any).mobileLayout?.text?.subtitleSizePx, 8, 40, 14);
   const descriptionSize = clamp((card as any).heroDescriptionSize ?? (card as any).mobileLayout?.text?.descriptionSizePx, 8, 36, 12);
   return {
-    version: 'v52.5.40',
+    version: 'v52.5.41',
     buttons: {
       mode: grid.mode,
       cols: grid.cols,
@@ -144,11 +144,11 @@ export const persistMobileLayoutFields = <T extends Partial<Card>>(updates: T, b
       ...(baseAny.mobileLayout || {}),
       ...(updateAny.mobileLayout || {}),
       ...snapshot,
-      version: 'v52.5.40',
+      version: 'v52.5.41',
     } as any,
     publicLayoutSnapshot: {
       ...snapshot,
-      version: 'v52.5.40',
+      version: 'v52.5.41',
     } as any,
     ureelTextTemplate: updateAny.ureelTextTemplate
       ? normalizeUreelTextTemplate({ ...(baseAny.ureelTextTemplate || {}), ...(updateAny.ureelTextTemplate || {}) } as any) as any
