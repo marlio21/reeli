@@ -179,7 +179,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
     }
   }, [card.cardId, isPreview]);
 
-  // v52.5.41: Public/share links must render from the same hydrated card shape
+  // v52.5.42: Public/share links must render from the same hydrated card shape
   // as the editor preview. This prevents stale publicLayoutSnapshot values or
   // legacy raw Firestore documents from producing a different button/text layout
   // when the user opens the copied share link in a fresh tab.
@@ -622,12 +622,11 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
   }
 
   if (!isPreview) {
-    // v52.5.14 Public hard switch:
-    // Public/live links no longer route through the desktop page renderer or any
-    // preview chrome. The public route renders the same unified 390x693 mobile
-    // live surface that the studio monitor uses; only the outside viewport frame
-    // changes. This prevents the old Public view from re-computing text/button
-    // sizes through a separate PublicDesktopPageRenderer path.
+    // v52.5.42 Public timing parity:
+    // Public/live links render the same final visual scale as the studio preview,
+    // but keep timelineMode="live". The previous v52.5.41 path forced
+    // timelineMode="final", so title/subtitle/description/buttons were visible
+    // immediately and ignored the timing sliders.
     return (
       <>
         <main className="fixed inset-0 h-[100svh] w-screen overflow-hidden bg-black text-[#F5F2EA] flex items-center justify-center">
@@ -643,7 +642,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
                 cleanPreview={true}
                 previewFocus="full"
                 visualMode="final"
-                timelineMode="final"
+                timelineMode="live"
                 showLayoutDebug={false}
                 debugLabel="public-view"
                 onButtonClick={handleButtonClick}
