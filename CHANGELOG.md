@@ -406,3 +406,13 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Moved the layered action dock slightly upward and reduced its max height to avoid clipped semicircle buttons.
 - Public/direct videos now use preload="auto" again to reduce the temporary empty surface before playback.
 - Layout debug remains off by default and only appears with ?debugLayout=force.
+
+## v52.5.36 – Card Preview Scale Parity Fix
+
+- Mobile-Tap-Vorschau ersetzt direkten KonuCardCore-Render durch UnifiedMobileLiveCardSurface.
+- Vorschaufenster skaliert dadurch die gesamte 390×693-Karte wie Public, anstatt einzelne Button-Kacheln separat zu interpretieren.
+- Public-/Karten-Buttonwerte wieder auf sicheren großen Bereich gesetzt: 52 / 64 / 76 / 88px.
+- KonuCardCore-Clamp für echte Kartenbuttons auf 42–88px erweitert.
+- Button-Dock minimal nach oben gesetzt, um abgeschnittene untere Kacheln zu reduzieren.
+- Surface zeigt optional vorhandenes Hintergrund-/Posterbild sofort als Fallback, bevor das Video bereit ist.
+- Debug-Version auf v52.5.36 aktualisiert; Debug bleibt nur mit ?debugLayout=force sichtbar.

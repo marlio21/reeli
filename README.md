@@ -1,26 +1,13 @@
-# ureel clean preview stabilization v52.5.35
+# ureel v52.5.36 – Card Preview Scale Parity Fix
 
-Focused stabilization release after v52.5.34.
+Diese Version trennt nicht den großen Buttoneditor, sondern korrigiert das kleine 9:16-Vorschaufenster: Es rendert nun über dieselbe Unified-Mobile-Surface wie Public, damit Buttons nicht mehr separat falsch skaliert werden.
 
-## Main intent
+## Fokus
+- Buttoneditor groß bleibt unverändert.
+- Kleine Studio-/Mobile-Kartenvorschau nutzt wieder die echte 390×693 Public-Surface.
+- Public-Buttongrößen dürfen wieder bis 88px gehen.
+- Preview skaliert die ganze Karte proportional, statt Buttonwerte einzeln zu verkleinern.
+- Optionaler First-Frame/Fallback im Surface gegen leere Ladefläche vor dem Video.
 
-Do not change the app concept. Repair the mobile button presentation and reduce the empty public-view loading moment.
-
-## Changes
-
-- Button tile sizes are balanced again for the real 390×693 mobile surface.
-- Studio preview, clean preview, and Public view use the same safe clamp: 38–68px.
-- Presets now write:
-  - Klein: 42px
-  - Normal: 50px
-  - Groß: 58px
-  - Sehr groß: 66px
-- Button icon/text scale is reduced so labels do not overflow as easily.
-- Button content stays centered and slightly lifted inside the tile.
-- Layered button dock is lifted from the bottom and capped to avoid clipping.
-- Public video elements preload automatically again to reduce the blank area before the first frame.
-- Debug remains hidden unless `?debugLayout=force` is used.
-
-## Upload notes
-
-The ZIP intentionally excludes `dist/`, `node_modules/`, and release-note clutter. Vercel should build from `package.json`.
+## Hinweis
+Nach Deployment bitte im Mobile-Editor einmal Buttongröße neu wählen, damit Firestore die v52.5.36-Größenwerte schreibt.

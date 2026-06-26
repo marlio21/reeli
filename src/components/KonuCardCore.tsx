@@ -201,7 +201,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   const timelineConfig = React.useMemo(() => normalizeUreelTimeline(card), [card]);
   const endCardConfig = React.useMemo(() => normalizeUreelEndCard(card), [card]);
   const gridLayout = React.useMemo(() => normalizeButtonGridLayout(card), [card]);
-  const clampCardTileSizePx = (value: any) => Math.max(38, Math.min(Number(value || 52), 68));
+  const clampCardTileSizePx = (value: any) => Math.max(42, Math.min(Number(value || 64), 88));
 
   const hasTimeline = !!card.ureelTimeline;
   const hasEndCard = !!card.ureelEndCard;
@@ -1346,7 +1346,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         {/* Layer 3: timed action dock. More than six buttons scroll inside the phone, the background remains fixed behind it. */}
         {!backgroundOnlyPreview && showButtons && filteredLayeredButtons.length > 0 && (
           <div
-            className={`absolute left-4 right-4 bottom-6 z-[20] ${buttonDockMaxHeight} overflow-y-auto overflow-x-hidden scrollbar-none rounded-[24px] p-1 transition-all duration-500`}
+            className={`absolute left-4 right-4 bottom-7 z-[20] ${buttonDockMaxHeight} overflow-y-auto overflow-x-hidden scrollbar-none rounded-[24px] p-1 transition-all duration-500`}
             style={buttonRevealStyle}
           >
             <div

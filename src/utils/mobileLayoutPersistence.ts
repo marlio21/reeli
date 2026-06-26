@@ -63,7 +63,7 @@ export const buildMobileLayoutSnapshot = (card: Partial<Card>, options?: { prefe
   const subtitleSize = clamp((card as any).heroSubtitleSize ?? (card as any).mobileLayout?.text?.subtitleSizePx, 8, 40, 14);
   const descriptionSize = clamp((card as any).heroDescriptionSize ?? (card as any).mobileLayout?.text?.descriptionSizePx, 8, 36, 12);
   return {
-    version: 'v52.5.35',
+    version: 'v52.5.36',
     buttons: {
       mode: grid.mode,
       cols: grid.cols,
@@ -139,11 +139,11 @@ export const persistMobileLayoutFields = <T extends Partial<Card>>(updates: T, b
       ...(baseAny.mobileLayout || {}),
       ...(updateAny.mobileLayout || {}),
       ...snapshot,
-      version: 'v52.5.35',
+      version: 'v52.5.36',
     } as any,
     publicLayoutSnapshot: {
       ...snapshot,
-      version: 'v52.5.35',
+      version: 'v52.5.36',
     } as any,
     ureelTextTemplate: updateAny.ureelTextTemplate
       ? normalizeUreelTextTemplate({ ...(baseAny.ureelTextTemplate || {}), ...(updateAny.ureelTextTemplate || {}) } as any) as any
