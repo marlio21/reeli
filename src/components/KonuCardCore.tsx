@@ -1303,9 +1303,9 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     const persistedDescriptionSize = Number((card as any).heroDescriptionSize ?? persistedTextLayout.heroDescriptionSize ?? persistedTextLayout.descriptionSizePx ?? 22);
     // v52.5.40: adjustable Werbetext height. This controls the vertical text zone,
     // not the font size, so users can make wide designs taller/shorter without changing copy size.
-    const rawTextHeightPercent = Number((card as any).heroTextHeightPercent ?? persistedTextLayout.heroTextHeightPercent ?? persistedTextLayout.heightPercent ?? 0);
+    const rawTextHeightPercent = Number((card as any).heroTextTopPercent ?? (card as any).heroTextHeightPercent ?? persistedTextLayout.heroTextTopPercent ?? persistedTextLayout.topPercent ?? persistedTextLayout.heroTextHeightPercent ?? persistedTextLayout.heightPercent ?? 0);
     const textHeightPercent = Number.isFinite(rawTextHeightPercent) && rawTextHeightPercent > 0
-      ? Math.max(24, Math.min(76, rawTextHeightPercent))
+      ? Math.max(4, Math.min(88, rawTextHeightPercent))
       : 0;
     const titleSize = Math.max(16, Math.min(buttonsVisible ? 56 : 60, persistedTitleSize * publicTextRatio * mobileTextDesign.titleRatio * finalScaleBoost));
     const subtitleSize = Math.max(11, Math.min(buttonsVisible ? 40 : 44, persistedSubtitleSize * (buttonsVisible && !finalVisualMode ? 1.08 : 1) * mobileTextDesign.subtitleRatio * finalScaleBoost));
@@ -1323,10 +1323,10 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       return luminance < 120 ? fallback : v;
     };
     const textZoneStyle: React.CSSProperties = {
-      top: heroTop,
+      top: textHeightPercent > 0 ? `${textHeightPercent}%` : heroTop,
       bottom: textHeightPercent > 0 ? undefined : safeBottom,
-      height: textHeightPercent > 0 ? `${textHeightPercent}%` : undefined,
-      maxHeight: textHeightPercent > 0 ? `${textHeightPercent}%` : undefined,
+      height: textHeightPercent > 0 ? 'auto' : undefined,
+      maxHeight: textHeightPercent > 0 ? `calc(92% - ${textHeightPercent}%)` : undefined,
       display: 'flex',
       alignItems: mobileTextDesign.alignItems,
       justifyContent: mobileTextDesign.justifyContent,

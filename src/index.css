@@ -7346,3 +7346,50 @@ body {
   .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-icon-grid button.is-active { background:#F5F2EA!important; color:#101010!important; border-color:#F5F2EA!important; box-shadow:0 14px 28px rgba(0,0,0,.25)!important; }
   .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-icon-off { margin-top:14px!important; width:100%!important; min-height:48px!important; border-radius:16px!important; }
 }
+
+/* v52.5.60 – Precision fix: text position is real, button preview is truly centered. Desktop only. */
+@media (min-width: 768px) {
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel--button .ureel-tap-big-button-stage {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 330px !important;
+    overflow: hidden !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel--button .ureel-tap-big-button-stage > .ureel-button-preview-tile--large,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel--button .ureel-tap-big-button-stage > div.ureel-button-preview-tile--large {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    margin: 0 !important;
+    transform: translate(-50%, -50%) scale(1.18) !important;
+    transform-origin: center center !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel--button .ureel-tap-big-button-stage > .ureel-button-preview-tile--large > div,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel--button .ureel-tap-big-button-stage > div.ureel-button-preview-tile--large > div {
+    transform-origin: center center !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel--button .ureel-tap-big-button-stage span {
+    max-width: 96% !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: manual !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-text-height-slider-row label::after {
+    content: 'Oben = kleiner Wert, unten Richtung Buttons = größerer Wert';
+    display: block;
+    width: 100%;
+    margin-top: 6px;
+    color: rgba(245,242,234,.58);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: none;
+  }
+}
