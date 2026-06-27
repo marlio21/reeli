@@ -1,3 +1,12 @@
+
+
+## v52.5.52 – Desktop Exact Mobile Editor Parity Bridge
+
+- Desktop keeps the 3-area workbench: preview, selector, configuration.
+- The right configuration area now uses the same tap-to-edit panels as the mobile version instead of simplified desktop-only editors.
+- Scene, Text and Buttons therefore expose the same controls and wording as mobile.
+- Global actions remain only in the top dashboard.
+- Mobile remains unchanged; the bridge is desktop-only CSS/state routing.
 # ureel v52.5.47 – Desktop Studio Side-by-Side Editor Foundation
 
 Diese Version macht den Desktop-Editor sichtbarer und klarer, ohne die mobile Version umzubauen.

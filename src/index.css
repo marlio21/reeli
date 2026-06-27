@@ -6039,3 +6039,86 @@ body {
     width: min(28vw, 420px, calc((100vh - 232px) * 0.5625)) !important;
   }
 }
+
+/* v52.5.52 — Desktop uses the exact mobile tap-edit panels in the right configuration area.
+   This keeps Mobile untouched and removes the parallel simplified desktop editors. */
+@media (min-width: 768px) {
+  .ureel-desktop-studio-root > .ureel-detail-panel {
+    display: none !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-simple-card-builder.ureel-tap-editor {
+    grid-area: config !important;
+    grid-column: 3 !important;
+    grid-row: 2 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 22px 28px 38px !important;
+    background: #141419 !important;
+    color: #F5F2EA !important;
+    border-left: 0 !important;
+    scrollbar-width: thin !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-simple-card-builder.ureel-tap-editor .ureel-tap-intro,
+  .ureel-desktop-studio-root > .ureel-simple-card-builder.ureel-tap-editor .ureel-tap-dashboard-strip,
+  .ureel-desktop-studio-root > .ureel-simple-card-builder.ureel-tap-editor .ureel-tap-preview-shell {
+    display: none !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-simple-card-builder.ureel-tap-editor .ureel-tap-panel {
+    display: block !important;
+    width: 100% !important;
+    max-width: 980px !important;
+    margin: 0 auto !important;
+    border-radius: 26px !important;
+    border: 1px solid rgba(232,220,194,.16) !important;
+    background: linear-gradient(180deg, rgba(25,25,28,.96), rgba(15,15,17,.98)) !important;
+    box-shadow: 0 22px 60px rgba(0,0,0,.32) !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-simple-card-builder.ureel-tap-editor .ureel-tap-panel-head {
+    position: sticky !important;
+    top: -22px !important;
+    z-index: 10 !important;
+    background: linear-gradient(180deg, rgba(20,20,25,.98), rgba(20,20,25,.90)) !important;
+    backdrop-filter: blur(14px) !important;
+    border-bottom: 1px solid rgba(232,220,194,.13) !important;
+    margin: -1px -1px 18px !important;
+    border-radius: 26px 26px 0 0 !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-simple-card-builder.ureel-tap-editor .ureel-tap-choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-simple-card-builder.ureel-tap-editor .ureel-tap-config,
+  .ureel-desktop-studio-root > .ureel-simple-card-builder.ureel-tap-editor .ureel-mobile-text-editor {
+    max-width: none !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-simple-card-builder.ureel-tap-editor button.is-active,
+  .ureel-desktop-studio-root > .ureel-simple-card-builder.ureel-tap-editor .is-active {
+    color: #101010 !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-simple-card-builder.ureel-tap-editor button.is-active svg,
+  .ureel-desktop-studio-root > .ureel-simple-card-builder.ureel-tap-editor .is-active svg {
+    color: #101010 !important;
+    stroke: #101010 !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-simple-card-builder.ureel-tap-editor .ureel-mobile-button-editor-tabs button.is-active,
+  .ureel-desktop-studio-root > .ureel-simple-card-builder.ureel-tap-editor .ureel-tap-chip-row button.is-active {
+    background: #F5F2EA !important;
+    color: #101010 !important;
+    border-color: #F5F2EA !important;
+  }
+}

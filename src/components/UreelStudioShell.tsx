@@ -2566,6 +2566,51 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     setTextPreviewMode('text');
   };
 
+
+  const selectDesktopWorkbenchSection = (module: MainModule, subsectionId?: string) => {
+    const nextSub = subsectionId || getDefaultSubSectionForModule(module);
+    setActiveTab(module);
+    setActiveSubSection(nextSub);
+    setMobileOrbitOpen(false);
+    setMobileSheetOpen(false);
+    setMobileActiveSetting(null);
+
+    if (module === 'scene') {
+      setTapEditTarget('scene');
+      const sceneToolMap: Record<string, any> = {
+        'scene-video': 'video',
+        'scene-poster': 'image',
+        'scene-color': 'color',
+        'scene-display': 'display',
+        'scene-endcard': 'endcard',
+      };
+      setTapSceneTool(sceneToolMap[nextSub] || 'overview');
+      return;
+    }
+
+    if (module === 'timeline') {
+      setTapEditTarget('text');
+      setMobileActiveTextLayer('title');
+      setMobileActiveSetting('text-title');
+      setTextPreviewMode('text');
+      return;
+    }
+
+    if (module === 'buttons') {
+      setTapEditTarget('button');
+      if ((activeCard?.buttons?.length || 0) > 0 && !editingBtnId) {
+        setEditingBtnId(activeCard.buttons?.[0]?.id || null);
+      }
+      const buttonToolMap: Record<string, any> = {
+        'buttons-text': 'text',
+        'buttons-action': 'action',
+        'buttons-design': 'look',
+        'buttons-list': 'manage',
+      };
+      setTapButtonTool(buttonToolMap[nextSub] || 'text');
+    }
+  };
+
   const renderMobileTextHotspots = () => {
     const hotspots: Array<{ key: 'title' | 'subtitle' | 'description'; label: string; className: string }> = [
       { key: 'title', label: 'Titel bearbeiten', className: 'ureel-mobile-text-hotspot--title' },
@@ -2766,9 +2811,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 key={item.id}
                 type="button"
                 onClick={() => {
-                  setActiveTab(item.id as MainModule);
-                  const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-list' };
-                  if (defaults[item.id]) setActiveSubSection(defaults[item.id]);
+                  const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-text' };
+                  selectDesktopWorkbenchSection(item.id as MainModule, defaults[item.id]);
                 }}
                 className={`h-10 rounded-xl px-3 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-wider transition ${active ? 'bg-[#F5F2EA] text-[#101010] shadow-lg shadow-black/25' : 'text-stone-400 hover:text-[#F5F2EA] hover:bg-[#1A1A1E]'}`}
               >
@@ -2856,9 +2900,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <button
                 key={item.id}
                 onClick={() => {
-                  setActiveTab(item.id as MainModule);
-                  const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-text', design: 'design-desktop', cards: 'cards-list' };
-                  if (defaults[item.id]) setActiveSubSection(defaults[item.id]);
+                  const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-text' };
+                  selectDesktopWorkbenchSection(item.id as MainModule, defaults[item.id]);
                 }}
                 className={`min-w-[74px] md:min-w-0 flex flex-col snap-start items-center justify-center py-2.5 px-2 md:px-0 rounded-xl transition duration-150 relative cursor-pointer ${
                   active 
@@ -2953,7 +2996,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   return (
                     <button
                       key={item.id}
-                      onClick={() => setActiveSubSection(item.id)}
+                      onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)}
                       className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
                         selected
                           ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
@@ -2986,7 +3029,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   return (
                     <button
                       key={item.id}
-                      onClick={() => setActiveSubSection(item.id)}
+                      onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)}
                       className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
                         selected
                           ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
@@ -3024,7 +3067,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   return (
                     <button
                       key={item.id}
-                      onClick={() => setActiveSubSection(item.id)}
+                      onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)}
                       className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
                         selected
                           ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
@@ -3093,7 +3136,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   const Icon = item.icon;
                   const selected = activeSubSection === item.id;
                   return (
-                    <button key={item.id} onClick={() => setActiveSubSection(item.id)} className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${selected ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20' : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'}`}>
+                    <button key={item.id} onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)} className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${selected ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20' : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'}`}>
                       <Icon size={15} className={selected ? '!text-[#101010]' : 'text-[#E8DCC2]'} />
                       <span className="min-w-0 flex-1"><span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">{item.label}</span><span className={`block text-[8.5px] leading-snug mt-0.5 ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`}>{item.desc}</span></span>
                       <LucideIcons.ChevronRight size={13} className="opacity-50" />
