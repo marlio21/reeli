@@ -2322,6 +2322,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
   const monitorCard = hydrateCardMobileLayout(getCleanMonitorCard(activeCard) as any) as Card;
+  // v52.5.50: Desktop editor has one permanent card preview.
+  // Button/Text special previews live in the configuration column, not in the main preview area.
+  const isDesktopWorkbench = typeof window !== 'undefined' && window.innerWidth >= 768;
 
   const getDefaultSubSectionForModule = (module: MainModule): string => {
     const defaults: Partial<Record<MainModule, string>> = {
@@ -2755,7 +2758,6 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             { id: 'scene', label: lang === 'de' ? 'Szene' : 'Scene', icon: LucideIcons.Tv },
             { id: 'timeline', label: lang === 'de' ? 'Text' : 'Text', icon: LucideIcons.Type },
             { id: 'buttons', label: lang === 'de' ? 'Buttons' : 'Buttons', icon: LucideIcons.Grid },
-            { id: 'design', label: lang === 'de' ? 'Design' : 'Design', icon: LucideIcons.Palette },
           ].map((item) => {
             const IconComponent = item.icon;
             const active = activeTab === item.id;
@@ -2765,7 +2767,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 type="button"
                 onClick={() => {
                   setActiveTab(item.id as MainModule);
-                  const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-list', design: 'design-desktop' };
+                  const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-list' };
                   if (defaults[item.id]) setActiveSubSection(defaults[item.id]);
                 }}
                 className={`h-10 rounded-xl px-3 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-wider transition ${active ? 'bg-[#F5F2EA] text-[#101010] shadow-lg shadow-black/25' : 'text-stone-400 hover:text-[#F5F2EA] hover:bg-[#1A1A1E]'}`}
@@ -2846,7 +2848,6 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             { id: 'scene', label: lang === 'de' ? 'Szene' : 'Scene', icon: LucideIcons.Tv },
             { id: 'timeline', label: lang === 'de' ? 'Timeline' : 'Timeline', icon: LucideIcons.Milestone },
             { id: 'buttons', label: lang === 'de' ? 'Buttons' : 'Buttons', icon: LucideIcons.Grid },
-            { id: 'design', label: lang === 'de' ? 'Design' : 'Design', icon: LucideIcons.Palette },
             { id: 'cards', label: lang === 'de' ? 'Karten' : 'Cards', icon: LucideIcons.Layers }
           ].map((item) => {
             const IconComponent = item.icon;
@@ -4780,7 +4781,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="w-1.5 h-1.5 rounded-full bg-[#E8DCC2] animate-pulse" />
             <span className="text-[10px] font-mono font-black text-stone-300 uppercase tracking-widest truncate">
-              {activeTab === 'buttons' ? 'Button-Monitor' : activeTab === 'timeline' ? 'Werbe-Monitor' : 'ureel live'}
+              {isDesktopWorkbench ? 'ureel live' : activeTab === 'buttons' ? 'Button-Monitor' : activeTab === 'timeline' ? 'Werbe-Monitor' : 'ureel live'}
             </span>
           </div>
 
@@ -4802,7 +4803,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             )}
           </div>
 
-          {activeTab === 'buttons' ? (
+          {!isDesktopWorkbench && activeTab === 'buttons' ? (
             <div className="grid grid-cols-3 gap-0.5 rounded-xl border border-[#3A3732] bg-[#0F0F0F] p-0.5 text-[8px] font-black uppercase shrink-0">
               {(['card','button','grid'] as const).map((mode) => (
                 <button
@@ -4815,7 +4816,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 </button>
               ))}
             </div>
-          ) : activeTab === 'timeline' ? (
+          ) : !isDesktopWorkbench && activeTab === 'timeline' ? (
             <div className="grid grid-cols-3 gap-0.5 rounded-xl border border-[#3A3732] bg-[#0F0F0F] p-0.5 text-[8px] font-black uppercase shrink-0">
               {(['text','card','fit'] as const).map((mode) => (
                 <button
@@ -4870,7 +4871,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             )}
           </div>
 
-          {activeTab === 'buttons' ? (
+          {!isDesktopWorkbench && activeTab === 'buttons' ? (
             <div className="w-full h-full min-h-[230px] md:min-h-0 flex items-center justify-center">
               {buttonPreviewMode === 'button' && editingButton && (
                 <div className="w-full max-w-[250px] rounded-[28px] border border-[#3A3732] bg-[#111111] p-4 shadow-2xl shadow-black/40">
@@ -4933,7 +4934,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 </div>
               )}
             </div>
-          ) : activeTab === 'timeline' ? (
+          ) : !isDesktopWorkbench && activeTab === 'timeline' ? (
             <div className="w-full h-full h-full md:min-h-0 flex items-center justify-center">
               {textPreviewMode === 'text' && renderWerbeTextMonitor(false)}
               {textPreviewMode === 'fit' && (

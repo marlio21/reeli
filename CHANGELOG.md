@@ -551,3 +551,10 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - The desktop preview phone is locked to a true 9:16 aspect ratio.
 - Old flex/order classes can no longer push the preview back to the right column.
 - Mobile editor/public rendering remains untouched.
+
+## v52.5.50 – Desktop 3-Bereich Mobile-Parity Workbench
+- Desktop-only: Editor auf drei klare Bereiche umgestellt: Vorschau, Auswahl, Konfiguration.
+- Mobile bleibt unverändert.
+- Desktop-Haupttabs auf Szene, Text und Buttons reduziert; Karten/Nutzer/Neue Karte/Teilen bleiben oben als globale Aktionen.
+- Vorschau bleibt auf Desktop immer die echte 9:16-Karte, nicht mehr Button-/Text-Sondermonitor.
+- Mittlere Spalte zeigt die mobilen Untermenüs vertikal; rechte Spalte zeigt die aktive Konfiguration.
