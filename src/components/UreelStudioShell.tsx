@@ -396,7 +396,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     if (activeTab === 'scene') setActiveSubSection('scene-video');
     else if (activeTab === 'timeline') setActiveSubSection('timeline-texts');
     else if (activeTab === 'buttons') {
-      setActiveSubSection('buttons-list');
+      setActiveSubSection('buttons-text');
       // Auto-select first button if exists
       if ((activeCard?.buttons?.length || 0) > 0) {
         setEditingBtnId(activeCard.buttons?.[0]?.id || null);
@@ -2322,7 +2322,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
   const monitorCard = hydrateCardMobileLayout(getCleanMonitorCard(activeCard) as any) as Card;
-  // v52.5.50: Desktop editor has one permanent card preview.
+  // v52.5.51: Desktop editor has one permanent card preview and mobile-parity button tabs.
   // Button/Text special previews live in the configuration column, not in the main preview area.
   const isDesktopWorkbench = typeof window !== 'undefined' && window.innerWidth >= 768;
 
@@ -2330,7 +2330,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     const defaults: Partial<Record<MainModule, string>> = {
       scene: 'scene-video',
       timeline: 'timeline-texts',
-      buttons: 'buttons-list',
+      buttons: 'buttons-text',
       design: 'design-desktop',
       cards: 'cards-list',
       endcard: 'endcard-general',
@@ -2503,9 +2503,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
   const getMobilePanelHelp = () => {
     if (activeTab === 'buttons' && activeSubSection === 'buttons-action') return 'Hier bestimmst du, was beim Tippen auf den ausgewählten Button passiert. Die Beschriftung bleibt unabhängig davon.';
-    if (activeTab === 'buttons' && activeSubSection === 'buttons-list') return 'Hier verwaltest du deine Buttons. Große Listen bleiben unten scrollbar, die Vorschau bleibt sichtbar.';
-    if (activeTab === 'buttons' && activeSubSection === 'buttons-transfer') return 'Übertrage den Look des aktuellen Buttons auf andere Buttons, damit alle einheitlich aussehen.';
-    if (activeTab === 'buttons') return 'Bearbeite den aktuell ausgewählten Button. Änderungen sind oben in der Vorschau sichtbar.';
+    if (activeTab === 'buttons' && activeSubSection === 'buttons-list') return 'Verwalte deine Buttons: auswählen, hinzufügen, kopieren, ordnen oder entfernen.';
+    if (activeTab === 'buttons' && activeSubSection === 'buttons-design') return 'Gestalte Form, Farbe, Transparenz, Bild, Größe, Icon und Rahmen des aktiven Buttons.';
+    if (activeTab === 'buttons') return 'Bearbeite den aktuell ausgewählten Button. Änderungen sind links in der Vorschau sichtbar.';
     if (activeTab === 'timeline' && activeSubSection === 'timeline-templates') return 'Wähle eine Textvorlage. Die Karte zeigt sofort, wie die Werbebotschaft wirkt.';
     if (activeTab === 'timeline') return 'Bearbeite Titel, Untertitel und Beschreibung. Die Vorschau zeigt dir die Wirkung direkt auf der Karte.';
     if (activeTab === 'scene' && activeSubSection === 'scene-poster') return 'Lade ein Bild oder Poster hoch. Wenn ein Video aktiv ist, entferne zuerst das Video.';
@@ -2857,7 +2857,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 key={item.id}
                 onClick={() => {
                   setActiveTab(item.id as MainModule);
-                  const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-list', design: 'design-desktop', cards: 'cards-list' };
+                  const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-text', design: 'design-desktop', cards: 'cards-list' };
                   if (defaults[item.id]) setActiveSubSection(defaults[item.id]);
                 }}
                 className={`min-w-[74px] md:min-w-0 flex flex-col snap-start items-center justify-center py-2.5 px-2 md:px-0 rounded-xl transition duration-150 relative cursor-pointer ${
@@ -2956,14 +2956,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       onClick={() => setActiveSubSection(item.id)}
                       className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
                         selected
-                          ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
+                          ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
                           : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'
                       }`}
                     >
-                      <Icon size={15} className={selected ? 'text-[#101010]' : 'text-[#E8DCC2]'} />
+                      <Icon size={15} className={selected ? '!text-[#101010]' : 'text-[#E8DCC2]'} />
                       <span className="min-w-0 flex-1">
                         <span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">{item.label}</span>
-                        <span className={`block text-[8.5px] leading-snug mt-0.5 ${selected ? 'text-[#101010]/60' : 'text-stone-500'}`}>{item.desc}</span>
+                        <span className={`block text-[8.5px] leading-snug mt-0.5 ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`}>{item.desc}</span>
                       </span>
                       <LucideIcons.ChevronRight size={13} className="opacity-50" />
                     </button>
@@ -2989,14 +2989,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       onClick={() => setActiveSubSection(item.id)}
                       className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
                         selected
-                          ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
+                          ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
                           : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'
                       }`}
                     >
-                      <Icon size={15} className={selected ? 'text-[#101010]' : 'text-[#E8DCC2]'} />
+                      <Icon size={15} className={selected ? '!text-[#101010]' : 'text-[#E8DCC2]'} />
                       <span className="min-w-0 flex-1">
                         <span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">{item.label}</span>
-                        <span className={`block text-[8.5px] leading-snug mt-0.5 ${selected ? 'text-[#101010]/60' : 'text-stone-500'}`}>{item.desc}</span>
+                        <span className={`block text-[8.5px] leading-snug mt-0.5 ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`}>{item.desc}</span>
                       </span>
                       <LucideIcons.ChevronRight size={13} className="opacity-50" />
                     </button>
@@ -3014,13 +3014,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   </button>
                 </div>
                 {[
-                  { id: 'buttons-list', icon: LucideIcons.ListChecks, label: 'Button wählen', desc: 'Auswählen, kopieren, duplizieren' },
                   { id: 'buttons-text', icon: LucideIcons.Type, label: 'Text', desc: 'Hauptzeile, zweite Zeile' },
                   { id: 'buttons-action', icon: LucideIcons.MousePointerClick, label: 'Aktion', desc: 'Telefon, Link, PDF, Kontakt' },
-                  { id: 'buttons-design', icon: LucideIcons.Paintbrush, label: 'Look', desc: 'Farbe, Form, Rahmen' },
-                  { id: 'buttons-icon', icon: LucideIcons.Sparkles, label: 'Icon', desc: 'Symbol und Position' },
-                  { id: 'buttons-size', icon: LucideIcons.Maximize2, label: 'Größe', desc: 'Button und Raster' },
-                  { id: 'buttons-transfer', icon: LucideIcons.CopyCheck, label: 'Übertragen', desc: 'Look auf alle anwenden' },
+                  { id: 'buttons-design', icon: LucideIcons.Paintbrush, label: 'Look', desc: 'Form, Farbe, Größe, Icon, Rahmen' },
+                  { id: 'buttons-list', icon: LucideIcons.ListChecks, label: 'Verwalten', desc: 'Auswählen, kopieren, ordnen, löschen' },
                 ].map((item) => {
                   const Icon = item.icon;
                   const selected = activeSubSection === item.id;
@@ -3030,14 +3027,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       onClick={() => setActiveSubSection(item.id)}
                       className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
                         selected
-                          ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
+                          ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
                           : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'
                       }`}
                     >
-                      <Icon size={15} className={selected ? 'text-[#101010]' : 'text-[#E8DCC2]'} />
+                      <Icon size={15} className={selected ? '!text-[#101010]' : 'text-[#E8DCC2]'} />
                       <span className="min-w-0 flex-1">
                         <span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">{item.label}</span>
-                        <span className={`block text-[8.5px] leading-snug mt-0.5 ${selected ? 'text-[#101010]/60' : 'text-stone-500'}`}>{item.desc}</span>
+                        <span className={`block text-[8.5px] leading-snug mt-0.5 ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`}>{item.desc}</span>
                       </span>
                       <LucideIcons.ChevronRight size={13} className="opacity-50" />
                     </button>
@@ -3096,9 +3093,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   const Icon = item.icon;
                   const selected = activeSubSection === item.id;
                   return (
-                    <button key={item.id} onClick={() => setActiveSubSection(item.id)} className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${selected ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20' : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'}`}>
-                      <Icon size={15} className={selected ? 'text-[#101010]' : 'text-[#E8DCC2]'} />
-                      <span className="min-w-0 flex-1"><span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">{item.label}</span><span className={`block text-[8.5px] leading-snug mt-0.5 ${selected ? 'text-[#101010]/60' : 'text-stone-500'}`}>{item.desc}</span></span>
+                    <button key={item.id} onClick={() => setActiveSubSection(item.id)} className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${selected ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20' : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'}`}>
+                      <Icon size={15} className={selected ? '!text-[#101010]' : 'text-[#E8DCC2]'} />
+                      <span className="min-w-0 flex-1"><span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">{item.label}</span><span className={`block text-[8.5px] leading-snug mt-0.5 ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`}>{item.desc}</span></span>
                       <LucideIcons.ChevronRight size={13} className="opacity-50" />
                     </button>
                   );
@@ -3183,7 +3180,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <h1 className="text-base font-black text-white tracking-tight uppercase">
               {activeTab === 'scene' && (activeSubSection === 'scene-video' ? 'Clip-Video / Background Reel' : activeSubSection === 'scene-poster' ? 'Bild / Poster einrichten' : activeSubSection === 'scene-display' ? 'Darstellung & Zuschnitt' : activeSubSection === 'scene-endcard' ? 'Endkarte in der Szene' : 'Farbe, Verlauf & Overlay')}
               {activeTab === 'timeline' && (activeSubSection === 'timeline-texts' ? 'Werbebotschaft' : activeSubSection === 'timeline-templates' ? 'Werbeschriften & Vorlagen' : activeSubSection === 'timeline-style' ? 'Rahmen, Schrift & Effekt' : 'Animations-Timeline')}
-              {activeTab === 'buttons' && (activeSubSection === 'buttons-list' ? 'Button-Liste' : activeSubSection === 'buttons-action' ? 'Aktion & Ziel' : activeSubSection === 'buttons-text' ? 'Button-Text' : activeSubSection === 'buttons-icon' ? 'Button-Icon' : activeSubSection === 'buttons-design' ? 'Button-Look' : activeSubSection === 'buttons-size' ? 'Button-Größe' : activeSubSection === 'buttons-transfer' ? 'Design übertragen' : 'Raster & Vorschau')}
+              {activeTab === 'buttons' && (activeSubSection === 'buttons-list' ? 'Button verwalten' : activeSubSection === 'buttons-action' ? 'Aktion & Ziel' : activeSubSection === 'buttons-text' ? 'Button-Text' : activeSubSection === 'buttons-icon' ? 'Button-Icon' : activeSubSection === 'buttons-design' ? 'Look des Buttons' : activeSubSection === 'buttons-size' ? 'Button-Größe' : activeSubSection === 'buttons-transfer' ? 'Design übertragen' : 'Raster & Vorschau')}
               {activeTab === 'endcard' && (activeSubSection === 'endcard-general' ? 'Nachspielsequenz einrichten' : 'Wasserzeichen & Branding')}
   
             {activeTab === 'cards' && (
@@ -3436,7 +3433,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         className={`min-h-[102px] rounded-2xl border p-4 text-left transition ${selected ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732] hover:border-[#F5F2EA]/60'}`}
                       >
                         <span className="block text-[11px] font-black uppercase">{mode.label}</span>
-                        <span className={`block text-[9px] mt-1 leading-snug ${selected ? 'text-[#101010]/60' : 'text-stone-500'}`}>{mode.desc}</span>
+                        <span className={`block text-[9px] mt-1 leading-snug ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`}>{mode.desc}</span>
                       </button>
                     );
                   })}
@@ -4183,6 +4180,25 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           {/* TAB 3: BUTTONS & COLUMNS */}
           {activeTab === 'buttons' && (
             <div className="space-y-4">
+              {editingButton && (
+                <div className="hidden md:block rounded-2xl border border-[#3A3732] bg-[#111111] p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div><span className="block text-[10px] font-black uppercase tracking-wider text-[#E8DCC2]">Aktiver Button</span><p className="text-[9px] text-stone-500">Wie in Mobile: erst Button sehen, dann Text, Aktion, Look oder Verwalten bearbeiten.</p></div>
+                    <span className="text-[9px] font-black text-stone-500">#{Math.max(1, (activeCard.buttons || []).findIndex(b => b.id === editingButton.id) + 1)}</span>
+                  </div>
+                  <div className="flex justify-center">{renderButtonPreviewTile(editingButton)}</div>
+                </div>
+              )}
+              <div className="hidden md:grid grid-cols-4 gap-2 rounded-2xl border border-[#3A3732] bg-[#0F0F0F] p-1">
+                {[
+                  { id: 'buttons-text', label: 'Text' },
+                  { id: 'buttons-action', label: 'Aktion' },
+                  { id: 'buttons-design', label: 'Look' },
+                  { id: 'buttons-list', label: 'Verwalten' },
+                ].map((tab) => (
+                  <button key={tab.id} type="button" onClick={() => setActiveSubSection(tab.id)} className={`h-10 rounded-xl text-[10px] font-black uppercase tracking-wider ${activeSubSection === tab.id ? 'bg-[#F5F2EA] !text-[#101010]' : 'text-stone-300 hover:text-[#F5F2EA] hover:bg-[#181818]'}`}>{tab.label}</button>
+                ))}
+              </div>
               {!editingButton && (
                 <div className="rounded-2xl border border-dashed border-[#3A3732] bg-[#111111] p-5 text-center">
                   <LucideIcons.MousePointerClick className="mx-auto mb-2 text-[#E8DCC2]" size={28} />
@@ -4397,7 +4413,32 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Iconfarbe</label><input type="color" value={editingButton.iconColor || '#111111'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { iconColor: e.target.value })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
                       <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Rahmenfarbe</label><input type="color" value={editingButton.borderColor || '#E8DCC2'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { borderColor: e.target.value, borderEnabled: true, borderWidth: editingButton.borderWidth || 'thin' })} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] p-1" /></div>
                       <div><div className="flex items-center justify-between text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1"><span>Transparenz</span><span className="text-[#E8DCC2] font-mono">{Math.round(100 - Number((editingButton as any).opacity ?? 100))}%</span></div><input type="range" min={0} max={80} step={5} value={100 - Number((editingButton as any).opacity ?? 100)} onChange={(e) => handleUpdateSingleButton(editingButton.id, { opacity: 100 - Number(e.target.value) } as any)} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" /><span className="block mt-1 text-[8.5px] text-stone-550">0% = deckend, 80% = sehr transparent.</span></div>
-                      <div><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1">Eckenform</label><select value={editingButton.radius || 'rounded'} onChange={(e) => { const radius = e.target.value as any; handleUpdateSingleButton(editingButton.id, { radius, buttonShape: radius === 'pill' ? 'round' : radius === 'square' ? 'square' : 'rounded' } as any); }} className="w-full h-10 rounded-xl bg-[#181818] border border-[#3A3732] px-3 text-xs text-[#F5F2EA]"><option value="square">Quadrat</option><option value="rounded">Quadrat abgerundet</option><option value="pill">Kreis</option></select></div>
+                      <div className="sm:col-span-2"><label className="block text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-2">Form</label><div className="grid grid-cols-3 gap-2">{[
+                        { value: 'pill', label: 'Kreis' },
+                        { value: 'square', label: 'Eckig' },
+                        { value: 'rounded', label: 'Abgerundet' },
+                      ].map((shape) => {
+                        const activeShape = (editingButton.radius || 'rounded') === shape.value;
+                        return <button key={shape.value} type="button" onClick={() => { const radius = shape.value as any; handleUpdateSingleButton(editingButton.id, { radius, buttonShape: radius === 'pill' ? 'round' : radius === 'square' ? 'square' : 'rounded' } as any); }} className={`h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${activeShape ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA]' : 'bg-[#0F0F0F] text-[#F5F2EA] border-[#3A3732] hover:border-[#E8DCC2]/50'}`}>{shape.label}</button>;
+                      })}</div></div>
+                      <div className="sm:col-span-2 rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
+                        <div className="flex items-center justify-between gap-2"><span className="block text-[10px] font-black uppercase tracking-wider text-[#E8DCC2]">Buttongröße & Raster</span><span className="text-[9px] text-[#E8DCC2] font-mono">{buttonSizePx}px</span></div>
+                        <div className="grid grid-cols-3 gap-2">
+                          {([
+                            { key: 'compact' as CardButtonSizePreset, label: 'Klein', value: CARD_BUTTON_SIZE_PRESETS.compact },
+                            { key: 'standard' as CardButtonSizePreset, label: 'Normal', value: CARD_BUTTON_SIZE_PRESETS.standard },
+                            { key: 'large' as CardButtonSizePreset, label: 'Groß', value: CARD_BUTTON_SIZE_PRESETS.large },
+                          ]).map((preset) => {
+                            const selectedPreset = Math.abs(buttonSizePx - preset.value) <= 2;
+                            return <button key={preset.key} type="button" onClick={() => editingButton && applyMobileButtonSizePreset(editingButton.id, preset.key)} className={`h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${selectedPreset ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA]' : 'bg-[#0F0F0F] text-stone-300 border-[#3A3732] hover:border-[#E8DCC2]/50'}`}>{preset.label}</button>;
+                          })}
+                        </div>
+                        <input type="range" min={CARD_BUTTON_MIN_SIZE} max={CARD_BUTTON_MAX_SIZE} step={1} value={buttonSizePx} onChange={(e) => syncCardUpdate({ buttonSizePx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), buttonSizePx: Number(e.target.value), cols: buttonGridCols as any, square: true } })} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div><div className="flex items-center justify-between text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1"><span>Button-Abstand</span><span className="text-[#E8DCC2] font-mono">{buttonGapPx}px</span></div><input type="range" min={4} max={22} step={1} value={buttonGapPx} onChange={(e) => syncCardUpdate({ buttonGapPx: Number(e.target.value), buttonGridLayout: { ...(activeCard.buttonGridLayout || {}), gapPx: Number(e.target.value), gap: Number(e.target.value), cols: buttonGridCols as any, square: true } })} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" /></div>
+                          <div><div className="flex items-center justify-between text-[9px] uppercase font-bold text-stone-450 tracking-wider mb-1"><span>Rahmen</span><span className="text-[#E8DCC2] font-mono">{editingButton.borderEnabled !== false ? 'AN' : 'AUS'}</span></div><button type="button" onClick={() => handleUpdateSingleButton(editingButton.id, { borderEnabled: editingButton.borderEnabled === false, borderWidth: editingButton.borderWidth || 'thin' })} className={`w-full h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${editingButton.borderEnabled !== false ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA]' : 'bg-[#0F0F0F] text-stone-300 border-[#3A3732]'}`}>{editingButton.borderEnabled !== false ? 'Rahmen an' : 'Rahmen aus'}</button></div>
+                        </div>
+                      </div>
                       <div className="sm:col-span-2 rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
                         <div className="flex items-center justify-between gap-2"><span className="block text-[10px] font-black uppercase tracking-wider text-[#E8DCC2]">Icon-Bereich</span><span className="text-[8px] text-stone-500">Viele Icons für Telefon, Social, Datei, Business</span></div>
                         <div className="grid grid-cols-8 sm:grid-cols-10 gap-1.5 max-h-40 overflow-y-auto pr-1 scrollbar-none">
