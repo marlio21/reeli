@@ -1,4 +1,16 @@
 
+## v52.5.55 – Desktop Menu Parity Polish & Profile Scene Fix
+
+- Desktop-Mittelspalte weiter vereinfacht: Buttons zeigt nur noch Text, Aktion, Look und Verwalten.
+- Plus-/Aktueller-Button-Zusatzkarten aus der Mittelspalte entfernt, damit der Bedienfluss wie Mobile bleibt.
+- Szene bekommt Profilbild als eigenen Unterpunkt in der Mittelspalte.
+- Profilbild-Unterpunkt ist mit dem vorhandenen mobilen Profilbild-Editor verbunden.
+- Buttoneditor im rechten Bereich größer, zentrierter und besser als aktive Vorschaufläche dargestellt.
+- Werbetext-Vorschau und Vorlagenbereich im rechten Bereich mittiger und übersichtlicher gesetzt.
+- Lesbarkeit und aktive Zustände im Desktop-3-Bereich-Editor weiter verbessert.
+- Mobile bleibt unverändert.
+
+
 ## v52.5.53 – Desktop Mobile Panel Readability Bridge
 
 - Desktop right configuration panel now applies the mobile tap-editor styling on desktop screens.

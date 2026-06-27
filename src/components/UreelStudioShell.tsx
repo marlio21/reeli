@@ -2583,6 +2583,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         'scene-color': 'color',
         'scene-display': 'display',
         'scene-endcard': 'endcard',
+        'scene-profile': 'profile',
       };
       setTapSceneTool(sceneToolMap[nextSub] || 'overview');
       return;
@@ -2990,6 +2991,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   { id: 'scene-color', icon: LucideIcons.PaintBucket, label: 'Farbe / Verlauf', desc: 'Anthrazit, Creme, Gradient' },
                   { id: 'scene-display', icon: LucideIcons.Scan, label: 'Darstellung', desc: 'Füllen, ganz, Hero' },
                   { id: 'scene-endcard', icon: LucideIcons.Flag, label: 'Endkarte', desc: 'Abschluss, Replay, CTA' },
+                  { id: 'scene-profile', icon: LucideIcons.UserCircle, label: 'Profilbild', desc: 'Bild, Form, Timing' },
                 ].map((item) => {
                   const Icon = item.icon;
                   const selected = activeSubSection === item.id;
@@ -3050,12 +3052,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
             {activeTab === 'buttons' && (
               <div className="space-y-2 pt-1">
-                <div className="flex items-center justify-between px-2 text-[10px] text-stone-500 uppercase font-bold tracking-wider">
-                  <span>Button-Studio</span>
-                  <button onClick={handleAddButtonLocal} className="text-[#F5F2EA] hover:text-white cursor-pointer flex items-center gap-0.5">
-                    <LucideIcons.Plus size={12} className="stroke-[3]" />
-                  </button>
-                </div>
+                <div className="px-2 text-[10px] text-stone-500 uppercase font-bold tracking-wider">Button-Studio</div>
                 {[
                   { id: 'buttons-text', icon: LucideIcons.Type, label: 'Text', desc: 'Hauptzeile, zweite Zeile' },
                   { id: 'buttons-action', icon: LucideIcons.MousePointerClick, label: 'Aktion', desc: 'Telefon, Link, PDF, Kontakt' },
@@ -3083,11 +3080,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     </button>
                   );
                 })}
-                <div className="mt-3 rounded-2xl border border-[#3A3732] bg-[#111111] p-3">
-                  <span className="block text-[9px] font-black uppercase tracking-wider text-stone-500 mb-1">Aktueller Button</span>
-                  <p className="text-[11px] font-black text-[#F5F2EA] truncate">{editingButton?.title || 'Kein Button gewählt'}</p>
-                  <p className="text-[9px] text-stone-500 truncate">{editingButton ? (actionOptions.find((option) => option.value === editingButton.actionType)?.label || editingButton.actionType || 'Aktion') : 'Wähle einen Button aus der Liste.'}</p>
-                </div>
+
               </div>
             )}
 
