@@ -6706,3 +6706,276 @@ body {
     gap: 12px !important;
   }
 }
+
+/* v52.5.56 – Desktop Editor Parity Completion & UI Polish
+   Desktop-only. Mobile bleibt unverändert. Ziel: klare 3-Spalten-Führung,
+   lesbare Mittelspalte und sauber zentrierte Mobile-Parity-Editoren rechts. */
+@media (min-width: 768px) {
+  /* stabile 3-Bereich-Geometrie */
+  .ureel-desktop-studio-root {
+    grid-template-columns: minmax(370px, 37vw) 280px minmax(520px, 1fr) !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-studio-preview-panel {
+    min-width: 370px !important;
+    max-width: none !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-subnav-panel {
+    width: 280px !important;
+    min-width: 280px !important;
+    background: linear-gradient(180deg, rgba(15,15,17,.98), rgba(10,10,12,.98)) !important;
+    border-left: 1px solid rgba(232,220,194,.08) !important;
+    border-right: 1px solid rgba(232,220,194,.12) !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-detail-panel {
+    min-width: 520px !important;
+    padding: 24px 40px 48px !important;
+    background: radial-gradient(circle at 10% 0%, rgba(232,220,194,.035), transparent 34%), #101014 !important;
+  }
+
+  /* Mittelspalte: einheitliche, klare Mobile-Menükarten */
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 {
+    padding: 18px !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 > div.space-y-2 {
+    gap: 14px !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button {
+    min-height: 84px !important;
+    align-items: center !important;
+    padding: 17px 18px !important;
+    border-radius: 24px !important;
+    background: rgba(255,255,255,.045) !important;
+    border: 1px solid rgba(232,220,194,.18) !important;
+    color: rgba(255,255,255,.96) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 10px 24px rgba(0,0,0,.18) !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button:hover {
+    background: rgba(255,255,255,.075) !important;
+    border-color: rgba(245,242,234,.38) !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button[class*="bg-[#F5F2EA]"],
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button.is-active,
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button[aria-pressed="true"] {
+    background: #F5F2EA !important;
+    color: #101010 !important;
+    border-color: #F5F2EA !important;
+    box-shadow: 0 16px 32px rgba(0,0,0,.32) !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button svg {
+    color: #E8DCC2 !important;
+    opacity: 1 !important;
+    flex-shrink: 0 !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button[class*="bg-[#F5F2EA]"] svg,
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button.is-active svg,
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button[aria-pressed="true"] svg {
+    color: #101010 !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button span span:first-child,
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button strong {
+    color: #FFFFFF !important;
+    opacity: 1 !important;
+    font-size: 13px !important;
+    line-height: 1.1 !important;
+    font-weight: 950 !important;
+    letter-spacing: .055em !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button span span:last-child,
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button small,
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button p {
+    color: rgba(255,255,255,.72) !important;
+    opacity: 1 !important;
+    font-size: 10.5px !important;
+    line-height: 1.25 !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button[class*="bg-[#F5F2EA]"] span span:first-child,
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button.is-active span span:first-child,
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button[aria-pressed="true"] span span:first-child,
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button[class*="bg-[#F5F2EA]"] strong,
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button.is-active strong,
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button[aria-pressed="true"] strong {
+    color: #101010 !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button[class*="bg-[#F5F2EA]"] span span:last-child,
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button.is-active span span:last-child,
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button[aria-pressed="true"] span span:last-child,
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button[class*="bg-[#F5F2EA]"] small,
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button.is-active small,
+  .ureel-desktop-studio-root .ureel-subnav-panel .p-2.space-y-1 button[aria-pressed="true"] small {
+    color: rgba(16,16,16,.68) !important;
+  }
+
+  /* Rechte Editorfläche: einheitliche große Mobile-Panels, nicht gedrängt */
+  .ureel-desktop-studio-root .ureel-detail-panel > .space-y-6,
+  .ureel-desktop-studio-root .ureel-detail-panel .space-y-6.max-w-full,
+  .ureel-desktop-studio-root .ureel-detail-panel .space-y-6.max-w-full.md\:max-w-xl {
+    max-width: 820px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel,
+  .ureel-desktop-studio-root > .ureel-simple-card-builder.ureel-tap-editor .ureel-tap-panel,
+  .ureel-desktop-studio-root .ureel-detail-panel > div[class*="rounded"],
+  .ureel-desktop-studio-root .ureel-detail-panel .bg-\[\#111111\] {
+    border-radius: 32px !important;
+    border: 1px solid rgba(232,220,194,.18) !important;
+    background: radial-gradient(circle at 8% 0%, rgba(255,255,255,.06), transparent 35%), linear-gradient(180deg, rgba(255,255,255,.025), rgba(0,0,0,.09)), #121216 !important;
+    box-shadow: 0 22px 48px rgba(0,0,0,.24) !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel h1,
+  .ureel-desktop-studio-root .ureel-detail-panel h2,
+  .ureel-desktop-studio-root .ureel-detail-panel h3,
+  .ureel-desktop-studio-root .ureel-detail-panel h4 {
+    color: #FFFFFF !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel p,
+  .ureel-desktop-studio-root .ureel-detail-panel label,
+  .ureel-desktop-studio-root .ureel-detail-panel span {
+    color: inherit;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .text-stone-500,
+  .ureel-desktop-studio-root .ureel-detail-panel .text-stone-450,
+  .ureel-desktop-studio-root .ureel-detail-panel .text-stone-400 {
+    color: rgba(245,242,234,.68) !important;
+  }
+
+  /* Inputs und Farbzeilen lesbar, großzügig */
+  .ureel-desktop-studio-root .ureel-detail-panel input:not([type="range"]):not([type="color"]),
+  .ureel-desktop-studio-root .ureel-detail-panel textarea,
+  .ureel-desktop-studio-root .ureel-detail-panel select {
+    background: #F8F5EE !important;
+    color: #111111 !important;
+    border: 1px solid rgba(232,220,194,.45) !important;
+    border-radius: 18px !important;
+    min-height: 48px !important;
+    font-weight: 800 !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel textarea {
+    min-height: 128px !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel input::placeholder,
+  .ureel-desktop-studio-root .ureel-detail-panel textarea::placeholder {
+    color: rgba(17,17,17,.42) !important;
+  }
+
+  /* Button-Editor: aktiver Button wirklich groß und mittig sichtbar */
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-big-button-stage,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-active-button-stage {
+    min-height: 250px !important;
+    max-width: 560px !important;
+    margin: 22px auto 26px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 34px !important;
+    background: radial-gradient(circle at 50% 35%, rgba(245,242,234,.14), rgba(255,255,255,.045) 48%, rgba(0,0,0,.12)) !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-big-button-stage > *,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-active-button-stage > * {
+    margin: auto !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-button-editor-tabs,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-chip-row,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-actions {
+    gap: 10px !important;
+    justify-content: flex-start !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-button-editor-tabs button,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-chip-row button,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-actions button,
+  .ureel-desktop-studio-root .ureel-detail-panel button[aria-pressed],
+  .ureel-desktop-studio-root .ureel-detail-panel button[class*="rounded-xl"] {
+    font-weight: 950 !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-button-editor-tabs button.is-active,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-chip-row button.is-active,
+  .ureel-desktop-studio-root .ureel-detail-panel button[aria-pressed="true"] {
+    background: #F5F2EA !important;
+    color: #101010 !important;
+    border-color: #F5F2EA !important;
+  }
+
+  /* Werbetext: Vorschau klar und mittig */
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-text-preview-card,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-text-preview-sample,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-text-preview-card > div {
+    max-width: 680px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-text-template-strip {
+    grid-template-columns: repeat(3, minmax(150px, 1fr)) !important;
+    gap: 12px !important;
+    max-width: 760px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-text-template-strip button {
+    min-height: 118px !important;
+    padding: 14px !important;
+    border-radius: 20px !important;
+    color: #FFFFFF !important;
+    line-height: 1.15 !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-text-template-strip button.is-active,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-text-template-strip button[aria-pressed="true"] {
+    background: #F5F2EA !important;
+    color: #101010 !important;
+  }
+
+  /* Szene/Profil: Menüpunkt und rechte Cards auf Desktop nicht ausbleichen */
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-choice-grid button,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-manage-grid button,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-position-grid button {
+    color: #F8F5EE !important;
+    border-color: rgba(232,220,194,.22) !important;
+    background: rgba(255,255,255,.045) !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-choice-grid button.is-active,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-manage-grid button.is-active,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-position-grid button.is-active {
+    background: #F5F2EA !important;
+    color: #101010 !important;
+    border-color: #F5F2EA !important;
+  }
+
+  /* Scroll-Verhalten: Vorschau + Mitte bleiben ruhig, nur rechts scrollt */
+  .ureel-desktop-studio-root > .ureel-studio-preview-panel,
+  .ureel-desktop-studio-root > .ureel-subnav-panel {
+    overflow-y: auto !important;
+    scrollbar-width: thin;
+  }
+
+  .ureel-desktop-studio-root > .ureel-detail-panel {
+    overflow-y: auto !important;
+    scrollbar-width: thin;
+  }
+}
