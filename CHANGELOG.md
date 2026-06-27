@@ -534,3 +534,10 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Button-Dock minimal nach oben gesetzt, um abgeschnittene untere Kacheln zu reduzieren.
 - Surface zeigt optional vorhandenes Hintergrund-/Posterbild sofort als Fallback, bevor das Video bereit ist.
 - Debug-Version auf v52.5.36 aktualisiert; Debug bleibt nur mit ?debugLayout=force sichtbar.
+
+## v52.5.48 – Desktop Workbench Preview Format & Placement Fix
+
+- Desktop-only layout override: preview is forced into the left workbench column, configuration stays on the right.
+- The desktop preview phone is locked to a true 9:16 aspect ratio.
+- Old flex/order classes can no longer push the preview back to the right column.
+- Mobile editor/public rendering remains untouched.
