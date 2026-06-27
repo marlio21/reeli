@@ -19,6 +19,7 @@ import { ShareExportModal } from './ShareExportModal';
 import { KonuLogo } from './KonuLogo';
 import { ButtonRenderer } from './ButtonRenderer';
 import { UnifiedMobileLiveCardSurface } from './UnifiedMobileLiveCardSurface';
+import { PublicDesktopPageRenderer } from './PublicDesktopPageRenderer';
 import { ErrorBoundary } from './ErrorBoundary';
 import QRCode from 'qrcode';
 import { parseVideoUrl } from '../utils/video';
@@ -622,36 +623,50 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
   }
 
   if (!isPreview) {
-    // v52.5.42 Public timing parity:
-    // Public/live links render the same final visual scale as the studio preview,
-    // but keep timelineMode="live". The previous v52.5.41 path forced
-    // timelineMode="final", so title/subtitle/description/buttons were visible
-    // immediately and ignored the timing sliders.
+    // v52.5.44 Desktop-only activation:
+    // Mobile public rendering stays exactly on the existing mobile card path.
+    // Only large screens switch to the new three-section desktop onepager.
     return (
       <>
-        <main className="fixed inset-0 h-[100svh] w-screen overflow-hidden bg-black text-[#F5F2EA] flex items-center justify-center">
-          <div
-            className="relative h-[100svh] w-screen sm:h-[min(96svh,760px)] sm:w-auto sm:aspect-[9/16] overflow-hidden bg-black sm:rounded-[36px] sm:border-[8px] sm:border-[#111] sm:shadow-2xl"
-            aria-label="ureel public unified mobile live card"
-          >
-            <ErrorBoundary lang={lang} fallbackNode={<PublicRecoveryFallback card={hydratedPublicCard} lang={lang} />}>
-              <UnifiedMobileLiveCardSurface
-                card={hydratedPublicCard}
-                lang={lang}
-                isPreview={false}
-                cleanPreview={true}
-                previewFocus="full"
-                visualMode="final"
-                timelineMode="live"
-                showLayoutDebug={false}
-                debugLabel="public-view"
-                onButtonClick={handleButtonClick}
-                onContactSave={triggerVCardDownload}
-                onShare={() => setShowShareModal(true)}
-              />
-            </ErrorBoundary>
-          </div>
-        </main>
+        <div className="lg:hidden">
+          <main className="fixed inset-0 h-[100svh] w-screen overflow-hidden bg-black text-[#F5F2EA] flex items-center justify-center">
+            <div
+              className="relative h-[100svh] w-screen sm:h-[min(96svh,760px)] sm:w-auto sm:aspect-[9/16] overflow-hidden bg-black sm:rounded-[36px] sm:border-[8px] sm:border-[#111] sm:shadow-2xl"
+              aria-label="ureel public unified mobile live card"
+            >
+              <ErrorBoundary lang={lang} fallbackNode={<PublicRecoveryFallback card={hydratedPublicCard} lang={lang} />}>
+                <UnifiedMobileLiveCardSurface
+                  card={hydratedPublicCard}
+                  lang={lang}
+                  isPreview={false}
+                  cleanPreview={true}
+                  previewFocus="full"
+                  visualMode="final"
+                  timelineMode="live"
+                  showLayoutDebug={false}
+                  debugLabel="public-view-mobile"
+                  onButtonClick={handleButtonClick}
+                  onContactSave={triggerVCardDownload}
+                  onShare={() => setShowShareModal(true)}
+                />
+              </ErrorBoundary>
+            </div>
+          </main>
+        </div>
+        <div className="hidden lg:block">
+          <ErrorBoundary lang={lang} fallbackNode={<PublicRecoveryFallback card={hydratedPublicCard} lang={lang} />}>
+            <PublicDesktopPageRenderer
+              card={hydratedPublicCard}
+              lang={lang}
+              mode="public"
+              qrCodeUrl={qrCodeUrl}
+              onButtonClick={handleButtonClick}
+              onContactSave={triggerVCardDownload}
+              onShare={() => setShowShareModal(true)}
+              onQrClick={() => setShowShareDrawer(true)}
+            />
+          </ErrorBoundary>
+        </div>
         <AnimatePresence>{showShareModal && <ShareExportModal card={hydratedPublicCard} lang={lang} isOpen={showShareModal} onClose={() => setShowShareModal(false)} />}</AnimatePresence>
       </>
     );
