@@ -2737,8 +2737,55 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-[100dvh] md:h-screen w-full max-w-[100vw] bg-[#09090B] text-stone-200 overflow-x-hidden md:overflow-hidden overflow-y-auto font-sans antialiased text-xs">
+    <div className="ureel-desktop-studio-root flex flex-col md:flex-row min-h-[100dvh] md:h-screen w-full max-w-[100vw] bg-[#09090B] text-stone-200 overflow-x-hidden md:overflow-hidden overflow-y-auto font-sans antialiased text-xs">
       
+      <div className="ureel-desktop-dashboard-top hidden md:flex items-center justify-between gap-4 px-5 py-3 border-b border-[#242018] bg-[#0B0B0D]/96 backdrop-blur-xl shadow-xl shadow-black/30">
+        <div className="flex items-center gap-3 min-w-0">
+          <button type="button" onClick={() => setAccountMenuOpen((open) => !open)} className="h-11 w-11 rounded-2xl bg-gradient-to-tr from-[#262626] to-[#3A3732] border border-[#E8DCC2]/20 flex items-center justify-center shadow-lg shadow-black/40" title="ureel Studio">
+            <LucideIcons.Tv size={20} className="text-[#F5F2EA]" />
+          </button>
+          <div className="min-w-0">
+            <div className="text-[9px] font-black uppercase tracking-[0.28em] text-[#E8DCC2]">ureel Desktop Studio</div>
+            <div className="text-sm font-black text-white truncate">{activeCard?.title || activeCard?.heroTitle || 'Neue ureel Seite'}</div>
+          </div>
+        </div>
+
+        <div className="ureel-desktop-workspace-tabs flex items-center gap-1.5 rounded-2xl border border-[#2B261E] bg-[#111115] p-1 shadow-inner shadow-black/30">
+          {[
+            { id: 'scene', label: lang === 'de' ? 'Szene' : 'Scene', icon: LucideIcons.Tv },
+            { id: 'timeline', label: lang === 'de' ? 'Text' : 'Text', icon: LucideIcons.Type },
+            { id: 'buttons', label: lang === 'de' ? 'Buttons' : 'Buttons', icon: LucideIcons.Grid },
+            { id: 'design', label: lang === 'de' ? 'Website' : 'Website', icon: LucideIcons.LayoutTemplate },
+            { id: 'cards', label: lang === 'de' ? 'Karten' : 'Cards', icon: LucideIcons.Layers },
+          ].map((item) => {
+            const IconComponent = item.icon;
+            const active = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => {
+                  setActiveTab(item.id as MainModule);
+                  const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-list', design: 'design-desktop', cards: 'cards-list' };
+                  if (defaults[item.id]) setActiveSubSection(defaults[item.id]);
+                }}
+                className={`h-10 rounded-xl px-3 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-wider transition ${active ? 'bg-[#F5F2EA] text-[#101010] shadow-lg shadow-black/25' : 'text-stone-400 hover:text-[#F5F2EA] hover:bg-[#1A1A1E]'}`}
+              >
+                <IconComponent size={14} />
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <button type="button" onClick={() => setCardManagerOpen(true)} className="ureel-desktop-dash-button"><LucideIcons.Layers size={14}/> Karten</button>
+          <button type="button" onClick={() => { setAccountManagerTab('profile'); setAccountPanelOpen(true); }} className="ureel-desktop-dash-button"><LucideIcons.UserCog size={14}/> Nutzer</button>
+          <button type="button" onClick={handleCreateNewUreel} className="ureel-desktop-dash-button"><LucideIcons.Plus size={14}/> Neue Karte</button>
+          <button type="button" onClick={shareLiveLink} className="ureel-desktop-dash-button ureel-desktop-dash-button--primary"><LucideIcons.Share2 size={14}/> Teilen</button>
+        </div>
+      </div>
+
       {/* COLUMN 1: LINKE HAUPTNAVIGATION (SIDEBAR) */}
       <div className="ureel-studio-topbar order-1 md:order-none sticky top-0 z-40 md:static w-full md:w-[76px] bg-[#0E0E11]/95 backdrop-blur-xl border-b md:border-b-0 md:border-r border-stone-900 flex flex-row md:flex-col justify-between items-center gap-3 px-3 md:px-0 py-2 md:py-4 shrink-0 overflow-x-auto">
         

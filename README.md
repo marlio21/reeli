@@ -1,3 +1,32 @@
+# ureel v52.5.46 – Desktop Studio Side-by-Side Editor Foundation
+
+Diese Version macht den Desktop-Editor sichtbarer und klarer, ohne die mobile Version umzubauen.
+
+## Neu
+
+- Desktop bekommt eine eigene Studio-Struktur:
+  - Dashboard-Leiste oben
+  - Konfiguration links/mittig
+  - permanente Vorschau direkt daneben
+- Dashboard oben enthält:
+  - Karten
+  - Nutzer
+  - Neue Karte
+  - Teilen
+- Arbeitsbereiche oben: Szene, Text, Buttons, Website, Karten.
+- Wenn ein Bereich gewählt wird, bleibt die Vorschau sichtbar und die Konfiguration wechselt daneben.
+- Die alte Mobile-Bedienung bleibt unverändert.
+- Die große Buttoneditor-Vorschau bleibt unverändert.
+- Desktop nutzt weiterhin dieselben Karten-/Button-/Textdaten wie Mobile/Public.
+
+## Sicherheitsregel
+
+Mobile wurde nicht bewusst verändert. Die neue Struktur greift nur ab Desktop-Breite.
+
+## Upload-Hinweis
+
+ZIP bleibt ohne `dist/`, ohne `node_modules/` und ohne `RELEASE_NOTES_*.md`. Vercel baut aus `package.json`.
+
 # ureel v52.5.45 – Desktop Onepager Route Separation Fix
 
 Diese Version aktiviert die Desktop-Onepager-Logik sicherer, ohne die mobile Version zu verändern.

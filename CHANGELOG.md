@@ -1,3 +1,15 @@
+# CHANGELOG
+
+## v52.5.46 – Desktop Studio Side-by-Side Editor Foundation
+
+- Adds a desktop-only studio dashboard bar above the editor.
+- Reflows desktop into a side-by-side workspace: navigation/subsections, configuration panel and permanent preview panel.
+- Adds desktop workspace tabs for Szene, Text, Buttons, Website and Karten.
+- Adds quick actions for Kartenverwaltung, Nutzerverwaltung, Neue Karte and Teilen in the desktop top dashboard.
+- Keeps the existing mobile editor and mobile public card untouched.
+- Keeps the large Button Editor preview unchanged.
+- ZIP remains dist-free and excludes node_modules / release notes.
+
 
 ## v52.5.43 – Desktop Onepager Three Section Foundation
 
