@@ -7393,3 +7393,18 @@ body {
     text-transform: none;
   }
 }
+
+/* v52.5.63 real scene fix: make newly added destructive scene actions visible in tap/desktop panels. */
+.ureel-danger-action,
+.ureel-tap-actions .ureel-danger-action {
+  border-color: rgba(127, 29, 29, 0.62) !important;
+  background: rgba(69, 10, 10, 0.32) !important;
+  color: #fecaca !important;
+}
+.ureel-danger-action:disabled,
+.ureel-tap-actions .ureel-danger-action:disabled {
+  opacity: .42 !important;
+  color: rgba(168, 162, 158, .72) !important;
+  border-color: rgba(68, 64, 60, .8) !important;
+  background: rgba(12, 10, 9, .34) !important;
+}

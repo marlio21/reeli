@@ -288,10 +288,10 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
         ? Math.max(9.4, Math.min(14.2, forceSizePx * (isSmallTextPreset ? 0.13 : isNormalTextPreset ? 0.148 : isLargeTextPreset ? 0.16 : 0.168)))
         : Math.max(11.2, Math.min(17.2, forceSizePx * (isSmallTextPreset ? 0.162 : isNormalTextPreset ? 0.178 : isLargeTextPreset ? 0.194 : 0.205))))
     : (hasUsableIcon ? 11.2 : 13.2);
-  const forcedTextFloor = forceIconOnly ? 0 : (hasUsableIcon ? (isTinyTile ? 8.6 : 9.4) : (isTinyTile ? 9.4 : 10.4));
+  const forcedTextFloor = forceIconOnly ? 0 : (hasUsableIcon ? (isTinyTile ? 8.2 : 8.8) : (isTinyTile ? 9.0 : 9.8));
   const iconTextFactor = hasUsableIcon ? (isSmallTextPreset ? 0.92 : isNormalTextPreset ? 1.0 : isLargeTextPreset ? 1.06 : 1.12) : 1.0;
   const widthFitCap = forceSizePx && labelLength > 0
-    ? Math.max(forcedTextFloor, (forceSizePx * (hasUsableIcon ? 0.92 : 0.96)) / Math.max(1, labelLength * 0.52))
+    ? Math.max(forcedTextFloor, (forceSizePx * (hasUsableIcon ? 1.04 : 1.08)) / Math.max(1, labelLength * 0.56))
     : forcedTextCap;
   const autoFitFontSize = forceSizePx
     ? (forceIconOnly ? 0 : Math.max(forcedTextFloor, Math.min(forcedTextCap, widthFitCap, (baseFontSize * fontScale * iconTextFactor) - lengthPenalty)))
@@ -595,7 +595,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
         }}
       >
         <div 
-          className={`flex ${(effectiveIconPosition === 'top' || effectiveIconPosition === 'bottom' || effectiveIconPosition === 'center') ? 'flex-col' : 'flex-row'} items-center max-w-full ${getTextAlignClass()} pointer-events-none`}
+          className={`flex ${(effectiveIconPosition === 'top' || effectiveIconPosition === 'bottom' || effectiveIconPosition === 'center') ? 'flex-col' : 'flex-row'} items-center w-full max-w-full min-w-0 ${getTextAlignClass()} pointer-events-none`}
           style={{
             gap: `${Math.round(((effectiveIconPosition === 'top' || effectiveIconPosition === 'bottom' || effectiveIconPosition === 'center') ? (isTinyTile ? 3 : 4) : 6) * scaleFactor)}px`,
             transform: forceSizePx ? 'translateY(-2%)' : undefined
@@ -613,6 +613,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
               flexDirection: 'column',
               alignItems: btn.textAlign === 'left' ? 'flex-start' : btn.textAlign === 'right' ? 'flex-end' : 'center',
               width: forceSizePx ? (forceIconOnly ? '0' : '100%') : undefined,
+              minWidth: 0,
               maxWidth: forceSizePx ? (forceIconOnly ? '0' : '100%') : '100%',
               textAlign: btn.textAlign || 'center',
               transform: forceSizePx
@@ -625,13 +626,13 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
               letterSpacing: forceSizePx ? '0px' : (btn.letterSpacing ? `${btn.letterSpacing}px` : undefined),
               textShadow: textShadowVal,
               color: textColor,
-              lineHeight: forceSizePx ? (hasSecondButtonLine ? 1.02 : 1.08) : (hasSecondButtonLine ? 1.02 : 1.06),
+              lineHeight: forceSizePx ? (hasSecondButtonLine ? 1.0 : 1.04) : (hasSecondButtonLine ? 1.02 : 1.06),
               overflowWrap: forceSizePx ? 'normal' : (compactSingleLine ? 'normal' : 'anywhere'),
               wordBreak: forceSizePx ? 'normal' : (compactSingleLine ? 'keep-all' : 'break-word'),
               whiteSpace: forceSizePx && !hasSecondButtonLine ? 'nowrap' : (compactSingleLine ? 'nowrap' : 'normal'),
               hyphens: forceSizePx ? 'manual' : (compactSingleLine ? 'manual' : 'auto'),
-              overflow: 'hidden',
-              textOverflow: forceSizePx ? 'ellipsis' : 'ellipsis',
+              overflow: forceSizePx && !hasSecondButtonLine ? 'visible' : 'hidden',
+              textOverflow: forceSizePx ? 'clip' : 'ellipsis',
               opacity: forceIconOnly ? 0 : 1,
             }}
           >
