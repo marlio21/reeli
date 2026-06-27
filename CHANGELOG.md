@@ -1,4 +1,12 @@
 
+## v52.5.53 – Desktop Mobile Panel Readability Bridge
+
+- Desktop right configuration panel now applies the mobile tap-editor styling on desktop screens.
+- Fixes raw/unreadable Text, Aktion, Look and Scene panels in the desktop workbench.
+- Selected chips/buttons are readable again with strong contrast.
+- Mobile layout and mobile CSS behavior remain unchanged.
+
+
 
 ## v52.5.52 – Desktop Exact Mobile Editor Parity Bridge
 
