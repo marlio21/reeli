@@ -7099,3 +7099,218 @@ body {
     width: 100% !important;
   }
 }
+
+/* v52.5.58 – Desktop Editor UI Repair & Mobile Parity Polish
+   Desktop-only polish. Mobile bleibt unverändert. */
+@media (min-width: 768px) {
+  /* keep three areas calm: preview / menu / editor */
+  .ureel-desktop-studio-root {
+    grid-template-columns: minmax(330px, 33vw) 260px minmax(720px, 1fr) !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-detail-panel {
+    min-width: 720px !important;
+    padding: 28px 54px 64px !important;
+  }
+
+  /* middle menu: cleaner typography, no unreadable disabled-looking text */
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 button,
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 [role="button"] {
+    min-height: 92px !important;
+    padding: 18px 20px !important;
+    border-radius: 24px !important;
+    color: #F8F5EE !important;
+    background: linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.028)) !important;
+    border: 1px solid rgba(232,220,194,.20) !important;
+    box-shadow: 0 16px 34px rgba(0,0,0,.22) !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 button strong,
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 [role="button"] strong {
+    color: #FFFFFF !important;
+    font-size: 14px !important;
+    line-height: 1.05 !important;
+    letter-spacing: .01em !important;
+    text-transform: uppercase !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 button small,
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 [role="button"] small,
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 button span:not(:first-child) {
+    color: rgba(248,245,238,.76) !important;
+    font-size: 11.5px !important;
+    line-height: 1.25 !important;
+    font-weight: 760 !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 button.is-active,
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 button[aria-pressed="true"],
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 button.bg-\[\#F5F2EA\] {
+    background: #F5F2EA !important;
+    color: #101010 !important;
+    border-color: #F5F2EA !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 button.is-active strong,
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 button.is-active small,
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 button[aria-pressed="true"] strong,
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 button[aria-pressed="true"] small,
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 button.bg-\[\#F5F2EA\] strong,
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 button.bg-\[\#F5F2EA\] small {
+    color: #101010 !important;
+  }
+
+  /* Button editor preview: large, centered, product-like */
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel--button .ureel-tap-big-button-stage {
+    min-height: 310px !important;
+    max-width: 640px !important;
+    width: 100% !important;
+    margin: 24px auto 24px !important;
+    border-radius: 36px !important;
+    background:
+      radial-gradient(circle at 50% 28%, rgba(245,242,234,.20), rgba(255,255,255,.075) 36%, rgba(255,255,255,.035) 70%),
+      linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.015)) !important;
+    border: 1px solid rgba(232,220,194,.18) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 24px 50px rgba(0,0,0,.24) !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel--button .ureel-tap-big-button-stage > * {
+    transform: scale(1.18) !important;
+    transform-origin: center !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel--button .ureel-tap-panel-head h3,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel--text .ureel-tap-panel-head h3 {
+    font-size: 32px !important;
+  }
+
+  /* improve app-button typography inside editor preview / preview card */
+  .ureel-desktop-studio-root .ureel-studio-preview-panel button,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-big-button-stage button {
+    -webkit-font-smoothing: antialiased !important;
+    text-rendering: geometricPrecision !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-studio-preview-panel button span,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-big-button-stage button span {
+    font-weight: 850 !important;
+    letter-spacing: -.015em !important;
+  }
+
+  /* Werbetext editor: more air and clearer central work area */
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel--text {
+    max-width: 980px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel--text .ureel-tap-config {
+    max-width: 930px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel--text .ureel-mobile-text-preview-card {
+    max-width: 860px !important;
+    margin: 22px auto 30px !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel--text .ureel-mobile-text-preview-sample {
+    min-height: 118px !important;
+    padding: 24px 30px !important;
+    border-radius: 30px !important;
+  }
+
+  /* Modern template cards */
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-text-template-strip {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(280px, 1fr)) !important;
+    gap: 16px !important;
+    max-width: 900px !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-text-template-strip button {
+    min-height: 132px !important;
+    padding: 22px 24px !important;
+    border-radius: 28px !important;
+    background:
+      radial-gradient(circle at 14% 10%, rgba(168,85,247,.16), transparent 36%),
+      linear-gradient(180deg, rgba(255,255,255,.085), rgba(255,255,255,.032)) !important;
+    border: 1px solid rgba(232,220,194,.24) !important;
+    box-shadow: 0 18px 36px rgba(0,0,0,.20) !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-text-template-strip button b {
+    font-size: 17px !important;
+    line-height: 1.05 !important;
+    letter-spacing: -.02em !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-text-template-strip button small {
+    font-size: 12.5px !important;
+    line-height: 1.32 !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-text-template-strip button.is-active,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-text-template-strip button[aria-pressed="true"] {
+    background: linear-gradient(180deg, #FFFDF8, #F5F2EA) !important;
+    border-color: #F5F2EA !important;
+    color: #101010 !important;
+    box-shadow: 0 0 0 3px rgba(168,85,247,.22), 0 22px 42px rgba(0,0,0,.28) !important;
+  }
+
+  /* Text height should feel like full vertical range */
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-text-height-slider-row {
+    margin-top: 20px !important;
+    padding: 20px 22px !important;
+    border-radius: 26px !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-text-height-slider-row input[type="range"] {
+    height: 26px !important;
+    accent-color: #A855F7 !important;
+  }
+
+  /* Manage: full-width transfer action */
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-transfer-all-button,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-look-all-button {
+    width: 100% !important;
+    min-height: 58px !important;
+    margin: 16px 0 20px !important;
+    border-radius: 20px !important;
+    border: 1px solid rgba(232,220,194,.85) !important;
+    background: linear-gradient(135deg, #F5F2EA, #E8DCC2) !important;
+    color: #101010 !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .08em !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    box-shadow: 0 20px 42px rgba(0,0,0,.30) !important;
+  }
+
+  /* Position grid must never visually imply more than 6 card buttons */
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-position-grid > div {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    max-width: 560px !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-position-grid > div button:nth-child(n+7) {
+    display: none !important;
+  }
+
+  /* Better global editor typography */
+  .ureel-desktop-studio-root .ureel-detail-panel h4 {
+    font-size: 24px !important;
+    letter-spacing: -.035em !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel label,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-mini-label {
+    color: #E8DCC2 !important;
+    letter-spacing: .15em !important;
+  }
+}
