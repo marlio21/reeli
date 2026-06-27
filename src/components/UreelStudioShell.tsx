@@ -5236,76 +5236,89 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         )}
 
         {tapEditTarget === 'text' && (
-          <section className="ureel-tap-panel ureel-tap-panel--text">
-            <div className="ureel-tap-panel-head"><div><span>Text / Timeline</span><h3>Werbetext bearbeiten</h3><p>Oben Vorschau, dann Vorlage, Text, Stil und Timing.</p></div><LucideIcons.Type size={18} /></div>
+          <section className="ureel-tap-panel ureel-tap-panel--text ureel-desktop-single-panel">
+            <div className="ureel-tap-panel-head"><div><span>Text / Timeline</span><h3>{activeSubSection === 'timeline-templates' ? 'Vorlagen' : activeSubSection === 'timeline-style' ? 'Rahmen & Stil' : activeSubSection === 'timeline-times' ? 'Timing' : 'Werbetext bearbeiten'}</h3><p>{activeSubSection === 'timeline-templates' ? 'Wähle eine mobile Werbetext-Vorlage.' : activeSubSection === 'timeline-style' ? 'Schrift, Farben, Höhe und Rahmen wie in der mobilen Version.' : activeSubSection === 'timeline-times' ? 'Einblendung und Reihenfolge der Text- und Button-Elemente.' : 'Titel, Slogan und Beschreibung bearbeiten.'}</p></div><LucideIcons.Type size={18} /></div>
             <div className="ureel-mobile-adtext-master-toggle">
               <span>Werbetext auf Karte</span>
               <button type="button" className={isMobileWerbetextEnabled ? 'is-active' : ''} onClick={() => setMobileWerbetextEnabled(!isMobileWerbetextEnabled)}>{isMobileWerbetextEnabled ? 'Aktiviert' : 'Deaktiviert'}</button>
             </div>
-            <div className="ureel-tap-config">
-              <div className="ureel-mobile-text-preview-card">
-                <div className="ureel-mobile-text-preview-top"><span>Werbetext-Vorschau</span><small>← Wischen: neues Design · {currentTextTemplate.style === 'none' ? 'Klar' : `Design ${Math.max(1, Object.values(UREEL_TEXT_TEMPLATES).findIndex((t) => t.id === currentTextTemplate.style) + 1)} / 15`}</small></div>
-                <div className={`${getMobileTextPreviewClass()} ${!isMobileWerbetextEnabled ? 'ureel-mobile-text-preview-sample--disabled' : ''} ${(currentTextTemplate.box as any)?.enabled === false ? 'ureel-mobile-text-preview-sample--no-bg' : ''}`} style={getTextTemplatePreviewStyle()}>
-                  <b style={{ fontSize: getMobileTextEditorPreviewSizes().title, color: readablePreviewTextColor((activeCard as any).heroTitleTextColor, '#F5F2EA') }}>{getTextLayerDraftValue('title') || 'Dein Titel'}</b>
-                  <strong style={{ fontSize: getMobileTextEditorPreviewSizes().subtitle, color: readablePreviewTextColor((activeCard as any).heroSubtitleTextColor, currentTextTemplate.frame?.color || '#E8DCC2') }}>{getTextLayerDraftValue('subtitle') || 'Dein Untertitel'}</strong>
-                  <p style={{ fontSize: getMobileTextEditorPreviewSizes().description, color: readablePreviewTextColor((activeCard as any).heroDescTextColor, '#E8DCC2'), opacity: 1 }}>{getTextLayerDraftValue('description') || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.'}</p>
+
+            {activeSubSection === 'timeline-texts' && (
+              <div className="ureel-tap-config">
+                <div className="ureel-mobile-text-preview-card">
+                  <div className="ureel-mobile-text-preview-top"><span>Werbetext-Vorschau</span><small>{currentTextTemplate.style === 'none' ? 'Klar' : `Design ${Math.max(1, Object.values(UREEL_TEXT_TEMPLATES).findIndex((t) => t.id === currentTextTemplate.style) + 1)} / 15`}</small></div>
+                  <div className={`${getMobileTextPreviewClass()} ${!isMobileWerbetextEnabled ? 'ureel-mobile-text-preview-sample--disabled' : ''} ${(currentTextTemplate.box as any)?.enabled === false ? 'ureel-mobile-text-preview-sample--no-bg' : ''}`} style={getTextTemplatePreviewStyle()}>
+                    <b style={{ fontSize: getMobileTextEditorPreviewSizes().title, color: readablePreviewTextColor((activeCard as any).heroTitleTextColor, '#F5F2EA') }}>{getTextLayerDraftValue('title') || 'Dein Titel'}</b>
+                    <strong style={{ fontSize: getMobileTextEditorPreviewSizes().subtitle, color: readablePreviewTextColor((activeCard as any).heroSubtitleTextColor, currentTextTemplate.frame?.color || '#E8DCC2') }}>{getTextLayerDraftValue('subtitle') || 'Dein Untertitel'}</strong>
+                    <p style={{ fontSize: getMobileTextEditorPreviewSizes().description, color: readablePreviewTextColor((activeCard as any).heroDescTextColor, '#E8DCC2'), opacity: 1 }}>{getTextLayerDraftValue('description') || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.'}</p>
+                  </div>
                 </div>
-                <div className="ureel-mobile-text-bg-toggle" role="group" aria-label="Design-Hintergrund">
-                  <button type="button" className={(currentTextTemplate.box as any)?.enabled === false ? '' : 'is-active'} onClick={() => updateTextTemplate({ box: { ...(currentTextTemplate.box || {}), enabled: true, type: currentTextTemplate.box?.type && currentTextTemplate.box?.type !== 'none' ? currentTextTemplate.box.type : (selectedTextTemplatePreset?.defaultBox && selectedTextTemplatePreset.defaultBox !== 'none' ? selectedTextTemplatePreset.defaultBox : 'glass'), opacity: currentTextTemplate.box?.opacity || 85 } as any })}>Design-Hintergrund AN</button>
-                  <button type="button" className={(currentTextTemplate.box as any)?.enabled === false ? 'is-active' : ''} onClick={() => updateTextTemplate({ box: { ...(currentTextTemplate.box || {}), enabled: false, type: 'none', opacity: currentTextTemplate.box?.opacity || 85 } as any })}>Design-Hintergrund AUS</button>
+                <h4>Textfelder</h4>
+                <label>Titel</label><input value={activeCard.title || ''} placeholder="z. B. Tischlerei Hager" onChange={(e) => syncCardUpdate({ title: e.target.value, heroTitle: e.target.value })} />
+                <label>Untertitel</label><input value={activeCard.subtitle || ''} placeholder="z. B. Handwerk, das bleibt" onChange={(e) => syncCardUpdate({ subtitle: e.target.value, heroSubtitle: e.target.value })} />
+                <label>Beschreibung</label><textarea rows={4} value={getTextLayerDraftValue('description')} placeholder="Kurzer Werbetext oder Angebot" onChange={(e) => { const next = e.target.value; setTextDirty(true); setTextDraft((draft) => ({ ...draft, description: next })); syncCardUpdate({ description: next, heroDescription: next } as any); }} />
+                <span className="ureel-tap-mini-label">Sichtbarkeit</span>
+                <div className="ureel-tap-chip-row">
+                  {[{ key: 'title', label: 'Titel' }, { key: 'subtitle', label: 'Slogan' }, { key: 'description', label: 'Text' }].map((item) => { const enabled = isTextLayerEnabled(item.key as any); const hasContent = hasTextLayerContent(item.key as any); return <button key={item.key} type="button" className={enabled && hasContent ? 'is-active' : ''} onClick={() => setTextLayerEnabled(item.key as any, !enabled)}>{item.label} {!hasContent ? 'leer' : enabled ? 'an' : 'aus'}</button>; })}
+                </div>
+              </div>
+            )}
+
+            {activeSubSection === 'timeline-templates' && (
+              <div className="ureel-tap-config">
+                <h4>Werbetext-Vorlagen</h4>
+                <div className="ureel-mobile-text-preview-card">
+                  <div className="ureel-mobile-text-preview-top"><span>Aktive Vorlage</span><small>{currentTextTemplate.style === 'none' ? 'Klar' : currentTextTemplate.style}</small></div>
+                  <div className={`${getMobileTextPreviewClass()} ${!isMobileWerbetextEnabled ? 'ureel-mobile-text-preview-sample--disabled' : ''} ${(currentTextTemplate.box as any)?.enabled === false ? 'ureel-mobile-text-preview-sample--no-bg' : ''}`} style={getTextTemplatePreviewStyle()}>
+                    <b style={{ fontSize: getMobileTextEditorPreviewSizes().title, color: readablePreviewTextColor((activeCard as any).heroTitleTextColor, '#F5F2EA') }}>{getTextLayerDraftValue('title') || 'Dein Titel'}</b>
+                    <strong style={{ fontSize: getMobileTextEditorPreviewSizes().subtitle, color: readablePreviewTextColor((activeCard as any).heroSubtitleTextColor, currentTextTemplate.frame?.color || '#E8DCC2') }}>{getTextLayerDraftValue('subtitle') || 'Dein Untertitel'}</strong>
+                    <p style={{ fontSize: getMobileTextEditorPreviewSizes().description, color: readablePreviewTextColor((activeCard as any).heroDescTextColor, '#E8DCC2'), opacity: 1 }}>{getTextLayerDraftValue('description') || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.'}</p>
+                  </div>
                 </div>
                 <div className="ureel-mobile-text-template-strip">
                   <button type="button" className={currentTextTemplate.style === 'none' ? 'is-active' : ''} onClick={() => applyTextTemplatePreset('none')}><b>Klar</b><small>Neutral</small></button>
                   {Object.values(UREEL_TEXT_TEMPLATES).slice(0, 15).map((tmpl) => <button key={tmpl.id} type="button" className={currentTextTemplate.style === tmpl.id ? 'is-active' : ''} onClick={() => applyTextTemplatePreset(tmpl.id)}><b>{lang === 'de' ? tmpl.labelDe : tmpl.labelEn}</b><small>{lang === 'de' ? tmpl.descriptionDe : tmpl.descriptionEn}</small></button>)}
                 </div>
               </div>
+            )}
 
-              <h4>Textfelder</h4>
-              <label>Titel</label><input value={activeCard.title || ''} placeholder="z. B. Tischlerei Hager" onChange={(e) => syncCardUpdate({ title: e.target.value, heroTitle: e.target.value })} />
-              <label>Untertitel</label><input value={activeCard.subtitle || ''} placeholder="z. B. Handwerk, das bleibt" onChange={(e) => syncCardUpdate({ subtitle: e.target.value, heroSubtitle: e.target.value })} />
-              <label>Beschreibung</label><textarea rows={4} value={getTextLayerDraftValue('description')} placeholder="Kurzer Werbetext oder Angebot" onChange={(e) => { const next = e.target.value; setTextDirty(true); setTextDraft((draft) => ({ ...draft, description: next })); syncCardUpdate({ description: next, heroDescription: next } as any); }} />
-
-              <h4>Stil</h4>
-              <span className="ureel-tap-mini-label">Schriftart</span>
-              <div className="ureel-tap-chip-row"><button type="button" className={(currentTextTemplate.fontStyle || 'modern') === 'modern' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'modern' })}>Klar</button><button type="button" className={currentTextTemplate.fontStyle === 'elegant' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'elegant' })}>Elegant</button><button type="button" className={currentTextTemplate.fontStyle === 'serif' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'serif' })}>Serif</button><button type="button" className={currentTextTemplate.fontStyle === 'condensed' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'condensed' })}>Bold</button></div>
-              {[
-                { key: 'heroTitleSize', label: 'Titelgröße', min: 8, max: 56, fallback: 20 },
-                { key: 'heroSubtitleSize', label: 'Untertitelgröße', min: 6, max: 40, fallback: 12 },
-                { key: 'heroDescriptionSize', label: 'Beschreibunggröße', min: 6, max: 36, fallback: 10 },
-              ].map((item) => <div key={item.key} className="ureel-tap-slider-row"><label>{item.label} <b>{clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max).toFixed(0)}px</b></label><input type="range" min={item.min} max={item.max} step={1} value={clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max)} onChange={(e) => syncCardUpdate({ [item.key]: Number(e.target.value) } as any)} /></div>)}
-              <div className="ureel-tap-slider-row">
-                <label>Texthöhe <b>{Math.max(24, Math.min(76, Number((activeCard as any).heroTextHeightPercent || (activeCard as any).mobileLayout?.text?.heightPercent || (activeCard as any).publicLayoutSnapshot?.text?.heightPercent || 44))).toFixed(0)}%</b></label>
-                <input
-                  type="range"
-                  min={24}
-                  max={76}
-                  step={1}
-                  value={Math.max(24, Math.min(76, Number((activeCard as any).heroTextHeightPercent || (activeCard as any).mobileLayout?.text?.heightPercent || (activeCard as any).publicLayoutSnapshot?.text?.heightPercent || 44)))}
-                  onChange={(e) => syncCardUpdate({ heroTextHeightPercent: Number(e.target.value) } as any)}
-                />
+            {activeSubSection === 'timeline-style' && (
+              <div className="ureel-tap-config">
+                <h4>Stil</h4>
+                <div className="ureel-mobile-text-bg-toggle" role="group" aria-label="Design-Hintergrund">
+                  <button type="button" className={(currentTextTemplate.box as any)?.enabled === false ? '' : 'is-active'} onClick={() => updateTextTemplate({ box: { ...(currentTextTemplate.box || {}), enabled: true, type: currentTextTemplate.box?.type && currentTextTemplate.box?.type !== 'none' ? currentTextTemplate.box.type : (selectedTextTemplatePreset?.defaultBox && selectedTextTemplatePreset.defaultBox !== 'none' ? selectedTextTemplatePreset.defaultBox : 'glass'), opacity: currentTextTemplate.box?.opacity || 85 } as any })}>Design-Hintergrund AN</button>
+                  <button type="button" className={(currentTextTemplate.box as any)?.enabled === false ? 'is-active' : ''} onClick={() => updateTextTemplate({ box: { ...(currentTextTemplate.box || {}), enabled: false, type: 'none', opacity: currentTextTemplate.box?.opacity || 85 } as any })}>Design-Hintergrund AUS</button>
+                </div>
+                <span className="ureel-tap-mini-label">Schriftart</span>
+                <div className="ureel-tap-chip-row"><button type="button" className={(currentTextTemplate.fontStyle || 'modern') === 'modern' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'modern' })}>Klar</button><button type="button" className={currentTextTemplate.fontStyle === 'elegant' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'elegant' })}>Elegant</button><button type="button" className={currentTextTemplate.fontStyle === 'serif' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'serif' })}>Serif</button><button type="button" className={currentTextTemplate.fontStyle === 'condensed' ? 'is-active' : ''} onClick={() => updateTextTemplate({ fontStyle: 'condensed' })}>Bold</button></div>
+                {[
+                  { key: 'heroTitleSize', label: 'Titelgröße', min: 8, max: 56, fallback: 20 },
+                  { key: 'heroSubtitleSize', label: 'Untertitelgröße', min: 6, max: 40, fallback: 12 },
+                  { key: 'heroDescriptionSize', label: 'Beschreibunggröße', min: 6, max: 36, fallback: 10 },
+                ].map((item) => <div key={item.key} className="ureel-tap-slider-row"><label>{item.label} <b>{clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max).toFixed(0)}px</b></label><input type="range" min={item.min} max={item.max} step={1} value={clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max)} onChange={(e) => syncCardUpdate({ [item.key]: Number(e.target.value) } as any)} /></div>)}
+                <div className="ureel-tap-slider-row"><label>Texthöhe <b>{Math.max(24, Math.min(76, Number((activeCard as any).heroTextHeightPercent || (activeCard as any).mobileLayout?.text?.heightPercent || (activeCard as any).publicLayoutSnapshot?.text?.heightPercent || 44))).toFixed(0)}%</b></label><input type="range" min={24} max={76} step={1} value={Math.max(24, Math.min(76, Number((activeCard as any).heroTextHeightPercent || (activeCard as any).mobileLayout?.text?.heightPercent || (activeCard as any).publicLayoutSnapshot?.text?.heightPercent || 44)))} onChange={(e) => syncCardUpdate({ heroTextHeightPercent: Number(e.target.value) } as any)} /></div>
+                {[
+                  { key: 'heroTitleTextColor', label: 'Titelfarbe', fallback: '#F5F2EA' },
+                  { key: 'heroSubtitleTextColor', label: 'Untertitelfarbe', fallback: '#E8DCC2' },
+                  { key: 'heroDescTextColor', label: 'Beschreibungfarbe', fallback: '#D8D2C5' },
+                ].map((item) => <SpectrumColorPicker key={item.key} label={item.label} value={(activeCard as any)[item.key] || item.fallback} fallback={item.fallback} onChange={(value) => syncCardUpdate({ [item.key]: value } as any)} />)}
               </div>
-              {[
-                { key: 'heroTitleTextColor', label: 'Titelfarbe', fallback: '#F5F2EA' },
-                { key: 'heroSubtitleTextColor', label: 'Untertitelfarbe', fallback: '#E8DCC2' },
-                { key: 'heroDescTextColor', label: 'Beschreibungfarbe', fallback: '#D8D2C5' },
-              ].map((item) => {
-                const value = /^#[0-9A-Fa-f]{6}$/.test(String((activeCard as any)[item.key] || '')) ? (activeCard as any)[item.key] : item.fallback;
-                return <SpectrumColorPicker key={item.key} label={item.label} value={(activeCard as any)[item.key] || item.fallback} fallback={item.fallback} onChange={(value) => syncCardUpdate({ [item.key]: value } as any)} />;
-              })}
-              <span className="ureel-tap-mini-label">Position</span>
-              <div className="ureel-tap-chip-row"><button type="button" onClick={() => updateTextTemplate({ frame: { ...currentTextTemplate.frame, type: 'side_line' } })}>Oben/Seite</button><button type="button" onClick={() => updateTextTemplate({ frame: { ...currentTextTemplate.frame, type: 'none' } })}>Mitte</button><button type="button" onClick={() => updateTextTemplate({ frame: { ...currentTextTemplate.frame, type: 'underline' } })}>Unten</button></div>
+            )}
 
-              <h4>Timing</h4>
-              <p className="ureel-tap-help">Spotlänge: <b>{timelineDuration.toFixed(1)}s</b>. Die Regler richten sich nach der Video-/Spotlänge.</p>
-              <div className="ureel-tap-chip-row"><button type="button" className={timeline.preset === 'direct' ? 'is-active' : ''} onClick={() => applyTimeline(valuesForTimelinePreset('direct'))}>Alles sofort</button><button type="button" className={timeline.preset === 'short_intro' ? 'is-active' : ''} onClick={() => applyTimeline(valuesForTimelinePreset('short_intro'))}>Nacheinander</button><button type="button" className={timeline.preset === 'ad_reel' ? 'is-active' : ''} onClick={() => applyTimeline(valuesForTimelinePreset('ad_reel'))}>Erst Text</button></div>
-              {[
-                { key: 'titleAt', label: 'Titel', value: timeline.titleAt, field: 'title' },
-                { key: 'subtitleAt', label: 'Untertitel', value: timeline.subtitleAt, field: 'subtitle' },
-                { key: 'descriptionAt', label: 'Beschreibung', value: timeline.descriptionAt, field: 'description' },
-                { key: 'buttonsAt', label: 'Buttons', value: timeline.buttonsAt },
-                { key: 'profileImageAt', label: 'Profilbild', value: Number((activeCard as any).profileImageAt || (activeCard.ureelTimeline as any)?.profileImageAt || 0) },
-              ].map((item: any) => { const enabled = item.field ? isTextLayerEnabled(item.field) : item.key === 'profileImageAt' ? (((activeCard as any).profileImageEnabled === true || activeCard.showProfileImage === true) && !!(activeCard.profileImageUrl || (activeCard as any).heroProfileImageUrl)) : true; return <div key={item.key} className="ureel-tap-slider-row"><label>{item.label} <b>{Number(item.value).toFixed(1)}s</b> <button type="button" className={enabled ? 'is-active' : ''} onClick={(e) => { e.preventDefault(); if (item.field) setTextLayerEnabled(item.field, !enabled); else if (item.key === 'profileImageAt') syncCardUpdate({ profileImageEnabled: !enabled, showProfileImage: !enabled, heroProfileImageEnabled: !enabled } as any); }}>{enabled ? 'AN' : 'AUS'}</button></label><input type="range" min={0} max={timelineDuration} step={0.1} value={Number(item.value)} onChange={(e) => item.key === 'profileImageAt' ? updateTimelineAnyField('profileImageAt', Number(e.target.value)) : updateTimelineField(item.key, Number(e.target.value))} /></div>; })}
-            </div>
+            {activeSubSection === 'timeline-times' && (
+              <div className="ureel-tap-config">
+                <h4>Timing</h4>
+                <p className="ureel-tap-help">Spotlänge: <b>{timelineDuration.toFixed(1)}s</b>. Die Regler richten sich nach der Video-/Spotlänge.</p>
+                <div className="ureel-tap-chip-row"><button type="button" className={timeline.preset === 'direct' ? 'is-active' : ''} onClick={() => applyTimeline(valuesForTimelinePreset('direct'))}>Alles sofort</button><button type="button" className={timeline.preset === 'short_intro' ? 'is-active' : ''} onClick={() => applyTimeline(valuesForTimelinePreset('short_intro'))}>Nacheinander</button><button type="button" className={timeline.preset === 'ad_reel' ? 'is-active' : ''} onClick={() => applyTimeline(valuesForTimelinePreset('ad_reel'))}>Erst Text</button></div>
+                {[
+                  { key: 'titleAt', label: 'Titel', value: timeline.titleAt, field: 'title' },
+                  { key: 'subtitleAt', label: 'Untertitel', value: timeline.subtitleAt, field: 'subtitle' },
+                  { key: 'descriptionAt', label: 'Beschreibung', value: timeline.descriptionAt, field: 'description' },
+                  { key: 'buttonsAt', label: 'Buttons', value: timeline.buttonsAt },
+                  { key: 'profileImageAt', label: 'Profilbild', value: Number((activeCard as any).profileImageAt || (activeCard.ureelTimeline as any)?.profileImageAt || 0) },
+                ].map((item: any) => { const enabled = item.field ? isTextLayerEnabled(item.field) : item.key === 'profileImageAt' ? (((activeCard as any).profileImageEnabled === true || activeCard.showProfileImage === true) && !!(activeCard.profileImageUrl || (activeCard as any).heroProfileImageUrl)) : true; return <div key={item.key} className="ureel-tap-slider-row"><label>{item.label} <b>{Number(item.value).toFixed(1)}s</b> <button type="button" className={enabled ? 'is-active' : ''} onClick={(e) => { e.preventDefault(); if (item.field) setTextLayerEnabled(item.field, !enabled); else if (item.key === 'profileImageAt') syncCardUpdate({ profileImageEnabled: !enabled, showProfileImage: !enabled, heroProfileImageEnabled: !enabled } as any); }}>{enabled ? 'AN' : 'AUS'}</button></label><input type="range" min={0} max={timelineDuration} step={0.1} value={Number(item.value)} onChange={(e) => item.key === 'profileImageAt' ? updateTimelineAnyField('profileImageAt', Number(e.target.value)) : updateTimelineField(item.key, Number(e.target.value))} /></div>; })}
+              </div>
+            )}
           </section>
         )}
 
