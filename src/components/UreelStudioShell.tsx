@@ -2418,10 +2418,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     if (module === 'scene') {
       return [
         { id: 'scene-video', label: 'Video' },
-        { id: 'scene-poster', label: 'Bild' },
-        { id: 'scene-color', label: 'Farbe' },
+        { id: 'scene-poster', label: 'Bild / Poster' },
+        { id: 'scene-color', label: 'Farbe / Verlauf' },
         { id: 'scene-display', label: 'Darstellung' },
         { id: 'scene-endcard', label: 'Endkarte' },
+        { id: 'scene-profile', label: 'Profilbild' },
       ];
     }
     if (module === 'timeline') {
@@ -3035,11 +3036,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div className="px-2 text-[10px] text-stone-500 uppercase font-bold tracking-wider">Szenen-Studio</div>
                 {[
                   { id: 'scene-video', icon: LucideIcons.Video, label: 'Video', desc: 'YouTube, Shorts, Loop' },
-                  { id: 'scene-poster', icon: LucideIcons.Image, label: 'Bild / Poster', desc: 'Cover, Upload, Standbild' },
-                  { id: 'scene-color', icon: LucideIcons.PaintBucket, label: 'Farbe / Verlauf', desc: 'Anthrazit, Creme, Gradient' },
-                  { id: 'scene-display', icon: LucideIcons.Scan, label: 'Darstellung', desc: 'Füllen, ganz, Hero' },
-                  { id: 'scene-endcard', icon: LucideIcons.Flag, label: 'Endkarte', desc: 'Abschluss, Replay, CTA' },
-                  { id: 'scene-profile', icon: LucideIcons.UserCircle, label: 'Profilbild', desc: 'Bild, Form, Timing' },
+                  { id: 'scene-poster', icon: LucideIcons.Image, label: 'Bild / Poster', desc: 'Upload, Entfernen, Cover' },
+                  { id: 'scene-color', icon: LucideIcons.PaintBucket, label: 'Farbe / Verlauf', desc: 'Ein/Aus, Farbe, Verlauf' },
+                  { id: 'scene-display', icon: LucideIcons.Scan, label: 'Darstellung', desc: '9:16 oder 16:9 oben' },
+                  { id: 'scene-endcard', icon: LucideIcons.Flag, label: 'Endkarte', desc: 'Ein/Aus, Farbe, Bild' },
+                  { id: 'scene-profile', icon: LucideIcons.UserCircle, label: 'Profilbild', desc: 'Ein/Aus, Upload, Timing' },
                 ].map((item) => {
                   const Icon = item.icon;
                   const selected = activeSubSection === item.id;
@@ -3416,6 +3417,25 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Bild / Poster</span>
                 <p className="text-[10px] text-stone-400">Lade ein eigenes Werbebild als Hintergrund hoch. Ein Bildlink ist bewusst entfernt, damit der Nutzer sauber über Upload arbeitet.</p>
 
+                <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 flex flex-wrap items-center gap-2">
+                  <label className="h-10 px-4 rounded-xl bg-[#F5F2EA] hover:bg-white text-[#101010] text-[9px] uppercase font-black tracking-wider cursor-pointer flex items-center justify-center gap-1.5">
+                    <LucideIcons.UploadCloud size={15} /> Bild hochladen
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleSceneImageUpload(file); e.currentTarget.value = ''; }} />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={removeSceneImage}
+                    disabled={!(activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl || (activeCard.ureelScene as any)?.background?.imageUrl)}
+                    className="h-10 px-4 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 disabled:text-stone-600 disabled:border-stone-800 disabled:bg-stone-950/30 text-[9px] uppercase font-black tracking-wider"
+                  >Bild entfernen</button>
+                  <button
+                    type="button"
+                    onClick={removeSceneVideo}
+                    disabled={!(activeCard.backgroundType === 'video' || activeCard.videoBackgroundConfig?.enabled || activeCard.videoBackgroundConfig?.youtubeUrl || activeCard.ureelScene?.mode === 'video' || activeCard.ureelScene?.video?.url)}
+                    className="h-10 px-4 rounded-xl border border-[#3A3732] bg-[#0F0F0F] text-stone-300 disabled:text-stone-650 disabled:border-stone-850 text-[9px] uppercase font-black tracking-wider"
+                  >Video entfernen</button>
+                </div>
+
                 {(activeCard.backgroundType === 'video' || activeCard.videoBackgroundConfig?.enabled || activeCard.ureelScene?.mode === 'video') ? (
                   <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4 flex items-start gap-3">
                     <LucideIcons.Video size={18} className="text-[#E8DCC2] shrink-0 mt-0.5" />
@@ -3475,9 +3495,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <p className="text-[10px] text-stone-400">Steuere, ob Video oder Bild die ganze Karte füllt oder als ruhiger Hero-Bereich gezeigt wird.</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {[
-                    { id: 'cover', label: 'Reel füllen', desc: 'Füllt den Smartphone-Screen im 9:16 Rahmen' },
-                    { id: 'contain', label: 'Ganz anzeigen', desc: '16:9 über volle Breite direkt oben an der Karte' },
-                    { id: 'hero', label: 'Als Video-Bildschirm', desc: 'Kompakter 16:9-Bereich oben mit kleinem Abstand' },
+                    { id: 'cover', label: '9:16 Vollbild', desc: 'Reel füllt die komplette Smartphone-Karte' },
+                    { id: 'contain', label: '16:9 Video oben', desc: 'Video als breiter 16:9-Bereich ganz oben' },
+                    { id: 'hero', label: '16:9 kompakt oben', desc: 'Video als kleiner Bildschirm oben mit Abstand' },
                   ].map((mode) => {
                     const selected = mode.id === 'cover'
                       ? ((activeCard.ureelScene?.video?.displayMode || 'cover') === 'cover' && (activeCard.ureelScene?.video as any)?.placement !== 'hero')
@@ -3620,6 +3640,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         }}
                         className="ml-auto text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]"
                       >Verlauf aktivieren</button>
+                      <button type="button" onClick={() => syncCardUpdate({ backgroundType: 'color', cardBackgroundGradientEnabled: false, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color', gradient: undefined } as any } as any)} className="text-[9px] font-black uppercase tracking-wider text-stone-400 hover:text-red-200">Verlauf aus</button>
                     </div>
                   </div>
                 </div>

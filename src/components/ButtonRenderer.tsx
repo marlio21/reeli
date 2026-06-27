@@ -285,10 +285,10 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
     ? (forceIconOnly
       ? 0
       : hasUsableIcon
-        ? Math.max(8.4, Math.min(12.8, forceSizePx * (isSmallTextPreset ? 0.115 : isNormalTextPreset ? 0.13 : isLargeTextPreset ? 0.145 : 0.155)))
-        : Math.max(10.2, Math.min(16.4, forceSizePx * (isSmallTextPreset ? 0.15 : isNormalTextPreset ? 0.17 : isLargeTextPreset ? 0.185 : 0.198))))
+        ? Math.max(9.4, Math.min(14.2, forceSizePx * (isSmallTextPreset ? 0.13 : isNormalTextPreset ? 0.148 : isLargeTextPreset ? 0.16 : 0.168)))
+        : Math.max(11.2, Math.min(17.2, forceSizePx * (isSmallTextPreset ? 0.162 : isNormalTextPreset ? 0.178 : isLargeTextPreset ? 0.194 : 0.205))))
     : (hasUsableIcon ? 11.2 : 13.2);
-  const forcedTextFloor = forceIconOnly ? 0 : (hasUsableIcon ? (isTinyTile ? 7.0 : 8.0) : (isTinyTile ? 8.4 : 9.4));
+  const forcedTextFloor = forceIconOnly ? 0 : (hasUsableIcon ? (isTinyTile ? 8.6 : 9.4) : (isTinyTile ? 9.4 : 10.4));
   const iconTextFactor = hasUsableIcon ? (isSmallTextPreset ? 0.92 : isNormalTextPreset ? 1.0 : isLargeTextPreset ? 1.06 : 1.12) : 1.0;
   const widthFitCap = forceSizePx && labelLength > 0
     ? Math.max(forcedTextFloor, (forceSizePx * (hasUsableIcon ? 0.92 : 0.96)) / Math.max(1, labelLength * 0.52))
@@ -314,7 +314,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
     '900': '900',
   };
   const rawWeightStyle = btn.fontWeight ? fontWeights[String(btn.fontWeight).toLowerCase()] || '500' : '500';
-  const weightStyle = forceSizePx ? String(Math.max(700, Number(rawWeightStyle) || 700)) : rawWeightStyle;
+  const weightStyle = forceSizePx ? String(Math.max(800, Number(rawWeightStyle) || 800)) : rawWeightStyle;
 
   // Text Shadow Style
   let textShadowVal = 'none';
@@ -597,7 +597,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
         <div 
           className={`flex ${(effectiveIconPosition === 'top' || effectiveIconPosition === 'bottom' || effectiveIconPosition === 'center') ? 'flex-col' : 'flex-row'} items-center max-w-full ${getTextAlignClass()} pointer-events-none`}
           style={{
-            gap: `${Math.round(((effectiveIconPosition === 'top' || effectiveIconPosition === 'bottom' || effectiveIconPosition === 'center') ? (isTinyTile ? 2 : 3) : 5) * scaleFactor)}px`,
+            gap: `${Math.round(((effectiveIconPosition === 'top' || effectiveIconPosition === 'bottom' || effectiveIconPosition === 'center') ? (isTinyTile ? 3 : 4) : 6) * scaleFactor)}px`,
             transform: forceSizePx ? 'translateY(-2%)' : undefined
           }}
         >
@@ -622,16 +622,16 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
                   : undefined),
               fontSize: sizeStyle,
               fontWeight: weightStyle,
-              letterSpacing: btn.letterSpacing ? `${btn.letterSpacing}px` : undefined,
+              letterSpacing: forceSizePx ? '0px' : (btn.letterSpacing ? `${btn.letterSpacing}px` : undefined),
               textShadow: textShadowVal,
               color: textColor,
-              lineHeight: forceSizePx ? (hasSecondButtonLine ? 1.05 : 1.12) : (hasSecondButtonLine ? 1.02 : 1.06),
+              lineHeight: forceSizePx ? (hasSecondButtonLine ? 1.02 : 1.08) : (hasSecondButtonLine ? 1.02 : 1.06),
               overflowWrap: forceSizePx ? 'normal' : (compactSingleLine ? 'normal' : 'anywhere'),
               wordBreak: forceSizePx ? 'normal' : (compactSingleLine ? 'keep-all' : 'break-word'),
               whiteSpace: forceSizePx && !hasSecondButtonLine ? 'nowrap' : (compactSingleLine ? 'nowrap' : 'normal'),
               hyphens: forceSizePx ? 'manual' : (compactSingleLine ? 'manual' : 'auto'),
               overflow: 'hidden',
-              textOverflow: forceSizePx ? 'clip' : 'ellipsis',
+              textOverflow: forceSizePx ? 'ellipsis' : 'ellipsis',
               opacity: forceIconOnly ? 0 : 1,
             }}
           >
