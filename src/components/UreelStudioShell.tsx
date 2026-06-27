@@ -1783,6 +1783,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       profileImageUrl: '',
       showProfileImage: false,
       profileImageEnabled: false,
+      heroProfileImageEnabled: false,
       videoBackgroundConfig: {
         ...(activeCard.videoBackgroundConfig || {}),
         profileImage: {
@@ -1792,6 +1793,27 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         },
       } as any,
     } as any);
+  };
+
+  const setProfileImageVisibility = async (enabled: boolean) => {
+    await syncCardUpdate({
+      showProfileImage: enabled,
+      profileImageEnabled: enabled,
+      heroProfileImageEnabled: enabled,
+      videoBackgroundConfig: {
+        ...(activeCard.videoBackgroundConfig || {}),
+        profileImage: {
+          ...((activeCard.videoBackgroundConfig as any)?.profileImage || {}),
+          enabled,
+          url: activeCard.profileImageUrl || ((activeCard.videoBackgroundConfig as any)?.profileImage?.url || ''),
+        },
+      } as any,
+    } as any);
+  };
+
+  const removeEndCardImage = async () => {
+    await setEndCard({ imageUrl: '', source: (endCard as any).videoUrl ? 'video' as any : 'scene' as any });
+    triggerToast(lang === 'de' ? 'Endkartenbild entfernt.' : 'End card image removed.', 'success');
   };
 
 
@@ -3406,13 +3428,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                           onClick={() => setActiveSubSection('scene-video')}
                           className="h-9 px-3 rounded-xl bg-[#F5F2EA] text-[#101010] text-[9px] uppercase font-black tracking-wider"
                         >Zum Video wechseln</button>
-                        {(activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl) && (
-                          <button
-                            type="button"
-                            onClick={removeSceneImage}
-                            className="h-9 px-3 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 text-[9px] uppercase font-black tracking-wider"
-                          >Bild entfernen</button>
-                        )}
+                        <button
+                          type="button"
+                          onClick={removeSceneImage}
+                          disabled={!(activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl || (activeCard.ureelScene as any)?.background?.imageUrl)}
+                          className="h-9 px-3 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 disabled:text-stone-600 disabled:border-stone-800 disabled:bg-stone-950/30 text-[9px] uppercase font-black tracking-wider"
+                        >Bild entfernen</button>
                       </div>
                     </div>
                   </div>
@@ -3434,7 +3455,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         <input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleSceneImageUpload(file); e.currentTarget.value = ''; }} />
                       </label>
                       <p className="text-[9px] text-stone-500">Empfohlen: 9:16 Hochformat oder ruhiges Werbebild mit Platz für Text und Buttons.</p>
-                      {(activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl || (activeCard.ureelScene as any)?.background?.imageUrl) && <button type="button" onClick={removeSceneImage} className="w-full h-9 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 text-[8.5px] font-black uppercase tracking-wider">Bild entfernen</button>}
+                      <button
+                        type="button"
+                        onClick={removeSceneImage}
+                        disabled={!(activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl || (activeCard.ureelScene as any)?.background?.imageUrl)}
+                        className="w-full h-9 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 disabled:text-stone-600 disabled:border-stone-800 disabled:bg-stone-950/30 text-[8.5px] font-black uppercase tracking-wider"
+                      >Bild entfernen</button>
                     </div>
                   </div>
                 )}
@@ -3512,6 +3538,20 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <div className="p-4 bg-stone-950/40 rounded-xl border border-stone-900 space-y-4">
                 <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Farbe / Verlauf</span>
                 <p className="text-[10px] text-stone-400 leading-relaxed">Farbe oder Verlauf ist eine eigene Szene. Wenn du hier eine Fläche aktivierst, werden Video und Bild automatisch entfernt, damit der Hintergrund sofort sichtbar ist.</p>
+                <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <span className="block text-[10.5px] font-black uppercase tracking-wider text-[#F5F2EA]">Farbe / Verlauf anzeigen</span>
+                      <span className="block text-[8.5px] text-stone-500 mt-0.5">Aus deaktiviert die Farbfläche vollständig.</span>
+                    </div>
+                    <button type="button" onClick={() => syncCardUpdate({ cardBackgroundEnabled: !(activeCard.cardBackgroundEnabled !== false && (activeCard.ureelScene?.mode === 'color' || activeCard.ureelScene?.mode === 'gradient')), backgroundType: (activeCard.cardBackgroundGradientEnabled ? 'gradient' : 'color') as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: (activeCard.cardBackgroundEnabled !== false && (activeCard.ureelScene?.mode === 'color' || activeCard.ureelScene?.mode === 'gradient')) ? 'none' : (activeCard.cardBackgroundGradientEnabled ? 'gradient' : 'color') } as any } as any)} className={`w-14 h-8 rounded-full p-1 transition flex ${(activeCard.cardBackgroundEnabled !== false && (activeCard.ureelScene?.mode === 'color' || activeCard.ureelScene?.mode === 'gradient')) ? 'bg-[#F5F2EA] justify-end' : 'bg-stone-800 justify-start'}`}><span className="block w-6 h-6 rounded-full bg-[#101010]" /></button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button type="button" onClick={() => syncCardUpdate({ backgroundType: 'color', backgroundImageUrl: '', cardBackgroundImageUrl: '', cardBackgroundEnabled: true, cardBackgroundGradientEnabled: false, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color', backgroundImageUrl: '', backgroundColor: activeCard.cardBackgroundColor || '#121212', gradient: undefined, video: { type: 'none', url: '', duration: activeCard.ureelScene?.video?.duration || 12, displayMode: 'cover', placement: 'background', startAt: 0 } } as any } as any)} className="h-9 rounded-xl border border-[#3A3732] bg-[#0F0F0F] text-[#F5F2EA] text-[8.5px] font-black uppercase tracking-wider">Nur Farbe</button>
+                    <button type="button" onClick={() => { const from = activeCard.cardBackgroundColor || '#121212'; const to = activeCard.cardBackgroundGradientColor || '#3A3732'; syncCardUpdate({ backgroundType: 'gradient', backgroundImageUrl: '', cardBackgroundImageUrl: '', cardBackgroundEnabled: true, cardBackgroundGradientEnabled: true, cardBackgroundGradientColor: to, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'gradient', backgroundImageUrl: '', backgroundColor: from, gradient: { from, to, direction: activeCard.cardBackgroundGradientDirection || '135deg' }, video: { type: 'none', url: '', duration: activeCard.ureelScene?.video?.duration || 12, displayMode: 'cover', placement: 'background', startAt: 0 } } as any } as any); }} className="h-9 rounded-xl border border-[#3A3732] bg-[#0F0F0F] text-[#F5F2EA] text-[8.5px] font-black uppercase tracking-wider">Verlauf</button>
+                    <button type="button" onClick={() => syncCardUpdate({ cardBackgroundEnabled: false, cardBackgroundGradientEnabled: false, backgroundType: 'color', ureelScene: { ...(activeCard.ureelScene || {}), mode: 'none' } as any } as any)} className="h-9 rounded-xl border border-red-900/40 bg-red-950/20 text-red-200 text-[8.5px] font-black uppercase tracking-wider">Deaktivieren</button>
+                  </div>
+                </div>
                 <div className="grid grid-cols-2 gap-2">
                   <button type="button" onClick={() => syncCardUpdate({ cardBackgroundEnabled: true, backgroundType: activeCard.cardBackgroundGradientEnabled ? 'gradient' : 'color', ureelScene: { ...(activeCard.ureelScene || {}), mode: activeCard.cardBackgroundGradientEnabled ? 'gradient' : 'color' } as any } as any)} className={`h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${activeCard.cardBackgroundEnabled !== false && (activeCard.ureelScene?.mode === 'color' || activeCard.ureelScene?.mode === 'gradient') ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Farbfläche aktiv</button>
                   <button type="button" onClick={() => syncCardUpdate({ cardBackgroundEnabled: false, cardBackgroundGradientEnabled: false, backgroundType: 'color', ureelScene: { ...(activeCard.ureelScene || {}), mode: 'none' } as any } as any)} className="h-10 rounded-xl border border-[#3A3732] bg-[#181818] text-stone-300 text-[9px] font-black uppercase tracking-wider">Farbfläche aus</button>
@@ -4566,12 +4606,103 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             </div>
           )}
 
+          {activeTab === 'scene' && activeSubSection === 'scene-profile' && (
+            <div className="space-y-4">
+              <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Profilbild</span>
+                    <p className="text-[10px] text-stone-400 mt-1">Aktiviere ein Avatar-/Profilbild auf der Karte und steuere Form, Größe, Position und Timing.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setProfileImageVisibility(!((activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage || (activeCard as any).heroProfileImageEnabled))}
+                    className={`w-14 h-8 rounded-full p-1 transition flex ${((activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage || (activeCard as any).heroProfileImageEnabled) ? 'bg-[#F5F2EA] justify-end' : 'bg-stone-800 justify-start'}`}
+                  >
+                    <span className="block w-6 h-6 rounded-full bg-[#101010]" />
+                  </button>
+                </div>
+
+                <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4 space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <span className="block text-[10.5px] font-black uppercase tracking-wider text-[#F5F2EA]">Profilbild-Datei</span>
+                      <span className="block text-[8.5px] text-stone-500 mt-0.5">Upload ersetzt das aktuelle Profilbild und aktiviert es automatisch.</span>
+                    </div>
+                    <label className="shrink-0 px-3 py-2 rounded-lg bg-[#F5F2EA] text-[#101010] text-[9px] uppercase font-black cursor-pointer hover:bg-white transition-colors">
+                      {profileImageUploading ? `Upload ${profileImageUploadProgress || 0}%` : 'Bild hochladen'}
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleProfileImageUpload(file); e.currentTarget.value = ''; }} />
+                    </label>
+                  </div>
+                  {profileImageUploading && <div className="h-1.5 rounded-full bg-stone-800 overflow-hidden"><div className="h-full bg-[#E8DCC2]" style={{ width: `${profileImageUploadProgress || 0}%` }} /></div>}
+                  {activeCard.profileImageUrl && <div className="h-24 rounded-xl overflow-hidden border border-stone-800 bg-stone-950 flex items-center justify-center"><img src={activeCard.profileImageUrl} alt="Profilbild" className="h-full w-full object-cover" /></div>}
+                  <button type="button" onClick={removeProfileImage} disabled={!activeCard.profileImageUrl} className="w-full h-9 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 disabled:text-stone-600 disabled:border-stone-800 disabled:bg-stone-950/30 text-[8.5px] font-black uppercase tracking-wider">Bild entfernen</button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-2">
+                    <label className="block text-[9px] uppercase font-black tracking-wider text-stone-400">Form</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { id: 'circle', label: 'Kreis' },
+                        { id: 'rounded', label: 'Rund' },
+                        { id: 'square', label: 'Eckig' },
+                      ].map((shape) => <button key={shape.id} type="button" onClick={() => syncCardUpdate({ profileImageShape: shape.id as any, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), profileImage: { ...((activeCard.videoBackgroundConfig as any)?.profileImage || {}), shape: shape.id } } as any } as any)} className={`h-9 rounded-xl border text-[8px] font-black uppercase ${((activeCard as any).profileImageShape || 'circle') === shape.id ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#0F0F0F] text-[#F5F2EA] border-[#3A3732]'}`}>{shape.label}</button>)}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-2">
+                    <label className="block text-[9px] uppercase font-black tracking-wider text-stone-400">Größe</label>
+                    <input type="range" min={48} max={140} value={Number((activeCard as any).profileImageSizePx || 82)} onChange={(e) => syncCardUpdate({ profileImageSizePx: Number(e.target.value), videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), profileImage: { ...((activeCard.videoBackgroundConfig as any)?.profileImage || {}), sizePx: Number(e.target.value) } } as any } as any)} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" />
+                    <span className="block text-[9px] text-[#E8DCC2] font-mono">{Number((activeCard as any).profileImageSizePx || 82)} px</span>
+                  </div>
+                  <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-2">
+                    <label className="block text-[9px] uppercase font-black tracking-wider text-stone-400">Timing</label>
+                    <input type="range" min={0} max={12} step={0.5} value={Number((activeCard as any).profileImageAt || (activeCard.ureelTimeline as any)?.profileImageAt || 0)} onChange={(e) => syncCardUpdate({ profileImageAt: Number(e.target.value), ureelTimeline: { ...(activeCard.ureelTimeline || {}), profileImageAt: Number(e.target.value) } as any } as any)} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" />
+                    <span className="block text-[9px] text-[#E8DCC2] font-mono">{Number((activeCard as any).profileImageAt || (activeCard.ureelTimeline as any)?.profileImageAt || 0)} s</span>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-2">
+                  <label className="block text-[9px] uppercase font-black tracking-wider text-stone-400">Position</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { id: 'top-left', label: 'Oben links' },
+                      { id: 'top-right', label: 'Oben rechts' },
+                      { id: 'center', label: 'Mitte' },
+                      { id: 'bottom-left', label: 'Unten links' },
+                      { id: 'bottom-right', label: 'Unten rechts' },
+                    ].map((pos) => <button key={pos.id} type="button" onClick={() => syncCardUpdate({ profileImagePosition: pos.id as any, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), profileImage: { ...((activeCard.videoBackgroundConfig as any)?.profileImage || {}), position: pos.id } } as any } as any)} className={`h-9 rounded-xl border text-[8px] font-black uppercase ${((activeCard as any).profileImagePosition || 'top-right') === pos.id ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#0F0F0F] text-[#F5F2EA] border-[#3A3732]'}`}>{pos.label}</button>)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* TAB 4: ENDCARD & CTA */}
           {((activeTab === 'endcard' && activeSubSection === 'endcard-general') || (activeTab === 'scene' && activeSubSection === 'scene-endcard')) && (
             <div className="space-y-4">
               <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-4">
                 <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Dauerhafte Endkarte</span>
                 <p className="text-[9.5px] text-stone-400">Blenden Sie am Ende des Videos eine ruhige Endkarte ein. Wenn keine Endkarte aktiv ist, bleibt die aktuelle Szene als Abschluss stehen.</p>
+
+                <div className="rounded-xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <span className="block text-[10px] uppercase font-black tracking-wider text-[#F5F2EA]">Endkarte aktivieren</span>
+                      <span className="block text-[8.5px] text-stone-500 mt-0.5">Aus bedeutet: keine Abschlusskarte, keine Farbe, kein Endkartenbild.</span>
+                    </div>
+                    <button type="button" onClick={() => setEndCard({ enabled: !endCard.enabled })} className={`w-14 h-8 rounded-full p-1 transition flex ${endCard.enabled ? 'bg-[#F5F2EA] justify-end' : 'bg-stone-800 justify-start'}`}><span className="block w-6 h-6 rounded-full bg-[#101010]" /></button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button type="button" onClick={() => setEndCard({ enabled: true, source: 'scene' as any })} className={`h-9 rounded-xl border text-[8.5px] font-black uppercase tracking-wider ${endCard.enabled && endCard.source === 'scene' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#0F0F0F] text-[#F5F2EA] border-[#3A3732]'}`}>Szene</button>
+                    <button type="button" onClick={() => setEndCard({ enabled: true, source: 'color' as any, backgroundColor: endCard.backgroundColor || '#1c1b1a' })} className={`h-9 rounded-xl border text-[8.5px] font-black uppercase tracking-wider ${endCard.enabled && endCard.source === 'color' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#0F0F0F] text-[#F5F2EA] border-[#3A3732]'}`}>Farbe</button>
+                    <button type="button" onClick={() => setEndCard({ enabled: false })} className="h-9 rounded-xl border border-red-900/40 bg-red-950/20 text-red-200 text-[8.5px] font-black uppercase tracking-wider">Deaktivieren</button>
+                  </div>
+                  <div className="flex items-center gap-2 h-10 bg-[#0F0F0F] border border-[#3A3732] rounded-xl px-2">
+                    <input type="color" value={endCard.backgroundColor || '#1c1b1a'} onChange={(e) => setEndCard({ enabled: true, source: 'color' as any, backgroundColor: e.target.value })} className="w-6 h-6 rounded cursor-pointer border-0 outline-none bg-transparent" />
+                    <input type="text" value={endCard.backgroundColor || '#1c1b1a'} onChange={(e) => setEndCard({ enabled: true, source: 'color' as any, backgroundColor: e.target.value })} className="bg-transparent border-0 text-white w-full h-full text-xs font-mono outline-none" />
+                  </div>
+                </div>
 
                 <div className="rounded-xl border border-[#E8DCC2]/15 bg-stone-900/55 p-3 space-y-2">
                   <div className="flex items-center justify-between gap-3">
@@ -4586,6 +4717,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   </div>
                   {endCardImageUploading && <div className="h-1.5 rounded-full bg-stone-800 overflow-hidden"><div className="h-full bg-[#E8DCC2]" style={{ width: `${endCardImageUploadProgress || 0}%` }} /></div>}
                   {endCard.imageUrl && <div className="h-24 rounded-xl overflow-hidden border border-stone-800 bg-stone-950"><img src={endCard.imageUrl} alt="Endkarte" className="w-full h-full object-cover" /></div>}
+                  <button type="button" onClick={removeEndCardImage} disabled={!endCard.imageUrl} className="w-full h-9 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 disabled:text-stone-600 disabled:border-stone-800 disabled:bg-stone-950/30 text-[8.5px] font-black uppercase tracking-wider">Bild entfernen</button>
                 </div>
 
                 <div className="rounded-xl border border-[#E8DCC2]/15 bg-stone-900/55 p-3 space-y-3">
