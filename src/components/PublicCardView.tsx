@@ -62,6 +62,37 @@ const PublicRecoveryFallback: React.FC<{ card: Card; lang: 'de' | 'en'; onRetry?
   );
 };
 
+
+
+const useDesktopPublicLayout = () => {
+  const [isDesktop, setIsDesktop] = React.useState(false);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mobilePublic') === '1') {
+      setIsDesktop(false);
+      return;
+    }
+    if (params.get('desktopOnepager') === '1') {
+      setIsDesktop(true);
+      return;
+    }
+
+    const query = window.matchMedia('(min-width: 1024px) and (orientation: landscape)');
+    const update = () => setIsDesktop(query.matches);
+    update();
+    if (query.addEventListener) query.addEventListener('change', update);
+    else query.addListener(update);
+    return () => {
+      if (query.removeEventListener) query.removeEventListener('change', update);
+      else query.removeListener(update);
+    };
+  }, []);
+
+  return isDesktop;
+};
+
 interface PublicCardViewProps {
   card: Card;
   lang: 'de' | 'en';
@@ -79,6 +110,7 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
 }) => {
   const { user, submitAbuseReport, logAnalyticsEvent } = useFirebase();
   const t = TRANSLATIONS[lang];
+  const isDesktopPublicLayout = useDesktopPublicLayout();
 
   const cardPlan = card.plan || 'starter';
   const hasBrandingHiddenFeature = canUseFeature(cardPlan, 'brandingHidden');
@@ -623,50 +655,51 @@ export const PublicCardView: React.FC<PublicCardViewProps> = ({
   }
 
   if (!isPreview) {
-    // v52.5.44 Desktop-only activation:
-    // Mobile public rendering stays exactly on the existing mobile card path.
-    // Only large screens switch to the new three-section desktop onepager.
-    return (
-      <>
-        <div className="lg:hidden">
-          <main className="fixed inset-0 h-[100svh] w-screen overflow-hidden bg-black text-[#F5F2EA] flex items-center justify-center">
-            <div
-              className="relative h-[100svh] w-screen sm:h-[min(96svh,760px)] sm:w-auto sm:aspect-[9/16] overflow-hidden bg-black sm:rounded-[36px] sm:border-[8px] sm:border-[#111] sm:shadow-2xl"
-              aria-label="ureel public unified mobile live card"
-            >
-              <ErrorBoundary lang={lang} fallbackNode={<PublicRecoveryFallback card={hydratedPublicCard} lang={lang} />}>
-                <UnifiedMobileLiveCardSurface
-                  card={hydratedPublicCard}
-                  lang={lang}
-                  isPreview={false}
-                  cleanPreview={true}
-                  previewFocus="full"
-                  visualMode="final"
-                  timelineMode="live"
-                  showLayoutDebug={false}
-                  debugLabel="public-view-mobile"
-                  onButtonClick={handleButtonClick}
-                  onContactSave={triggerVCardDownload}
-                  onShare={() => setShowShareModal(true)}
-                />
-              </ErrorBoundary>
-            </div>
-          </main>
-        </div>
-        <div className="hidden lg:block">
+    // v52.5.45: hard route separation. Public renders exactly one surface:
+    // desktop onepager on wide landscape screens, existing mobile card otherwise.
+    // This avoids duplicate video/card mounts and keeps the mobile public view untouched.
+    const publicSurface = isDesktopPublicLayout ? (
+      <ErrorBoundary lang={lang} fallbackNode={<PublicRecoveryFallback card={hydratedPublicCard} lang={lang} />}>
+        <PublicDesktopPageRenderer
+          card={hydratedPublicCard}
+          lang={lang}
+          mode="public"
+          qrCodeUrl={qrCodeUrl}
+          onButtonClick={handleButtonClick}
+          onContactSave={triggerVCardDownload}
+          onShare={() => setShowShareModal(true)}
+          onQrClick={() => setShowShareDrawer(true)}
+        />
+      </ErrorBoundary>
+    ) : (
+      <main className="fixed inset-0 h-[100svh] w-screen overflow-hidden bg-black text-[#F5F2EA] flex items-center justify-center">
+        <div
+          className="relative h-[100svh] w-screen sm:h-[min(96svh,760px)] sm:w-auto sm:aspect-[9/16] overflow-hidden bg-black sm:rounded-[36px] sm:border-[8px] sm:border-[#111] sm:shadow-2xl"
+          aria-label="ureel public unified mobile live card"
+        >
           <ErrorBoundary lang={lang} fallbackNode={<PublicRecoveryFallback card={hydratedPublicCard} lang={lang} />}>
-            <PublicDesktopPageRenderer
+            <UnifiedMobileLiveCardSurface
               card={hydratedPublicCard}
               lang={lang}
-              mode="public"
-              qrCodeUrl={qrCodeUrl}
+              isPreview={false}
+              cleanPreview={true}
+              previewFocus="full"
+              visualMode="final"
+              timelineMode="live"
+              showLayoutDebug={false}
+              debugLabel="public-view-mobile"
               onButtonClick={handleButtonClick}
               onContactSave={triggerVCardDownload}
               onShare={() => setShowShareModal(true)}
-              onQrClick={() => setShowShareDrawer(true)}
             />
           </ErrorBoundary>
         </div>
+      </main>
+    );
+
+    return (
+      <>
+        {publicSurface}
         <AnimatePresence>{showShareModal && <ShareExportModal card={hydratedPublicCard} lang={lang} isOpen={showShareModal} onClose={() => setShowShareModal(false)} />}</AnimatePresence>
       </>
     );
