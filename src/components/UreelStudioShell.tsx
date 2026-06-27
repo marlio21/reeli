@@ -2270,33 +2270,47 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     );
   };
 
+  const getSharedButtonLookFields = (button: CardButton): Partial<CardButton> => {
+    // v52.5.59: only transfer the visual look. Do NOT copy text, action or icon identity.
+    return {
+      bgColor: button.bgColor,
+      backgroundColor: button.backgroundColor,
+      bgMode: (button as any).bgMode,
+      gradient: (button as any).gradient,
+      gradientColor: (button as any).gradientColor,
+      styleVariant: button.styleVariant,
+      radius: button.radius,
+      buttonShape: button.buttonShape,
+      shape: (button as any).shape,
+      opacity: (button as any).opacity,
+      borderColor: button.borderColor,
+      borderEnabled: button.borderEnabled,
+      borderWidth: button.borderWidth,
+      borderStyle: button.borderStyle,
+      shadow: button.shadow,
+      glow: (button as any).glow,
+      animation: button.animation,
+      imageMode: button.imageMode,
+      buttonImageUrl: button.buttonImageUrl,
+      imageUrl: button.imageUrl,
+      buttonImageFit: button.buttonImageFit,
+      imageFit: (button as any).imageFit,
+      imageOverlay: button.imageOverlay,
+      buttonImageOverlay: button.buttonImageOverlay,
+      imageDarken: button.imageDarken,
+      buttonSize: button.buttonSize,
+      buttonSizeScale: button.buttonSizeScale,
+      textPadding: button.textPadding,
+    } as Partial<CardButton>;
+  };
+
   const transferButtonDesignToAll = async () => {
-    if (!editingButton || !activeCard) return;
-    const designFields: Partial<CardButton> = {
-      bgColor: editingButton.bgColor,
-      backgroundColor: editingButton.backgroundColor,
-      textColor: editingButton.textColor,
-      borderColor: editingButton.borderColor,
-      styleVariant: editingButton.styleVariant,
-      radius: editingButton.radius,
-      animation: editingButton.animation,
-      imageMode: editingButton.imageMode,
-      buttonImageFit: editingButton.buttonImageFit,
-      imageOverlay: editingButton.imageOverlay,
-      buttonImageOverlay: editingButton.buttonImageOverlay,
-      borderEnabled: editingButton.borderEnabled,
-      borderWidth: editingButton.borderWidth,
-      borderStyle: editingButton.borderStyle,
-      shadow: editingButton.shadow,
-      iconColor: editingButton.iconColor,
-      iconSize: editingButton.iconSize,
-      buttonShape: editingButton.buttonShape,
-      buttonSize: editingButton.buttonSize,
-      opacity: (editingButton as any).opacity,
-    };
-    const updatedButtons = activeCard.buttons.map((button) => button.id === editingButton.id ? button : { ...button, ...designFields });
+    const sourceButton = editingButton || activeCard?.buttons?.[0];
+    if (!sourceButton || !activeCard) return;
+    const designFields = getSharedButtonLookFields(sourceButton);
+    const updatedButtons = (activeCard.buttons || []).map((button) => button.id === sourceButton.id ? button : { ...button, ...designFields });
     await syncCardUpdate({ buttons: updatedButtons });
-    triggerToast(lang === 'de' ? 'Button-Design wurde auf alle anderen Buttons übertragen.' : 'Button design copied to all other buttons.', 'success');
+    triggerToast(lang === 'de' ? 'Look wurde übertragen. Texte, Aktionen und Icons bleiben unverändert.' : 'Look copied. Labels, actions and icons were preserved.', 'success');
   };
 
   const getCleanMonitorCard = (card: Card): Card => {
@@ -5289,7 +5303,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   { key: 'heroSubtitleSize', label: 'Untertitelgröße', min: 6, max: 40, fallback: 12 },
                   { key: 'heroDescriptionSize', label: 'Beschreibunggröße', min: 6, max: 36, fallback: 10 },
                 ].map((item) => <div key={item.key} className="ureel-tap-slider-row"><label>{item.label} <b>{clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max).toFixed(0)}px</b></label><input type="range" min={item.min} max={item.max} step={1} value={clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max)} onChange={(e) => syncCardUpdate({ [item.key]: Number(e.target.value) } as any)} /></div>)}
-                <div className="ureel-tap-slider-row ureel-text-height-slider-row"><label>Texthöhe / Position <b>{Math.max(6, Math.min(84, Number((activeCard as any).heroTextHeightPercent || (activeCard as any).mobileLayout?.text?.heightPercent || (activeCard as any).publicLayoutSnapshot?.text?.heightPercent || 44))).toFixed(0)}%</b></label><input type="range" min={6} max={84} step={1} value={Math.max(6, Math.min(84, Number((activeCard as any).heroTextHeightPercent || (activeCard as any).mobileLayout?.text?.heightPercent || (activeCard as any).publicLayoutSnapshot?.text?.heightPercent || 44)))} onChange={(e) => { const nextHeight = Number(e.target.value); syncCardUpdate({ heroTextHeightPercent: nextHeight, mobileLayout: { ...((activeCard as any).mobileLayout || {}), text: { ...((activeCard as any).mobileLayout?.text || {}), heightPercent: nextHeight } } } as any); }} /></div>
+                <div className="ureel-tap-slider-row ureel-text-height-slider-row"><label>Texthöhe / Position <b>{Math.max(4, Math.min(88, Number((activeCard as any).heroTextHeightPercent || (activeCard as any).mobileLayout?.text?.heightPercent || (activeCard as any).publicLayoutSnapshot?.text?.heightPercent || 44))).toFixed(0)}%</b></label><input type="range" min={4} max={88} step={1} value={Math.max(4, Math.min(88, Number((activeCard as any).heroTextHeightPercent || (activeCard as any).mobileLayout?.text?.heightPercent || (activeCard as any).publicLayoutSnapshot?.text?.heightPercent || 44)))} onChange={(e) => { const nextHeight = Number(e.target.value); syncCardUpdate({ heroTextHeightPercent: nextHeight, mobileLayout: { ...((activeCard as any).mobileLayout || {}), text: { ...((activeCard as any).mobileLayout?.text || {}), heightPercent: nextHeight } }, publicLayoutSnapshot: { ...((activeCard as any).publicLayoutSnapshot || {}), text: { ...((activeCard as any).publicLayoutSnapshot?.text || {}), heightPercent: nextHeight } } } as any); }} /></div>
                 {[
                   { key: 'heroTitleTextColor', label: 'Titelfarbe', fallback: '#F5F2EA' },
                   { key: 'heroSubtitleTextColor', label: 'Untertitelfarbe', fallback: '#E8DCC2' },
@@ -5403,7 +5417,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <span className="ureel-tap-mini-label">Rahmen</span>
                 <div className="ureel-tap-chip-row"><button type="button" className={!currentButton.borderEnabled || currentButton.borderWidth === 'none' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: false, borderWidth: 'none' } as any)}>Kein</button><button type="button" className={currentButton.borderEnabled && currentButton.borderWidth === 'thin' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderWidth: 'thin', borderColor: currentButton.borderColor || '#D8CDB7' } as any)}>Klein</button><button type="button" className={currentButton.borderEnabled && currentButton.borderWidth === 'medium' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderWidth: 'medium', borderColor: currentButton.borderColor || '#D8CDB7' } as any)}>Mittel</button><button type="button" className={currentButton.borderEnabled && currentButton.borderWidth === 'thick' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderWidth: 'thick', borderColor: currentButton.borderColor || '#111111' } as any)}>Dick</button></div>
                 <SpectrumColorPicker label="Rahmenfarbe" value={(currentButton.borderColor || '#D8CDB7').startsWith('rgba') ? '#D8CDB7' : (currentButton.borderColor || '#D8CDB7')} fallback="#D8CDB7" onChange={(value) => applyMobileButtonLook(currentButton.id, { borderEnabled: true, borderColor: value, borderWidth: currentButton.borderWidth === 'none' || !currentButton.borderWidth ? 'thin' : currentButton.borderWidth } as any)} />
-                <button type="button" className="ureel-mobile-look-all-button" onClick={async () => { const designFields: Partial<CardButton> = { bgColor: currentButton.bgColor, backgroundColor: currentButton.backgroundColor, textColor: currentButton.textColor, borderColor: currentButton.borderColor, borderEnabled: currentButton.borderEnabled, borderWidth: currentButton.borderWidth, borderStyle: currentButton.borderStyle, styleVariant: currentButton.styleVariant, bgMode: (currentButton as any).bgMode, gradient: (currentButton as any).gradient, gradientColor: (currentButton as any).gradientColor, opacity: (currentButton as any).opacity, radius: currentButton.radius, buttonShape: currentButton.buttonShape, buttonSize: currentButton.buttonSize, fontSize: currentButton.fontSize, fontFamily: currentButton.fontFamily, buttonFontKey: (currentButton as any).buttonFontKey, fontWeight: currentButton.fontWeight, letterSpacing: currentButton.letterSpacing, textWrap: currentButton.textWrap, icon: currentButton.icon, iconColor: currentButton.iconColor, iconSize: currentButton.iconSize, iconEnabled: currentButton.iconEnabled, iconPosition: currentButton.iconPosition, buttonImageUrl: currentButton.buttonImageUrl, imageUrl: currentButton.imageUrl, buttonImageFit: currentButton.buttonImageFit, buttonImageOverlay: currentButton.buttonImageOverlay, textPadding: currentButton.textPadding }; await syncCardUpdate({ buttons: (activeCard.buttons || []).map((button) => button.id === currentButton.id ? button : { ...button, ...designFields }) }); }}>Look auf alle Buttons übertragen</button>
+                <button type="button" className="ureel-mobile-look-all-button" onClick={transferButtonDesignToAll}><LucideIcons.Paintbrush size={16}/> Look auf alle Buttons übertragen</button>
               </div>}
               {tapButtonTool === 'manage' && <div className="ureel-tap-config"><h4>Button verwalten</h4><p>Füge Buttons hinzu, kopiere, ordne oder entferne sie. Wähle für die Position einfach einen Platz im Raster.</p><div className="ureel-mobile-manage-grid"><button type="button" onClick={handleAddButtonLocal}><LucideIcons.Plus size={15}/> Hinzufügen</button><button type="button" onClick={() => handleDuplicateButtonLocal(currentButton)}><LucideIcons.Copy size={15}/> Kopieren</button><button type="button" onClick={() => handleMoveButtonLocal(currentButton.id, -1)}><LucideIcons.ArrowLeft size={15}/> Links</button><button type="button" onClick={() => handleMoveButtonLocal(currentButton.id, 1)}><LucideIcons.ArrowRight size={15}/> Rechts</button><button type="button" className="is-danger" onClick={() => handleDeleteButtonLocal(currentButton.id)}><LucideIcons.Trash2 size={15}/> Entfernen</button></div><button type="button" className="ureel-mobile-transfer-all-button" onClick={transferButtonDesignToAll}><LucideIcons.Paintbrush size={16}/> Auf alle Buttons übertragen</button><div className="ureel-mobile-position-grid"><span>Position wählen</span><small>{manageButtons.length} echte Kartenbuttons</small><div>{manageButtons.map((button, index) => { const fullIndex = [...(activeCard.buttons || [])].sort((a,b)=>(a.position??0)-(b.position??0)).findIndex((b) => b.id === button.id); return <button key={button.id} type="button" className={button.id === currentButton.id ? 'is-active' : ''} onClick={() => handleMoveButtonToPositionLocal(currentButton.id, Math.max(0, fullIndex))}>{index + 1}</button>; })}</div></div><div className="ureel-mobile-password-box"><h5>Passwortschutz</h5><p>Bereite sensible Inhalte wie Folder, Datei, Telefon oder Website mit Passwortschutz vor.</p><div className="ureel-tap-chip-row"><button type="button" className={(currentButton as any).passwordProtected ? 'is-active' : ''} onClick={() => handleUpdateSingleButton(currentButton.id, { passwordProtected: true } as any)}>Ein</button><button type="button" className={!(currentButton as any).passwordProtected ? 'is-active' : ''} onClick={() => handleUpdateSingleButton(currentButton.id, { passwordProtected: false, accessPassword: '', passwordHint: '' } as any)}>Aus</button></div>{(currentButton as any).passwordProtected && <><label>Passwort</label><input type="password" value={(currentButton as any).accessPassword || ''} placeholder="Passwort für Besucher" onChange={(e) => handleUpdateSingleButton(currentButton.id, { accessPassword: e.target.value } as any)} /><label>Hinweistext</label><input value={(currentButton as any).passwordHint || ''} placeholder="z.B. Passwort beim Team erfragen" onChange={(e) => handleUpdateSingleButton(currentButton.id, { passwordHint: e.target.value } as any)} /></>}</div></div>}
             </section>
