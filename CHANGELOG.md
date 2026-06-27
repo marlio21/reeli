@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v52.5.49 – Desktop Mobile-Parity Editor Cleanup
+
+- Desktop editor is reduced to one clear workflow: dashboard on top, permanent 9:16 preview on the left, active configuration on the right.
+- Top editor navigation now focuses on the mobile-parity modules: Szene, Text, Buttons and Design; Karten is handled only through the dashboard action to avoid duplicate management paths.
+- Desktop subnavigation is a compact horizontal tool strip inside the configuration area, using the same scene/text/button subsections as the mobile editor.
+- Removes the extra Desktop Cards workspace tab from the main editing flow.
+- Keeps Mobile editor, Mobile Public View and the large Button Editor preview untouched.
+- Keeps existing central button size, icon and text logic unchanged.
+- ZIP remains dist-free and excludes node_modules / release notes.
+
 ## v52.5.47 – Desktop Studio Side-by-Side Editor Foundation
 
 - Adds a desktop-only studio dashboard bar above the editor.

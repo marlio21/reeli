@@ -2755,8 +2755,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             { id: 'scene', label: lang === 'de' ? 'Szene' : 'Scene', icon: LucideIcons.Tv },
             { id: 'timeline', label: lang === 'de' ? 'Text' : 'Text', icon: LucideIcons.Type },
             { id: 'buttons', label: lang === 'de' ? 'Buttons' : 'Buttons', icon: LucideIcons.Grid },
-            { id: 'design', label: lang === 'de' ? 'Website' : 'Website', icon: LucideIcons.LayoutTemplate },
-            { id: 'cards', label: lang === 'de' ? 'Karten' : 'Cards', icon: LucideIcons.Layers },
+            { id: 'design', label: lang === 'de' ? 'Design' : 'Design', icon: LucideIcons.Palette },
           ].map((item) => {
             const IconComponent = item.icon;
             const active = activeTab === item.id;
@@ -2766,7 +2765,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 type="button"
                 onClick={() => {
                   setActiveTab(item.id as MainModule);
-                  const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-list', design: 'design-desktop', cards: 'cards-list' };
+                  const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-list', design: 'design-desktop' };
                   if (defaults[item.id]) setActiveSubSection(defaults[item.id]);
                 }}
                 className={`h-10 rounded-xl px-3 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-wider transition ${active ? 'bg-[#F5F2EA] text-[#101010] shadow-lg shadow-black/25' : 'text-stone-400 hover:text-[#F5F2EA] hover:bg-[#1A1A1E]'}`}

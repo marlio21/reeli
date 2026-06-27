@@ -5638,3 +5638,197 @@ body {
     width: min(38vw, 470px, calc((100vh - 220px) * 0.5625)) !important;
   }
 }
+
+/* v52.5.49 – Desktop Mobile-Parity Editor Cleanup
+   Desktop-only cleanup: one clear editor. Dashboard stays on top, preview is always
+   visible on the left, and the active mobile-equivalent configuration sits on the right.
+   No mobile selectors are changed. */
+@media (min-width: 768px) {
+  .ureel-desktop-studio-root {
+    display: grid !important;
+    grid-template-columns: minmax(440px, 0.92fr) minmax(560px, 1.08fr) !important;
+    grid-template-rows: 68px 78px minmax(0, 1fr) !important;
+    grid-template-areas:
+      "dashboard dashboard"
+      "preview subnav"
+      "preview config" !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+    background: #09090B !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-desktop-dashboard-top {
+    grid-area: dashboard !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+    height: 68px !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-studio-topbar {
+    display: none !important;
+  }
+
+  .ureel-desktop-workspace-tabs {
+    max-width: none !important;
+  }
+
+  .ureel-desktop-workspace-tabs button {
+    min-width: 96px !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-studio-preview-panel {
+    grid-area: preview !important;
+    grid-column: 1 !important;
+    grid-row: 2 / 4 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    padding: 18px 22px 16px !important;
+    border-right: 1px solid rgba(232,220,194,.14) !important;
+    border-left: 0 !important;
+    background: radial-gradient(circle at 50% 18%, rgba(232,220,194,.10), transparent 34%), linear-gradient(180deg, #101014 0%, #08080A 100%) !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-studio-preview-panel > div:first-child {
+    flex: 0 0 auto !important;
+    min-height: 34px !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-studio-preview-panel .ureel-studio-preview-stage {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    padding: 12px 0 !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-studio-preview-panel .ureel-studio-phone-frame {
+    aspect-ratio: 9 / 16 !important;
+    width: min(34vw, 380px, calc((100vh - 226px) * 0.5625)) !important;
+    height: auto !important;
+    min-width: 260px !important;
+    max-width: calc(100% - 18px) !important;
+    max-height: calc(100vh - 226px) !important;
+    min-height: 462px !important;
+    border-radius: 42px !important;
+    border-width: 8px !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-studio-preview-panel > .space-y-2.pt-3,
+  .ureel-desktop-studio-root > .ureel-studio-preview-panel > div:last-child.space-y-2 {
+    flex: 0 0 auto !important;
+    margin-top: 8px !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-subnav-panel {
+    grid-area: subnav !important;
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+    height: 78px !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    overflow: hidden !important;
+    padding: 10px 16px !important;
+    background: #101014 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid rgba(232,220,194,.12) !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-subnav-panel > div:first-child,
+  .ureel-desktop-studio-root > .ureel-subnav-panel > div:last-child,
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-4,
+  .ureel-desktop-studio-root > .ureel-subnav-panel .border-t {
+    display: none !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 {
+    padding: 0 !important;
+    height: 100% !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: thin !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 > div {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+    min-width: max-content !important;
+    height: 100% !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 > div > div:first-child {
+    display: none !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-subnav-panel .p-2.space-y-1 button {
+    width: 162px !important;
+    min-width: 162px !important;
+    max-width: 162px !important;
+    min-height: 56px !important;
+    height: 56px !important;
+    padding: 9px 12px !important;
+    border-radius: 18px !important;
+    background: #17171A !important;
+    border: 1px solid rgba(232,220,194,.18) !important;
+    box-shadow: none !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-detail-panel {
+    grid-area: config !important;
+    grid-column: 2 !important;
+    grid-row: 3 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 20px 24px 32px !important;
+    background: #141419 !important;
+    border-left: 0 !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-detail-panel > div:first-child {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 20 !important;
+    margin: -20px -24px 18px !important;
+    padding: 18px 24px 14px !important;
+    background: linear-gradient(180deg, #141419 0%, rgba(20,20,25,.97) 100%) !important;
+    border-bottom: 1px solid rgba(232,220,194,.12) !important;
+    backdrop-filter: blur(14px) !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-detail-panel .space-y-6.max-w-full,
+  .ureel-desktop-studio-root > .ureel-detail-panel .space-y-6.max-w-full.md\:max-w-xl {
+    max-width: none !important;
+  }
+
+  .ureel-desktop-studio-root > .ureel-detail-panel > div:last-child {
+    max-width: 820px !important;
+  }
+}
+
+@media (min-width: 1500px) {
+  .ureel-desktop-studio-root {
+    grid-template-columns: minmax(520px, 0.9fr) minmax(680px, 1.1fr) !important;
+  }
+  .ureel-desktop-studio-root > .ureel-studio-preview-panel .ureel-studio-phone-frame {
+    width: min(31vw, 420px, calc((100vh - 226px) * 0.5625)) !important;
+  }
+}
