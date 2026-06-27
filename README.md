@@ -1,4 +1,4 @@
-# ureel v52.5.46 – Desktop Studio Side-by-Side Editor Foundation
+# ureel v52.5.47 – Desktop Studio Side-by-Side Editor Foundation
 
 Diese Version macht den Desktop-Editor sichtbarer und klarer, ohne die mobile Version umzubauen.
 

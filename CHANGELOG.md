@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v52.5.46 – Desktop Studio Side-by-Side Editor Foundation
+## v52.5.47 – Desktop Studio Side-by-Side Editor Foundation
 
 - Adds a desktop-only studio dashboard bar above the editor.
 - Reflows desktop into a side-by-side workspace: navigation/subsections, configuration panel and permanent preview panel.
