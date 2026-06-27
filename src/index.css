@@ -7408,3 +7408,136 @@ body {
   border-color: rgba(68, 64, 60, .8) !important;
   background: rgba(12, 10, 9, .34) !important;
 }
+
+/* v52.5.69 – Desktop visible UI repair: centered button preview, clean subnav labels, clear scene switches. */
+@media (min-width: 768px) {
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel--button .ureel-tap-big-button-stage {
+    width: 100% !important;
+    min-height: 300px !important;
+    padding: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    overflow: hidden !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-big-button-stage-center {
+    width: 100% !important;
+    min-height: 300px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 34px !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-big-button-stage-center > .ureel-button-preview-tile--large,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-big-button-stage-center > div.ureel-button-preview-tile--large {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    margin: 0 auto !important;
+    transform: none !important;
+    flex: 0 0 auto !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-big-button-stage > .ureel-button-preview-tile--large,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-big-button-stage > div.ureel-button-preview-tile--large {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-card {
+    min-height: 92px !important;
+    padding: 18px 20px !important;
+    gap: 14px !important;
+    align-items: center !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-card > span {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+    min-width: 0 !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-card > span > span:first-child {
+    display: block !important;
+    font-size: 14px !important;
+    line-height: 1.05 !important;
+    letter-spacing: .025em !important;
+    white-space: normal !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-card > span > span:last-child {
+    display: block !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+    letter-spacing: .01em !important;
+    white-space: normal !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-scene-switch-card {
+    padding: 18px !important;
+    border-radius: 24px !important;
+    background: linear-gradient(145deg, rgba(255,255,255,.055), rgba(255,255,255,.02)) !important;
+    border-color: rgba(232,220,194,.22) !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-scene-switch-row {
+    align-items: center !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-scene-state-pill {
+    min-width: 62px !important;
+    height: 34px !important;
+    border-radius: 999px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #F5F2EA !important;
+    color: #101010 !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+    letter-spacing: .08em !important;
+    text-transform: uppercase !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-scene-segmented {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    padding: 6px !important;
+    border-radius: 22px !important;
+    background: rgba(0,0,0,.28) !important;
+    border: 1px solid rgba(232,220,194,.16) !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-scene-segmented button {
+    min-height: 48px !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(232,220,194,.22) !important;
+    background: rgba(24,24,24,.96) !important;
+    color: #F5F2EA !important;
+    font-size: 11px !important;
+    font-weight: 950 !important;
+    letter-spacing: .065em !important;
+    text-transform: uppercase !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-scene-segmented button.is-active {
+    background: #F5F2EA !important;
+    border-color: #F5F2EA !important;
+    color: #101010 !important;
+    box-shadow: 0 14px 28px rgba(0,0,0,.28) !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-scene-mode-card {
+    min-height: 132px !important;
+    padding: 22px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+}

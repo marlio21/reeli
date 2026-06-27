@@ -1546,8 +1546,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     const currentSource = endCard.source as string | undefined;
     await setEndCard({
       enabled,
-      source: enabled ? ((currentSource && currentSource !== 'none') ? currentSource : 'scene') as any : 'scene' as any,
-    });
+      source: enabled ? ((currentSource && currentSource !== 'none') ? currentSource : 'scene') as any : 'none' as any,
+      imageUrl: enabled ? endCard.imageUrl : '',
+      videoUrl: enabled ? (endCard as any).videoUrl : '',
+    } as any);
   };
 
   const restartPreviewSimulation = () => {
@@ -3157,7 +3159,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <button
                       key={item.id}
                       onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)}
-                      className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
+                      className={`ureel-desktop-subnav-card w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
                         selected
                           ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
                           : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'
@@ -3190,7 +3192,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <button
                       key={item.id}
                       onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)}
-                      className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
+                      className={`ureel-desktop-subnav-card w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
                         selected
                           ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
                           : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'
@@ -3223,7 +3225,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <button
                       key={item.id}
                       onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)}
-                      className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
+                      className={`ureel-desktop-subnav-card w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
                         selected
                           ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
                           : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'
@@ -3287,7 +3289,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   const Icon = item.icon;
                   const selected = activeSubSection === item.id;
                   return (
-                    <button key={item.id} onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)} className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${selected ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20' : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'}`}>
+                    <button key={item.id} onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)} className={`ureel-desktop-subnav-card w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${selected ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20' : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'}`}>
                       <Icon size={15} className={selected ? '!text-[#101010]' : 'text-[#E8DCC2]'} />
                       <span className="min-w-0 flex-1"><span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">{item.label}</span><span className={`block text-[8.5px] leading-snug mt-0.5 ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`}>{item.desc}</span></span>
                       <LucideIcons.ChevronRight size={13} className="opacity-50" />
@@ -3614,7 +3616,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         key={mode.id}
                         type="button"
                         onClick={() => setSceneDisplayMode(mode.id as 'reel' | 'wide')}
-                        className={`min-h-[102px] rounded-2xl border p-4 text-left transition ${selected ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732] hover:border-[#F5F2EA]/60'}`}
+                        className={`ureel-scene-mode-card min-h-[102px] rounded-2xl border p-4 text-left transition ${selected ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732] hover:border-[#F5F2EA]/60'}`}
                       >
                         <span className="block text-[11px] font-black uppercase">{mode.label}</span>
                         <span className={`block text-[9px] mt-1 leading-snug ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`}>{mode.desc}</span>
@@ -3634,18 +3636,18 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <div className="p-4 bg-stone-950/40 rounded-xl border border-stone-900 space-y-4">
                 <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Farbe / Verlauf</span>
                 <p className="text-[10px] text-stone-400 leading-relaxed">Farbe oder Verlauf ist eine eigene Szene. Wenn du hier eine Fläche aktivierst, werden Video und Bild automatisch entfernt, damit der Hintergrund sofort sichtbar ist.</p>
-                <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
-                  <div className="flex items-center justify-between gap-3">
+                <div className="ureel-scene-switch-card rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
+                  <div className="ureel-scene-switch-row flex items-center justify-between gap-3">
                     <div>
                       <span className="block text-[10.5px] font-black uppercase tracking-wider text-[#F5F2EA]">Farbe / Verlauf anzeigen</span>
                       <span className="block text-[8.5px] text-stone-500 mt-0.5">Aus deaktiviert die Farbfläche vollständig.</span>
                     </div>
-                    <button type="button" onClick={() => setSceneColorOrGradientEnabled(!isSceneColorOrGradientActive())} className={`w-14 h-8 rounded-full p-1 transition flex ${(activeCard.cardBackgroundEnabled !== false && (activeCard.ureelScene?.mode === 'color' || activeCard.ureelScene?.mode === 'gradient')) ? 'bg-[#F5F2EA] justify-end' : 'bg-stone-800 justify-start'}`}><span className="block w-6 h-6 rounded-full bg-[#101010]" /></button>
+                    <div className="ureel-scene-state-pill">{isSceneColorOrGradientActive() ? 'AN' : 'AUS'}</div>
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    <button type="button" onClick={() => setSceneColorOrGradientEnabled(true, 'color')} className="h-9 rounded-xl border border-[#3A3732] bg-[#0F0F0F] text-[#F5F2EA] text-[8.5px] font-black uppercase tracking-wider">Nur Farbe</button>
-                    <button type="button" onClick={() => setSceneColorOrGradientEnabled(true, 'gradient')} className="h-9 rounded-xl border border-[#3A3732] bg-[#0F0F0F] text-[#F5F2EA] text-[8.5px] font-black uppercase tracking-wider">Verlauf</button>
-                    <button type="button" onClick={() => setSceneColorOrGradientEnabled(false)} className="h-9 rounded-xl border border-red-900/40 bg-red-950/20 text-red-200 text-[8.5px] font-black uppercase tracking-wider">Deaktivieren</button>
+                  <div className="ureel-scene-segmented" role="group" aria-label="Farbe oder Verlauf aktivieren">
+                    <button type="button" onClick={() => setSceneColorOrGradientEnabled(false)} className={!isSceneColorOrGradientActive() ? 'is-active' : ''}>Aus</button>
+                    <button type="button" onClick={() => setSceneColorOrGradientEnabled(true, 'color')} className={isSceneColorOrGradientActive() && activeCard.ureelScene?.mode === 'color' ? 'is-active' : ''}>Farbe</button>
+                    <button type="button" onClick={() => setSceneColorOrGradientEnabled(true, 'gradient')} className={isSceneColorOrGradientActive() && activeCard.ureelScene?.mode === 'gradient' ? 'is-active' : ''}>Verlauf</button>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -4711,13 +4713,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Profilbild</span>
                     <p className="text-[10px] text-stone-400 mt-1">Aktiviere ein Avatar-/Profilbild auf der Karte und steuere Form, Größe, Position und Timing.</p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setProfileImageVisibility(!((activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage || (activeCard as any).heroProfileImageEnabled))}
-                    className={`w-14 h-8 rounded-full p-1 transition flex ${((activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage || (activeCard as any).heroProfileImageEnabled) ? 'bg-[#F5F2EA] justify-end' : 'bg-stone-800 justify-start'}`}
-                  >
-                    <span className="block w-6 h-6 rounded-full bg-[#101010]" />
-                  </button>
+                  <div className="ureel-scene-state-pill">{((activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage || (activeCard as any).heroProfileImageEnabled) ? 'AN' : 'AUS'}</div>
+                </div>
+
+                <div className="ureel-scene-segmented" role="group" aria-label="Profilbild anzeigen">
+                  <button type="button" onClick={() => setProfileImageVisibility(false)} className={!((activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage || (activeCard as any).heroProfileImageEnabled) ? 'is-active' : ''}>Aus</button>
+                  <button type="button" onClick={() => setProfileImageVisibility(true)} className={((activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage || (activeCard as any).heroProfileImageEnabled) ? 'is-active' : ''}>Profilbild anzeigen</button>
                 </div>
 
                 <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4 space-y-3">
@@ -4788,12 +4789,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       <span className="block text-[10px] uppercase font-black tracking-wider text-[#F5F2EA]">Endkarte aktivieren</span>
                       <span className="block text-[8.5px] text-stone-500 mt-0.5">Aus bedeutet: keine Abschlusskarte, keine Farbe, kein Endkartenbild.</span>
                     </div>
-                    <button type="button" onClick={() => setEndCardEnabled(!endCard.enabled)} className={`w-14 h-8 rounded-full p-1 transition flex ${endCard.enabled ? 'bg-[#F5F2EA] justify-end' : 'bg-stone-800 justify-start'}`}><span className="block w-6 h-6 rounded-full bg-[#101010]" /></button>
+                    <div className="ureel-scene-state-pill">{endCard.enabled ? 'AN' : 'AUS'}</div>
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    <button type="button" onClick={() => setEndCard({ enabled: true, source: 'scene' as any })} className={`h-9 rounded-xl border text-[8.5px] font-black uppercase tracking-wider ${endCard.enabled && endCard.source === 'scene' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#0F0F0F] text-[#F5F2EA] border-[#3A3732]'}`}>Szene</button>
-                    <button type="button" onClick={() => setEndCard({ enabled: true, source: 'color' as any, backgroundColor: endCard.backgroundColor || '#1c1b1a' })} className={`h-9 rounded-xl border text-[8.5px] font-black uppercase tracking-wider ${endCard.enabled && endCard.source === 'color' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#0F0F0F] text-[#F5F2EA] border-[#3A3732]'}`}>Farbe</button>
-                    <button type="button" onClick={() => setEndCardEnabled(false)} className="h-9 rounded-xl border border-red-900/40 bg-red-950/20 text-red-200 text-[8.5px] font-black uppercase tracking-wider">Deaktivieren</button>
+                  <div className="ureel-scene-segmented" role="group" aria-label="Endkarte aktivieren">
+                    <button type="button" onClick={() => setEndCardEnabled(false)} className={!endCard.enabled ? 'is-active' : ''}>Aus</button>
+                    <button type="button" onClick={() => setEndCard({ enabled: true, source: 'scene' as any })} className={endCard.enabled && endCard.source === 'scene' ? 'is-active' : ''}>Szene</button>
+                    <button type="button" onClick={() => setEndCard({ enabled: true, source: 'color' as any, backgroundColor: endCard.backgroundColor || '#1c1b1a' })} className={endCard.enabled && endCard.source === 'color' ? 'is-active' : ''}>Farbe</button>
                   </div>
                   <div className="flex items-center gap-2 h-10 bg-[#0F0F0F] border border-[#3A3732] rounded-xl px-2">
                     <input type="color" value={endCard.backgroundColor || '#1c1b1a'} onChange={(e) => setEndCard({ enabled: true, source: 'color' as any, backgroundColor: e.target.value })} className="w-6 h-6 rounded cursor-pointer border-0 outline-none bg-transparent" />
@@ -5614,7 +5615,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           return (
             <section className="ureel-tap-panel ureel-tap-panel--button">
               <div className="ureel-tap-panel-head"><div><span>Buttons / Aktionen</span><h3>Button bearbeiten</h3><p className="ureel-tap-active-button-line">Aktiver Button: <b>{currentButton.title || 'Button'}</b></p></div><LucideIcons.MousePointerClick size={18} /></div>
-              <div className="ureel-tap-big-button-stage">{renderButtonPreviewTile(currentButton)}</div>
+              <div className="ureel-tap-big-button-stage"><div className="ureel-tap-big-button-stage-center">{renderButtonPreviewTile(currentButton)}</div></div>
               <div className="ureel-tap-chip-row ureel-mobile-button-editor-tabs"><button type="button" className={tapButtonTool === 'overview' || tapButtonTool === 'text' ? 'is-active' : ''} onClick={() => setTapButtonTool('text')}>Text</button><button type="button" className={tapButtonTool === 'action' ? 'is-active' : ''} onClick={() => setTapButtonTool('action')}>Aktion</button><button type="button" className={tapButtonTool === 'look' ? 'is-active' : ''} onClick={() => setTapButtonTool('look')}>Look</button><button type="button" className={tapButtonTool === 'manage' ? 'is-active' : ''} onClick={() => setTapButtonTool('manage')}>Verwalten</button></div>
               {(tapButtonTool === 'overview' || tapButtonTool === 'text') && <div className="ureel-tap-config ureel-mobile-text-editor">
                 <h4>Text auf dem Button</h4>
