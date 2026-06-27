@@ -1,41 +1,98 @@
-<!doctype html>
-<html lang="de">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- Primary Meta Tags -->
-    <title>ureel – Aus Video wird Aktion.</title>
-    <meta name="title" content="ureel – Aus Video wird Aktion." />
-    <meta name="description" content="Erstelle deine Mini-Webseite in Sekunden und teile alles, was zählt, mit einem Link." />
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://ureel.me/" />
-    <meta property="og:title" content="ureel – Aus Video wird Aktion." />
-    <meta property="og:description" content="Deine Mini-Webseite. So einfach wie ein Profil." />
-    <meta property="og:image" content="/brand/ureel-share-og.png" />
+import { Card } from '../types';
+import { canUseFeature } from '../config/plans';
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:title" content="ureel – Aus Video wird Aktion." />
-    <meta property="twitter:description" content="Deine Mini-Webseite. So einfach wie ein Profil." />
-    <meta property="twitter:image" content="/brand/ureel-share-og.png" />
+/**
+ * Formats a clean vCard contact file structure. Matches standard iOS/Android specifications.
+ */
+export function generateVCardString(
+  card: Card,
+  email: string = '',
+  phone: string = '',
+  organization: string = '',
+  jobTitle: string = '',
+  appUrl: string = window.location.origin
+): string {
+  const absoluteProfileUrl = appUrl.startsWith('http') ? `${appUrl}/u/${card.slug}` : `${window.location.origin}/u/${card.slug}`;
 
-    <!-- PWA / Favicon Tags -->
-    <link rel="icon" type="image/x-icon" href="/brand/favicon.ico" />
-    <link rel="icon" type="image/png" href="/brand/favicon.png" />
-    <link rel="apple-touch-icon" href="/brand/apple-touch-icon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
+  // Find contact values if empty
+  let finalEmail = email;
+  let finalPhone = phone;
+  let finalOrg = organization || card.companyName || card.heroCompany || '';
+  let finalTitle = jobTitle || card.subtitle || card.heroSubtitle || '';
+  const finalLocation = card.location || card.heroLocation || '';
 
-    <!-- Premium Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+  if (!finalEmail) {
+    const eb = card.buttons?.find(b => b.isActive && (b.actionType === 'email' || b.actionType === 'mailto') && b.actionValue && b.actionValue !== '[LOCKED]');
+    if (eb) {
+      finalEmail = eb.actionValue.replace(/^mailto:/i, '').trim();
+    }
+  } else {
+    finalEmail = finalEmail.replace(/^mailto:/i, '').trim();
+  }
 
+  if (!finalPhone) {
+    const pb = card.buttons?.find(b => b.isActive && (b.actionType === 'phone' || b.actionType === 'tel') && b.actionValue && b.actionValue !== '[LOCKED]');
+    if (pb) {
+      finalPhone = pb.actionValue.replace(/^tel:/i, '').trim();
+    }
+  } else {
+    finalPhone = finalPhone.replace(/^tel:/i, '').trim();
+  }
+
+  // Build the vCard payload complying with standard version 3.0 formatting. Matches target format.
+  const fields = [
+    'BEGIN:VCARD',
+    'VERSION:3.0',
+    `FN:${card.title || 'ureel'}`
+  ];
+
+  if (finalOrg) fields.push(`ORG:${finalOrg}`);
+  if (finalTitle) fields.push(`TITLE:${finalTitle}`);
+  if (finalPhone) fields.push(`TEL;TYPE=CELL:${finalPhone}`);
+  if (finalEmail) fields.push(`EMAIL:${finalEmail}`);
+  
+  fields.push(`URL:${absoluteProfileUrl}`);
+  
+  if (finalLocation) {
+    fields.push(`ADR;TYPE=WORK:;;${finalLocation};;;;`);
+  }
+  
+  const cardPlan = card?.plan || 'starter';
+  const hasBrandingHiddenFeature = canUseFeature(cardPlan, 'brandingHidden');
+  if (hasBrandingHiddenFeature && card.brandingHidden === true) {
+    fields.push(`NOTE:Digitale Visitenkarte - ${absoluteProfileUrl}`);
+  } else {
+    fields.push(`NOTE:ureel digitale Karte - ${absoluteProfileUrl}`);
+  }
+  fields.push('END:VCARD');
+
+  // Filter out empty lines and join with standard CRLF double characters
+  return fields.filter(Boolean).join('\r\n');
+}
+
+/**
+ * Triggers a client-side download of a .vcf contact card.
+ */
+export function downloadVCardFile(card: Card, email?: string, phone?: string, organization?: string, jobTitle?: string) {
+  const vcardText = generateVCardString(card, email, phone, organization, jobTitle);
+  const blob = new Blob([vcardText], { type: 'text/vcard;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  
+  const link = document.createElement('a');
+  link.href = url;
+  
+  // Clean special characters from slug to make a safe filename
+  const cleanSlug = card.slug.replace(/[^a-zA-Z0-9_\-]/g, '');
+  link.download = `ureel-contact-${cleanSlug || 'profile'}.vcf`;
+  document.body.appendChild(link);
+  link.click();
+  
+  // Clean up
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}

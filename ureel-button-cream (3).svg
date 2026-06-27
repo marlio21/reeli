@@ -1,0 +1,31 @@
+# v52.5.66 – Ureel Architecture Foundation
+
+## Ziel
+Sicherer erster Architektur-Schritt ohne Funktionsänderung: neue Ureel-Einstiegsdatei für den aktiven Card-Renderer, damit neue Entwicklung nicht mehr direkt auf `KonuCardCore` zeigt.
+
+## Geändert
+- Neu: `src/components/UreelCardCore.tsx`
+  - exportiert den aktuell aktiven Renderer aus `KonuCardCore` unter dem neuen Ureel-Namen.
+  - ändert bewusst kein Verhalten.
+- Umgestellt auf `UreelCardCore`:
+  - `src/components/DashboardView.tsx`
+  - `src/components/MiniCardPreview.tsx`
+  - `src/components/PublicCardView.tsx`
+  - `src/components/UnifiedMobileLiveCardSurface.tsx`
+  - `src/components/UreelStudioShell.tsx`
+- Minimaler TypeScript-Fix in `UreelStudioShell.tsx`, damit der bestehende Endkarten-Code sauber durch `tsc` läuft. Keine UI-/Logikänderung.
+
+## Bewusst NICHT geändert
+- keine Szene-Funktionalität
+- keine Button-Optik
+- keine Mobile-Logik
+- keine Public-View-Logik
+- keine Mini-Webseite
+- `KonuCardCore.tsx` wurde nicht gelöscht, weil er aktuell noch die echte Implementierung enthält.
+
+## Checks
+- `npm run lint` erfolgreich
+- `npm run build` erfolgreich
+
+## Empfehlung
+Diese Version nur auf einen Entwicklungsbranch laden, z. B. `desktop-parity`, nicht direkt auf `main`.

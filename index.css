@@ -1,0 +1,12 @@
+/**
+ * UreelCardCore
+ *
+ * Stable Ureel-facing entrypoint for the active card renderer.
+ *
+ * The legacy implementation still lives in KonuCardCore while we migrate
+ * safely. New code must import UreelCardCore from this file instead of
+ * importing KonuCardCore directly. This wrapper intentionally changes no
+ * runtime behavior.
+ */
+export { KonuCardCore as UreelCardCore } from './KonuCardCore';
+export type { KonuCardCoreProps as UreelCardCoreProps } from './KonuCardCore';
