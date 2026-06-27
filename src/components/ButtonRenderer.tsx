@@ -288,10 +288,13 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
         ? Math.max(9.4, Math.min(14.2, forceSizePx * (isSmallTextPreset ? 0.13 : isNormalTextPreset ? 0.148 : isLargeTextPreset ? 0.16 : 0.168)))
         : Math.max(11.2, Math.min(17.2, forceSizePx * (isSmallTextPreset ? 0.162 : isNormalTextPreset ? 0.178 : isLargeTextPreset ? 0.194 : 0.205))))
     : (hasUsableIcon ? 11.2 : 13.2);
-  const forcedTextFloor = forceIconOnly ? 0 : (hasUsableIcon ? (isTinyTile ? 8.2 : 8.8) : (isTinyTile ? 9.0 : 9.8));
-  const iconTextFactor = hasUsableIcon ? (isSmallTextPreset ? 0.92 : isNormalTextPreset ? 1.0 : isLargeTextPreset ? 1.06 : 1.12) : 1.0;
+  const forcedTextFloor = forceIconOnly ? 0 : (hasUsableIcon ? (isTinyTile ? 7.4 : 8.2) : (isTinyTile ? 8.4 : 9.2));
+  const iconTextFactor = hasUsableIcon ? (isSmallTextPreset ? 0.9 : isNormalTextPreset ? 0.96 : isLargeTextPreset ? 1.02 : 1.08) : 1.0;
+  const estimatedUsableTextWidth = forceSizePx
+    ? forceSizePx * (hasUsableIcon ? (effectiveIconPosition === 'top' || effectiveIconPosition === 'bottom' || effectiveIconPosition === 'center' ? 0.78 : 0.64) : 0.84)
+    : undefined;
   const widthFitCap = forceSizePx && labelLength > 0
-    ? Math.max(forcedTextFloor, (forceSizePx * (hasUsableIcon ? 1.04 : 1.08)) / Math.max(1, labelLength * 0.56))
+    ? Math.max(forcedTextFloor, (estimatedUsableTextWidth || forceSizePx) / Math.max(1, labelLength * 0.62))
     : forcedTextCap;
   const autoFitFontSize = forceSizePx
     ? (forceIconOnly ? 0 : Math.max(forcedTextFloor, Math.min(forcedTextCap, widthFitCap, (baseFontSize * fontScale * iconTextFactor) - lengthPenalty)))
@@ -597,8 +600,8 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
         <div 
           className={`flex ${(effectiveIconPosition === 'top' || effectiveIconPosition === 'bottom' || effectiveIconPosition === 'center') ? 'flex-col' : 'flex-row'} items-center w-full max-w-full min-w-0 ${getTextAlignClass()} pointer-events-none`}
           style={{
-            gap: `${Math.round(((effectiveIconPosition === 'top' || effectiveIconPosition === 'bottom' || effectiveIconPosition === 'center') ? (isTinyTile ? 3 : 4) : 6) * scaleFactor)}px`,
-            transform: forceSizePx ? 'translateY(-2%)' : undefined
+            gap: `${Math.round(((effectiveIconPosition === 'top' || effectiveIconPosition === 'bottom' || effectiveIconPosition === 'center') ? (isTinyTile ? 2 : 3) : 5) * scaleFactor)}px`,
+            transform: forceSizePx ? 'translateY(-1%)' : undefined
           }}
         >
           
@@ -631,7 +634,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
               wordBreak: forceSizePx ? 'normal' : (compactSingleLine ? 'keep-all' : 'break-word'),
               whiteSpace: forceSizePx && !hasSecondButtonLine ? 'nowrap' : (compactSingleLine ? 'nowrap' : 'normal'),
               hyphens: forceSizePx ? 'manual' : (compactSingleLine ? 'manual' : 'auto'),
-              overflow: forceSizePx && !hasSecondButtonLine ? 'visible' : 'hidden',
+              overflow: 'hidden',
               textOverflow: forceSizePx ? 'clip' : 'ellipsis',
               WebkitFontSmoothing: 'antialiased',
               opacity: forceIconOnly ? 0 : 1,

@@ -1,6 +1,186 @@
-import { Card } from '../types';
-import { downloadVCardFile } from './vcard';
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default Deny Catch-All Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
 
-export function downloadVCardFileFromCard(card: Card) {
-  downloadVCardFile(card);
+    // Global Authorization Primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'owner'])
+      );
+    }
+    
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+    
+    function incoming() {
+      return request.resource.data;
+    }
+    
+    function existing() {
+      return resource.data;
+    }
+
+    // Entity Schemas
+    function isValidUser(data) {
+      return data.userId is string 
+        && data.email is string 
+        && data.plan in ['free', 'starter', 'premium', 'pro', 'business', 'family']
+        && data.storageLimitMB is int
+        && data.storageUsedMB is number
+        && data.role in ['user', 'admin', 'owner']
+        && data.acceptedTermsAt is string
+        && data.acceptedPrivacyAt is string;
+    }
+
+    function isPublicCard(data) {
+      return data.get('isPublished', false) == true
+        && data.get('visibility', 'public') == 'public'
+        && data.get('isDeleted', false) != true;
+    }
+
+    function isValidCard(data) {
+      return data.get('cardId', '') is string
+        && data.get('ownerId', '') is string
+        && data.get('slug', '') is string;
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // On creation, defaults are strictly locked
+      allow create: if isOwner(userId) 
+        && isValidUser(incoming())
+        && incoming().role == 'user'
+        && (incoming().plan == 'free' || incoming().plan == 'starter')
+        && incoming().storageLimitMB == 20;
+
+      // On update, users can never elevate plans or roles by themselves unless permitted by admin
+      allow update: if (isOwner(userId) || isAdmin())
+        && isValidUser(incoming())
+        && (incoming().plan == existing().plan || isAdmin())
+        && (incoming().role == existing().role || isAdmin())
+        && (incoming().storageLimitMB == existing().storageLimitMB || isAdmin())
+        && (incoming().storageUsedMB <= incoming().storageLimitMB || isAdmin());
+        
+      allow delete: if isAdmin();
+    }
+
+    match /cards/{cardId} {
+      // Direct single-document get is allowed if matching public criteria, or owned/admin
+      allow get: if isPublicCard(resource.data)
+        || (isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin()));
+
+      // List is allowed for slug query lookups
+      allow list: if true;
+
+      // Card must be locked to the authenticated user ID
+      allow create: if isSignedIn()
+        && isValidId(cardId)
+        && isValidCard(incoming())
+        && incoming().ownerId == request.auth.uid;
+
+      allow update: if isSignedIn()
+        && isValidId(cardId)
+        && isValidCard(incoming())
+        && existing().ownerId == request.auth.uid
+        && incoming().ownerId == request.auth.uid;
+
+      allow delete: if isSignedIn()
+        && existing().ownerId == request.auth.uid;
+
+      match /analytics/{docId} {
+        allow read, write: if true;
+      }
+    }
+
+    match /test/connection {
+      allow read: if true;
+    }
+
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if false; // System operators are added via the console directly
+    }
+
+    match /plans/{planId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /groups/{groupId} {
+      allow read: if resource.data.isPublished == true || (isSignedIn() && resource.data.ownerId == request.auth.uid) || isAdmin();
+      allow create: if isSignedIn() && isValidId(groupId) && incoming().ownerId == request.auth.uid;
+      allow update: if isSignedIn() && existing().ownerId == request.auth.uid && incoming().ownerId == request.auth.uid;
+      allow delete: if isSignedIn() && existing().ownerId == request.auth.uid;
+    }
+
+    match /reports/{reportId} {
+      allow read: if isAdmin();
+      allow create: if isValidId(reportId) && incoming().status == 'pending';
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /analytics/{eventId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+      allow create: if isValidId(eventId);
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    match /legalConsents/{consentId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    match /protected_buttons/{buttonId} {
+      // Allow read/write for owner and admin with robust null-safety for creation and deletion.
+      allow read, delete: if isSignedIn() && (resource == null || resource.data.ownerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && (incoming().ownerId == request.auth.uid || isAdmin());
+      allow update: if isSignedIn() && (existing().ownerId == request.auth.uid || isAdmin());
+    }
+
+    // Prompt 7A: Business companies & members rules
+    match /companies/{companyId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && (companyId == 'c_' + request.auth.uid || incoming().ownerId == request.auth.uid);
+      allow update: if isSignedIn() && (companyId == 'c_' + request.auth.uid || resource.data.ownerId == request.auth.uid || isAdmin());
+      allow delete: if isSignedIn() && (companyId == 'c_' + request.auth.uid || resource.data.ownerId == request.auth.uid || isAdmin());
+
+      match /members/{memberId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn() && (companyId == 'c_' + request.auth.uid || isAdmin());
+      }
+
+      match /leads/{leadId} {
+        // Public or signed-in users can submit a lead
+        allow create: if request.resource.data.companyId == companyId && request.resource.data.status == 'new';
+        // Signed-in company owner/admin can read/write/delete
+        allow read, update, delete: if isSignedIn() && (companyId == 'c_' + request.auth.uid || isAdmin());
+      }
+
+      match /templates/{templateId} {
+        // Only signed-in company owner/admin can read/write templates
+        allow read, write: if isSignedIn() && (companyId == 'c_' + request.auth.uid || isAdmin());
+      }
+    }
+  }
 }

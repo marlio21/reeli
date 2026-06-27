@@ -1453,59 +1453,88 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     const mode: 'color' | 'gradient' = preferredMode || (activeCard.cardBackgroundGradientEnabled ? 'gradient' : 'color');
     const from = activeCard.cardBackgroundColor || activeCard.ureelScene?.backgroundColor || activeCard.ureelScene?.gradient?.from || '#111111';
     const to = activeCard.cardBackgroundGradientColor || activeCard.ureelScene?.gradient?.to || '#3A3732';
+    const currentScene: any = activeCard.ureelScene || {};
+    const currentVideoConfig: any = activeCard.videoBackgroundConfig || {};
+
+    if (!enabled) {
+      await syncCardUpdate({
+        // BackgroundType has no "none" in the legacy card type. The actual off-state
+        // is cardBackgroundEnabled=false + ureelScene.mode='none'. Renderer/Public read
+        // that combination reliably without breaking older fallback backgrounds.
+        backgroundType: 'color' as any,
+        cardBackgroundEnabled: false,
+        cardBackgroundGradientEnabled: false,
+        ureelScene: {
+          ...currentScene,
+          mode: 'none' as any,
+          backgroundImageUrl: '',
+          gradient: undefined,
+          video: currentScene.video,
+        } as any,
+      } as any);
+      return;
+    }
+
     await syncCardUpdate({
-      backgroundType: enabled ? mode : 'color',
-      backgroundImageUrl: enabled ? '' : (activeCard.backgroundImageUrl || ''),
-      cardBackgroundImageUrl: enabled ? '' : (activeCard.cardBackgroundImageUrl || ''),
-      cardBackgroundEnabled: enabled,
-      cardBackgroundGradientEnabled: enabled && mode === 'gradient',
+      backgroundType: mode as any,
+      backgroundImageUrl: '',
+      cardBackgroundImageUrl: '',
+      cardBackgroundEnabled: true,
+      cardBackgroundGradientEnabled: mode === 'gradient',
       cardBackgroundColor: from,
       cardBackgroundGradientColor: to,
       videoBackgroundConfig: {
-        ...(activeCard.videoBackgroundConfig || {}),
-        enabled: enabled ? false : activeCard.videoBackgroundConfig?.enabled,
-        youtubeUrl: enabled ? '' : activeCard.videoBackgroundConfig?.youtubeUrl,
-        mediaMode: enabled ? 'none' : activeCard.videoBackgroundConfig?.mediaMode,
+        ...currentVideoConfig,
+        enabled: false,
+        youtubeUrl: '',
+        mediaMode: 'none',
       } as any,
       ureelScene: {
-        ...(activeCard.ureelScene || {}),
-        mode: enabled ? mode : 'none',
-        backgroundImageUrl: enabled ? '' : activeCard.ureelScene?.backgroundImageUrl,
+        ...currentScene,
+        mode,
+        backgroundImageUrl: '',
         backgroundColor: from,
-        gradient: enabled && mode === 'gradient'
-          ? { from, to, direction: activeCard.cardBackgroundGradientDirection || activeCard.ureelScene?.gradient?.direction || '135deg' }
+        gradient: mode === 'gradient'
+          ? { from, to, direction: activeCard.cardBackgroundGradientDirection || currentScene.gradient?.direction || '135deg' }
           : undefined,
-        video: enabled
-          ? { ...(activeCard.ureelScene?.video || {}), type: 'none' as any, url: '', displayMode: 'cover' as any, placement: 'background' as any, startAt: 0 }
-          : activeCard.ureelScene?.video,
+        video: { ...(currentScene.video || {}), type: 'none' as any, url: '', displayMode: 'cover' as any, placement: 'background' as any, startAt: 0 },
       } as any,
     } as any);
   };
 
   const setSceneDisplayMode = async (mode: 'reel' | 'wide') => {
-    const currentVideo = activeCard.ureelScene?.video || {};
+    const currentScene: any = activeCard.ureelScene || {};
+    const currentVideo: any = currentScene.video || {};
     const currentUrl = (currentVideo as any).url || activeCard.videoBackgroundConfig?.youtubeUrl || (activeCard.videoBackgroundConfig as any)?.url || '';
-    const duration = activeCard.ureelScene?.video?.duration || activeCard.videoBackgroundConfig?.durationSeconds || 12;
+    const duration = currentVideo.duration || activeCard.videoBackgroundConfig?.durationSeconds || 12;
+    const placement = mode === 'reel' ? 'background' : 'hero';
+    const displayMode = mode === 'reel' ? 'cover' : 'contain';
+    const hasVideo = currentScene.mode === 'video' || !!currentUrl || activeCard.backgroundType === 'video' || activeCard.videoBackgroundConfig?.enabled === true;
+
     await syncCardUpdate({
-      backgroundType: 'video',
+      // Do not turn a color/image scene into an empty video scene just because the
+      // user changes the display mode. Store the desired placement, and only keep
+      // videoBackgroundConfig active when real video exists.
+      sceneDisplayMode: mode as any,
+      backgroundType: hasVideo ? 'video' as any : activeCard.backgroundType,
       videoBackgroundConfig: {
         ...(activeCard.videoBackgroundConfig || {}),
-        enabled: !!currentUrl,
-        mediaMode: currentUrl ? 'youtube' : (activeCard.videoBackgroundConfig?.mediaMode || 'none'),
+        enabled: hasVideo && !!currentUrl,
+        mediaMode: hasVideo && currentUrl ? ((activeCard.videoBackgroundConfig?.mediaMode && (activeCard.videoBackgroundConfig.mediaMode as any) !== 'none') ? activeCard.videoBackgroundConfig.mediaMode : 'youtube') : (activeCard.videoBackgroundConfig?.mediaMode || 'none'),
         youtubeUrl: currentUrl,
         durationSeconds: duration,
-        videoFitMode: mode === 'reel' ? 'cover' : 'contain',
+        videoFitMode: displayMode,
       } as any,
       ureelScene: {
-        ...(activeCard.ureelScene || {}),
-        mode: 'video' as const,
+        ...currentScene,
+        mode: hasVideo ? 'video' as const : currentScene.mode,
         video: {
           ...currentVideo,
           type: (currentVideo as any).type || (currentUrl ? 'youtube' : 'none'),
           url: currentUrl,
           duration,
-          displayMode: mode === 'reel' ? 'cover' : 'contain',
-          placement: mode === 'reel' ? 'background' : 'hero',
+          displayMode,
+          placement,
           heroSize: 'wide',
           startAt: (currentVideo as any).startAt || 0,
         }
@@ -1514,9 +1543,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
   const setEndCardEnabled = async (enabled: boolean) => {
+    const currentSource = endCard.source as string | undefined;
     await setEndCard({
       enabled,
-      source: enabled ? ((endCard.source && endCard.source !== 'none') ? endCard.source : 'scene') as any : endCard.source,
+      source: enabled ? ((currentSource && currentSource !== 'none') ? currentSource : 'scene') as any : 'scene' as any,
     });
   };
 
@@ -3577,9 +3607,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     { id: 'reel', label: 'Reel', desc: '9:16 Vollfläche – Video/Bild füllt die Smartphone-Karte' },
                     { id: 'wide', label: '16:9 Ansicht', desc: 'Video/Bild als breiter 16:9-Bereich oben wie mobil' },
                   ].map((mode) => {
-                    const selected = mode.id === 'reel'
-                      ? ((activeCard.ureelScene?.video?.displayMode || 'cover') === 'cover' && (activeCard.ureelScene?.video as any)?.placement !== 'hero')
-                      : ((activeCard.ureelScene?.video as any)?.placement === 'hero');
+                    const currentSceneDisplayMode = (activeCard as any).sceneDisplayMode || (((activeCard.ureelScene?.video as any)?.placement === 'hero') ? 'wide' : 'reel');
+                    const selected = currentSceneDisplayMode === mode.id;
                     return (
                       <button
                         key={mode.id}
@@ -5446,8 +5475,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <h4>Darstellung</h4>
                 <p>Zeige Video/Bild entweder als komplette 9:16 Bühne oder als 16:9 Bildschirm im Layout.</p>
                 <div className="ureel-tap-display-options">
-                  <button type="button" className={(activeCard.ureelScene?.video?.placement || 'background') === 'background' ? 'is-active' : ''} onClick={() => setSceneDisplayMode('reel')}><span className="mock mock-fill"/> <strong>Reel füllt Karte</strong><small>9:16 Vollfläche</small></button>
-                  <button type="button" className={activeCard.ureelScene?.video?.placement === 'hero' ? 'is-active' : ''} onClick={() => setSceneDisplayMode('wide')}><span className="mock mock-wide"/> <strong>16:9 Bildschirm</strong><small>Video oben, Inhalt darunter</small></button>
+                  <button type="button" className={((activeCard as any).sceneDisplayMode || ((activeCard.ureelScene?.video as any)?.placement === 'hero' ? 'wide' : 'reel')) === 'reel' ? 'is-active' : ''} onClick={() => setSceneDisplayMode('reel')}><span className="mock mock-fill"/> <strong>Reel</strong><small>9:16 Vollfläche</small></button>
+                  <button type="button" className={((activeCard as any).sceneDisplayMode || ((activeCard.ureelScene?.video as any)?.placement === 'hero' ? 'wide' : 'reel')) === 'wide' ? 'is-active' : ''} onClick={() => setSceneDisplayMode('wide')}><span className="mock mock-wide"/> <strong>16:9 Ansicht</strong><small>Video/Bild oben, Inhalt darunter</small></button>
                 </div>
               </div>
             )}
