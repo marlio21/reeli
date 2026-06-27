@@ -58,7 +58,7 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
 
   useEffect(() => {
     setLocalGridLayout(deriveCanonicalButtonGridLayout(activeCard, { preferLiveFields: true }));
-  }, [activeCard?.id, activeCard?.buttonGridLayout, activeCard?.buttonSizePx, activeCard?.buttonGapPx, activeCard?.buttonGridCols]);
+  }, [activeCard?.cardId, activeCard?.buttonGridLayout, activeCard?.buttonSizePx, activeCard?.buttonGapPx, activeCard?.buttonGridCols]);
 
   // Active section to manage: 'face' | 'styling' | 'text' | 'function' | null
   const [activeTab, setActiveTab] = useState<'face' | 'styling' | 'text' | 'function' | null>(null);
@@ -220,7 +220,7 @@ export const ButtonDesigner: React.FC<ButtonDesignerProps> = ({
       setBtnIconPosition(b.iconPosition || 'left');
 
       setBtnImageUrl(b.imageUrl || '');
-      setBtnImageStyle(b.imageStyle || 'icon');
+      setBtnImageStyle((b.imageStyle === 'background' || b.imageStyle === 'icon' ? b.imageStyle : 'icon'));
       setBtnImageMode(b.imageMode || 'cover');
       setBtnImagePosition(b.imagePosition || 'center');
       setBtnImageOverlay(typeof b.imageOverlay === 'number' ? b.imageOverlay : b.imageOverlay === 'dark' ? 50 : b.imageOverlay === 'light' ? 20 : 0);

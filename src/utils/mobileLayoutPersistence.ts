@@ -9,6 +9,7 @@
 import { Card, ButtonGridLayout } from '../types';
 import { normalizeUreelTextTemplate } from './textTemplates';
 import { clampCardButtonSize, CARD_BUTTON_DEFAULT_SIZE } from './cardButtonSizePresets';
+import { getHeroTextY } from './heroTextLayout';
 
 const num = (value: any, fallback: number) => {
   const n = Number(value);
@@ -66,7 +67,7 @@ export const buildMobileLayoutSnapshot = (card: Partial<Card>, options?: { prefe
   const titleSize = clamp((card as any).heroTitleSize ?? (card as any).mobileLayout?.text?.titleSizePx, 10, 56, 24);
   const subtitleSize = clamp((card as any).heroSubtitleSize ?? (card as any).mobileLayout?.text?.subtitleSizePx, 8, 40, 14);
   const descriptionSize = clamp((card as any).heroDescriptionSize ?? (card as any).mobileLayout?.text?.descriptionSizePx, 8, 36, 12);
-  const textHeightPercent = clamp((card as any).heroTextTopPercent ?? (card as any).heroTextHeightPercent ?? (card as any).mobileLayout?.text?.topPercent ?? (card as any).mobileLayout?.text?.heightPercent ?? (card as any).publicLayoutSnapshot?.text?.topPercent ?? (card as any).publicLayoutSnapshot?.text?.heightPercent, 4, 88, 44);
+  const textHeightPercent = getHeroTextY(card);
   return {
     version: 'v52.5.41',
     buttons: {
@@ -170,7 +171,7 @@ export const hydrateCardMobileLayout = <T extends Partial<Card> | null | undefin
   const heroTitleSize = (card as any).heroTitleSize ?? text.heroTitleSize ?? text.titleSizePx;
   const heroSubtitleSize = (card as any).heroSubtitleSize ?? text.heroSubtitleSize ?? text.subtitleSizePx;
   const heroDescriptionSize = (card as any).heroDescriptionSize ?? text.heroDescriptionSize ?? text.descriptionSizePx;
-  const heroTextHeightPercent = (card as any).heroTextTopPercent ?? (card as any).heroTextHeightPercent ?? text.heroTextTopPercent ?? text.topPercent ?? text.heroTextHeightPercent ?? text.heightPercent;
+  const heroTextHeightPercent = getHeroTextY(card);
   return {
     ...(card as any),
     buttonGridLayout: grid,

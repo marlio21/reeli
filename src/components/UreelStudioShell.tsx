@@ -9,6 +9,7 @@ import { UnifiedMobileLiveCardSurface } from './UnifiedMobileLiveCardSurface';
 import { createDefaultButton, sanitizeButtonForFirestore } from '../utils/buttonUtils';
 import { UREEL_TEXT_TEMPLATES, normalizeUreelTextTemplate } from '../utils/textTemplates';
 import { persistMobileLayoutFields, hydrateCardMobileLayout } from '../utils/mobileLayoutPersistence';
+import { getHeroTextY, buildHeroTextYPatch } from '../utils/heroTextLayout';
 import { CARD_BUTTON_SIZE_PRESETS, CARD_BUTTON_GAP_PRESETS, CARD_BUTTON_FONT_PRESETS, CARD_BUTTON_ICON_PRESETS, CARD_BUTTON_SCALE_PRESETS, CARD_BUTTON_MIN_SIZE, CARD_BUTTON_DEFAULT_SIZE, CARD_BUTTON_MAX_SIZE, clampCardButtonSize, type CardButtonSizePreset } from '../utils/cardButtonSizePresets';
 import { storage } from '../firebase';
 
@@ -450,14 +451,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         description: activeCard.description || '',
       });
     }
-  }, [activeCard.id, activeCard.title, activeCard.subtitle, activeCard.description, textDirty]);
+  }, [activeCard.cardId, activeCard.title, activeCard.subtitle, activeCard.description, textDirty]);
 
   const buildTextRevealConfig = (nextDraft = textDraft) => {
     const current = activeCard.videoBackgroundConfig?.profileTextReveals || [];
     const startMap: Record<string, number> = { title: timeline.titleAt, subtitle: timeline.subtitleAt, description: timeline.descriptionAt };
     const valueMap: Record<string, string> = { title: nextDraft.title || '', subtitle: nextDraft.subtitle || '', description: nextDraft.description || '' };
     return (['title', 'subtitle', 'description'] as const).map((key) => {
-      const existing = current.find((r: any) => r.fieldKey === key) || {};
+      const existing: any = current.find((r: any) => r.fieldKey === key) || {};
       const hasValue = valueMap[key].trim().length > 0;
       return {
         ...existing,
@@ -1327,7 +1328,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     const startMap: Record<string, number> = { title: timeline.titleAt, subtitle: timeline.subtitleAt, description: timeline.descriptionAt };
     const fields: Array<'title' | 'subtitle' | 'description'> = ['title', 'subtitle', 'description'];
     const profileTextReveals = fields.map((key) => {
-      const existing = current.find((r: any) => r.fieldKey === key) || {};
+      const existing: any = current.find((r: any) => r.fieldKey === key) || {};
       return {
         ...existing,
         fieldKey: key,
@@ -2251,8 +2252,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     // v52.5.32: keep the editor preview readable but stop it from exploding
     // when the real card tile is large. The card/public renderer still uses
     // the real pixel size; only this inspection preview is visually zoomed.
-    const maxStage = compact ? realTileSize : 138;
-    const zoom = compact ? 1 : Math.max(1.0, Math.min(1.45, maxStage / Math.max(1, realTileSize)));
+    const maxStage = compact ? realTileSize : 172;
+    const zoom = compact ? 1 : Math.max(1.0, Math.min(1.75, maxStage / Math.max(1, realTileSize)));
     const stageSize = Math.round(realTileSize * zoom);
     return (
       <div key={button.id} className={`relative flex items-center justify-center ${compact ? 'ureel-button-preview-tile--compact' : 'ureel-button-preview-tile--large'}`} style={{ width: stageSize, height: stageSize }}>
@@ -2298,8 +2299,25 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       imageOverlay: button.imageOverlay,
       buttonImageOverlay: button.buttonImageOverlay,
       imageDarken: button.imageDarken,
+      imageSaturation: (button as any).imageSaturation,
+      imagePosition: (button as any).imagePosition,
+      textColor: button.textColor,
+      iconColor: button.iconColor,
+      iconSize: button.iconSize,
+      iconPosition: button.iconPosition,
+      iconOffsetX: button.iconOffsetX,
+      iconOffsetY: button.iconOffsetY,
+      iconEnabled: button.iconEnabled,
+      fontFamily: button.fontFamily,
+      fontSize: button.fontSize,
+      fontWeight: button.fontWeight,
+      letterSpacing: button.letterSpacing,
+      textAlign: button.textAlign,
+      textPosition: button.textPosition,
+      textShadow: button.textShadow,
+      textWrap: button.textWrap,
       buttonSize: button.buttonSize,
-      buttonSizeScale: button.buttonSizeScale,
+      buttonSizeScale: (button as any).buttonSizeScale,
       textPadding: button.textPadding,
     } as Partial<CardButton>;
   };
@@ -2395,13 +2413,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     }
     if (module === 'buttons') {
       return [
-        { id: 'buttons-list', label: 'Buttonliste' },
         { id: 'buttons-text', label: 'Text' },
         { id: 'buttons-action', label: 'Aktion' },
-        { id: 'buttons-icon', label: 'Icon' },
         { id: 'buttons-design', label: 'Look' },
-        { id: 'buttons-size', label: 'Größe' },
-        { id: 'buttons-transfer', label: 'Design übertragen' },
+        { id: 'buttons-list', label: 'Verwalten' },
       ];
     }
     if (module === 'design') {
@@ -2487,10 +2502,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         { id: 'look-border', label: 'Rahmen', opensPanel: true },
       ];
       if (subsectionId === 'buttons-transfer') return [
-        { id: 'transfer-all', label: 'Auf alle', opensPanel: true },
-        { id: 'transfer-color', label: 'Nur Farbe', opensPanel: true },
-        { id: 'transfer-form', label: 'Nur Form', opensPanel: true },
-        { id: 'transfer-icon', label: 'Nur Icon', opensPanel: true },
+        { id: 'transfer-all', label: 'Look auf alle', opensPanel: true },
       ];
       return [
         { id: 'button-text-main', label: 'Haupttext', opensPanel: true },
@@ -3452,7 +3464,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         type="button"
                         onClick={() => {
                           const currentVideo = activeCard.ureelScene?.video || {};
-                          const currentUrl = (currentVideo as any).url || activeCard.videoBackgroundConfig?.youtubeUrl || activeCard.videoBackgroundConfig?.url || '';
+                          const currentUrl = (currentVideo as any).url || activeCard.videoBackgroundConfig?.youtubeUrl || (activeCard.videoBackgroundConfig as any)?.url || '';
                           const duration = activeCard.ureelScene?.video?.duration || activeCard.videoBackgroundConfig?.durationSeconds || 12;
                           syncCardUpdate({
                             backgroundType: 'video',
@@ -4270,7 +4282,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     {renderButtonPreviewTile(editingButton)}
                   </div>
                   <div className="ureel-mobile-button-strip">
-                    {[...(activeCard.buttons || [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0)).slice(0, 9).map((button, index) => {
+                    {[...(activeCard.buttons || [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0)).slice(0, 6).map((button, index) => {
                       const selected = editingBtnId === button.id;
                       return (
                         <button key={button.id || index} type="button" onClick={() => setEditingBtnId(button.id)} className={selected ? 'is-active' : ''}>
@@ -4342,10 +4354,13 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         <button onClick={handleAddButtonLocal} className="h-10 px-3 rounded-xl bg-[#F5F2EA] text-[#101010] text-[10px] font-black uppercase tracking-wider flex items-center gap-2">
                           <LucideIcons.Plus size={14} /> Neu
                         </button>
+                        <button onClick={transferButtonDesignToAll} className="h-10 px-3 rounded-xl border border-[#E8DCC2]/40 bg-[#181818] text-[#F5F2EA] text-[9px] font-black uppercase tracking-wider flex items-center gap-2">
+                          <LucideIcons.Paintbrush size={13} /> Design auf alle Buttons übertragen
+                        </button>
                       </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {[...(activeCard.buttons || [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0)).map((button, index) => {
+                      {[...(activeCard.buttons || [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0)).slice(0, 6).map((button, index) => {
                         const selected = editingBtnId === button.id;
                         const actionLabel = actionOptions.find((option) => option.value === button.actionType)?.label || button.actionType || 'Aktion';
                         return (
@@ -4515,7 +4530,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         <div className="grid grid-cols-2 gap-2"><select value={editingButton.buttonImageFit || editingButton.imageMode || 'cover'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { buttonImageFit: e.target.value as any, imageMode: e.target.value as any })} className="h-10 rounded-xl bg-[#0F0F0F] border border-[#3A3732] px-3 text-xs text-[#F5F2EA]"><option value="cover">Cover</option><option value="contain">Contain</option></select><button type="button" onClick={() => handleUpdateSingleButton(editingButton.id, { buttonImageOverlay: !editingButton.buttonImageOverlay, imageOverlay: editingButton.buttonImageOverlay ? 0 : 35 })} className={`h-10 rounded-xl border text-[10px] font-black uppercase cursor-pointer ${editingButton.buttonImageOverlay || Number(editingButton.imageOverlay || 0) > 0 ? 'border-[#F5F2EA] bg-[#F5F2EA]/10 text-[#F5F2EA]' : 'border-[#3A3732] bg-[#0F0F0F] text-stone-400'}`}>Overlay {editingButton.buttonImageOverlay || Number(editingButton.imageOverlay || 0) > 0 ? 'an' : 'aus'}</button></div>
                       </div>
                     </div>
-                    <div className="space-y-3"><span className="text-[9px] uppercase font-black tracking-wider text-stone-500 block">Button-Vorschau</span>{renderButtonPreviewTile(editingButton)}<button onClick={transferButtonDesignToAll} className="w-full h-10 rounded-xl border border-[#3A3732] bg-[#181818] text-[#F5F2EA] text-[9px] font-black uppercase tracking-wider flex items-center justify-center gap-2"><LucideIcons.Paintbrush size={12} /> Design übertragen</button></div>
+                    <div className="space-y-3"><span className="text-[9px] uppercase font-black tracking-wider text-stone-500 block">Button-Vorschau</span>{renderButtonPreviewTile(editingButton)}<button onClick={transferButtonDesignToAll} className="w-full h-10 rounded-xl border border-[#3A3732] bg-[#181818] text-[#F5F2EA] text-[9px] font-black uppercase tracking-wider flex items-center justify-center gap-2"><LucideIcons.Paintbrush size={12} /> Look auf alle Buttons übertragen</button></div>
                   </div>
                 </div>
               )}
@@ -4538,7 +4553,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 }}
               /></div></div>}
                     {buttonPreviewMode === 'button' && editingButton && <div className="max-w-[240px] mx-auto">{renderButtonPreviewTile(editingButton)}</div>}
-                    {buttonPreviewMode === 'grid' && <div className="grid max-w-sm mx-auto" style={{ gridTemplateColumns: `repeat(${buttonGridCols}, minmax(0, 1fr))`, gap: `${buttonGapPx}px` }}>{(activeButtons.length ? activeButtons : activeCard.buttons || []).map((button) => renderButtonPreviewTile(button, true))}</div>}
+                    {buttonPreviewMode === 'grid' && <div className="grid max-w-sm mx-auto" style={{ gridTemplateColumns: `repeat(${buttonGridCols}, minmax(0, 1fr))`, gap: `${buttonGapPx}px` }}>{(activeButtons.length ? activeButtons : activeCard.buttons || []).slice(0, 6).map((button) => renderButtonPreviewTile(button, true))}</div>}
                     <div className="rounded-xl border border-[#3A3732] bg-[#181818] p-3 text-[9px] leading-relaxed text-[#F5F2EA]/80"><b>Timeline-Hinweis:</b> In der Live-Karte erscheinen Buttons ab <b>{visibleButtonsAt.toFixed(1)}s</b>. Die Button-Vorschau bleibt hier immer sichtbar.</div>
                   </div>
                   <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
@@ -4991,7 +5006,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <span className="text-[8px] text-stone-500 font-mono">{buttonGridCols} pro Reihe</span>
                   </div>
                   <div className="grid" style={{ gridTemplateColumns: `repeat(${buttonGridCols}, minmax(0, 1fr))`, gap: `${Math.min(buttonGapPx, 14)}px` }}>
-                    {(activeButtons.length ? activeButtons : activeCard.buttons || []).slice(0, 9).map((button) => renderButtonPreviewTile(button, true))}
+                    {(activeButtons.length ? activeButtons : activeCard.buttons || []).slice(0, 6).map((button) => renderButtonPreviewTile(button, true))}
                   </div>
                   <div className="mt-3 rounded-xl border border-[#3A3732] bg-[#0F0F0F] p-2 text-[8px] text-stone-500 text-center">Raster erscheint in der Karte ab <b className="text-[#E8DCC2]">{visibleButtonsAt.toFixed(1)}s</b>. Hier bleibt es dauerhaft sichtbar.</div>
                 </div>
@@ -5303,7 +5318,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   { key: 'heroSubtitleSize', label: 'Untertitelgröße', min: 6, max: 40, fallback: 12 },
                   { key: 'heroDescriptionSize', label: 'Beschreibunggröße', min: 6, max: 36, fallback: 10 },
                 ].map((item) => <div key={item.key} className="ureel-tap-slider-row"><label>{item.label} <b>{clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max).toFixed(0)}px</b></label><input type="range" min={item.min} max={item.max} step={1} value={clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max)} onChange={(e) => syncCardUpdate({ [item.key]: Number(e.target.value) } as any)} /></div>)}
-                <div className="ureel-tap-slider-row ureel-text-height-slider-row"><label>Texthöhe / Position <b>{Math.max(4, Math.min(88, Number((activeCard as any).heroTextTopPercent || (activeCard as any).heroTextHeightPercent || (activeCard as any).mobileLayout?.text?.topPercent || (activeCard as any).mobileLayout?.text?.heightPercent || (activeCard as any).publicLayoutSnapshot?.text?.topPercent || (activeCard as any).publicLayoutSnapshot?.text?.heightPercent || 44))).toFixed(0)}%</b></label><input type="range" min={4} max={88} step={1} value={Math.max(4, Math.min(88, Number((activeCard as any).heroTextTopPercent || (activeCard as any).heroTextHeightPercent || (activeCard as any).mobileLayout?.text?.topPercent || (activeCard as any).mobileLayout?.text?.heightPercent || (activeCard as any).publicLayoutSnapshot?.text?.topPercent || (activeCard as any).publicLayoutSnapshot?.text?.heightPercent || 44)))} onChange={(e) => { const nextHeight = Number(e.target.value); syncCardUpdate({ heroTextHeightPercent: nextHeight, heroTextTopPercent: nextHeight, mobileLayout: { ...((activeCard as any).mobileLayout || {}), text: { ...((activeCard as any).mobileLayout?.text || {}), heightPercent: nextHeight, topPercent: nextHeight } }, publicLayoutSnapshot: { ...((activeCard as any).publicLayoutSnapshot || {}), text: { ...((activeCard as any).publicLayoutSnapshot?.text || {}), heightPercent: nextHeight, topPercent: nextHeight } } } as any); }} /></div>
+                <div className="ureel-tap-slider-row ureel-text-height-slider-row"><label>Texthöhe / Position <b>{getHeroTextY(activeCard).toFixed(0)}%</b></label><input type="range" min={4} max={88} step={1} value={getHeroTextY(activeCard)} onChange={(e) => syncCardUpdate(buildHeroTextYPatch(activeCard, Number(e.target.value)) as any)} /></div>
                 {[
                   { key: 'heroTitleTextColor', label: 'Titelfarbe', fallback: '#F5F2EA' },
                   { key: 'heroSubtitleTextColor', label: 'Untertitelfarbe', fallback: '#E8DCC2' },
