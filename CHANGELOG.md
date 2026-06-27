@@ -1,4 +1,16 @@
 
+## v52.5.43 – Desktop Onepager Three Section Foundation
+
+- Desktop-only Onepager-Foundation ergänzt.
+- Desktop-Public-Ansicht besteht jetzt aus drei Bereichen: Reel/9:16 ohne Kartenbuttons, separater Button-Aktionsbereich und gestaltbarer Contentbereich.
+- Kartenbuttons werden im Desktop-Reel ausgeblendet und daneben mit denselben Buttondaten dargestellt.
+- Desktop-Buttonbereich ist auf 6 echte Kartenbuttons begrenzt.
+- Dritter Bereich kann Text aus der Karte oder eigenen Desktop-Text nutzen.
+- Optionaler Bild-/Video-URL-Block für den dritten Desktop-Bereich vorbereitet.
+- Mobile Karte, Mobile Editor und Public-Mobile bleiben unverändert.
+- ZIP bleibt ohne dist, node_modules und RELEASE_NOTES.
+
+
 ## v52.5.41 – Public Share Hydration & Six Button Cap Fix
 
 - Public/share links render from `hydrateCardMobileLayout(card)` before mounting the unified mobile surface.

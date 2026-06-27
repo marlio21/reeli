@@ -4500,11 +4500,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <div className="rounded-2xl border border-[#3A3732] bg-[#111111] p-4 space-y-4">
                 <div>
                   <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Desktop-Miniwebseite</span>
-                  <p className="text-[10px] text-stone-400 mt-1">Die Smartphone-Karte bleibt exakt der Szeneeditor. Dieser Bereich gestaltet nur die Desktop-Ansicht daneben.</p>
+                  <p className="text-[10px] text-stone-400 mt-1">Desktop wird zum Onepager: Bereich 1 zeigt das Reel ohne Kartenbuttons, Bereich 2 zeigt dieselben Buttons separat, Bereich 3 ist gestaltbarer Inhalt. Mobile bleibt unverändert.</p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { id: 'desktop_triptych', label: '3 Bereiche', hint: 'Phone · Text · Buttons' },
+                    { id: 'desktop_triptych', label: '3 Bereiche', hint: 'Reel · Buttons · Inhalt' },
                     { id: 'phone_left', label: 'Phone links', hint: 'Karte links, Inhalt rechts' },
                     { id: 'phone_center', label: 'Phone mittig', hint: 'Präsentation zentriert' },
                     { id: 'minimal', label: 'Minimal', hint: 'nur Karte + Aktionen' },
@@ -4548,7 +4548,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   <button type="button" onClick={() => updateDesktopPage({ showPhoneButtons: desktopPage.showPhoneButtons !== true })} className={`min-h-10 rounded-xl border px-2 py-2 text-[8px] font-black uppercase tracking-wider ${desktopPage.showPhoneButtons === true ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Karten-Buttons {desktopPage.showPhoneButtons === true ? 'AN' : 'AUS'}</button>
                   <button type="button" onClick={() => updateDesktopPage({ showActionButtons: desktopPage.showActionButtons === false })} className={`min-h-10 rounded-xl border px-2 py-2 text-[8px] font-black uppercase tracking-wider ${desktopPage.showActionButtons !== false ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Desktop-Buttons {desktopPage.showActionButtons !== false ? 'AN' : 'AUS'}</button>
                 </div>
-                <p className="text-[8.5px] leading-relaxed text-stone-500">Standard: Buttons in der Smartphone-Karte ausblenden und als schönen Desktop-Aktionsbereich daneben zeigen. Am Handy bleibt die echte Karte unverändert.</p>
+                <p className="text-[8.5px] leading-relaxed text-stone-500">Standard: Desktop zeigt das Reel ohne Kartenbuttons und nutzt einen separaten Aktionsbereich. Am Handy bleibt die echte Karte unverändert.</p>
               </div>
               <div className="rounded-[28px] border border-[#3A3732] overflow-hidden bg-[#0F0F0F] shadow-2xl">
                 <div className="px-4 pt-4 text-[9px] font-black uppercase tracking-[0.18em] text-[#E8DCC2]">Live-Desktop-Vorschau</div>
@@ -4618,6 +4618,18 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <input value={desktopPage.title || ''} onChange={(e) => updateDesktopPage({ title: e.target.value, contentMode: 'custom' })} placeholder={activeCard.title || 'Titel aus Werbetext'} className="w-full h-11 rounded-xl border border-[#3A3732] bg-[#0F0F0F] px-3 text-sm text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
                 <input value={desktopPage.subtitle || ''} onChange={(e) => updateDesktopPage({ subtitle: e.target.value, contentMode: 'custom' })} placeholder={activeCard.subtitle || 'Untertitel aus Werbetext'} className="w-full h-11 rounded-xl border border-[#3A3732] bg-[#0F0F0F] px-3 text-sm text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
                 <textarea value={desktopPage.description || ''} onChange={(e) => updateDesktopPage({ description: e.target.value, contentMode: 'custom' })} placeholder={activeCard.description || 'Beschreibung aus Werbetext'} rows={4} className="w-full rounded-xl border border-[#3A3732] bg-[#0F0F0F] p-3 text-sm text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
+                <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
+                  <div>
+                    <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Dritter Bereich: Bild oder Video</span>
+                    <p className="mt-1 text-[9px] leading-relaxed text-stone-500">Optionaler Medienblock nur für den Desktop-Onepager. Mobile Karte bleibt unverändert.</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button type="button" onClick={() => updateDesktopPage({ contentMediaType: 'image' })} className={`h-9 rounded-xl border text-[8px] font-black uppercase tracking-wider ${(desktopPage.contentMediaType || 'image') !== 'video' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#0F0F0F] text-stone-300 border-[#3A3732]'}`}>Bild</button>
+                    <button type="button" onClick={() => updateDesktopPage({ contentMediaType: 'video' })} className={`h-9 rounded-xl border text-[8px] font-black uppercase tracking-wider ${desktopPage.contentMediaType === 'video' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#0F0F0F] text-stone-300 border-[#3A3732]'}`}>Video</button>
+                  </div>
+                  <input value={desktopPage.contentMediaUrl || ''} onChange={(e) => updateDesktopPage({ contentMediaUrl: e.target.value })} placeholder="Bild-/Video-URL für Desktop-Inhaltsbereich" className="w-full h-10 rounded-xl border border-[#3A3732] bg-[#0F0F0F] px-3 text-xs text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
+                  {desktopPage.contentMediaUrl && <button type="button" onClick={() => updateDesktopPage({ contentMediaUrl: '', contentImageUrl: '', contentVideoUrl: '' })} className="w-full h-9 rounded-xl border border-[#3A3732] text-[8px] font-black uppercase tracking-wider text-stone-300">Medienfeld leeren</button>}
+                </div>
                 <button type="button" onClick={() => updateDesktopPage({ title: activeCard.title, subtitle: activeCard.subtitle, description: activeCard.description, contentMode: 'custom' })} className="w-full h-10 rounded-xl border border-[#E8DCC2]/40 text-[#F5F2EA] text-[9px] font-black uppercase tracking-wider">Aktuelle Werbetexte als eigenen Desktop-Text kopieren</button>
               </div>
             </div>
