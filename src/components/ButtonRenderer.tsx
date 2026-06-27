@@ -271,7 +271,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
     : (forceSizePx && hasUsableIcon && (rawIconPosition === 'left' || rawIconPosition === 'right')
       ? 'top'
       : rawIconPosition);
-  const baseFontSize = btn.fontSize !== undefined ? btn.fontSize : 12;
+  const baseFontSize = btn.fontSize !== undefined ? btn.fontSize : 13;
   const lengthPenalty = forceSizePx
     ? (labelLength > 28 ? 2.4 : labelLength > 20 ? 1.55 : labelLength > 14 ? 0.82 : labelLength > 9 ? 0.28 : 0)
     : (labelLength > 28 ? 4 : labelLength > 20 ? 3 : labelLength > 14 ? 1.8 : labelLength > 10 ? 0.8 : 0);
@@ -314,7 +314,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
     '900': '900',
   };
   const rawWeightStyle = btn.fontWeight ? fontWeights[String(btn.fontWeight).toLowerCase()] || '500' : '500';
-  const weightStyle = forceSizePx ? String(Math.max(800, Number(rawWeightStyle) || 800)) : rawWeightStyle;
+  const weightStyle = forceSizePx ? String(Math.max(750, Number(rawWeightStyle) || 750)) : rawWeightStyle;
 
   // Text Shadow Style
   let textShadowVal = 'none';
@@ -607,7 +607,7 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
           {effectiveIconPosition === 'left' && renderIconOrImage()}
 
           <span
-            className={`font-semibold z-10 ${hasSecondButtonLine ? '' : getTextWrapClass()} pointer-events-none`}
+          className={`font-semibold z-10 ${forceSizePx ? '' : (hasSecondButtonLine ? '' : getTextWrapClass())} pointer-events-none`}
             style={{
               display: 'inline-flex',
               flexDirection: 'column',
@@ -623,16 +623,17 @@ export const ButtonRenderer: React.FC<ButtonRendererProps> = ({
                   : undefined),
               fontSize: sizeStyle,
               fontWeight: weightStyle,
-              letterSpacing: forceSizePx ? '0px' : (btn.letterSpacing ? `${btn.letterSpacing}px` : undefined),
+              letterSpacing: forceSizePx ? '-0.025em' : (btn.letterSpacing ? `${btn.letterSpacing}px` : undefined),
               textShadow: textShadowVal,
               color: textColor,
-              lineHeight: forceSizePx ? (hasSecondButtonLine ? 1.0 : 1.04) : (hasSecondButtonLine ? 1.02 : 1.06),
+              lineHeight: forceSizePx ? (hasSecondButtonLine ? 1.0 : 1.06) : (hasSecondButtonLine ? 1.02 : 1.06),
               overflowWrap: forceSizePx ? 'normal' : (compactSingleLine ? 'normal' : 'anywhere'),
               wordBreak: forceSizePx ? 'normal' : (compactSingleLine ? 'keep-all' : 'break-word'),
               whiteSpace: forceSizePx && !hasSecondButtonLine ? 'nowrap' : (compactSingleLine ? 'nowrap' : 'normal'),
               hyphens: forceSizePx ? 'manual' : (compactSingleLine ? 'manual' : 'auto'),
               overflow: forceSizePx && !hasSecondButtonLine ? 'visible' : 'hidden',
               textOverflow: forceSizePx ? 'clip' : 'ellipsis',
+              WebkitFontSmoothing: 'antialiased',
               opacity: forceIconOnly ? 0 : 1,
             }}
           >
