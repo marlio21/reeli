@@ -9,7 +9,6 @@
 import { Card, ButtonGridLayout } from '../types';
 import { normalizeUreelTextTemplate } from './textTemplates';
 import { clampCardButtonSize, CARD_BUTTON_DEFAULT_SIZE } from './cardButtonSizePresets';
-import { getHeroTextY } from './heroTextLayout';
 
 const num = (value: any, fallback: number) => {
   const n = Number(value);
@@ -67,7 +66,7 @@ export const buildMobileLayoutSnapshot = (card: Partial<Card>, options?: { prefe
   const titleSize = clamp((card as any).heroTitleSize ?? (card as any).mobileLayout?.text?.titleSizePx, 10, 56, 24);
   const subtitleSize = clamp((card as any).heroSubtitleSize ?? (card as any).mobileLayout?.text?.subtitleSizePx, 8, 40, 14);
   const descriptionSize = clamp((card as any).heroDescriptionSize ?? (card as any).mobileLayout?.text?.descriptionSizePx, 8, 36, 12);
-  const textHeightPercent = getHeroTextY(card);
+  const textHeightPercent = clamp((card as any).heroTextHeightPercent ?? (card as any).mobileLayout?.text?.heightPercent ?? (card as any).publicLayoutSnapshot?.text?.heightPercent, 24, 76, 44);
   return {
     version: 'v52.5.41',
     buttons: {
@@ -88,9 +87,7 @@ export const buildMobileLayoutSnapshot = (card: Partial<Card>, options?: { prefe
       heroSubtitleSize: subtitleSize,
       heroDescriptionSize: descriptionSize,
       heightPercent: textHeightPercent,
-      topPercent: textHeightPercent,
       heroTextHeightPercent: textHeightPercent,
-      heroTextTopPercent: textHeightPercent,
       templateId: (card.ureelTextTemplate as any)?.id || '',
       templateStyle: (card.ureelTextTemplate as any)?.style || '',
       boxEnabled: (card.ureelTextTemplate as any)?.box?.enabled !== false,
@@ -146,7 +143,6 @@ export const persistMobileLayoutFields = <T extends Partial<Card>>(updates: T, b
     heroSubtitleSize: snapshot.text.heroSubtitleSize as any,
     heroDescriptionSize: snapshot.text.heroDescriptionSize as any,
     heroTextHeightPercent: snapshot.text.heroTextHeightPercent as any,
-    heroTextTopPercent: snapshot.text.heroTextTopPercent as any,
     mobileLayout: {
       ...(baseAny.mobileLayout || {}),
       ...(updateAny.mobileLayout || {}),
@@ -171,7 +167,7 @@ export const hydrateCardMobileLayout = <T extends Partial<Card> | null | undefin
   const heroTitleSize = (card as any).heroTitleSize ?? text.heroTitleSize ?? text.titleSizePx;
   const heroSubtitleSize = (card as any).heroSubtitleSize ?? text.heroSubtitleSize ?? text.subtitleSizePx;
   const heroDescriptionSize = (card as any).heroDescriptionSize ?? text.heroDescriptionSize ?? text.descriptionSizePx;
-  const heroTextHeightPercent = getHeroTextY(card);
+  const heroTextHeightPercent = (card as any).heroTextHeightPercent ?? text.heroTextHeightPercent ?? text.heightPercent;
   return {
     ...(card as any),
     buttonGridLayout: grid,
@@ -184,7 +180,6 @@ export const hydrateCardMobileLayout = <T extends Partial<Card> | null | undefin
     heroSubtitleSize,
     heroDescriptionSize,
     heroTextHeightPercent,
-    heroTextTopPercent: heroTextHeightPercent,
     mobileLayout: {
       ...((card as any).mobileLayout || {}),
       ...snapshot,

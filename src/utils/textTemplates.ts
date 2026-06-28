@@ -294,7 +294,7 @@ export function normalizeUreelTextTemplate(template?: Partial<UreelTextTemplate>
 /**
  * Returns Tailwind/CSS customization variables corresponding to layout settings
  */
-export function getFontStyleClasses(fontStyle: 'modern' | 'elegant' | 'serif' | 'condensed' | 'tech' | 'bold'): string {
+export function getFontStyleClasses(fontStyle: 'modern' | 'elegant' | 'serif' | 'condensed' | 'tech'): string {
   switch (fontStyle) {
     case 'elegant':
       return 'font-sans font-extralight tracking-[0.16em] uppercase text-stone-100';
@@ -310,7 +310,7 @@ export function getFontStyleClasses(fontStyle: 'modern' | 'elegant' | 'serif' | 
   }
 }
 
-export function getBoxStyleClasses(boxType: 'none' | 'transparent' | 'glass' | 'dark' | 'light' | 'solid', opacity: number): string {
+export function getBoxStyleClasses(boxType: 'none' | 'transparent' | 'glass' | 'dark' | 'light', opacity: number): string {
   const opDecimal = (opacity ?? 80) / 100;
   switch (boxType) {
     case 'transparent':

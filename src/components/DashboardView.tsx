@@ -3132,7 +3132,7 @@ Jetzt kommt der KONU Admin JSON Export:`;
       setBtnProtected(!!safeBtn.isProtected);
       setBtnPassword(safeBtn.isProtected ? '••••••••' : '');
       setBtnPasswordHint(safeBtn.passwordHint || '');
-      setBtnImageStyle((safeBtn.imageStyle === 'background' || safeBtn.imageStyle === 'icon' ? safeBtn.imageStyle : 'icon'));
+      setBtnImageStyle(safeBtn.imageStyle || 'icon');
       setBtnImageOverlay((safeBtn.imageOverlay || 'dark') as any);
       setBtnUploadedUrl(safeBtn.imageUrl || '');
       // Hydrate Advanced Image Button states

@@ -161,7 +161,6 @@ export interface CardButton {
   galleryUrls?: string[];
   galleryDropboxUrl?: string;
   buttonShape?: string;
-  buttonSizeScale?: number;
   buttonSize?: {
     preset: "compact" | "standard" | "large" | "custom";
     width?: number | string;
@@ -262,7 +261,6 @@ export interface UreelDesktopPage {
 
 export interface Card {
   cardId: string;
-  id?: string; // legacy/runtime alias
   ownerId: string;
   type: CardType;
   slug: string;
@@ -306,7 +304,7 @@ export interface Card {
   coverImagePosition?: 'top' | 'center' | 'bottom';
 
   // Unified hero area fields
-  heroBackgroundType?: 'color' | 'image' | 'video' | string;
+  heroBackgroundType?: 'color' | 'image' | 'video';
   heroBackgroundColor?: string;
   heroImageUrl?: string;
   heroImagePath?: string;
@@ -331,31 +329,15 @@ export interface Card {
   heroTextPosition?: 'top' | 'center' | 'bottom';
   heroTextAlign?: 'left' | 'center' | 'right';
   heroFontStyle?: 'modern' | 'elegant' | 'bold' | 'minimal';
-  heroTextColor?: 'white' | 'cream' | 'gold' | 'dark' | string;
-
-  // v52.5.60 canonical/legacy hero text and profile fields used by mobile, desktop and snapshots
-  heroTextTopPercent?: number;
-  heroTextHeightPercent?: number;
-  mobileLayout?: any;
-  publicLayoutSnapshot?: any;
-  heroProfileImageEnabled?: boolean;
-  profileImageEnabled?: boolean;
-  profileTextMode?: boolean;
-  profileTextName?: string;
-  profileTextPosition?: string;
-  profileTextCompany?: string;
-  profileTextColor?: string;
-  videoBackgroundUrl?: string;
-  imageUrl?: string;
-  businessName?: string;
+  heroTextColor?: 'white' | 'cream' | 'gold' | 'dark';
 
   // Per-field typography & color overrides
   heroTitleFontStyle?: 'modern' | 'elegant' | 'bold' | 'minimal';
-  heroTitleTextColor?: 'white' | 'cream' | 'gold' | 'dark' | string;
+  heroTitleTextColor?: 'white' | 'cream' | 'gold' | 'dark';
   heroSubtitleFontStyle?: 'modern' | 'elegant' | 'bold' | 'minimal';
-  heroSubtitleTextColor?: 'white' | 'cream' | 'gold' | 'dark' | string;
+  heroSubtitleTextColor?: 'white' | 'cream' | 'gold' | 'dark';
   heroDescFontStyle?: 'modern' | 'elegant' | 'bold' | 'minimal';
-  heroDescTextColor?: 'white' | 'cream' | 'gold' | 'dark' | string;
+  heroDescTextColor?: 'white' | 'cream' | 'gold' | 'dark';
 
   // Further customization for ProfileHeroDesigner
   heroBackgroundEnabled?: boolean;
@@ -502,7 +484,6 @@ export interface Card {
 
 export interface UreelScene {
   mode: 'video' | 'image' | 'color' | 'gradient';
-  posterUrl?: string;
   backgroundImageUrl?: string;
   backgroundColor?: string;
   gradient?: {
@@ -565,11 +546,11 @@ export interface UreelTextTemplate {
     opacity?: number;
   };
   box?: {
-    type: 'none' | 'transparent' | 'glass' | 'dark' | 'light' | 'solid';
+    type: 'none' | 'transparent' | 'glass' | 'dark' | 'light';
     opacity?: number;
     enabled?: boolean;
   };
-  fontStyle?: 'modern' | 'elegant' | 'serif' | 'condensed' | 'tech' | 'bold';
+  fontStyle?: 'modern' | 'elegant' | 'serif' | 'condensed' | 'tech';
 }
 
 export interface ButtonGridLayout {
@@ -608,7 +589,6 @@ export interface VideoBackgroundConfig {
   duration?: number; // Keep for compatibility
   aspectRatio?: '9:16';
   youtubeUrl?: string; // Keep for compatibility
-  url?: string; // legacy/runtime direct URL alias
   startTimeSeconds?: number; // Keep for compatibility
   transition?: 'hard' | 'medium' | 'soft' | 'very_soft'; // Keep for compatibility
 
@@ -838,7 +818,7 @@ export interface CompanyTemplate {
   type: 'employee_card' | 'product_card' | 'service_card' | 'event_card';
   description?: string;
   design: {
-    backgroundType: 'color' | 'image' | 'gradient';
+    backgroundType: 'color' | 'image';
     backgroundColor?: string;
     backgroundImageUrl?: string;
     backgroundImageFit?: 'cover' | 'contain' | 'repeat' | 'auto';
@@ -938,7 +918,7 @@ export interface LegalConsent {
 export interface LibraryIcon {
   id: string;
   name: string;
-  category: 'contact' | 'social' | 'business' | 'files' | 'shopping' | 'protected' | 'action' | 'media';
+  category: 'contact' | 'social' | 'business' | 'files' | 'shopping' | 'protected';
   defaultColor: string;
   defaultActionType: string;
 }

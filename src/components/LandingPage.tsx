@@ -117,7 +117,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
   const handleGoogleLogin = async () => {
     try {
       setIsAuthenticating(true);
-      await loginWithGoogle(true, true, false);
+      await loginWithGoogle();
       onEnterDashboard();
     } catch (err: any) {
       setAuthError('Google-Anmeldung fehlgeschlagen.');

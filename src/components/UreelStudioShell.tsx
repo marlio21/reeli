@@ -9,7 +9,6 @@ import { UnifiedMobileLiveCardSurface } from './UnifiedMobileLiveCardSurface';
 import { createDefaultButton, sanitizeButtonForFirestore } from '../utils/buttonUtils';
 import { UREEL_TEXT_TEMPLATES, normalizeUreelTextTemplate } from '../utils/textTemplates';
 import { persistMobileLayoutFields, hydrateCardMobileLayout } from '../utils/mobileLayoutPersistence';
-import { getHeroTextY, buildHeroTextYPatch } from '../utils/heroTextLayout';
 import { CARD_BUTTON_SIZE_PRESETS, CARD_BUTTON_GAP_PRESETS, CARD_BUTTON_FONT_PRESETS, CARD_BUTTON_ICON_PRESETS, CARD_BUTTON_SCALE_PRESETS, CARD_BUTTON_MIN_SIZE, CARD_BUTTON_DEFAULT_SIZE, CARD_BUTTON_MAX_SIZE, clampCardButtonSize, type CardButtonSizePreset } from '../utils/cardButtonSizePresets';
 import { storage } from '../firebase';
 
@@ -451,14 +450,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         description: activeCard.description || '',
       });
     }
-  }, [activeCard.cardId, activeCard.title, activeCard.subtitle, activeCard.description, textDirty]);
+  }, [activeCard.id, activeCard.title, activeCard.subtitle, activeCard.description, textDirty]);
 
   const buildTextRevealConfig = (nextDraft = textDraft) => {
     const current = activeCard.videoBackgroundConfig?.profileTextReveals || [];
     const startMap: Record<string, number> = { title: timeline.titleAt, subtitle: timeline.subtitleAt, description: timeline.descriptionAt };
     const valueMap: Record<string, string> = { title: nextDraft.title || '', subtitle: nextDraft.subtitle || '', description: nextDraft.description || '' };
     return (['title', 'subtitle', 'description'] as const).map((key) => {
-      const existing: any = current.find((r: any) => r.fieldKey === key) || {};
+      const existing = current.find((r: any) => r.fieldKey === key) || {};
       const hasValue = valueMap[key].trim().length > 0;
       return {
         ...existing,
@@ -1328,7 +1327,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     const startMap: Record<string, number> = { title: timeline.titleAt, subtitle: timeline.subtitleAt, description: timeline.descriptionAt };
     const fields: Array<'title' | 'subtitle' | 'description'> = ['title', 'subtitle', 'description'];
     const profileTextReveals = fields.map((key) => {
-      const existing: any = current.find((r: any) => r.fieldKey === key) || {};
+      const existing = current.find((r: any) => r.fieldKey === key) || {};
       return {
         ...existing,
         fieldKey: key,
@@ -1439,117 +1438,6 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         ...updates,
       } as UreelEndCard
     });
-  };
-
-  // v52.5.64: Desktop scene editors must behave like the mobile editors.
-  // Keep all scene activation writes in one place so Preview/Public do not read
-  // stale mixed states (for example color disabled but backgroundType still color).
-  const isSceneColorOrGradientActive = () => (
-    activeCard.cardBackgroundEnabled !== false
-    && (activeCard.ureelScene?.mode === 'color' || activeCard.ureelScene?.mode === 'gradient')
-  );
-
-  const setSceneColorOrGradientEnabled = async (enabled: boolean, preferredMode?: 'color' | 'gradient') => {
-    const mode: 'color' | 'gradient' = preferredMode || (activeCard.cardBackgroundGradientEnabled ? 'gradient' : 'color');
-    const from = activeCard.cardBackgroundColor || activeCard.ureelScene?.backgroundColor || activeCard.ureelScene?.gradient?.from || '#111111';
-    const to = activeCard.cardBackgroundGradientColor || activeCard.ureelScene?.gradient?.to || '#3A3732';
-    const currentScene: any = activeCard.ureelScene || {};
-    const currentVideoConfig: any = activeCard.videoBackgroundConfig || {};
-
-    if (!enabled) {
-      await syncCardUpdate({
-        // BackgroundType has no "none" in the legacy card type. The actual off-state
-        // is cardBackgroundEnabled=false + ureelScene.mode='none'. Renderer/Public read
-        // that combination reliably without breaking older fallback backgrounds.
-        backgroundType: 'color' as any,
-        cardBackgroundEnabled: false,
-        cardBackgroundGradientEnabled: false,
-        ureelScene: {
-          ...currentScene,
-          mode: 'none' as any,
-          backgroundImageUrl: '',
-          gradient: undefined,
-          video: currentScene.video,
-        } as any,
-      } as any);
-      return;
-    }
-
-    await syncCardUpdate({
-      backgroundType: mode as any,
-      backgroundImageUrl: '',
-      cardBackgroundImageUrl: '',
-      cardBackgroundEnabled: true,
-      cardBackgroundGradientEnabled: mode === 'gradient',
-      cardBackgroundColor: from,
-      cardBackgroundGradientColor: to,
-      videoBackgroundConfig: {
-        ...currentVideoConfig,
-        enabled: false,
-        youtubeUrl: '',
-        mediaMode: 'none',
-      } as any,
-      ureelScene: {
-        ...currentScene,
-        mode,
-        backgroundImageUrl: '',
-        backgroundColor: from,
-        gradient: mode === 'gradient'
-          ? { from, to, direction: activeCard.cardBackgroundGradientDirection || currentScene.gradient?.direction || '135deg' }
-          : undefined,
-        video: { ...(currentScene.video || {}), type: 'none' as any, url: '', displayMode: 'cover' as any, placement: 'background' as any, startAt: 0 },
-      } as any,
-    } as any);
-  };
-
-  const setSceneDisplayMode = async (mode: 'reel' | 'wide') => {
-    const currentScene: any = activeCard.ureelScene || {};
-    const currentVideo: any = currentScene.video || {};
-    const currentUrl = (currentVideo as any).url || activeCard.videoBackgroundConfig?.youtubeUrl || (activeCard.videoBackgroundConfig as any)?.url || '';
-    const duration = currentVideo.duration || activeCard.videoBackgroundConfig?.durationSeconds || 12;
-    const placement = mode === 'reel' ? 'background' : 'hero';
-    const displayMode = mode === 'reel' ? 'cover' : 'contain';
-    const hasVideo = currentScene.mode === 'video' || !!currentUrl || activeCard.backgroundType === 'video' || activeCard.videoBackgroundConfig?.enabled === true;
-
-    await syncCardUpdate({
-      // Do not turn a color/image scene into an empty video scene just because the
-      // user changes the display mode. Store the desired placement, and only keep
-      // videoBackgroundConfig active when real video exists.
-      sceneDisplayMode: mode as any,
-      backgroundType: hasVideo ? 'video' as any : activeCard.backgroundType,
-      videoBackgroundConfig: {
-        ...(activeCard.videoBackgroundConfig || {}),
-        enabled: hasVideo && !!currentUrl,
-        mediaMode: hasVideo && currentUrl ? ((activeCard.videoBackgroundConfig?.mediaMode && (activeCard.videoBackgroundConfig.mediaMode as any) !== 'none') ? activeCard.videoBackgroundConfig.mediaMode : 'youtube') : (activeCard.videoBackgroundConfig?.mediaMode || 'none'),
-        youtubeUrl: currentUrl,
-        durationSeconds: duration,
-        videoFitMode: displayMode,
-      } as any,
-      ureelScene: {
-        ...currentScene,
-        mode: hasVideo ? 'video' as const : currentScene.mode,
-        video: {
-          ...currentVideo,
-          type: (currentVideo as any).type || (currentUrl ? 'youtube' : 'none'),
-          url: currentUrl,
-          duration,
-          displayMode,
-          placement,
-          heroSize: 'wide',
-          startAt: (currentVideo as any).startAt || 0,
-        }
-      } as any
-    } as any);
-  };
-
-  const setEndCardEnabled = async (enabled: boolean) => {
-    const currentSource = endCard.source as string | undefined;
-    await setEndCard({
-      enabled,
-      source: enabled ? ((currentSource && currentSource !== 'none') ? currentSource : 'scene') as any : 'none' as any,
-      imageUrl: enabled ? endCard.imageUrl : '',
-      videoUrl: enabled ? (endCard as any).videoUrl : '',
-    } as any);
   };
 
   const restartPreviewSimulation = () => {
@@ -1894,7 +1782,6 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       profileImageUrl: '',
       showProfileImage: false,
       profileImageEnabled: false,
-      heroProfileImageEnabled: false,
       videoBackgroundConfig: {
         ...(activeCard.videoBackgroundConfig || {}),
         profileImage: {
@@ -1904,27 +1791,6 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         },
       } as any,
     } as any);
-  };
-
-  const setProfileImageVisibility = async (enabled: boolean) => {
-    await syncCardUpdate({
-      showProfileImage: enabled,
-      profileImageEnabled: enabled,
-      heroProfileImageEnabled: enabled,
-      videoBackgroundConfig: {
-        ...(activeCard.videoBackgroundConfig || {}),
-        profileImage: {
-          ...((activeCard.videoBackgroundConfig as any)?.profileImage || {}),
-          enabled,
-          url: activeCard.profileImageUrl || ((activeCard.videoBackgroundConfig as any)?.profileImage?.url || ''),
-        },
-      } as any,
-    } as any);
-  };
-
-  const removeEndCardImage = async () => {
-    await setEndCard({ imageUrl: '', source: (endCard as any).videoUrl ? 'video' as any : 'scene' as any });
-    triggerToast(lang === 'de' ? 'Endkartenbild entfernt.' : 'End card image removed.', 'success');
   };
 
 
@@ -2385,8 +2251,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     // v52.5.32: keep the editor preview readable but stop it from exploding
     // when the real card tile is large. The card/public renderer still uses
     // the real pixel size; only this inspection preview is visually zoomed.
-    const maxStage = compact ? realTileSize : 172;
-    const zoom = compact ? 1 : Math.max(1.0, Math.min(1.75, maxStage / Math.max(1, realTileSize)));
+    const maxStage = compact ? realTileSize : 138;
+    const zoom = compact ? 1 : Math.max(1.0, Math.min(1.45, maxStage / Math.max(1, realTileSize)));
     const stageSize = Math.round(realTileSize * zoom);
     return (
       <div key={button.id} className={`relative flex items-center justify-center ${compact ? 'ureel-button-preview-tile--compact' : 'ureel-button-preview-tile--large'}`} style={{ width: stageSize, height: stageSize }}>
@@ -2432,25 +2298,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       imageOverlay: button.imageOverlay,
       buttonImageOverlay: button.buttonImageOverlay,
       imageDarken: button.imageDarken,
-      imageSaturation: (button as any).imageSaturation,
-      imagePosition: (button as any).imagePosition,
-      textColor: button.textColor,
-      iconColor: button.iconColor,
-      iconSize: button.iconSize,
-      iconPosition: button.iconPosition,
-      iconOffsetX: button.iconOffsetX,
-      iconOffsetY: button.iconOffsetY,
-      iconEnabled: button.iconEnabled,
-      fontFamily: button.fontFamily,
-      fontSize: button.fontSize,
-      fontWeight: button.fontWeight,
-      letterSpacing: button.letterSpacing,
-      textAlign: button.textAlign,
-      textPosition: button.textPosition,
-      textShadow: button.textShadow,
-      textWrap: button.textWrap,
       buttonSize: button.buttonSize,
-      buttonSizeScale: (button as any).buttonSizeScale,
+      buttonSizeScale: button.buttonSizeScale,
       textPadding: button.textPadding,
     } as Partial<CardButton>;
   };
@@ -2529,11 +2378,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     if (module === 'scene') {
       return [
         { id: 'scene-video', label: 'Video' },
-        { id: 'scene-poster', label: 'Bild / Poster' },
-        { id: 'scene-color', label: 'Farbe / Verlauf' },
+        { id: 'scene-poster', label: 'Bild' },
+        { id: 'scene-color', label: 'Farbe' },
         { id: 'scene-display', label: 'Darstellung' },
         { id: 'scene-endcard', label: 'Endkarte' },
-        { id: 'scene-profile', label: 'Profilbild' },
       ];
     }
     if (module === 'timeline') {
@@ -2547,10 +2395,13 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     }
     if (module === 'buttons') {
       return [
+        { id: 'buttons-list', label: 'Buttonliste' },
         { id: 'buttons-text', label: 'Text' },
         { id: 'buttons-action', label: 'Aktion' },
+        { id: 'buttons-icon', label: 'Icon' },
         { id: 'buttons-design', label: 'Look' },
-        { id: 'buttons-list', label: 'Verwalten' },
+        { id: 'buttons-size', label: 'Größe' },
+        { id: 'buttons-transfer', label: 'Design übertragen' },
       ];
     }
     if (module === 'design') {
@@ -2636,7 +2487,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         { id: 'look-border', label: 'Rahmen', opensPanel: true },
       ];
       if (subsectionId === 'buttons-transfer') return [
-        { id: 'transfer-all', label: 'Look auf alle', opensPanel: true },
+        { id: 'transfer-all', label: 'Auf alle', opensPanel: true },
+        { id: 'transfer-color', label: 'Nur Farbe', opensPanel: true },
+        { id: 'transfer-form', label: 'Nur Form', opensPanel: true },
+        { id: 'transfer-icon', label: 'Nur Icon', opensPanel: true },
       ];
       return [
         { id: 'button-text-main', label: 'Haupttext', opensPanel: true },
@@ -3147,11 +3001,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div className="px-2 text-[10px] text-stone-500 uppercase font-bold tracking-wider">Szenen-Studio</div>
                 {[
                   { id: 'scene-video', icon: LucideIcons.Video, label: 'Video', desc: 'YouTube, Shorts, Loop' },
-                  { id: 'scene-poster', icon: LucideIcons.Image, label: 'Bild / Poster', desc: 'Upload, Entfernen, Cover' },
-                  { id: 'scene-color', icon: LucideIcons.PaintBucket, label: 'Farbe / Verlauf', desc: 'Ein/Aus, Farbe, Verlauf' },
-                  { id: 'scene-display', icon: LucideIcons.Scan, label: 'Darstellung', desc: '9:16 oder 16:9 oben' },
-                  { id: 'scene-endcard', icon: LucideIcons.Flag, label: 'Endkarte', desc: 'Ein/Aus, Farbe, Bild' },
-                  { id: 'scene-profile', icon: LucideIcons.UserCircle, label: 'Profilbild', desc: 'Ein/Aus, Upload, Timing' },
+                  { id: 'scene-poster', icon: LucideIcons.Image, label: 'Bild / Poster', desc: 'Cover, Upload, Standbild' },
+                  { id: 'scene-color', icon: LucideIcons.PaintBucket, label: 'Farbe / Verlauf', desc: 'Anthrazit, Creme, Gradient' },
+                  { id: 'scene-display', icon: LucideIcons.Scan, label: 'Darstellung', desc: 'Füllen, ganz, Hero' },
+                  { id: 'scene-endcard', icon: LucideIcons.Flag, label: 'Endkarte', desc: 'Abschluss, Replay, CTA' },
+                  { id: 'scene-profile', icon: LucideIcons.UserCircle, label: 'Profilbild', desc: 'Bild, Form, Timing' },
                 ].map((item) => {
                   const Icon = item.icon;
                   const selected = activeSubSection === item.id;
@@ -3159,7 +3013,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <button
                       key={item.id}
                       onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)}
-                      className={`ureel-desktop-subnav-card w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
+                      className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
                         selected
                           ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
                           : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'
@@ -3192,7 +3046,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <button
                       key={item.id}
                       onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)}
-                      className={`ureel-desktop-subnav-card w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
+                      className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
                         selected
                           ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
                           : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'
@@ -3225,7 +3079,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <button
                       key={item.id}
                       onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)}
-                      className={`ureel-desktop-subnav-card w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
+                      className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
                         selected
                           ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
                           : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'
@@ -3289,7 +3143,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   const Icon = item.icon;
                   const selected = activeSubSection === item.id;
                   return (
-                    <button key={item.id} onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)} className={`ureel-desktop-subnav-card w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${selected ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20' : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'}`}>
+                    <button key={item.id} onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)} className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${selected ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20' : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'}`}>
                       <Icon size={15} className={selected ? '!text-[#101010]' : 'text-[#E8DCC2]'} />
                       <span className="min-w-0 flex-1"><span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">{item.label}</span><span className={`block text-[8.5px] leading-snug mt-0.5 ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`}>{item.desc}</span></span>
                       <LucideIcons.ChevronRight size={13} className="opacity-50" />
@@ -3528,25 +3382,6 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Bild / Poster</span>
                 <p className="text-[10px] text-stone-400">Lade ein eigenes Werbebild als Hintergrund hoch. Ein Bildlink ist bewusst entfernt, damit der Nutzer sauber über Upload arbeitet.</p>
 
-                <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 flex flex-wrap items-center gap-2">
-                  <label className="h-10 px-4 rounded-xl bg-[#F5F2EA] hover:bg-white text-[#101010] text-[9px] uppercase font-black tracking-wider cursor-pointer flex items-center justify-center gap-1.5">
-                    <LucideIcons.UploadCloud size={15} /> Bild hochladen
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleSceneImageUpload(file); e.currentTarget.value = ''; }} />
-                  </label>
-                  <button
-                    type="button"
-                    onClick={removeSceneImage}
-                    disabled={!(activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl || (activeCard.ureelScene as any)?.background?.imageUrl)}
-                    className="h-10 px-4 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 disabled:text-stone-600 disabled:border-stone-800 disabled:bg-stone-950/30 text-[9px] uppercase font-black tracking-wider"
-                  >Bild entfernen</button>
-                  <button
-                    type="button"
-                    onClick={removeSceneVideo}
-                    disabled={!(activeCard.backgroundType === 'video' || activeCard.videoBackgroundConfig?.enabled || activeCard.videoBackgroundConfig?.youtubeUrl || activeCard.ureelScene?.mode === 'video' || activeCard.ureelScene?.video?.url)}
-                    className="h-10 px-4 rounded-xl border border-[#3A3732] bg-[#0F0F0F] text-stone-300 disabled:text-stone-650 disabled:border-stone-850 text-[9px] uppercase font-black tracking-wider"
-                  >Video entfernen</button>
-                </div>
-
                 {(activeCard.backgroundType === 'video' || activeCard.videoBackgroundConfig?.enabled || activeCard.ureelScene?.mode === 'video') ? (
                   <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4 flex items-start gap-3">
                     <LucideIcons.Video size={18} className="text-[#E8DCC2] shrink-0 mt-0.5" />
@@ -3559,12 +3394,13 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                           onClick={() => setActiveSubSection('scene-video')}
                           className="h-9 px-3 rounded-xl bg-[#F5F2EA] text-[#101010] text-[9px] uppercase font-black tracking-wider"
                         >Zum Video wechseln</button>
-                        <button
-                          type="button"
-                          onClick={removeSceneImage}
-                          disabled={!(activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl || (activeCard.ureelScene as any)?.background?.imageUrl)}
-                          className="h-9 px-3 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 disabled:text-stone-600 disabled:border-stone-800 disabled:bg-stone-950/30 text-[9px] uppercase font-black tracking-wider"
-                        >Bild entfernen</button>
+                        {(activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl) && (
+                          <button
+                            type="button"
+                            onClick={removeSceneImage}
+                            className="h-9 px-3 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 text-[9px] uppercase font-black tracking-wider"
+                          >Bild entfernen</button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -3586,12 +3422,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         <input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleSceneImageUpload(file); e.currentTarget.value = ''; }} />
                       </label>
                       <p className="text-[9px] text-stone-500">Empfohlen: 9:16 Hochformat oder ruhiges Werbebild mit Platz für Text und Buttons.</p>
-                      <button
-                        type="button"
-                        onClick={removeSceneImage}
-                        disabled={!(activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl || (activeCard.ureelScene as any)?.background?.imageUrl)}
-                        className="w-full h-9 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 disabled:text-stone-600 disabled:border-stone-800 disabled:bg-stone-950/30 text-[8.5px] font-black uppercase tracking-wider"
-                      >Bild entfernen</button>
+                      {(activeCard.cardBackgroundImageUrl || (activeCard as any).backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl || (activeCard.ureelScene as any)?.background?.imageUrl) && <button type="button" onClick={removeSceneImage} className="w-full h-9 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 text-[8.5px] font-black uppercase tracking-wider">Bild entfernen</button>}
                     </div>
                   </div>
                 )}
@@ -3604,19 +3435,52 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
                 <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Darstellung</span>
                 <p className="text-[10px] text-stone-400">Steuere, ob Video oder Bild die ganze Karte füllt oder als ruhiger Hero-Bereich gezeigt wird.</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {[
-                    { id: 'reel', label: 'Reel', desc: '9:16 Vollfläche – Video/Bild füllt die Smartphone-Karte' },
-                    { id: 'wide', label: '16:9 Ansicht', desc: 'Video/Bild als breiter 16:9-Bereich oben wie mobil' },
+                    { id: 'cover', label: 'Reel füllen', desc: 'Füllt den Smartphone-Screen im 9:16 Rahmen' },
+                    { id: 'contain', label: 'Ganz anzeigen', desc: '16:9 über volle Breite direkt oben an der Karte' },
+                    { id: 'hero', label: 'Als Video-Bildschirm', desc: 'Kompakter 16:9-Bereich oben mit kleinem Abstand' },
                   ].map((mode) => {
-                    const currentSceneDisplayMode = (activeCard as any).sceneDisplayMode || (((activeCard.ureelScene?.video as any)?.placement === 'hero') ? 'wide' : 'reel');
-                    const selected = currentSceneDisplayMode === mode.id;
+                    const selected = mode.id === 'cover'
+                      ? ((activeCard.ureelScene?.video?.displayMode || 'cover') === 'cover' && (activeCard.ureelScene?.video as any)?.placement !== 'hero')
+                      : mode.id === 'contain'
+                        ? ((activeCard.ureelScene?.video as any)?.placement === 'hero' && ((activeCard.ureelScene?.video as any)?.heroSize || 'wide') === 'wide')
+                        : ((activeCard.ureelScene?.video as any)?.placement === 'hero' && (activeCard.ureelScene?.video as any)?.heroSize === 'compact');
                     return (
                       <button
                         key={mode.id}
                         type="button"
-                        onClick={() => setSceneDisplayMode(mode.id as 'reel' | 'wide')}
-                        className={`ureel-scene-mode-card min-h-[102px] rounded-2xl border p-4 text-left transition ${selected ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732] hover:border-[#F5F2EA]/60'}`}
+                        onClick={() => {
+                          const currentVideo = activeCard.ureelScene?.video || {};
+                          const currentUrl = (currentVideo as any).url || activeCard.videoBackgroundConfig?.youtubeUrl || activeCard.videoBackgroundConfig?.url || '';
+                          const duration = activeCard.ureelScene?.video?.duration || activeCard.videoBackgroundConfig?.durationSeconds || 12;
+                          syncCardUpdate({
+                            backgroundType: 'video',
+                            videoBackgroundConfig: {
+                              ...(activeCard.videoBackgroundConfig || {}),
+                              enabled: !!currentUrl,
+                              mediaMode: currentUrl ? 'youtube' : (activeCard.videoBackgroundConfig?.mediaMode || 'none'),
+                              youtubeUrl: currentUrl,
+                              durationSeconds: duration,
+                              videoFitMode: mode.id === 'cover' ? 'cover' : 'contain',
+                            } as any,
+                            ureelScene: {
+                              ...(activeCard.ureelScene || {}),
+                              mode: 'video' as const,
+                              video: {
+                                ...currentVideo,
+                                type: (currentVideo as any).type || (currentUrl ? 'youtube' : 'none'),
+                                url: currentUrl,
+                                duration,
+                                displayMode: mode.id === 'cover' ? 'cover' : 'contain',
+                                placement: mode.id === 'cover' ? 'background' : 'hero',
+                                heroSize: mode.id === 'hero' ? 'compact' : 'wide',
+                                startAt: (currentVideo as any).startAt || 0,
+                              }
+                            } as any
+                          });
+                        }}
+                        className={`min-h-[102px] rounded-2xl border p-4 text-left transition ${selected ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732] hover:border-[#F5F2EA]/60'}`}
                       >
                         <span className="block text-[11px] font-black uppercase">{mode.label}</span>
                         <span className={`block text-[9px] mt-1 leading-snug ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`}>{mode.desc}</span>
@@ -3636,23 +3500,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <div className="p-4 bg-stone-950/40 rounded-xl border border-stone-900 space-y-4">
                 <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Farbe / Verlauf</span>
                 <p className="text-[10px] text-stone-400 leading-relaxed">Farbe oder Verlauf ist eine eigene Szene. Wenn du hier eine Fläche aktivierst, werden Video und Bild automatisch entfernt, damit der Hintergrund sofort sichtbar ist.</p>
-                <div className="ureel-scene-switch-card rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
-                  <div className="ureel-scene-switch-row flex items-center justify-between gap-3">
-                    <div>
-                      <span className="block text-[10.5px] font-black uppercase tracking-wider text-[#F5F2EA]">Farbe / Verlauf anzeigen</span>
-                      <span className="block text-[8.5px] text-stone-500 mt-0.5">Aus deaktiviert die Farbfläche vollständig.</span>
-                    </div>
-                    <div className="ureel-scene-state-pill">{isSceneColorOrGradientActive() ? 'AN' : 'AUS'}</div>
-                  </div>
-                  <div className="ureel-scene-segmented" role="group" aria-label="Farbe oder Verlauf aktivieren">
-                    <button type="button" onClick={() => setSceneColorOrGradientEnabled(false)} className={!isSceneColorOrGradientActive() ? 'is-active' : ''}>Aus</button>
-                    <button type="button" onClick={() => setSceneColorOrGradientEnabled(true, 'color')} className={isSceneColorOrGradientActive() && activeCard.ureelScene?.mode === 'color' ? 'is-active' : ''}>Farbe</button>
-                    <button type="button" onClick={() => setSceneColorOrGradientEnabled(true, 'gradient')} className={isSceneColorOrGradientActive() && activeCard.ureelScene?.mode === 'gradient' ? 'is-active' : ''}>Verlauf</button>
-                  </div>
-                </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <button type="button" onClick={() => setSceneColorOrGradientEnabled(true)} className={`h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${activeCard.cardBackgroundEnabled !== false && (activeCard.ureelScene?.mode === 'color' || activeCard.ureelScene?.mode === 'gradient') ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Farbfläche aktiv</button>
-                  <button type="button" onClick={() => setSceneColorOrGradientEnabled(false)} className="h-10 rounded-xl border border-[#3A3732] bg-[#181818] text-stone-300 text-[9px] font-black uppercase tracking-wider">Farbfläche aus</button>
+                  <button type="button" onClick={() => syncCardUpdate({ cardBackgroundEnabled: true, backgroundType: activeCard.cardBackgroundGradientEnabled ? 'gradient' : 'color', ureelScene: { ...(activeCard.ureelScene || {}), mode: activeCard.cardBackgroundGradientEnabled ? 'gradient' : 'color' } as any } as any)} className={`h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${activeCard.cardBackgroundEnabled !== false && (activeCard.ureelScene?.mode === 'color' || activeCard.ureelScene?.mode === 'gradient') ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Farbfläche aktiv</button>
+                  <button type="button" onClick={() => syncCardUpdate({ cardBackgroundEnabled: false, cardBackgroundGradientEnabled: false, backgroundType: 'color', ureelScene: { ...(activeCard.ureelScene || {}), mode: 'none' } as any } as any)} className="h-10 rounded-xl border border-[#3A3732] bg-[#181818] text-stone-300 text-[9px] font-black uppercase tracking-wider">Farbfläche aus</button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {[
@@ -3718,7 +3568,6 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         }}
                         className="ml-auto text-[9px] font-black uppercase tracking-wider text-[#E8DCC2]"
                       >Verlauf aktivieren</button>
-                      <button type="button" onClick={() => syncCardUpdate({ backgroundType: 'color', cardBackgroundGradientEnabled: false, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color', gradient: undefined } as any } as any)} className="text-[9px] font-black uppercase tracking-wider text-stone-400 hover:text-red-200">Verlauf aus</button>
                     </div>
                   </div>
                 </div>
@@ -4305,7 +4154,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     </div>
                     <button
                       type="button"
-                      onClick={() => setEndCardEnabled(!endCard.enabled)}
+                      onClick={() => setEndCard({ enabled: !endCard.enabled })}
                       className={`p-1 w-10 rounded-full transition-colors flex shrink-0 ${endCard.enabled ? 'bg-[#F5F2EA] justify-end' : 'bg-stone-800 justify-start'} cursor-pointer`}
                     >
                       <span className="w-4 h-4 rounded-full bg-stone-950 block shadow-md" />
@@ -4421,7 +4270,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     {renderButtonPreviewTile(editingButton)}
                   </div>
                   <div className="ureel-mobile-button-strip">
-                    {[...(activeCard.buttons || [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0)).slice(0, 6).map((button, index) => {
+                    {[...(activeCard.buttons || [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0)).slice(0, 9).map((button, index) => {
                       const selected = editingBtnId === button.id;
                       return (
                         <button key={button.id || index} type="button" onClick={() => setEditingBtnId(button.id)} className={selected ? 'is-active' : ''}>
@@ -4493,13 +4342,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         <button onClick={handleAddButtonLocal} className="h-10 px-3 rounded-xl bg-[#F5F2EA] text-[#101010] text-[10px] font-black uppercase tracking-wider flex items-center gap-2">
                           <LucideIcons.Plus size={14} /> Neu
                         </button>
-                        <button onClick={transferButtonDesignToAll} className="h-10 px-3 rounded-xl border border-[#E8DCC2]/40 bg-[#181818] text-[#F5F2EA] text-[9px] font-black uppercase tracking-wider flex items-center gap-2">
-                          <LucideIcons.Paintbrush size={13} /> Design auf alle Buttons übertragen
-                        </button>
                       </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {[...(activeCard.buttons || [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0)).slice(0, 6).map((button, index) => {
+                      {[...(activeCard.buttons || [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0)).map((button, index) => {
                         const selected = editingBtnId === button.id;
                         const actionLabel = actionOptions.find((option) => option.value === button.actionType)?.label || button.actionType || 'Aktion';
                         return (
@@ -4669,7 +4515,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         <div className="grid grid-cols-2 gap-2"><select value={editingButton.buttonImageFit || editingButton.imageMode || 'cover'} onChange={(e) => handleUpdateSingleButton(editingButton.id, { buttonImageFit: e.target.value as any, imageMode: e.target.value as any })} className="h-10 rounded-xl bg-[#0F0F0F] border border-[#3A3732] px-3 text-xs text-[#F5F2EA]"><option value="cover">Cover</option><option value="contain">Contain</option></select><button type="button" onClick={() => handleUpdateSingleButton(editingButton.id, { buttonImageOverlay: !editingButton.buttonImageOverlay, imageOverlay: editingButton.buttonImageOverlay ? 0 : 35 })} className={`h-10 rounded-xl border text-[10px] font-black uppercase cursor-pointer ${editingButton.buttonImageOverlay || Number(editingButton.imageOverlay || 0) > 0 ? 'border-[#F5F2EA] bg-[#F5F2EA]/10 text-[#F5F2EA]' : 'border-[#3A3732] bg-[#0F0F0F] text-stone-400'}`}>Overlay {editingButton.buttonImageOverlay || Number(editingButton.imageOverlay || 0) > 0 ? 'an' : 'aus'}</button></div>
                       </div>
                     </div>
-                    <div className="space-y-3"><span className="text-[9px] uppercase font-black tracking-wider text-stone-500 block">Button-Vorschau</span>{renderButtonPreviewTile(editingButton)}<button onClick={transferButtonDesignToAll} className="w-full h-10 rounded-xl border border-[#3A3732] bg-[#181818] text-[#F5F2EA] text-[9px] font-black uppercase tracking-wider flex items-center justify-center gap-2"><LucideIcons.Paintbrush size={12} /> Look auf alle Buttons übertragen</button></div>
+                    <div className="space-y-3"><span className="text-[9px] uppercase font-black tracking-wider text-stone-500 block">Button-Vorschau</span>{renderButtonPreviewTile(editingButton)}<button onClick={transferButtonDesignToAll} className="w-full h-10 rounded-xl border border-[#3A3732] bg-[#181818] text-[#F5F2EA] text-[9px] font-black uppercase tracking-wider flex items-center justify-center gap-2"><LucideIcons.Paintbrush size={12} /> Design übertragen</button></div>
                   </div>
                 </div>
               )}
@@ -4692,7 +4538,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 }}
               /></div></div>}
                     {buttonPreviewMode === 'button' && editingButton && <div className="max-w-[240px] mx-auto">{renderButtonPreviewTile(editingButton)}</div>}
-                    {buttonPreviewMode === 'grid' && <div className="grid max-w-sm mx-auto" style={{ gridTemplateColumns: `repeat(${buttonGridCols}, minmax(0, 1fr))`, gap: `${buttonGapPx}px` }}>{(activeButtons.length ? activeButtons : activeCard.buttons || []).slice(0, 6).map((button) => renderButtonPreviewTile(button, true))}</div>}
+                    {buttonPreviewMode === 'grid' && <div className="grid max-w-sm mx-auto" style={{ gridTemplateColumns: `repeat(${buttonGridCols}, minmax(0, 1fr))`, gap: `${buttonGapPx}px` }}>{(activeButtons.length ? activeButtons : activeCard.buttons || []).map((button) => renderButtonPreviewTile(button, true))}</div>}
                     <div className="rounded-xl border border-[#3A3732] bg-[#181818] p-3 text-[9px] leading-relaxed text-[#F5F2EA]/80"><b>Timeline-Hinweis:</b> In der Live-Karte erscheinen Buttons ab <b>{visibleButtonsAt.toFixed(1)}s</b>. Die Button-Vorschau bleibt hier immer sichtbar.</div>
                   </div>
                   <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
@@ -4705,102 +4551,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             </div>
           )}
 
-          {activeTab === 'scene' && activeSubSection === 'scene-profile' && (
-            <div className="space-y-4">
-              <div className="bg-[#111111] p-4 rounded-2xl border border-[#3A3732] space-y-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Profilbild</span>
-                    <p className="text-[10px] text-stone-400 mt-1">Aktiviere ein Avatar-/Profilbild auf der Karte und steuere Form, Größe, Position und Timing.</p>
-                  </div>
-                  <div className="ureel-scene-state-pill">{((activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage || (activeCard as any).heroProfileImageEnabled) ? 'AN' : 'AUS'}</div>
-                </div>
-
-                <div className="ureel-scene-segmented" role="group" aria-label="Profilbild anzeigen">
-                  <button type="button" onClick={() => setProfileImageVisibility(false)} className={!((activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage || (activeCard as any).heroProfileImageEnabled) ? 'is-active' : ''}>Aus</button>
-                  <button type="button" onClick={() => setProfileImageVisibility(true)} className={((activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage || (activeCard as any).heroProfileImageEnabled) ? 'is-active' : ''}>Profilbild anzeigen</button>
-                </div>
-
-                <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4 space-y-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <span className="block text-[10.5px] font-black uppercase tracking-wider text-[#F5F2EA]">Profilbild-Datei</span>
-                      <span className="block text-[8.5px] text-stone-500 mt-0.5">Upload ersetzt das aktuelle Profilbild und aktiviert es automatisch.</span>
-                    </div>
-                    <label className="shrink-0 px-3 py-2 rounded-lg bg-[#F5F2EA] text-[#101010] text-[9px] uppercase font-black cursor-pointer hover:bg-white transition-colors">
-                      {profileImageUploading ? `Upload ${profileImageUploadProgress || 0}%` : 'Bild hochladen'}
-                      <input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleProfileImageUpload(file); e.currentTarget.value = ''; }} />
-                    </label>
-                  </div>
-                  {profileImageUploading && <div className="h-1.5 rounded-full bg-stone-800 overflow-hidden"><div className="h-full bg-[#E8DCC2]" style={{ width: `${profileImageUploadProgress || 0}%` }} /></div>}
-                  {activeCard.profileImageUrl && <div className="h-24 rounded-xl overflow-hidden border border-stone-800 bg-stone-950 flex items-center justify-center"><img src={activeCard.profileImageUrl} alt="Profilbild" className="h-full w-full object-cover" /></div>}
-                  <button type="button" onClick={removeProfileImage} disabled={!activeCard.profileImageUrl} className="w-full h-9 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 disabled:text-stone-600 disabled:border-stone-800 disabled:bg-stone-950/30 text-[8.5px] font-black uppercase tracking-wider">Bild entfernen</button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-2">
-                    <label className="block text-[9px] uppercase font-black tracking-wider text-stone-400">Form</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[
-                        { id: 'circle', label: 'Kreis' },
-                        { id: 'rounded', label: 'Rund' },
-                        { id: 'square', label: 'Eckig' },
-                      ].map((shape) => <button key={shape.id} type="button" onClick={() => syncCardUpdate({ profileImageShape: shape.id as any, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), profileImage: { ...((activeCard.videoBackgroundConfig as any)?.profileImage || {}), shape: shape.id } } as any } as any)} className={`h-9 rounded-xl border text-[8px] font-black uppercase ${((activeCard as any).profileImageShape || 'circle') === shape.id ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#0F0F0F] text-[#F5F2EA] border-[#3A3732]'}`}>{shape.label}</button>)}
-                    </div>
-                  </div>
-                  <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-2">
-                    <label className="block text-[9px] uppercase font-black tracking-wider text-stone-400">Größe</label>
-                    <input type="range" min={48} max={140} value={Number((activeCard as any).profileImageSizePx || 82)} onChange={(e) => syncCardUpdate({ profileImageSizePx: Number(e.target.value), videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), profileImage: { ...((activeCard.videoBackgroundConfig as any)?.profileImage || {}), sizePx: Number(e.target.value) } } as any } as any)} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" />
-                    <span className="block text-[9px] text-[#E8DCC2] font-mono">{Number((activeCard as any).profileImageSizePx || 82)} px</span>
-                  </div>
-                  <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-2">
-                    <label className="block text-[9px] uppercase font-black tracking-wider text-stone-400">Timing</label>
-                    <input type="range" min={0} max={12} step={0.5} value={Number((activeCard as any).profileImageAt || (activeCard.ureelTimeline as any)?.profileImageAt || 0)} onChange={(e) => syncCardUpdate({ profileImageAt: Number(e.target.value), ureelTimeline: { ...(activeCard.ureelTimeline || {}), profileImageAt: Number(e.target.value) } as any } as any)} className="w-full bg-stone-800 accent-[#E8DCC2] h-1.5 rounded-lg appearance-none cursor-pointer" />
-                    <span className="block text-[9px] text-[#E8DCC2] font-mono">{Number((activeCard as any).profileImageAt || (activeCard.ureelTimeline as any)?.profileImageAt || 0)} s</span>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-3 space-y-2">
-                  <label className="block text-[9px] uppercase font-black tracking-wider text-stone-400">Position</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { id: 'top-left', label: 'Oben links' },
-                      { id: 'top-right', label: 'Oben rechts' },
-                      { id: 'center', label: 'Mitte' },
-                      { id: 'bottom-left', label: 'Unten links' },
-                      { id: 'bottom-right', label: 'Unten rechts' },
-                    ].map((pos) => <button key={pos.id} type="button" onClick={() => syncCardUpdate({ profileImagePosition: pos.id as any, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), profileImage: { ...((activeCard.videoBackgroundConfig as any)?.profileImage || {}), position: pos.id } } as any } as any)} className={`h-9 rounded-xl border text-[8px] font-black uppercase ${((activeCard as any).profileImagePosition || 'top-right') === pos.id ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#0F0F0F] text-[#F5F2EA] border-[#3A3732]'}`}>{pos.label}</button>)}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* TAB 4: ENDCARD & CTA */}
           {((activeTab === 'endcard' && activeSubSection === 'endcard-general') || (activeTab === 'scene' && activeSubSection === 'scene-endcard')) && (
             <div className="space-y-4">
               <div className="bg-stone-950/40 p-4 rounded-xl border border-stone-900 space-y-4">
                 <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Dauerhafte Endkarte</span>
                 <p className="text-[9.5px] text-stone-400">Blenden Sie am Ende des Videos eine ruhige Endkarte ein. Wenn keine Endkarte aktiv ist, bleibt die aktuelle Szene als Abschluss stehen.</p>
-
-                <div className="rounded-xl border border-[#3A3732] bg-[#181818] p-3 space-y-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <span className="block text-[10px] uppercase font-black tracking-wider text-[#F5F2EA]">Endkarte aktivieren</span>
-                      <span className="block text-[8.5px] text-stone-500 mt-0.5">Aus bedeutet: keine Abschlusskarte, keine Farbe, kein Endkartenbild.</span>
-                    </div>
-                    <div className="ureel-scene-state-pill">{endCard.enabled ? 'AN' : 'AUS'}</div>
-                  </div>
-                  <div className="ureel-scene-segmented" role="group" aria-label="Endkarte aktivieren">
-                    <button type="button" onClick={() => setEndCardEnabled(false)} className={!endCard.enabled ? 'is-active' : ''}>Aus</button>
-                    <button type="button" onClick={() => setEndCard({ enabled: true, source: 'scene' as any })} className={endCard.enabled && endCard.source === 'scene' ? 'is-active' : ''}>Szene</button>
-                    <button type="button" onClick={() => setEndCard({ enabled: true, source: 'color' as any, backgroundColor: endCard.backgroundColor || '#1c1b1a' })} className={endCard.enabled && endCard.source === 'color' ? 'is-active' : ''}>Farbe</button>
-                  </div>
-                  <div className="flex items-center gap-2 h-10 bg-[#0F0F0F] border border-[#3A3732] rounded-xl px-2">
-                    <input type="color" value={endCard.backgroundColor || '#1c1b1a'} onChange={(e) => setEndCard({ enabled: true, source: 'color' as any, backgroundColor: e.target.value })} className="w-6 h-6 rounded cursor-pointer border-0 outline-none bg-transparent" />
-                    <input type="text" value={endCard.backgroundColor || '#1c1b1a'} onChange={(e) => setEndCard({ enabled: true, source: 'color' as any, backgroundColor: e.target.value })} className="bg-transparent border-0 text-white w-full h-full text-xs font-mono outline-none" />
-                  </div>
-                </div>
 
                 <div className="rounded-xl border border-[#E8DCC2]/15 bg-stone-900/55 p-3 space-y-2">
                   <div className="flex items-center justify-between gap-3">
@@ -4815,7 +4571,6 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   </div>
                   {endCardImageUploading && <div className="h-1.5 rounded-full bg-stone-800 overflow-hidden"><div className="h-full bg-[#E8DCC2]" style={{ width: `${endCardImageUploadProgress || 0}%` }} /></div>}
                   {endCard.imageUrl && <div className="h-24 rounded-xl overflow-hidden border border-stone-800 bg-stone-950"><img src={endCard.imageUrl} alt="Endkarte" className="w-full h-full object-cover" /></div>}
-                  <button type="button" onClick={removeEndCardImage} disabled={!endCard.imageUrl} className="w-full h-9 rounded-xl border border-red-900/45 bg-red-950/20 text-red-200 disabled:text-stone-600 disabled:border-stone-800 disabled:bg-stone-950/30 text-[8.5px] font-black uppercase tracking-wider">Bild entfernen</button>
                 </div>
 
                 <div className="rounded-xl border border-[#E8DCC2]/15 bg-stone-900/55 p-3 space-y-3">
@@ -4825,7 +4580,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       <span className="block text-[8.5px] text-stone-400 mt-0.5">Optionales 16:9-Video oben auf der Endkarte. Kein Reel, kein Vollbild-Hintergrund.</span>
                     </div>
                     {((endCard as any).videoUrl || (endCard as any).source === 'video') && (
-                      <button type="button" onClick={() => setEndCard({ enabled: true, source: 'scene' as any, videoUrl: '', videoDisplayMode: 'wide' } as any)} className="shrink-0 px-3 py-2 rounded-lg border border-red-900/40 bg-red-950/20 text-red-200 text-[8.5px] font-black uppercase">Video entfernen</button>
+                      <button type="button" onClick={() => setEndCard({ source: 'scene' as any, videoUrl: '', videoDisplayMode: 'wide' } as any)} className="shrink-0 px-3 py-2 rounded-lg border border-red-900/40 bg-red-950/20 text-red-200 text-[8.5px] font-black uppercase">Video entfernen</button>
                     )}
                   </div>
                   <input
@@ -5236,7 +4991,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <span className="text-[8px] text-stone-500 font-mono">{buttonGridCols} pro Reihe</span>
                   </div>
                   <div className="grid" style={{ gridTemplateColumns: `repeat(${buttonGridCols}, minmax(0, 1fr))`, gap: `${Math.min(buttonGapPx, 14)}px` }}>
-                    {(activeButtons.length ? activeButtons : activeCard.buttons || []).slice(0, 6).map((button) => renderButtonPreviewTile(button, true))}
+                    {(activeButtons.length ? activeButtons : activeCard.buttons || []).slice(0, 9).map((button) => renderButtonPreviewTile(button, true))}
                   </div>
                   <div className="mt-3 rounded-xl border border-[#3A3732] bg-[#0F0F0F] p-2 text-[8px] text-stone-500 text-center">Raster erscheint in der Karte ab <b className="text-[#E8DCC2]">{visibleButtonsAt.toFixed(1)}s</b>. Hier bleibt es dauerhaft sichtbar.</div>
                 </div>
@@ -5431,14 +5186,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
             {tapSceneTool === 'image' && (
               <div className="ureel-tap-config">
-                <h4>Bild / Poster</h4>
-                <p>Lade ein Bild hoch oder entferne das aktuelle Poster. Der Entfernen-Button bleibt sichtbar, damit die Funktion immer eindeutig erreichbar ist.</p>
+                <h4>Bildhintergrund</h4>
+                <p>Lade ein Bild hoch. Ohne Video wird es als Haupt-Hintergrund genutzt; mit Video als Poster/Alternative.</p>
                 <label className="ureel-tap-upload"><LucideIcons.UploadCloud size={16}/> {sceneImageUploading ? `Upload ${sceneImageUploadProgress || 0}%` : 'Bild hochladen'}<input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleSceneImageUpload(e.target.files[0])} /></label>
                 {(activeCard.backgroundImageUrl || activeCard.cardBackgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl) && <div className="ureel-tap-fileline">Bild aktiv <button type="button" onClick={removeSceneImage}>Entfernen</button></div>}
-                <div className="ureel-tap-actions">
-                  <button type="button" onClick={removeSceneImage} disabled={!(activeCard.backgroundImageUrl || activeCard.cardBackgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl)} className="ureel-danger-action">Bild entfernen</button>
-                  <button type="button" onClick={() => syncCardUpdate({ backgroundType: 'image' as any, cardBackgroundEnabled: true, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'image' as any, backgroundImageUrl: activeCard.cardBackgroundImageUrl || activeCard.backgroundImageUrl || activeCard.ureelScene?.backgroundImageUrl || '' } as any } as any)}>Bildmodus aktivieren</button>
-                </div>
               </div>
             )}
 
@@ -5453,8 +5204,6 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div className="ureel-tap-chip-row"><button type="button" className={((activeCard as any).profileImageShape || 'circle') === 'circle' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageShape: 'circle', heroImageShape: 'circle' } as any)}>Kreis</button><button type="button" className={(activeCard as any).profileImageShape === 'rounded' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageShape: 'rounded', heroImageShape: 'rounded' } as any)}>Rund</button><button type="button" className={(activeCard as any).profileImageShape === 'square' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageShape: 'square', heroImageShape: 'square' } as any)}>Eckig</button></div>
                 <span className="ureel-tap-mini-label">Größe</span>
                 <div className="ureel-tap-chip-row"><button type="button" className={((activeCard as any).profileImageSize || 'normal') === 'small' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'small', profileImageSizePercent: 15, heroImageSize: 'small' } as any)}>Klein</button><button type="button" className={((activeCard as any).profileImageSize || 'normal') === 'normal' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'normal', profileImageSizePercent: 35, heroImageSize: 'normal' } as any)}>Normal</button><button type="button" className={(activeCard as any).profileImageSize === 'large' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'large', profileImageSizePercent: 55, heroImageSize: 'large' } as any)}>Groß</button><button type="button" className={((activeCard as any).profileImageSize === 'xlarge' || (activeCard as any).profileImageSize === 'hero') ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'xlarge', profileImageSizePercent: 80, heroImageSize: 'xlarge' } as any)}>Sehr groß</button></div>
-                <span className="ureel-tap-mini-label">Position</span>
-                <div className="ureel-tap-chip-row"><button type="button" className={((activeCard as any).profileImagePosition || 'top') === 'top' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImagePosition: 'top', profileImageYPercent: 18 } as any)}>Oben</button><button type="button" className={(activeCard as any).profileImagePosition === 'center' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImagePosition: 'center', profileImageYPercent: 42 } as any)}>Mitte</button><button type="button" className={(activeCard as any).profileImagePosition === 'bottom' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImagePosition: 'bottom', profileImageYPercent: 68 } as any)}>Unten</button></div>
                 <span className="ureel-tap-mini-label">Erscheint</span>
                 <div className="ureel-tap-chip-row"><button type="button" className={((activeCard as any).profileImageRevealAt || 'with_text') === 'start' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageRevealAt: 'start' } as any)}>Sofort</button><button type="button" className={(activeCard as any).profileImageRevealAt === 'after_text' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageRevealAt: 'after_text' } as any)}>Nach Text</button><button type="button" className={((activeCard as any).profileImageRevealAt || 'with_text') === 'with_buttons' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageRevealAt: 'with_buttons' } as any)}>Mit Buttons</button><button type="button" className={(activeCard as any).profileImageRevealAt === 'end' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageRevealAt: 'end' } as any)}>Am Ende</button></div>
               </div>
@@ -5462,12 +5211,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
 
             {tapSceneTool === 'color' && (
               <div className="ureel-tap-config">
-                <h4>Farbe / Verlauf</h4>
-                <p>Aktiviere, deaktiviere oder gestalte die Farbfläche inklusive Verlauf. Video und Bild werden bei Aktivierung sauber ausgeschaltet.</p>
-                <div className="ureel-tap-toggle-line"><span>Farbe / Verlauf anzeigen</span><button type="button" className={(activeCard.cardBackgroundEnabled !== false && (activeCard.ureelScene?.mode === 'color' || activeCard.ureelScene?.mode === 'gradient')) ? 'is-active' : ''} onClick={() => setSceneColorOrGradientEnabled(!isSceneColorOrGradientActive())}>{(activeCard.cardBackgroundEnabled !== false && (activeCard.ureelScene?.mode === 'color' || activeCard.ureelScene?.mode === 'gradient')) ? 'Ein' : 'Aus'}</button></div>
-                <div className="ureel-tap-chip-row"><button type="button" className={activeCard.ureelScene?.mode === 'color' ? 'is-active' : ''} onClick={() => setSceneColorOrGradientEnabled(true, 'color')}>Nur Farbe</button><button type="button" className={activeCard.ureelScene?.mode === 'gradient' ? 'is-active' : ''} onClick={() => setSceneColorOrGradientEnabled(true, 'gradient')}>Verlauf</button><button type="button" onClick={() => setSceneColorOrGradientEnabled(false)}>Deaktivieren</button></div>
-                <SpectrumColorPicker label="Hintergrundfarbe" value={activeCard.cardBackgroundColor || activeCard.ureelScene?.backgroundColor || '#111111'} fallback="#111111" onChange={(value) => syncCardUpdate({ backgroundType: 'color' as any, cardBackgroundEnabled: true, cardBackgroundColor: value, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color' as any, backgroundImageUrl: '', backgroundColor: value, gradient: undefined } as any } as any)} />
-                <SpectrumColorPicker label="Verlaufsfarbe" value={activeCard.cardBackgroundGradientColor || activeCard.ureelScene?.gradient?.to || '#3A3732'} fallback="#3A3732" onChange={(value) => { const from = activeCard.cardBackgroundColor || activeCard.ureelScene?.gradient?.from || '#111111'; syncCardUpdate({ backgroundType: 'gradient' as any, cardBackgroundEnabled: true, cardBackgroundGradientEnabled: true, cardBackgroundGradientColor: value, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), enabled: false, youtubeUrl: '', mediaMode: 'none' } as any, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'gradient' as any, backgroundImageUrl: '', backgroundColor: from, gradient: { from, to: value, direction: activeCard.cardBackgroundGradientDirection || '135deg' } } as any } as any); }} />
+                <h4>Farbhintergrund</h4>
+                <p>Wähle eine ruhige Bühne, wenn kein Video oder Bild im Vordergrund stehen soll.</p>
+                <SpectrumColorPicker label="Hintergrundfarbe" value={activeCard.cardBackgroundColor || activeCard.ureelScene?.backgroundColor || '#111111'} fallback="#111111" onChange={(value) => syncCardUpdate({ backgroundType: 'color' as any, cardBackgroundEnabled: true, cardBackgroundColor: value, ureelScene: { ...(activeCard.ureelScene || {}), mode: 'color' as any, backgroundColor: value } as any } as any)} />
               </div>
             )}
 
@@ -5476,8 +5222,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <h4>Darstellung</h4>
                 <p>Zeige Video/Bild entweder als komplette 9:16 Bühne oder als 16:9 Bildschirm im Layout.</p>
                 <div className="ureel-tap-display-options">
-                  <button type="button" className={((activeCard as any).sceneDisplayMode || ((activeCard.ureelScene?.video as any)?.placement === 'hero' ? 'wide' : 'reel')) === 'reel' ? 'is-active' : ''} onClick={() => setSceneDisplayMode('reel')}><span className="mock mock-fill"/> <strong>Reel</strong><small>9:16 Vollfläche</small></button>
-                  <button type="button" className={((activeCard as any).sceneDisplayMode || ((activeCard.ureelScene?.video as any)?.placement === 'hero' ? 'wide' : 'reel')) === 'wide' ? 'is-active' : ''} onClick={() => setSceneDisplayMode('wide')}><span className="mock mock-wide"/> <strong>16:9 Ansicht</strong><small>Video/Bild oben, Inhalt darunter</small></button>
+                  <button type="button" className={(activeCard.ureelScene?.video?.placement || 'background') === 'background' ? 'is-active' : ''} onClick={() => syncCardUpdate({ ureelScene: { ...(activeCard.ureelScene || {}), video: { ...(activeCard.ureelScene?.video || {}), displayMode: 'cover' as any, placement: 'background' as any } } as any, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), videoFitMode: 'cover' } as any } as any)}><span className="mock mock-fill"/> <strong>Reel füllt Karte</strong><small>9:16 Vollfläche</small></button>
+                  <button type="button" className={activeCard.ureelScene?.video?.placement === 'hero' ? 'is-active' : ''} onClick={() => syncCardUpdate({ ureelScene: { ...(activeCard.ureelScene || {}), video: { ...(activeCard.ureelScene?.video || {}), displayMode: 'contain' as any, placement: 'hero' as any, heroSize: 'wide' as any } } as any, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), videoFitMode: 'contain' } as any } as any)}><span className="mock mock-wide"/> <strong>16:9 Bildschirm</strong><small>Video oben, Inhalt darunter</small></button>
                 </div>
               </div>
             )}
@@ -5486,11 +5232,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <div className="ureel-tap-config">
                 <h4>Endkarte</h4>
                 <p>Die Endkarte erscheint nach dem Video oder zu einer gewählten Zeit.</p>
-                <div className="ureel-tap-toggle-line"><span>Endkarte aktivieren</span><button type="button" className={endCard.enabled ? 'is-active' : ''} onClick={() => setEndCardEnabled(!endCard.enabled)}>{endCard.enabled ? 'Ein' : 'Aus'}</button></div>
+                <div className="ureel-tap-toggle-line"><span>Endkarte aktivieren</span><button type="button" className={endCard.enabled ? 'is-active' : ''} onClick={() => setEndCard({ enabled: !endCard.enabled })}>{endCard.enabled ? 'Ein' : 'Aus'}</button></div>
                 <div className="ureel-tap-slider-row"><label>Einblenden bei <b>{timeline.endCardAt || activeCard.videoBackgroundConfig?.durationSeconds || 12}s</b></label><input type="range" min={3} max={30} step={0.5} value={timeline.endCardAt || activeCard.videoBackgroundConfig?.durationSeconds || 12} onChange={(e) => updateTimelineField('endCardAt', Number(e.target.value))} /></div>
-                <div className="ureel-tap-chip-row"><button type="button" className={endCard.source === 'image' ? 'is-active' : ''} onClick={() => setEndCard({ enabled: true, source: 'image' })}>Bild</button><button type="button" className={endCard.source === 'video' ? 'is-active' : ''} onClick={() => setEndCard({ enabled: true, source: 'video' as any })}>Video</button><button type="button" className={endCard.source === 'color' ? 'is-active' : ''} onClick={() => setEndCard({ enabled: true, source: 'color', backgroundColor: endCard.backgroundColor || '#1c1b1a' })}>Farbe</button><button type="button" onClick={() => setEndCardEnabled(false)}>Deaktivieren</button></div>
-                {endCard.source === 'color' && <SpectrumColorPicker label="Endkartenfarbe" value={endCard.backgroundColor || '#1c1b1a'} fallback="#1c1b1a" onChange={(value) => setEndCard({ enabled: true, source: 'color', backgroundColor: value })} />}
-                {endCard.source === 'image' && <><label className="ureel-tap-upload"><LucideIcons.UploadCloud size={16}/> {endCardImageUploading ? `Upload ${endCardImageUploadProgress || 0}%` : 'Endkartenbild hochladen'}<input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleEndCardImageUpload(e.target.files[0])} /></label><div className="ureel-tap-actions"><button type="button" onClick={removeEndCardImage} disabled={!endCard.imageUrl} className="ureel-danger-action">Bild entfernen</button></div></>}
+                <div className="ureel-tap-chip-row"><button type="button" className={endCard.source === 'image' ? 'is-active' : ''} onClick={() => setEndCard({ enabled: true, source: 'image' })}>Bild</button><button type="button" className={endCard.source === 'video' ? 'is-active' : ''} onClick={() => setEndCard({ enabled: true, source: 'video' as any })}>Video</button><button type="button" className={endCard.source === 'color' ? 'is-active' : ''} onClick={() => setEndCard({ enabled: true, source: 'color' })}>Farbe</button></div>
+                {endCard.source === 'image' && <label className="ureel-tap-upload"><LucideIcons.UploadCloud size={16}/> {endCardImageUploading ? `Upload ${endCardImageUploadProgress || 0}%` : 'Endkartenbild hochladen'}<input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleEndCardImageUpload(e.target.files[0])} /></label>}
                 {endCard.source === 'video' && <><label>Endkarten-Video</label><input value={(endCard as any).videoUrl || ''} placeholder="Videolink für die Endkarte" onChange={(e) => setEndCard({ enabled: true, source: e.target.value.trim() ? 'video' as any : endCard.source, videoUrl: e.target.value } as any)} /><div className="ureel-tap-chip-row"><button type="button" className={((endCard as any).videoDisplayMode || 'wide') === 'wide' ? 'is-active' : ''} onClick={() => setEndCard({ videoDisplayMode: 'wide' as any })}>16:9 oben</button><button type="button" className={(endCard as any).videoDisplayMode === 'compact' ? 'is-active' : ''} onClick={() => setEndCard({ videoDisplayMode: 'compact' as any })}>Kompakt</button></div></>}
               </div>
             )}
@@ -5558,7 +5303,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   { key: 'heroSubtitleSize', label: 'Untertitelgröße', min: 6, max: 40, fallback: 12 },
                   { key: 'heroDescriptionSize', label: 'Beschreibunggröße', min: 6, max: 36, fallback: 10 },
                 ].map((item) => <div key={item.key} className="ureel-tap-slider-row"><label>{item.label} <b>{clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max).toFixed(0)}px</b></label><input type="range" min={item.min} max={item.max} step={1} value={clampTextSize((activeCard as any)[item.key], item.fallback, item.min, item.max)} onChange={(e) => syncCardUpdate({ [item.key]: Number(e.target.value) } as any)} /></div>)}
-                <div className="ureel-tap-slider-row ureel-text-height-slider-row"><label>Texthöhe / Position <b>{getHeroTextY(activeCard).toFixed(0)}%</b></label><input type="range" min={4} max={88} step={1} value={getHeroTextY(activeCard)} onChange={(e) => syncCardUpdate(buildHeroTextYPatch(activeCard, Number(e.target.value)) as any)} /></div>
+                <div className="ureel-tap-slider-row ureel-text-height-slider-row"><label>Texthöhe / Position <b>{Math.max(4, Math.min(88, Number((activeCard as any).heroTextHeightPercent || (activeCard as any).mobileLayout?.text?.heightPercent || (activeCard as any).publicLayoutSnapshot?.text?.heightPercent || 44))).toFixed(0)}%</b></label><input type="range" min={4} max={88} step={1} value={Math.max(4, Math.min(88, Number((activeCard as any).heroTextHeightPercent || (activeCard as any).mobileLayout?.text?.heightPercent || (activeCard as any).publicLayoutSnapshot?.text?.heightPercent || 44)))} onChange={(e) => { const nextHeight = Number(e.target.value); syncCardUpdate({ heroTextHeightPercent: nextHeight, mobileLayout: { ...((activeCard as any).mobileLayout || {}), text: { ...((activeCard as any).mobileLayout?.text || {}), heightPercent: nextHeight } }, publicLayoutSnapshot: { ...((activeCard as any).publicLayoutSnapshot || {}), text: { ...((activeCard as any).publicLayoutSnapshot?.text || {}), heightPercent: nextHeight } } } as any); }} /></div>
                 {[
                   { key: 'heroTitleTextColor', label: 'Titelfarbe', fallback: '#F5F2EA' },
                   { key: 'heroSubtitleTextColor', label: 'Untertitelfarbe', fallback: '#E8DCC2' },
@@ -5615,7 +5360,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           return (
             <section className="ureel-tap-panel ureel-tap-panel--button">
               <div className="ureel-tap-panel-head"><div><span>Buttons / Aktionen</span><h3>Button bearbeiten</h3><p className="ureel-tap-active-button-line">Aktiver Button: <b>{currentButton.title || 'Button'}</b></p></div><LucideIcons.MousePointerClick size={18} /></div>
-              <div className="ureel-tap-big-button-stage"><div className="ureel-tap-big-button-stage-center">{renderButtonPreviewTile(currentButton)}</div></div>
+              <div className="ureel-tap-big-button-stage">{renderButtonPreviewTile(currentButton)}</div>
               <div className="ureel-tap-chip-row ureel-mobile-button-editor-tabs"><button type="button" className={tapButtonTool === 'overview' || tapButtonTool === 'text' ? 'is-active' : ''} onClick={() => setTapButtonTool('text')}>Text</button><button type="button" className={tapButtonTool === 'action' ? 'is-active' : ''} onClick={() => setTapButtonTool('action')}>Aktion</button><button type="button" className={tapButtonTool === 'look' ? 'is-active' : ''} onClick={() => setTapButtonTool('look')}>Look</button><button type="button" className={tapButtonTool === 'manage' ? 'is-active' : ''} onClick={() => setTapButtonTool('manage')}>Verwalten</button></div>
               {(tapButtonTool === 'overview' || tapButtonTool === 'text') && <div className="ureel-tap-config ureel-mobile-text-editor">
                 <h4>Text auf dem Button</h4>

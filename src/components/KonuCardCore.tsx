@@ -14,7 +14,6 @@ import { canUseFeature } from '../config/plans';
 import { parseVideoUrl, resolveUreelVideo } from '../utils/video';
 import { getReelTimelineState, normalizeVideoBackgroundConfig, normalizeUreelScene, normalizeUreelTimeline, normalizeUreelEndCard } from '../utils/timeline';
 import { clampCardButtonSize, CARD_BUTTON_DEFAULT_SIZE, CARD_BUTTON_MIN_SIZE } from '../utils/cardButtonSizePresets';
-import { getHeroTextY } from '../utils/heroTextLayout';
 
 export interface KonuCardCoreProps {
   card: Card;
@@ -143,7 +142,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   const normalized = normalizeVideoBackgroundConfig(card.videoBackgroundConfig, card.plan);
 
   // Construct helper for separate Reel customizer profile section data mask (Teil D)
-  const mappedCardData = React.useMemo<Partial<Card>>(() => {
+  const mappedCardData = React.useMemo(() => {
     const cleanPreviewProfileImageAllowed =
       cleanPreview &&
       ((card as any).profileImageEnabled === true || card.showProfileImage === true || (card as any).heroProfileImageEnabled === true) &&
@@ -1121,7 +1120,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       extraBox: {} as React.CSSProperties,
       descriptionWeight: 700 as React.CSSProperties['fontWeight'],
     };
-    const map: Record<string, Partial<Record<keyof typeof base, any>>> = {
+    const map: Record<string, Partial<typeof base>> = {
       premium_product: { widthClass: 'max-w-[84%]', textAlign: 'left', alignItems: 'flex-start', borderRadius: 28, titleRatio: 0.96, subtitleRatio: 0.88, descriptionRatio: 0.86, extraBox: { boxShadow: `0 16px 46px rgba(0,0,0,.36), inset 5px 0 0 ${layeredAccent}` } },
       business_clean: { widthClass: 'max-w-[88%]', borderRadius: 18, titleRatio: 0.84, subtitleRatio: 0.9, descriptionRatio: 0.9, extraBox: { boxShadow: '0 12px 30px rgba(0,0,0,.18)' } },
       social_reel: { widthClass: 'max-w-[90%]', borderRadius: 18, titleRatio: 1.08, subtitleRatio: 0.95, descriptionRatio: 0.78, letterSpacing: '0.01em', extraBox: { transform: 'rotate(-1deg)' } },
@@ -1304,7 +1303,10 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     const persistedDescriptionSize = Number((card as any).heroDescriptionSize ?? persistedTextLayout.heroDescriptionSize ?? persistedTextLayout.descriptionSizePx ?? 22);
     // v52.5.40: adjustable Werbetext height. This controls the vertical text zone,
     // not the font size, so users can make wide designs taller/shorter without changing copy size.
-    const textHeightPercent = getHeroTextY(card);
+    const rawTextHeightPercent = Number((card as any).heroTextHeightPercent ?? persistedTextLayout.heroTextHeightPercent ?? persistedTextLayout.heightPercent ?? 0);
+    const textHeightPercent = Number.isFinite(rawTextHeightPercent) && rawTextHeightPercent > 0
+      ? Math.max(24, Math.min(76, rawTextHeightPercent))
+      : 0;
     const titleSize = Math.max(16, Math.min(buttonsVisible ? 56 : 60, persistedTitleSize * publicTextRatio * mobileTextDesign.titleRatio * finalScaleBoost));
     const subtitleSize = Math.max(11, Math.min(buttonsVisible ? 40 : 44, persistedSubtitleSize * (buttonsVisible && !finalVisualMode ? 1.08 : 1) * mobileTextDesign.subtitleRatio * finalScaleBoost));
     const descriptionSize = Math.max(11.5, Math.min(buttonsVisible ? 40 : 44, persistedDescriptionSize * (buttonsVisible && !finalVisualMode ? 0.94 : 1) * mobileTextDesign.descriptionRatio * finalScaleBoost));
@@ -1321,10 +1323,10 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       return luminance < 120 ? fallback : v;
     };
     const textZoneStyle: React.CSSProperties = {
-      top: textHeightPercent > 0 ? `${textHeightPercent}%` : heroTop,
+      top: heroTop,
       bottom: textHeightPercent > 0 ? undefined : safeBottom,
-      height: textHeightPercent > 0 ? 'auto' : undefined,
-      maxHeight: textHeightPercent > 0 ? `calc(92% - ${textHeightPercent}%)` : undefined,
+      height: textHeightPercent > 0 ? `${textHeightPercent}%` : undefined,
+      maxHeight: textHeightPercent > 0 ? `${textHeightPercent}%` : undefined,
       display: 'flex',
       alignItems: mobileTextDesign.alignItems,
       justifyContent: mobileTextDesign.justifyContent,
