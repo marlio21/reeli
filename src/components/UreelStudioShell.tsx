@@ -2567,6 +2567,19 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     if (settingId === 'text-description') setMobileActiveTextLayer('description');
   };
 
+
+  const openMobileTextEntry = () => {
+    setTapEditTarget(null);
+    setActiveTab('timeline');
+    setActiveSubSection('timeline-texts');
+    setMobileOrbitModule('timeline');
+    setMobileActiveSetting(null);
+    setMobileActiveTextLayer(null);
+    setMobileOrbitLevel('sub');
+    setMobileOrbitOpen(true);
+    setMobileSheetOpen(false);
+  };
+
   const openMobileTextLayerEditor = (fieldKey: 'title' | 'subtitle' | 'description') => {
     setTapEditTarget('text');
     setActiveTab('timeline');
@@ -2659,10 +2672,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     }
     if (mobileOrbitModule === 'timeline') {
       return (
-        <button type="button" className="ureel-three-orbit-preview ureel-three-orbit-preview--text" onClick={() => openMobileTextLayerEditor('title')}>
+        <button type="button" className="ureel-three-orbit-preview ureel-three-orbit-preview--text" onClick={openMobileTextEntry}>
           <span>Werbetext</span>
           <strong>{getTextLayerDraftValue('title') || 'Titel'}</strong>
-          <small>{getTextLayerDraftValue('subtitle') || 'Untertitel'}</small>
+          <small>Tippen: Werbetext · Vorlagen · Stil · Timing</small>
         </button>
       );
     }
@@ -3203,7 +3216,21 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           <div className="ureel-mobile-sheet-grip" />
           <div className="ureel-mobile-sheet-actions">
             <button type="button" onClick={() => setMobileSheetOpen(false)} className="ureel-mobile-preview-free">● Vorschau frei</button>
-            <button type="button" onClick={() => { setMobileOrbitModule(activeTab); setMobileOrbitOpen(true); setMobileSheetOpen(false); }} className="ureel-mobile-main-menu">Untermenü</button>
+            <button
+              type="button"
+              onClick={() => {
+                if (activeTab === 'timeline') {
+                  openMobileTextEntry();
+                  return;
+                }
+                setMobileOrbitModule(activeTab);
+                setMobileOrbitLevel('sub');
+                setMobileActiveSetting(null);
+                setMobileOrbitOpen(true);
+                setMobileSheetOpen(false);
+              }}
+              className="ureel-mobile-main-menu"
+            >Untermenü</button>
           </div>
           <div className={`ureel-mobile-config-context ureel-mobile-config-context--${activeTab}`}>
             <span>{mobileModuleLabels[activeTab] || 'Studio'}{getMobileActiveSettingLabel() ? ` · ${getMobileActiveSettingLabel()}` : ''}</span>
