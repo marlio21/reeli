@@ -587,3 +587,8 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Desktop-Haupttabs auf Szene, Text und Buttons reduziert; Karten/Nutzer/Neue Karte/Teilen bleiben oben als globale Aktionen.
 - Vorschau bleibt auf Desktop immer die echte 9:16-Karte, nicht mehr Button-/Text-Sondermonitor.
 - Mittlere Spalte zeigt die mobilen Untermenüs vertikal; rechte Spalte zeigt die aktive Konfiguration.
+
+
+## v52.5.62 - Mobile Werbetext Height Range Fix
+- Mobile Werbetext height/position values are no longer clamped back to 24–76%.
+- Renderer and mobile layout persistence now accept the intended 4–88% range.

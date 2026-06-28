@@ -1305,7 +1305,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     // not the font size, so users can make wide designs taller/shorter without changing copy size.
     const rawTextHeightPercent = Number((card as any).heroTextHeightPercent ?? persistedTextLayout.heroTextHeightPercent ?? persistedTextLayout.heightPercent ?? 0);
     const textHeightPercent = Number.isFinite(rawTextHeightPercent) && rawTextHeightPercent > 0
-      ? Math.max(24, Math.min(76, rawTextHeightPercent))
+      ? Math.max(4, Math.min(88, rawTextHeightPercent))
       : 0;
     const titleSize = Math.max(16, Math.min(buttonsVisible ? 56 : 60, persistedTitleSize * publicTextRatio * mobileTextDesign.titleRatio * finalScaleBoost));
     const subtitleSize = Math.max(11, Math.min(buttonsVisible ? 40 : 44, persistedSubtitleSize * (buttonsVisible && !finalVisualMode ? 1.08 : 1) * mobileTextDesign.subtitleRatio * finalScaleBoost));

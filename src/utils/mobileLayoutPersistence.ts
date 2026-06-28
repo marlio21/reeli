@@ -66,7 +66,7 @@ export const buildMobileLayoutSnapshot = (card: Partial<Card>, options?: { prefe
   const titleSize = clamp((card as any).heroTitleSize ?? (card as any).mobileLayout?.text?.titleSizePx, 10, 56, 24);
   const subtitleSize = clamp((card as any).heroSubtitleSize ?? (card as any).mobileLayout?.text?.subtitleSizePx, 8, 40, 14);
   const descriptionSize = clamp((card as any).heroDescriptionSize ?? (card as any).mobileLayout?.text?.descriptionSizePx, 8, 36, 12);
-  const textHeightPercent = clamp((card as any).heroTextHeightPercent ?? (card as any).mobileLayout?.text?.heightPercent ?? (card as any).publicLayoutSnapshot?.text?.heightPercent, 24, 76, 44);
+  const textHeightPercent = clamp((card as any).heroTextHeightPercent ?? (card as any).mobileLayout?.text?.heightPercent ?? (card as any).publicLayoutSnapshot?.text?.heightPercent, 4, 88, 44);
   return {
     version: 'v52.5.41',
     buttons: {
