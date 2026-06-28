@@ -1446,6 +1446,39 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     window.dispatchEvent(new CustomEvent('ureel-timeline-reset'));
   };
 
+  const pasteActionValueFromClipboard = async (buttonId: string) => {
+    const normalizePastedActionValue = (raw: string) => {
+      const value = (raw || '').trim();
+      if (!value) return '';
+      // Mobile users often copy domains without protocol. For web links, store a directly openable URL.
+      if (/^(www\.|[a-z0-9-]+\.[a-z]{2,})(\/|$)/i.test(value) && !/^[a-z][a-z0-9+.-]*:/i.test(value)) {
+        return `https://${value}`;
+      }
+      return value;
+    };
+
+    let pasted = '';
+    try {
+      pasted = await navigator.clipboard?.readText?.() || '';
+    } catch {
+      pasted = '';
+    }
+
+    if (!pasted && typeof window !== 'undefined') {
+      // iOS/Safari often blocks programmatic clipboard reads. The prompt fallback still lets users
+      // long-press → paste and keeps the mobile action editor usable.
+      pasted = window.prompt(lang === 'de' ? 'Weblink hier einfügen:' : 'Paste web link here:', '') || '';
+    }
+
+    const value = normalizePastedActionValue(pasted);
+    if (value) {
+      await handleUpdateSingleButton(buttonId, { actionValue: value });
+      triggerToast(lang === 'de' ? 'Link eingefügt.' : 'Link pasted.', 'success');
+    } else {
+      triggerToast(lang === 'de' ? 'Zwischenablage ist leer oder nicht freigegeben.' : 'Clipboard is empty or unavailable.', 'info');
+    }
+  };
+
 
   const activeButtons = (activeCard.buttons || []).filter((button) => button.isActive !== false);
   const getVisibleEditorButtons = (card: Card = activeCard) => {
@@ -4258,7 +4291,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 pt-1">
-                  <button type="button" onClick={restartPreviewSimulation} className="min-h-[44px] bg-[#F5F2EA] hover:bg-white text-[#101010] rounded-xl font-black text-[10px] uppercase tracking-wider cursor-pointer">Simulation einmal starten</button>
+                  <button type="button" onClick={restartPreviewSimulation} className="min-h-[44px] bg-[#F5F2EA] hover:bg-white text-[#101010] rounded-xl font-black text-[10px] uppercase tracking-wider cursor-pointer">Spot neu starten</button>
                   <button type="button" onClick={() => applyTimeline(valuesForTimelinePreset('direct'))} className="min-h-[44px] bg-stone-900 hover:bg-stone-850 border border-stone-800 text-stone-300 rounded-xl font-black text-[10px] uppercase tracking-wider cursor-pointer">Alles sofort anzeigen</button>
                   <button type="button" onClick={() => applyTimeline(valuesForTimelinePreset('ad_reel'))} className="min-h-[44px] bg-stone-900 hover:bg-stone-850 border border-stone-800 text-stone-300 rounded-xl font-black text-[10px] uppercase tracking-wider cursor-pointer">Als Werbe-Reel timen</button>
                   <button type="button" onClick={() => applyTimeline(valuesForTimelinePreset('direct'))} className="min-h-[44px] bg-stone-900 hover:bg-stone-850 border border-stone-800 text-stone-300 rounded-xl font-black text-[10px] uppercase tracking-wider cursor-pointer">Timing zurücksetzen</button>
@@ -5161,6 +5194,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <button type="button" className={tapEditTarget === 'scene' ? 'is-active' : ''} onClick={() => { setTapEditTarget('scene'); setTapSceneTool('overview'); }}>Szene</button>
             <button type="button" className={tapEditTarget === 'text' ? 'is-active' : ''} onClick={() => openMobileTapTextEntry('timeline-texts')}>Text</button>
             <button type="button" className={tapEditTarget === 'button' ? 'is-active' : ''} onClick={() => { setTapEditTarget('button'); if (!editingBtnId && activeCard.buttons?.[0]?.id) setEditingBtnId(activeCard.buttons[0].id); }}>Buttons</button>
+            <button type="button" className="ureel-tap-preview-restart" onClick={restartPreviewSimulation}><LucideIcons.RotateCcw size={13}/> Spot neu starten</button>
           </div>
           <div className="ureel-tap-phone-frame">
             <div className="ureel-tap-phone-card">
@@ -5458,7 +5492,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <span className="ureel-tap-mini-label">Icongröße</span>
                 <div className="ureel-tap-chip-row"><button type="button" className={(currentButton.iconSize || 26) <= 22 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconSize: 20 } as any)}>Klein</button><button type="button" className={(currentButton.iconSize || 26) > 22 && (currentButton.iconSize || 26) < 31 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconSize: 26 } as any)}>Normal</button><button type="button" className={(currentButton.iconSize || 26) >= 31 && (currentButton.iconSize || 26) < 39 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconSize: 34 } as any)}>Groß</button><button type="button" className={(currentButton.iconSize || 26) >= 39 ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconSize: 42, iconEnabled: true, iconPosition: 'center' } as any)}>Sehr groß</button></div>
               </div>}
-              {tapButtonTool === 'action' && <div className="ureel-tap-config"><label>Aktion</label><select value={currentButton.actionType || 'url'} onChange={(e) => handleUpdateSingleButton(currentButton.id, { actionType: e.target.value })}>{actionOptions.filter((option) => ['url','website','phone','email','whatsapp','pdf_link','external_file_link','vcard','maps','video_replay'].includes(option.value)).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>{!['video_replay','vcard','contact_form','inquiry_form'].includes(currentButton.actionType || '') && <><label>{meta.label}</label><div className="ureel-tap-action-input-row"><input value={currentButton.actionValue || ''} placeholder={meta.placeholder} onPaste={(e) => { const pasted = e.clipboardData.getData('text'); if (pasted) handleUpdateSingleButton(currentButton.id, { actionValue: pasted.trim() }); }} onChange={(e) => handleUpdateSingleButton(currentButton.id, { actionValue: e.target.value })} /><button type="button" onClick={async () => { try { const text = await navigator.clipboard?.readText?.(); if (text) { await handleUpdateSingleButton(currentButton.id, { actionValue: text.trim() }); triggerToast('Link eingefügt.', 'success'); } else triggerToast('Zwischenablage ist leer.', 'info'); } catch { triggerToast('Bitte den Link per langem Tippen ins Feld einfügen.', 'info'); } }}><LucideIcons.ClipboardPaste size={13}/> Einfügen</button></div></>}{isFileUploadAction(currentButton.actionType) && <label className="ureel-tap-upload"><LucideIcons.UploadCloud size={16}/> {buttonFileUploading ? `Upload ${buttonFileUploadProgress || 0}%` : 'Datei hochladen'}<input type="file" onChange={(e) => e.target.files?.[0] && handleButtonFileUpload(currentButton.id, e.target.files[0])} /></label>}</div>}
+              {tapButtonTool === 'action' && <div className="ureel-tap-config"><label>Aktion</label><select value={currentButton.actionType || 'url'} onChange={(e) => handleUpdateSingleButton(currentButton.id, { actionType: e.target.value })}>{actionOptions.filter((option) => ['url','website','phone','email','whatsapp','pdf_link','external_file_link','vcard','maps','video_replay'].includes(option.value)).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>{!['video_replay','vcard','contact_form','inquiry_form'].includes(currentButton.actionType || '') && <><label>{meta.label}</label><div className="ureel-tap-action-input-row"><input type={(currentButton.actionType || 'url') === 'email' ? 'email' : (currentButton.actionType || 'url') === 'phone' || (currentButton.actionType || 'url') === 'whatsapp' ? 'tel' : 'url'} inputMode={(currentButton.actionType || 'url') === 'phone' || (currentButton.actionType || 'url') === 'whatsapp' ? 'tel' : (currentButton.actionType || 'url') === 'email' ? 'email' : 'url'} autoCapitalize="none" autoCorrect="off" spellCheck={false} enterKeyHint="done" value={currentButton.actionValue || ''} placeholder={meta.placeholder} onPaste={(e) => { const pasted = e.clipboardData.getData('text'); if (pasted) handleUpdateSingleButton(currentButton.id, { actionValue: pasted.trim() }); }} onChange={(e) => handleUpdateSingleButton(currentButton.id, { actionValue: e.target.value })} /><button type="button" onClick={() => pasteActionValueFromClipboard(currentButton.id)}><LucideIcons.ClipboardPaste size={13}/> Einfügen</button></div><p className="ureel-tap-inline-hint">Falls dein Browser die Zwischenablage blockiert: Einfügen antippen und den Link im Dialog einsetzen.</p></>}{isFileUploadAction(currentButton.actionType) && <label className="ureel-tap-upload"><LucideIcons.UploadCloud size={16}/> {buttonFileUploading ? `Upload ${buttonFileUploadProgress || 0}%` : 'Datei hochladen'}<input type="file" onChange={(e) => e.target.files?.[0] && handleButtonFileUpload(currentButton.id, e.target.files[0])} /></label>}</div>}
               {tapButtonTool === 'look' && <div className="ureel-tap-config ureel-mobile-look-editor">
                 <h4>Look des Buttons</h4>
                 <p>Gestalte Form, Fläche, Größe, Bild und Rahmen des aktiven Buttons. Die echte 9:16-Vorschau bleibt der Maßstab.</p>

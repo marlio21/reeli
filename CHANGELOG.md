@@ -592,3 +592,9 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 ## v52.5.62 - Mobile Werbetext Height Range Fix
 - Mobile Werbetext height/position values are no longer clamped back to 24–76%.
 - Renderer and mobile layout persistence now accept the intended 4–88% range.
+
+
+## v52.5.63 - Mobile Action Paste & Preview Restart
+- Mobile Button-Aktion: Einfügen-Button robuster gemacht, inklusive iOS/Safari-Prompt-Fallback, wenn navigator.clipboard blockiert ist.
+- Mobile Button-Aktion: Weblink-Felder nutzen URL-Keyboard, deaktivieren Autokorrektur und normalisieren Domains ohne Protokoll zu https://.
+- Mobile Vorschau-Karteneditor: sichtbarer Button „Spot neu starten“ ergänzt, der die Timeline auf 0s zurücksetzt und die Vorschau sofort neu startet.
