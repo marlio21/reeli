@@ -1,3 +1,12 @@
+
+## v52.5.66 – Desktop Scene Controls Repair
+
+- Desktop-Szene: Endkarte erhält klare AN/AUS-Buttons.
+- Desktop-Szene: Darstellung reduziert auf zwei eindeutige Optionen: Reel füllt Karte und 16:9 Ansicht.
+- Desktop-Szene: Farbhintergrund erhält klare AN/AUS-Buttons.
+- Mobile Stable Lock bleibt unverändert.
+- Build erfolgreich getestet.
+
 # v52.5.65 – Desktop-Profilbild-Steuerung Repair
 
 - Desktop-Profilbildbereich repariert: Profilbild anzeigen hat jetzt klare AN/AUS-Buttons.
