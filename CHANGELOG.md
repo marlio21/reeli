@@ -1,3 +1,10 @@
+# v52.5.65 – Desktop-Profilbild-Steuerung Repair
+
+- Desktop-Profilbildbereich repariert: Profilbild anzeigen hat jetzt klare AN/AUS-Buttons.
+- Profilbild-Konfiguration schreibt robuste Alias-Felder für Anzeige, Form, Größe und Timing.
+- Aktive Auswahl bei Kreis/Rund/Eckig, Größe und Erscheint wird zuverlässiger markiert.
+- Mobile Stable Lock bleibt unverändert; keine Änderungen an Public Renderer oder Mobile-Persistence.
+
 ## v52.5.64 – Mobile Stable Lock & Desktop Button Preview Polish
 
 - Mobile Stable Lock dokumentiert (`MOBILE_STABLE_LOCK.md`).

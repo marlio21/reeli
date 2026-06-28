@@ -7378,3 +7378,37 @@ body {
     text-align: center !important;
   }
 }
+
+/* v52.5.65: Desktop profile image controls repair */
+.ureel-profile-image-switch {
+  align-items: center !important;
+}
+
+.ureel-profile-image-switch-buttons {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 4px !important;
+  border: 1px solid rgba(232, 220, 194, .22) !important;
+  border-radius: 16px !important;
+  background: rgba(255,255,255,.05) !important;
+}
+
+.ureel-profile-image-switch-buttons button {
+  min-width: 58px !important;
+  min-height: 36px !important;
+  border-radius: 12px !important;
+}
+
+.ureel-profile-image-switch-buttons button.is-active {
+  background: #F5F2EA !important;
+  color: #101010 !important;
+  border-color: #F5F2EA !important;
+  box-shadow: 0 10px 22px rgba(0,0,0,.24) !important;
+}
+
+.ureel-desktop-studio-root .ureel-detail-panel .ureel-profile-image-switch-buttons button:not(.is-active) {
+  background: rgba(255,255,255,.06) !important;
+  color: #F5F2EA !important;
+  border-color: rgba(245,242,234,.22) !important;
+}

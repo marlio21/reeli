@@ -386,6 +386,47 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [desktopBgUploading, setDesktopBgUploading] = useState(false);
   const [desktopButtonBgUploadProgress, setDesktopButtonBgUploadProgress] = useState<number | null>(null);
   const [desktopButtonBgUploading, setDesktopButtonBgUploading] = useState(false);
+
+  const isProfileImageVisible = React.useMemo(() => (
+    (activeCard as any).profileImageEnabled === true ||
+    (activeCard as any).showProfileImage === true ||
+    (activeCard as any).heroProfileImageEnabled === true ||
+    (activeCard as any).profileImageActive === true
+  ), [activeCard]);
+
+  const updateProfileImageVisibility = React.useCallback((enabled: boolean) => {
+    syncCardUpdate({
+      profileImageEnabled: enabled,
+      showProfileImage: enabled,
+      heroProfileImageEnabled: enabled,
+      profileImageActive: enabled,
+    } as any);
+  }, [syncCardUpdate]);
+
+  const updateProfileImageShape = React.useCallback((shape: 'circle' | 'rounded' | 'square') => {
+    syncCardUpdate({
+      profileImageShape: shape,
+      heroImageShape: shape,
+      heroProfileImageShape: shape,
+    } as any);
+  }, [syncCardUpdate]);
+
+  const updateProfileImageSize = React.useCallback((size: 'small' | 'normal' | 'large' | 'xlarge', percent: number) => {
+    syncCardUpdate({
+      profileImageSize: size,
+      profileImageSizePercent: percent,
+      heroImageSize: size,
+      heroProfileImageSize: size,
+      heroProfileImageSizePercent: percent,
+    } as any);
+  }, [syncCardUpdate]);
+
+  const updateProfileImageReveal = React.useCallback((revealAt: 'start' | 'after_text' | 'with_buttons' | 'end') => {
+    syncCardUpdate({
+      profileImageRevealAt: revealAt,
+      heroProfileImageRevealAt: revealAt,
+    } as any);
+  }, [syncCardUpdate]);
   
   // Timeline/Video playback simulation states for Vorschau column
   const [timelineSec, setTimelineSec] = useState<number>(0);
@@ -5275,15 +5316,15 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <div className="ureel-tap-config">
                 <h4>Profilbild</h4>
                 <p>Aktiviere ein Profilbild auf deiner ureel. Es kann Kreis, rund oder eckig sein und zeitlich eingeblendet werden.</p>
-                <div className="ureel-tap-toggle-line"><span>Profilbild anzeigen</span><button type="button" className={(activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageEnabled: !((activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage), showProfileImage: !((activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage), heroProfileImageEnabled: !((activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage) } as any)}>{((activeCard as any).profileImageEnabled || (activeCard as any).showProfileImage) ? 'Ein' : 'Aus'}</button></div>
+                <div className="ureel-tap-toggle-line ureel-profile-image-switch"><span>Profilbild anzeigen</span><div className="ureel-profile-image-switch-buttons"><button type="button" className={isProfileImageVisible ? 'is-active' : ''} aria-pressed={isProfileImageVisible} onClick={() => updateProfileImageVisibility(true)}>An</button><button type="button" className={!isProfileImageVisible ? 'is-active' : ''} aria-pressed={!isProfileImageVisible} onClick={() => updateProfileImageVisibility(false)}>Aus</button></div></div>
                 <label className="ureel-tap-upload"><LucideIcons.UploadCloud size={16}/> {profileImageUploading ? `Upload ${profileImageUploadProgress || 0}%` : 'Profilbild hochladen'}<input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleProfileImageUpload(e.target.files[0])} /></label>
                 {activeCard.profileImageUrl && <div className="ureel-tap-fileline">Profilbild aktiv <button type="button" onClick={removeProfileImage}>Entfernen</button></div>}
                 <span className="ureel-tap-mini-label">Form</span>
-                <div className="ureel-tap-chip-row"><button type="button" className={((activeCard as any).profileImageShape || 'circle') === 'circle' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageShape: 'circle', heroImageShape: 'circle' } as any)}>Kreis</button><button type="button" className={(activeCard as any).profileImageShape === 'rounded' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageShape: 'rounded', heroImageShape: 'rounded' } as any)}>Rund</button><button type="button" className={(activeCard as any).profileImageShape === 'square' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageShape: 'square', heroImageShape: 'square' } as any)}>Eckig</button></div>
+                <div className="ureel-tap-chip-row"><button type="button" className={((activeCard as any).profileImageShape || (activeCard as any).heroImageShape || 'circle') === 'circle' ? 'is-active' : ''} onClick={() => updateProfileImageShape('circle')}>Kreis</button><button type="button" className={((activeCard as any).profileImageShape || (activeCard as any).heroImageShape) === 'rounded' ? 'is-active' : ''} onClick={() => updateProfileImageShape('rounded')}>Rund</button><button type="button" className={((activeCard as any).profileImageShape || (activeCard as any).heroImageShape) === 'square' ? 'is-active' : ''} onClick={() => updateProfileImageShape('square')}>Eckig</button></div>
                 <span className="ureel-tap-mini-label">Größe</span>
-                <div className="ureel-tap-chip-row"><button type="button" className={((activeCard as any).profileImageSize || 'normal') === 'small' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'small', profileImageSizePercent: 15, heroImageSize: 'small' } as any)}>Klein</button><button type="button" className={((activeCard as any).profileImageSize || 'normal') === 'normal' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'normal', profileImageSizePercent: 35, heroImageSize: 'normal' } as any)}>Normal</button><button type="button" className={(activeCard as any).profileImageSize === 'large' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'large', profileImageSizePercent: 55, heroImageSize: 'large' } as any)}>Groß</button><button type="button" className={((activeCard as any).profileImageSize === 'xlarge' || (activeCard as any).profileImageSize === 'hero') ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageSize: 'xlarge', profileImageSizePercent: 80, heroImageSize: 'xlarge' } as any)}>Sehr groß</button></div>
+                <div className="ureel-tap-chip-row"><button type="button" className={((activeCard as any).profileImageSize || (activeCard as any).heroImageSize || 'normal') === 'small' ? 'is-active' : ''} onClick={() => updateProfileImageSize('small', 15)}>Klein</button><button type="button" className={((activeCard as any).profileImageSize || (activeCard as any).heroImageSize || 'normal') === 'normal' ? 'is-active' : ''} onClick={() => updateProfileImageSize('normal', 35)}>Normal</button><button type="button" className={((activeCard as any).profileImageSize || (activeCard as any).heroImageSize) === 'large' ? 'is-active' : ''} onClick={() => updateProfileImageSize('large', 55)}>Groß</button><button type="button" className={(((activeCard as any).profileImageSize || (activeCard as any).heroImageSize) === 'xlarge' || ((activeCard as any).profileImageSize || (activeCard as any).heroImageSize) === 'hero') ? 'is-active' : ''} onClick={() => updateProfileImageSize('xlarge', 80)}>Sehr groß</button></div>
                 <span className="ureel-tap-mini-label">Erscheint</span>
-                <div className="ureel-tap-chip-row"><button type="button" className={((activeCard as any).profileImageRevealAt || 'with_text') === 'start' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageRevealAt: 'start' } as any)}>Sofort</button><button type="button" className={(activeCard as any).profileImageRevealAt === 'after_text' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageRevealAt: 'after_text' } as any)}>Nach Text</button><button type="button" className={((activeCard as any).profileImageRevealAt || 'with_text') === 'with_buttons' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageRevealAt: 'with_buttons' } as any)}>Mit Buttons</button><button type="button" className={(activeCard as any).profileImageRevealAt === 'end' ? 'is-active' : ''} onClick={() => syncCardUpdate({ profileImageRevealAt: 'end' } as any)}>Am Ende</button></div>
+                <div className="ureel-tap-chip-row"><button type="button" className={((activeCard as any).profileImageRevealAt || (activeCard as any).heroProfileImageRevealAt || 'with_text') === 'start' ? 'is-active' : ''} onClick={() => updateProfileImageReveal('start')}>Sofort</button><button type="button" className={((activeCard as any).profileImageRevealAt || (activeCard as any).heroProfileImageRevealAt) === 'after_text' ? 'is-active' : ''} onClick={() => updateProfileImageReveal('after_text')}>Nach Text</button><button type="button" className={((activeCard as any).profileImageRevealAt || (activeCard as any).heroProfileImageRevealAt || 'with_text') === 'with_buttons' ? 'is-active' : ''} onClick={() => updateProfileImageReveal('with_buttons')}>Mit Buttons</button><button type="button" className={((activeCard as any).profileImageRevealAt || (activeCard as any).heroProfileImageRevealAt) === 'end' ? 'is-active' : ''} onClick={() => updateProfileImageReveal('end')}>Am Ende</button></div>
               </div>
             )}
 
