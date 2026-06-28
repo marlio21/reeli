@@ -2593,6 +2593,19 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     setTextPreviewMode('text');
   };
 
+  const openMobileTapTextEntry = (subsection: string = 'timeline-texts') => {
+    setTapEditTarget('text');
+    setActiveTab('timeline');
+    setActiveSubSection(subsection);
+    setMobileOrbitOpen(false);
+    setMobileOrbitModule('timeline');
+    setMobileOrbitLevel('sub');
+    setMobileSheetOpen(false);
+    setMobileActiveSetting(null);
+    setMobileActiveTextLayer(null);
+    setTextPreviewMode(subsection === 'timeline-templates' ? 'templates' : 'text');
+  };
+
 
   const selectDesktopWorkbenchSection = (module: MainModule, subsectionId?: string) => {
     const nextSub = subsectionId || getDefaultSubSectionForModule(module);
@@ -5146,7 +5159,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         <section className="ureel-tap-preview-shell" aria-label="Echte 9:16 ureel Vorschau">
           <div className="ureel-tap-preview-toolbar">
             <button type="button" className={tapEditTarget === 'scene' ? 'is-active' : ''} onClick={() => { setTapEditTarget('scene'); setTapSceneTool('overview'); }}>Szene</button>
-            <button type="button" className={tapEditTarget === 'text' ? 'is-active' : ''} onClick={() => openMobileTextLayerEditor('title')}>Text</button>
+            <button type="button" className={tapEditTarget === 'text' ? 'is-active' : ''} onClick={() => openMobileTapTextEntry('timeline-texts')}>Text</button>
             <button type="button" className={tapEditTarget === 'button' ? 'is-active' : ''} onClick={() => { setTapEditTarget('button'); if (!editingBtnId && activeCard.buttons?.[0]?.id) setEditingBtnId(activeCard.buttons[0].id); }}>Buttons</button>
           </div>
           <div className="ureel-tap-phone-frame">
@@ -5166,11 +5179,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   setEditingBtnId(btn.id);
                   setTapButtonTool('text');
                 }}
-                onEditText={() => openMobileTextLayerEditor('title')}
+                onEditText={() => openMobileTapTextEntry('timeline-texts')}
               />
-              <button type="button" className="ureel-tap-text-click-layer" onClick={() => openMobileTextLayerEditor('title')} aria-label="Werbetext direkt bearbeiten"><span>Textfeld antippen → Vorlagen</span></button>
+              <button type="button" className="ureel-tap-text-click-layer" onClick={() => openMobileTapTextEntry('timeline-texts')} aria-label="Werbetext bearbeiten"><span>Text öffnen → Werbetext · Vorlagen · Stil · Timing</span></button>
               <button type="button" className={`ureel-tap-hotspot ureel-tap-hotspot--scene ${tapEditTarget === 'scene' ? 'is-active' : ''}`} onClick={() => { setTapEditTarget('scene'); setTapSceneTool('overview'); }} aria-label="Szene oder Hintergrund bearbeiten"><span>Szene</span></button>
-              <button type="button" className={`ureel-tap-hotspot ureel-tap-hotspot--text ${tapEditTarget === 'text' ? 'is-active' : ''}`} onClick={() => openMobileTextLayerEditor('title')} aria-label="Werbetext bearbeiten"><span>Text</span></button>
+              <button type="button" className={`ureel-tap-hotspot ureel-tap-hotspot--text ${tapEditTarget === 'text' ? 'is-active' : ''}`} onClick={() => openMobileTapTextEntry('timeline-texts')} aria-label="Werbetext bearbeiten"><span>Text</span></button>
               <button type="button" className={`ureel-tap-hotspot ureel-tap-hotspot--buttons ${tapEditTarget === 'button' ? 'is-active' : ''}`} onClick={() => { setTapEditTarget('button'); if (!editingBtnId && activeCard.buttons?.[0]?.id) setEditingBtnId(activeCard.buttons[0].id); }} aria-label="Buttons bearbeiten"><span>Buttons</span></button>
             </div>
           </div>
@@ -5275,6 +5288,24 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <div className="ureel-mobile-adtext-master-toggle">
               <span>Werbetext auf Karte</span>
               <button type="button" className={isMobileWerbetextEnabled ? 'is-active' : ''} onClick={() => setMobileWerbetextEnabled(!isMobileWerbetextEnabled)}>{isMobileWerbetextEnabled ? 'Aktiviert' : 'Deaktiviert'}</button>
+            </div>
+
+            <div className="ureel-tap-chip-row ureel-mobile-text-entry-tabs" aria-label="Werbetext Bereiche">
+              {[
+                { id: 'timeline-texts', label: 'Werbetext' },
+                { id: 'timeline-templates', label: 'Vorlagen' },
+                { id: 'timeline-style', label: 'Rahmen & Stil' },
+                { id: 'timeline-times', label: 'Timing' },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={activeSubSection === item.id ? 'is-active' : ''}
+                  onClick={() => openMobileTapTextEntry(item.id)}
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
 
             {activeSubSection === 'timeline-texts' && (
