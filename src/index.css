@@ -7346,3 +7346,35 @@ body {
   .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-icon-grid button.is-active { background:#F5F2EA!important; color:#101010!important; border-color:#F5F2EA!important; box-shadow:0 14px 28px rgba(0,0,0,.25)!important; }
   .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-icon-off { margin-top:14px!important; width:100%!important; min-height:48px!important; border-radius:16px!important; }
 }
+
+/* v52.5.64 – Mobile stable lock + desktop button preview window polish.
+   Mobile stays the production reference. These rules are desktop-scoped only. */
+@media (min-width: 768px) {
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-big-button-stage {
+    min-height: 310px !important;
+    padding: 34px !important;
+    border-radius: 34px !important;
+    background:
+      radial-gradient(circle at 50% 42%, rgba(245,242,234,.16), rgba(168,85,247,.07) 46%, rgba(0,0,0,.20) 100%) !important;
+    border: 1px solid rgba(232,220,194,.22) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 28px 70px rgba(0,0,0,.24) !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-big-button-stage .ureel-button-preview-tile--large {
+    width: 188px !important;
+    height: 188px !important;
+    margin: 0 auto !important;
+    filter: drop-shadow(0 24px 38px rgba(0,0,0,.34)) !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-button-preview-tile--large > div {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-mobile-look-editor > h4,
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-config > h4 {
+    text-align: center !important;
+  }
+}

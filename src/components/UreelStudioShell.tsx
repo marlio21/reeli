@@ -2284,8 +2284,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     // v52.5.32: keep the editor preview readable but stop it from exploding
     // when the real card tile is large. The card/public renderer still uses
     // the real pixel size; only this inspection preview is visually zoomed.
-    const maxStage = compact ? realTileSize : 138;
-    const zoom = compact ? 1 : Math.max(1.0, Math.min(1.45, maxStage / Math.max(1, realTileSize)));
+    // v52.5.64: Editor-only preview polish. The real renderer still receives
+    // forceSizePx={realTileSize}; only the inspection window is allowed to zoom.
+    // This keeps the stable mobile/public button logic untouched while making the
+    // active button preview large, centered and easier to judge on desktop.
+    const maxStage = compact ? realTileSize : (isDesktopWorkbench ? 178 : 158);
+    const zoom = compact ? 1 : Math.max(1.0, Math.min(isDesktopWorkbench ? 1.65 : 1.45, maxStage / Math.max(1, realTileSize)));
     const stageSize = Math.round(realTileSize * zoom);
     return (
       <div key={button.id} className={`relative flex items-center justify-center ${compact ? 'ureel-button-preview-tile--compact' : 'ureel-button-preview-tile--large'}`} style={{ width: stageSize, height: stageSize }}>

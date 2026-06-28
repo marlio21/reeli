@@ -1,3 +1,9 @@
+## v52.5.64 – Mobile Stable Lock & Desktop Button Preview Polish
+
+- Mobile Stable Lock dokumentiert (`MOBILE_STABLE_LOCK.md`).
+- Desktop-Buttonvorschau größer, mittiger und hochwertiger dargestellt.
+- Keine Änderung an mobiler Datenlogik, Persistence oder Public Renderer.
+
 
 ## v52.5.55 – Desktop Menu Parity Polish & Profile Scene Fix
 
