@@ -386,6 +386,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [desktopBgUploading, setDesktopBgUploading] = useState(false);
   const [desktopButtonBgUploadProgress, setDesktopButtonBgUploadProgress] = useState<number | null>(null);
   const [desktopButtonBgUploading, setDesktopButtonBgUploading] = useState(false);
+  const [desktopContentUploadProgress, setDesktopContentUploadProgress] = useState<number | null>(null);
+  const [desktopContentUploading, setDesktopContentUploading] = useState(false);
 
   const isProfileImageVisible = React.useMemo(() => (
     (activeCard as any).profileImageEnabled === true ||
@@ -2005,6 +2007,51 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     }
   };
 
+
+
+  const handleDesktopContentMediaUpload = async (file: File) => {
+    if (!activeCard || !user) {
+      triggerToast(lang === 'de' ? 'Bitte einloggen, bevor du ein Inhaltsbild hochlädst.' : 'Please log in before uploading content media.', 'error');
+      return;
+    }
+    if (!file) return;
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
+    if (!isImage && !isVideo) {
+      triggerToast(lang === 'de' ? 'Bitte Bild oder Video auswählen.' : 'Please choose an image or video.', 'error');
+      return;
+    }
+    const maxMb = isVideo ? 80 : 10;
+    if (file.size > maxMb * 1024 * 1024) {
+      triggerToast(lang === 'de' ? `Datei ist zu groß. Maximal ${maxMb} MB.` : `File is too large. Max ${maxMb} MB.`, 'error');
+      return;
+    }
+    const cleanName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '')}`;
+    const cardStorageId = activeCard.cardId || (activeCard as any).id || activeCard.slug || 'draft';
+    const storagePath = `users/${user.uid}/cards/${cardStorageId}/desktop-content/${cleanName}`;
+    try {
+      setDesktopContentUploading(true);
+      setDesktopContentUploadProgress(0);
+      const storageRef = ref(storage, storagePath);
+      const downloadUrl = await new Promise<string>((resolve, reject) => {
+        const task = uploadBytesResumable(storageRef, file, { contentType: file.type || (isVideo ? 'video/mp4' : 'image/jpeg') });
+        task.on('state_changed',
+          (snap) => setDesktopContentUploadProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
+          reject,
+          async () => resolve(await getDownloadURL(task.snapshot.ref))
+        );
+      });
+      await updateDesktopPage({ contentMode: 'custom', contentMediaType: isVideo ? 'video' : 'image', contentMediaUrl: downloadUrl, contentImageUrl: isImage ? downloadUrl : '', contentVideoUrl: isVideo ? downloadUrl : '' } as any);
+      triggerToast(lang === 'de' ? 'Inhalt hochgeladen.' : 'Content media uploaded.', 'success');
+    } catch (err: any) {
+      console.error('Desktop content upload failed', err);
+      triggerToast(lang === 'de' ? `Upload fehlgeschlagen: ${err?.message || err}` : `Upload failed: ${err?.message || err}`, 'error');
+    } finally {
+      setDesktopContentUploading(false);
+      setTimeout(() => setDesktopContentUploadProgress(null), 1200);
+    }
+  };
+
   const handleButtonImageUpload = async (btnId: string, file: File) => {
     if (!activeCard || !user) {
       triggerToast(lang === 'de' ? 'Bitte einloggen, bevor du Buttonbilder hochlädst.' : 'Please log in before uploading button images.', 'error');
@@ -3370,7 +3417,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           <p>{getMobilePanelHelp()}</p>
         </div>
         
-        {/* v52.5.81: Real desktop ureelSeite editor. Render this before the legacy detail renderers so the active desktop tab can never fall back to Szene/Video. */}
+        {/* v52.5.83: ureelSeite editor - preview first, active editor below. Desktop only. */}
         {activeTab === 'design' && (
           <div className="space-y-4">
             <div className="rounded-[28px] border border-[#3A3732] bg-gradient-to-br from-[#19191D] to-[#101013] p-4 shadow-2xl shadow-black/35">
@@ -3378,7 +3425,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div>
                   <span className="block text-[10px] uppercase font-black tracking-[0.22em] text-[#E8DCC2]">Meine ureelSeite</span>
                   <h1 className="mt-1 text-2xl font-black tracking-tight text-white">Desktop-Miniwebseite</h1>
-                  <p className="mt-1 max-w-2xl text-[11px] leading-relaxed text-stone-400">Konfiguriere eine Desktop-Webseite aus drei Bereichen: ureel-Karte, Aktionsmenü und freier Inhalt. Die mobile 9:16-Karte bleibt unverändert.</p>
+                  <p className="mt-1 max-w-2xl text-[11px] leading-relaxed text-stone-400">Oben siehst du immer die komplette Webseite mit Karte, Menü und Inhalt. Darunter bearbeitest du den gerade ausgewählten Bereich.</p>
                 </div>
                 <div className="flex shrink-0 gap-2">
                   <button type="button" onClick={openLiveLink} className="h-10 rounded-2xl bg-[#F5F2EA] px-4 text-[9px] font-black uppercase tracking-wider text-[#101010] inline-flex items-center gap-2"><LucideIcons.PlayCircle size={14}/> Webseite starten</button>
@@ -3386,61 +3433,110 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 </div>
               </div>
 
-              <div className="mt-4 grid grid-cols-[minmax(260px,0.72fr)_minmax(520px,1.28fr)] gap-4 items-stretch">
-                <div className="space-y-3">
-                  <div className="rounded-3xl border border-[#3A3732] bg-[#0F0F0F] p-3">
-                    <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bereich 1: Karte positionieren</span>
-                    <div className="mt-3 grid grid-cols-3 gap-2">
-                      {[
-                        { id: 'phone_left', label: 'Links', hint: 'Karte · Menü · Inhalt' },
-                        { id: 'phone_center', label: 'Mitte', hint: 'Menü · Karte · Inhalt' },
-                        { id: 'phone_right', label: 'Rechts', hint: 'Inhalt · Menü · Karte' },
-                      ].map((layout) => {
-                        const selected = desktopLayout === layout.id || (!desktopPage.layout && layout.id === 'phone_left');
-                        return <button key={layout.id} type="button" onClick={() => updateDesktopPage({ layout: layout.id })} className={`min-h-[62px] rounded-2xl border px-2 py-2 text-left transition ${selected ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732] hover:border-[#E8DCC2]/60'}`}><span className="block text-[9px] font-black uppercase tracking-wider">{layout.label}</span><span className={`mt-1 block text-[8px] leading-tight ${selected ? 'text-[#101010]/65' : 'text-stone-500'}`}>{layout.hint}</span></button>;
-                      })}
-                    </div>
-                  </div>
+              <div className="mt-4 rounded-[30px] border border-[#3A3732] bg-[#09090B] p-3 shadow-inner shadow-black/50 overflow-hidden">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#E8DCC2]">Vorschaumonitor: Karte · Menü · Inhalt</span>
+                  <span className="rounded-full border border-[#3A3732] px-3 py-1 text-[8px] font-black uppercase tracking-wider text-stone-400">alle 3 Bereiche</span>
+                </div>
+                <div className="overflow-hidden rounded-[24px] border border-white/10 bg-black/40" style={{ height: 'min(380px, calc(100vh - 365px))', minHeight: 300 }}>
+                  <PublicDesktopPageRenderer
+                    card={activeCard}
+                    lang={lang}
+                    mode="studio-preview"
+                    qrCodeUrl={qrPayload}
+                    onEditText={openWerbetexterFromDesign}
+                  />
+                </div>
+              </div>
 
-                  <div className="rounded-3xl border border-[#3A3732] bg-[#0F0F0F] p-3 space-y-3">
-                    <div>
-                      <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bereich 2: Menü & Begrüßung</span>
-                      <p className="mt-1 text-[9px] leading-relaxed text-stone-500">Text oberhalb der Aktionsbuttons. Die Buttons kommen aus deiner ureel-Karte.</p>
-                    </div>
-                    <input value={desktopPage.buttonAreaHeadline || ''} onChange={(e) => updateDesktopPage({ buttonAreaHeadline: e.target.value })} placeholder="z.B. Willkommen bei uns" className="h-10 w-full rounded-xl border border-[#3A3732] bg-[#181818] px-3 text-xs font-bold text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
-                    <textarea value={desktopPage.buttonAreaIntro || ''} onChange={(e) => updateDesktopPage({ buttonAreaIntro: e.target.value })} placeholder="Kurzer Hinweis, Angebot oder Begrüßung oberhalb der Aktionen" rows={2} className="w-full rounded-xl border border-[#3A3732] bg-[#181818] p-3 text-xs font-medium leading-relaxed text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
-                    <div className="grid grid-cols-2 gap-2">
-                      <button type="button" onClick={() => updateDesktopPage({ showActionButtons: desktopPage.showActionButtons === false })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${desktopPage.showActionButtons !== false ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Desktop-Buttons {desktopPage.showActionButtons !== false ? 'AN' : 'AUS'}</button>
-                      <button type="button" onClick={() => updateDesktopPage({ showPhoneButtons: desktopPage.showPhoneButtons !== true })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${desktopPage.showPhoneButtons === true ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Karten-Buttons {desktopPage.showPhoneButtons === true ? 'AN' : 'AUS'}</button>
-                    </div>
+              <div className="mt-4 rounded-[28px] border border-[#3A3732] bg-[#0F0F10] p-4">
+                <div className="mb-4 flex items-center justify-between gap-3 border-b border-[#2B2924] pb-3">
+                  <div>
+                    <span className="block text-[9px] uppercase font-black tracking-[0.2em] text-[#E8DCC2]">Aktiver Editor</span>
+                    <h2 className="mt-1 text-xl font-black text-white">
+                      {activeSubSection === 'design-background' ? 'Hintergrund gestalten' : activeSubSection === 'design-content' ? 'Text & Medien bearbeiten' : activeSubSection === 'design-share' ? 'Webseite starten & teilen' : 'Webseite aufbauen'}
+                    </h2>
                   </div>
-
-                  <div className="rounded-3xl border border-[#3A3732] bg-[#0F0F0F] p-3 space-y-3">
-                    <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bereich 3: Inhalt</span>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button type="button" onClick={() => updateDesktopPage({ contentMode: 'from_card' })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${(desktopPage.contentMode || 'from_card') === 'from_card' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Live aus Werbetext</button>
-                      <button type="button" onClick={() => updateDesktopPage({ contentMode: 'custom' })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${desktopPage.contentMode === 'custom' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Eigener Text</button>
-                    </div>
-                    <input value={desktopPage.title || ''} onChange={(e) => updateDesktopPage({ title: e.target.value, contentMode: 'custom' })} placeholder={activeCard.title || 'Titel aus Werbetext'} className="h-10 w-full rounded-xl border border-[#3A3732] bg-[#181818] px-3 text-xs font-bold text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
-                    <textarea value={desktopPage.description || ''} onChange={(e) => updateDesktopPage({ description: e.target.value, contentMode: 'custom' })} placeholder={activeCard.description || 'Beschreibung aus Werbetext'} rows={2} className="w-full rounded-xl border border-[#3A3732] bg-[#181818] p-3 text-xs font-medium leading-relaxed text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
-                  </div>
+                  <span className="rounded-full bg-[#F5F2EA]/8 px-3 py-1 text-[8px] font-black uppercase tracking-wider text-stone-400">Preview bleibt oben</span>
                 </div>
 
-                <div className="rounded-[30px] border border-[#3A3732] bg-[#09090B] p-3 shadow-inner shadow-black/50 overflow-hidden">
-                  <div className="mb-2 flex items-center justify-between gap-2">
-                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#E8DCC2]">Gesamtvorschau: Karte · Menü · Inhalt</span>
-                    <span className="rounded-full border border-[#3A3732] px-3 py-1 text-[8px] font-black uppercase tracking-wider text-stone-400">passt ohne Scrollen</span>
+                {activeSubSection === 'design-desktop' && (
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                    <div className="rounded-3xl border border-[#3A3732] bg-[#111111] p-4 space-y-3">
+                      <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bereich 1: Karte positionieren</span>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[
+                          { id: 'phone_left', label: 'Links', hint: 'Karte · Menü · Inhalt' },
+                          { id: 'phone_center', label: 'Mitte', hint: 'Menü · Karte · Inhalt' },
+                          { id: 'phone_right', label: 'Rechts', hint: 'Inhalt · Menü · Karte' },
+                        ].map((layout) => {
+                          const selected = desktopLayout === layout.id || (!desktopPage.layout && layout.id === 'phone_left');
+                          return <button key={layout.id} type="button" onClick={() => updateDesktopPage({ layout: layout.id })} className={`min-h-[66px] rounded-2xl border px-3 py-2 text-left transition ${selected ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732] hover:border-[#E8DCC2]/60'}`}><span className="block text-[9px] font-black uppercase tracking-wider">{layout.label}</span><span className={`mt-1 block text-[8px] leading-snug ${selected ? 'text-[#101010]/65' : 'text-stone-500'}`}>{layout.hint}</span></button>;
+                        })}
+                      </div>
+                    </div>
+                    <div className="rounded-3xl border border-[#3A3732] bg-[#111111] p-4 space-y-3">
+                      <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bereich 2: Menü & Buttons</span>
+                      <input value={desktopPage.buttonAreaHeadline || ''} onChange={(e) => updateDesktopPage({ buttonAreaHeadline: e.target.value })} placeholder="z.B. Willkommen bei uns" className="w-full h-11 rounded-2xl border border-[#3A3732] bg-[#181818] px-3 text-xs font-bold text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
+                      <textarea value={desktopPage.buttonAreaIntro || ''} onChange={(e) => updateDesktopPage({ buttonAreaIntro: e.target.value })} placeholder="Kurzer Hinweis oder Begrüßung oberhalb der Aktionen" rows={3} className="w-full rounded-2xl border border-[#3A3732] bg-[#181818] p-3 text-xs text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
+                      <div className="grid grid-cols-4 gap-2">
+                        {[[ 'ordered','Geordnet' ],[ 'compact_grid','Kompakt' ],[ 'circle','Kreis' ],[ 'triangle','Dreieck' ]].map(([id,label]) => <button key={id} type="button" onClick={() => updateDesktopPage({ buttonLayout: id })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${(desktopButtonLayout === id || (!desktopPage.buttonLayout && id === 'ordered')) ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>{label}</button>)}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button type="button" onClick={() => updateDesktopPage({ showActionButtons: desktopPage.showActionButtons === false })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${desktopPage.showActionButtons !== false ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Desktop-Buttons {desktopPage.showActionButtons !== false ? 'AN' : 'AUS'}</button>
+                        <button type="button" onClick={() => updateDesktopPage({ showPhoneButtons: desktopPage.showPhoneButtons !== true })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${desktopPage.showPhoneButtons === true ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Kartenbuttons {desktopPage.showPhoneButtons === true ? 'AN' : 'AUS'}</button>
+                      </div>
+                    </div>
                   </div>
-                  <div className="overflow-hidden rounded-[24px] border border-white/10 bg-black/40" style={{ height: 'min(500px, calc(100vh - 250px))', minHeight: 420 }}>
-                    <PublicDesktopPageRenderer
-                      card={activeCard}
-                      lang={lang}
-                      mode="studio-preview"
-                      qrCodeUrl={qrPayload}
-                      onEditText={openWerbetexterFromDesign}
-                    />
+                )}
+
+                {activeSubSection === 'design-background' && (
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                    <div className="rounded-3xl border border-[#3A3732] bg-[#111111] p-4 space-y-3">
+                      <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Webseiten-Hintergrund</span>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[[ 'gradient','Verlauf' ],[ 'image','Bild' ],[ 'color','Fläche' ]].map(([id,label]) => <button key={id} type="button" onClick={() => updateDesktopPage({ backgroundMode: id })} className={`h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${(desktopPage.backgroundMode || 'gradient') === id ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>{label}</button>)}
+                      </div>
+                      <div className="grid grid-cols-2 gap-3"><input type="color" value={desktopPage.gradientFrom || '#0F0F0F'} onChange={(e) => updateDesktopPage({ gradientFrom: e.target.value, backgroundMode: 'gradient' })} className="h-11 rounded-xl border border-[#3A3732] bg-[#181818]"/><input type="color" value={desktopPage.gradientTo || '#3A3328'} onChange={(e) => updateDesktopPage({ gradientTo: e.target.value, backgroundMode: 'gradient' })} className="h-11 rounded-xl border border-[#3A3732] bg-[#181818]"/></div>
+                      <label className="h-11 rounded-2xl bg-[#F5F2EA] text-[#101010] text-[9px] font-black uppercase tracking-wider cursor-pointer inline-flex items-center justify-center gap-2"><LucideIcons.ImagePlus size={14}/> Hintergrundbild hochladen<input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleDesktopBackgroundUpload(file); e.currentTarget.value = ''; }} /></label>
+                      {desktopBgUploading && <div className="h-1.5 rounded-full bg-stone-800 overflow-hidden"><div className="h-full bg-[#E8DCC2]" style={{ width: `${desktopBgUploadProgress || 0}%` }} /></div>}
+                      {desktopPage.backgroundImageUrl && <button type="button" onClick={() => updateDesktopPage({ backgroundImageUrl: '', backgroundMode: 'gradient' })} className="w-full h-10 rounded-xl border border-[#3A3732] text-[8px] font-black uppercase tracking-wider text-stone-300">Hintergrundbild entfernen</button>}
+                    </div>
+                    <div className="rounded-3xl border border-[#3A3732] bg-[#111111] p-4 space-y-3">
+                      <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Button-Menü Hintergrund</span>
+                      <div className="grid grid-cols-3 gap-2">{[[ 'none','Ohne' ],[ 'gradient','Verlauf' ],[ 'image','Bild' ]].map(([id,label]) => <button key={id} type="button" onClick={() => updateDesktopPage({ buttonAreaBackgroundMode: id })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${(desktopPage.buttonAreaBackgroundMode || 'none') === id ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>{label}</button>)}</div>
+                      <label className="h-11 rounded-2xl bg-[#F5F2EA] text-[#101010] text-[9px] font-black uppercase tracking-wider cursor-pointer inline-flex items-center justify-center gap-2"><LucideIcons.ImagePlus size={14}/> Menübild hochladen<input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleDesktopButtonBackgroundUpload(file); e.currentTarget.value = ''; }} /></label>
+                      {desktopButtonBgUploading && <div className="h-1.5 rounded-full bg-stone-800 overflow-hidden"><div className="h-full bg-[#E8DCC2]" style={{ width: `${desktopButtonBgUploadProgress || 0}%` }} /></div>}
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {activeSubSection === 'design-content' && (
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                    <div className="rounded-3xl border border-[#3A3732] bg-[#111111] p-4 space-y-3">
+                      <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bereich 3: Text</span>
+                      <div className="grid grid-cols-2 gap-2"><button type="button" onClick={() => updateDesktopPage({ contentMode: 'from_card' })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${(desktopPage.contentMode || 'from_card') !== 'custom' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Aus Werbetext</button><button type="button" onClick={() => updateDesktopPage({ contentMode: 'custom' })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${desktopPage.contentMode === 'custom' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Eigener Text</button></div>
+                      <input value={desktopPage.title || ''} onChange={(e) => updateDesktopPage({ title: e.target.value, contentMode: 'custom' })} placeholder={activeCard.title || 'Titel'} className="w-full h-11 rounded-2xl border border-[#3A3732] bg-[#181818] px-3 text-sm font-bold text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
+                      <input value={desktopPage.subtitle || ''} onChange={(e) => updateDesktopPage({ subtitle: e.target.value, contentMode: 'custom' })} placeholder={activeCard.subtitle || 'Untertitel'} className="w-full h-11 rounded-2xl border border-[#3A3732] bg-[#181818] px-3 text-sm font-bold text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
+                      <textarea value={desktopPage.description || ''} onChange={(e) => updateDesktopPage({ description: e.target.value, contentMode: 'custom' })} placeholder={activeCard.description || 'Beschreibung'} rows={4} className="w-full rounded-2xl border border-[#3A3732] bg-[#181818] p-3 text-sm text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
+                    </div>
+                    <div className="rounded-3xl border border-[#3A3732] bg-[#111111] p-4 space-y-3">
+                      <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bild / Video im Inhaltsbereich</span>
+                      <input value={desktopPage.contentMediaUrl || ''} onChange={(e) => updateDesktopPage({ contentMediaUrl: e.target.value, contentImageUrl: e.target.value, contentMediaType: 'image', contentMode: 'custom' })} placeholder="Bild- oder Video-Link einfügen" className="w-full h-11 rounded-2xl border border-[#3A3732] bg-[#181818] px-3 text-xs font-mono text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
+                      <label className="h-11 rounded-2xl bg-[#F5F2EA] text-[#101010] text-[9px] font-black uppercase tracking-wider cursor-pointer inline-flex items-center justify-center gap-2"><LucideIcons.UploadCloud size={14}/> Bild / Video hochladen<input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleDesktopContentMediaUpload(file); e.currentTarget.value = ''; }} /></label>
+                      {desktopContentUploading && <div className="h-1.5 rounded-full bg-stone-800 overflow-hidden"><div className="h-full bg-[#E8DCC2]" style={{ width: `${desktopContentUploadProgress || 0}%` }} /></div>}
+                      {desktopPage.contentMediaUrl && <button type="button" onClick={() => updateDesktopPage({ contentMediaUrl: '', contentImageUrl: '', contentVideoUrl: '', contentMediaType: '' })} className="w-full h-10 rounded-xl border border-[#3A3732] text-[8px] font-black uppercase tracking-wider text-stone-300">Medium entfernen</button>}
+                    </div>
+                  </div>
+                )}
+
+                {activeSubSection === 'design-share' && (
+                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+                    <button type="button" onClick={openLiveLink} className="min-h-[92px] rounded-3xl bg-[#F5F2EA] text-[#101010] p-4 text-left font-black uppercase tracking-wider"><LucideIcons.PlayCircle size={24}/><span className="mt-3 block">Webseite starten</span></button>
+                    <button type="button" onClick={copyLiveLink} className="min-h-[92px] rounded-3xl border border-[#E8DCC2]/40 bg-[#181818] text-[#F5F2EA] p-4 text-left font-black uppercase tracking-wider"><LucideIcons.Link size={24}/><span className="mt-3 block">Link kopieren</span></button>
+                    <button type="button" onClick={shareLiveLink} className="min-h-[92px] rounded-3xl border border-[#E8DCC2]/40 bg-[#181818] text-[#F5F2EA] p-4 text-left font-black uppercase tracking-wider"><LucideIcons.Share2 size={24}/><span className="mt-3 block">Teilen</span></button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

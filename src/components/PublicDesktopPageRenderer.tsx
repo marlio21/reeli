@@ -154,7 +154,7 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
       return <div className={`${isStudioPreview ? 'h-[255px] max-w-[255px]' : 'h-[390px] max-w-[390px]'} relative w-full mx-auto rounded-full border border-[#E8DCC2]/15 bg-black/15`}>
         {list.map((b: any, i: number) => (
           <div key={b.id} className={`absolute ${pos[i] || pos[0]}`}>
-            <ButtonRenderer button={getActionButton(b)} mode="public" lang={lang} forceSquare={true} forceSizePx={tileSize}/>
+            <ButtonRenderer button={getActionButton(b)} mode="public" lang={lang} forceSquare={true} forceSizePx={tileSize} onClick={() => onButtonClick?.(b)}/>
           </div>
         ))}
       </div>;
