@@ -3199,7 +3199,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         <div className="ureel-mobile-main-nav flex flex-row md:flex-col gap-2 md:gap-2.5 w-auto md:w-full px-0 md:px-2 overflow-x-auto snap-x">
           {[
             { id: 'scene', label: dt('scene'), icon: LucideIcons.Tv },
-            { id: 'timeline', label: lang === 'de' ? 'Timeline' : 'Timeline', icon: LucideIcons.Milestone },
+            { id: 'timeline', label: dt('text'), icon: LucideIcons.Type },
             { id: 'buttons', label: dt('buttons'), icon: LucideIcons.Grid },
             { id: 'cards', label: lang === 'de' ? 'Karten' : 'Cards', icon: LucideIcons.Layers }
           ].map((item) => {
@@ -3284,7 +3284,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               </div>
             )}
 
-            {activeTab === 'design' && (lang === 'de' ? 'Design & Farben' : 'Design & Presets')}
+            {activeTab === 'design' && dt('myUreelPage')}
             </span>
           </div>
 
@@ -3738,7 +3738,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               </div>
             )}
 
-            {activeTab === 'design' && (activeSubSection === 'design-desktop' ? 'Desktop-Seite' : activeSubSection === 'design-background' ? 'Desktop-Hintergrund' : 'Link & Teilen')}
+            {activeTab === 'design' && (activeSubSection === 'design-desktop' ? dt('website') : activeSubSection === 'design-background' ? dt('background') : activeSubSection === 'design-share' ? dt('launchWebsite') : dt('website'))}
               {activeTab === 'cards' && 'Meine ureels / Karten'}
             </h1>
             <p className="text-[10px] text-stone-450 mt-1">
@@ -3757,7 +3757,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               </div>
             )}
 
-            {activeTab === 'design' && (activeSubSection === 'design-desktop' ? 'Konfiguriere die Desktop-Ansicht als Miniwebseite mit echter Smartphone-Karte daneben.' : activeSubSection === 'design-background' ? 'Wähle Verlauf, Farbe oder ein eigenes Bild für die Desktop-Miniwebseite.' : 'Bereite QR-Code, Teilen und Kontakt speichern für den Live-Link vor.')}
+            {activeTab === 'design' && (activeSubSection === 'design-desktop' ? dt('websiteDesc') : activeSubSection === 'design-background' ? dt('backgroundDesc') : activeSubSection === 'design-share' ? dt('launchWebsiteDesc') : dt('miniWebsiteIntro'))}
               {activeTab === 'cards' && 'Öffne, dupliziere oder lösche deine ureel-Karten.'}
             </p>
           </div>

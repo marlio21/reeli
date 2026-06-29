@@ -8214,3 +8214,98 @@ body {
     margin-right: 0 !important;
   }
 }
+
+
+/* v52.5.90 RC1 Desktop Studio Cleanup
+   Authoritative desktop-only shell rules. These selectors are scoped to the
+   desktop root and do not touch the mobile orbit, mobile sheets, public card
+   renderer, persistence, hydration or ButtonRenderer logic. */
+@media (min-width: 768px) {
+  .ureel-desktop-studio-root .ureel-subnav-panel {
+    width: 300px !important;
+    flex: 0 0 300px !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-card {
+    display: grid !important;
+    grid-template-columns: 30px minmax(0, 1fr) 16px !important;
+    align-items: center !important;
+    column-gap: 14px !important;
+    min-height: 112px !important;
+    padding: 18px !important;
+    border-radius: 26px !important;
+    overflow: hidden !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-icon {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    justify-self: center !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-copy {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-title {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    font-size: 16px !important;
+    line-height: 1.08 !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.015em !important;
+    text-transform: uppercase !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-desc {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 7px !important;
+    font-size: 12px !important;
+    line-height: 1.34 !important;
+    font-weight: 720 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-card.is-active .ureel-desktop-subnav-desc,
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-card.bg-\[\#F5F2EA\] .ureel-desktop-subnav-desc {
+    color: rgba(16, 16, 16, .70) !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-desktop-workspace-tabs {
+    min-width: max-content !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-desktop-dash-button,
+  .ureel-desktop-studio-root .ureel-detail-panel button,
+  .ureel-desktop-studio-root .ureel-subnav-panel button {
+    -webkit-tap-highlight-color: transparent;
+  }
+}

@@ -1,4 +1,14 @@
 
+## v52.5.90 – RC1 Desktop Studio Cleanup
+
+- Desktop Studio auf RC1-Regeln ausgerichtet.
+- Desktop-Hauptbereiche weiter vereinheitlicht: Szene, Text, Buttons, Meine ureelSeite.
+- Mittelspalten-Auswahlkarten mit verbindlichen Desktop-only CSS-Regeln stabilisiert.
+- Desktop-Beschriftungen für Text und Meine ureelSeite bereinigt.
+- `DESKTOP_STUDIO_RC1_RULES.md` ergänzt.
+- Mobile-Code, Public Renderer, Persistence und Hydration nicht verändert.
+
+
 ## v52.5.89 – RC1 Desktop Studio Product Book & Stabilization Plan
 
 - Product Book 1.0 ergänzt: Vision, Zielgruppen, Designregeln, Architekturregeln und Release-Candidate-Plan.
