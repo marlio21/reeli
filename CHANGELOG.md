@@ -1,4 +1,12 @@
 
+## v52.5.89 – RC1 Desktop Studio Product Book & Stabilization Plan
+
+- Product Book 1.0 ergänzt: Vision, Zielgruppen, Designregeln, Architekturregeln und Release-Candidate-Plan.
+- RC1 Desktop Studio Checklist ergänzt: Mobile-Schutztest, Desktop-Hauptnavigation, Mittelspalte, rechter Editor, Meine ureelSeite, Public View und Browsertests.
+- Entwicklungsmodus von laufenden Feature-Patches auf Produkt-/RC-Qualität umgestellt.
+- Keine Mobile-Logik, keine Persistence, kein Public-Mobile-Renderer und kein ButtonRenderer verändert.
+
+
 
 ## v52.5.88 – Desktop Internationalisierung & Browser-Kompatibilitätscheck
 

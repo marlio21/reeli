@@ -1,0 +1,145 @@
+# Ureel Product Book 1.0
+
+## Vision
+
+**Aus Video wird Aktion.**
+
+Ureel verwandelt ein Video, Bild oder Reel in eine interaktive Karte und auf Desktop optional in eine Miniwebseite. Besucher sollen nicht nur zusehen, sondern sofort handeln können: anrufen, schreiben, buchen, kaufen, herunterladen, teilen oder eine Webseite öffnen.
+
+## Produktkern
+
+Ureel besteht aus vier Produktbereichen:
+
+1. **Studio** – Ersteller bauen und bearbeiten ihre ureel-Karten.
+2. **Interaktive Karte** – Mobile 9:16 Public View mit Video/Bild, Werbetext und Buttons.
+3. **Meine Ureel Seite** – Desktop-Miniwebseite aus Karte, Menü und Contentbereich.
+4. **Administration** – später Landingpage, Showcase-Karten, Nutzer, Rollen, Analytics und Preise.
+
+## Zielgruppen
+
+### Privat
+Bewerbungen, Hochzeiten, Geburtstage, Portfolios, Reisen und persönliche Linksammlungen.
+
+### Unternehmen
+Restaurants, Hotels, Immobilien, Handwerk, Ärzte, Friseure, Händler, Berater, Coaches und Agenturen.
+
+### Vereine
+Mitgliedschaft, Kalender, Spenden, Veranstaltungen, Ansprechpartner, Downloads und Videos.
+
+### Schulen und Bildung
+Tag der offenen Tür, Anmeldung, Schwerpunkte, Downloads, Videos, Team und Kontakt.
+
+### Gemeinden und Tourismus
+Sehenswürdigkeiten, Veranstaltungen, Bürgerservice, Formulare, Routen und Angebote.
+
+## Was Ureel anders macht
+
+- Ein Reel bleibt nicht nur ein Reel, sondern wird zur interaktiven Aktionsseite.
+- Eine Karte ist die zentrale Quelle für Mobile, Desktop, QR, Public Link und Landingpage.
+- Die mobile Darstellung bleibt eine einfache 9:16 Karte.
+- Die Desktop-Darstellung kann zusätzlich eine Miniwebseite sein.
+- Nutzer brauchen keine Programmierkenntnisse.
+- Änderungen an einer Karte wirken überall dort, wo diese Karte verwendet wird.
+
+## Architekturregeln
+
+### Mobile bleibt geschützt
+Die mobile Version ist die stabile Referenz. Desktop-Änderungen dürfen Mobile nicht beschädigen.
+
+Nicht ohne Regressionstest ändern:
+
+- `App.tsx`
+- `KonuCardCore.tsx`
+- `ButtonRenderer.tsx`
+- `mobileLayoutPersistence.ts`
+- `buttonUtils.ts`
+- `FirebaseContext.tsx`
+
+### Desktop bekommt eigene Shells
+Desktop darf anders angeordnet sein, aber keine zweite Datenlogik besitzen.
+
+Erlaubte Desktop-Arbeit:
+
+- `UreelStudioShell.tsx`
+- Desktop-spezifische CSS-Regeln
+- Desktop-Miniwebseite
+- Public Desktop Renderer
+- Desktop-i18n
+
+### Eine Quelle pro Wert
+Buttongrößen, Textposition, Buttonlook, Public Layout und Miniwebseitenwerte müssen kanonisch gespeichert und von Editor/Public gleich gelesen werden.
+
+## Desktop Studio Regeln für RC1
+
+Jeder Hauptbereich folgt demselben Muster:
+
+1. Oben globale Aktionen.
+2. Links 9:16 Livekarte.
+3. Mitte Auswahlkarten.
+4. Rechts aktiver Editor.
+5. Bei „Meine Ureel Seite“ rechts immer oben die komplette Desktop-Webseitenvorschau und darunter der aktive Editor.
+
+Hauptbereiche:
+
+- Szene
+- Text
+- Buttons
+- Meine Ureel Seite
+
+## Designsystem-Regeln
+
+### Auswahlkarten
+Alle Auswahlkarten haben dieselbe Struktur:
+
+- Icon
+- Titel
+- Erklärung darunter
+- klare aktive Markierung
+- keine zusammenlaufenden Texte
+
+### AN/AUS
+Alle booleschen Funktionen verwenden denselben AN/AUS-Stil.
+
+### Aktionsbuttons
+Große Aktionen wie „Webseite starten“, „Look auf alle Buttons übertragen“ oder „Neue Karte“ sind als echte Buttons sichtbar, nicht als Textzeilen.
+
+### Vorschauen
+Vorschaufenster sind keine technischen Debugflächen. Sie sollen immer wie ein kleiner Monitor wirken.
+
+## Landingpage-Regel
+
+Die öffentliche Startseite soll später echte Live-Showcase-Karten laden, keine statischen Screenshots.
+
+Beispiel:
+
+- Restaurant → Karten-ID
+- Hotel → Karten-ID
+- Immobilien → Karten-ID
+- Schule → Karten-ID
+- Verein → Karten-ID
+
+Ändert der Administrator die Karte, aktualisiert sich die Landingpage automatisch.
+
+## Release Candidate Plan
+
+### RC1 – Desktop Studio fertigstellen
+Desktop-Struktur, Designsystem, Miniwebseiten-Editor, konsistente Vorschauen.
+
+### RC2 – Public Views stabilisieren
+Mobile Public und Desktop Public exakt testen.
+
+### RC3 – Landingpage
+Startseite mit Live-Showcase-Karten.
+
+### RC4 – Mehrsprachigkeit
+DE/EN zuverlässig im Desktop-Studio und später Public.
+
+### RC5 – Browser- und Gerätetests
+Safari, Chrome, Edge, Firefox, iPhone, Android.
+
+### RC6 – Beta
+20–50 Testnutzer, Feedback und Fehlerliste.
+
+## Launch-Leitsatz
+
+**Ureel macht aus Aufmerksamkeit direkte Handlung.**
