@@ -82,7 +82,7 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
   onEditText,
 }) => {
   const desktopPage: any = (card as any).desktopPage || {};
-  const layout = desktopPage.layout || 'desktop_onepager';
+  const layout = desktopPage.layout || 'phone_left';
   const buttonArrangement = desktopPage.buttonLayout || 'ordered';
   const buttons = normalizeButtons(card.buttons || [])
     .filter((b: any) => b && b.isActive !== false)
@@ -95,6 +95,8 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
     ? 'grid-cols-[minmax(190px,0.9fr)_minmax(235px,1fr)_minmax(230px,1.05fr)]'
     : layout === 'phone_center'
     ? 'grid-cols-[minmax(310px,0.85fr)_minmax(410px,1fr)_minmax(360px,0.9fr)]'
+    : layout === 'phone_right'
+    ? 'grid-cols-[minmax(380px,1.02fr)_minmax(420px,1fr)_minmax(340px,0.92fr)]'
     : 'grid-cols-[minmax(340px,0.92fr)_minmax(420px,1fr)_minmax(380px,1.02fr)]';
 
   const phonePanel = (
@@ -174,8 +176,8 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
       <div className="mb-5 flex items-start justify-between gap-3">
         <div>
           <span className="block w-fit rounded-full border border-[#E8DCC2]/30 px-3 py-1 text-[10px] uppercase tracking-[0.22em] font-black text-[#E8DCC2]">Bereich 2</span>
-          <h2 className={`${isStudioPreview ? 'mt-3 text-lg' : 'mt-4 text-2xl xl:text-3xl'} font-black leading-tight text-[#F5F2EA]`}>{lang === 'de' ? 'Aktionen bedienen' : 'Use actions'}</h2>
-          <p className="mt-2 text-xs leading-relaxed text-[#F5F2EA]/60">{lang === 'de' ? 'Dieselben Kartenbuttons, aber auf Desktop als eigener Bedienbereich.' : 'The same card buttons, shown as a dedicated desktop action area.'}</p>
+          <h2 className={`${isStudioPreview ? 'mt-3 text-lg' : 'mt-4 text-2xl xl:text-3xl'} font-black leading-tight text-[#F5F2EA]`}>{desktopPage.buttonAreaHeadline || (lang === 'de' ? 'Aktionen bedienen' : 'Use actions')}</h2>
+          <p className="mt-2 text-xs leading-relaxed text-[#F5F2EA]/60">{desktopPage.buttonAreaIntro || (lang === 'de' ? 'Dieselben Kartenbuttons, aber auf Desktop als eigener Bedienbereich.' : 'The same card buttons, shown as a dedicated desktop action area.')}</p>
         </div>
         <span className="rounded-full bg-black/35 px-2 py-1 text-[8px] font-black uppercase text-[#F5F2EA]/70">max. 6</span>
       </div>
@@ -220,6 +222,8 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
 
   const columns = layout === 'phone_center'
     ? [buttonsPanel, phonePanel, contentPanel]
+    : layout === 'phone_right'
+    ? [contentPanel, buttonsPanel, phonePanel]
     : layout === 'minimal'
     ? [phonePanel, buttonsPanel, contentPanel]
     : [phonePanel, buttonsPanel, contentPanel];

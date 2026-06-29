@@ -1552,7 +1552,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const buttonsCurrentlyVisible = timelineSec >= visibleButtonsAt || !isPlaying;
 
   const desktopPage = (activeCard.desktopPage || {}) as any;
-  const desktopLayout = desktopPage.layout || 'desktop_triptych';
+  const desktopLayout = desktopPage.layout || 'phone_left';
   // Desktop-Miniwebseite: öffentliche Desktop-Ansicht immer nebeneinander darstellen.
   // So sieht der Nutzer im Editor dieselbe Seitenlogik wie später im Live-Link.
   const desktopPreviewGridClass = desktopLayout === 'phone_center'
@@ -2949,6 +2949,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             { id: 'scene', label: lang === 'de' ? 'Szene' : 'Scene', icon: LucideIcons.Tv },
             { id: 'timeline', label: lang === 'de' ? 'Text' : 'Text', icon: LucideIcons.Type },
             { id: 'buttons', label: lang === 'de' ? 'Buttons' : 'Buttons', icon: LucideIcons.Grid },
+            { id: 'design', label: lang === 'de' ? 'Meine ureelSeite' : 'My ureel page', icon: LucideIcons.Globe2 },
           ].map((item) => {
             const IconComponent = item.icon;
             const active = activeTab === item.id;
@@ -2957,7 +2958,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 key={item.id}
                 type="button"
                 onClick={() => {
-                  const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-text' };
+                  const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-text', design: 'design-desktop' };
                   selectDesktopWorkbenchSection(item.id as MainModule, defaults[item.id]);
                 }}
                 className={`h-10 rounded-xl px-3 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-wider transition ${active ? 'bg-[#F5F2EA] text-[#101010] shadow-lg shadow-black/25' : 'text-stone-400 hover:text-[#F5F2EA] hover:bg-[#1A1A1E]'}`}
@@ -3046,7 +3047,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <button
                 key={item.id}
                 onClick={() => {
-                  const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-text' };
+                  const defaults: Record<string, string> = { scene: 'scene-video', timeline: 'timeline-texts', buttons: 'buttons-text', design: 'design-desktop' };
                   selectDesktopWorkbenchSection(item.id as MainModule, defaults[item.id]);
                 }}
                 className={`min-w-[74px] md:min-w-0 flex flex-col snap-start items-center justify-center py-2.5 px-2 md:px-0 rounded-xl transition duration-150 relative cursor-pointer ${
@@ -3266,10 +3267,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             {activeTab === 'design' && (
               <div className="space-y-2">
                 {[
-                  { id: 'design-desktop', icon: LucideIcons.MonitorSmartphone, label: 'Desktop-Seite', desc: 'Miniwebseite neben Smartphone' },
+                  { id: 'design-desktop', icon: LucideIcons.LayoutPanelTop, label: 'Webseite', desc: '3 Bereiche: Karte, Menü, Inhalt' },
                   { id: 'design-background', icon: LucideIcons.ImagePlus, label: 'Hintergrund', desc: 'Bild, Verlauf, Abdunklung' },
-                  { id: 'design-content', icon: LucideIcons.Type, label: 'Werbetexte', desc: 'Vorlagen aus Editor nutzen' },
-                  { id: 'design-share', icon: LucideIcons.QrCode, label: 'Link & Teilen', desc: 'QR, Teilen, Kontakt' },
+                  { id: 'design-content', icon: LucideIcons.Type, label: 'Text & Medien', desc: 'Begrüßung, Info, Bild' },
+                  { id: 'design-share', icon: LucideIcons.ExternalLink, label: 'Webseite starten', desc: 'Live-Link öffnen, QR, Teilen' },
                 ].map((item) => {
                   const Icon = item.icon;
                   const selected = activeSubSection === item.id;
@@ -4790,24 +4791,30 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <div className="space-y-4">
               <div className="rounded-2xl border border-[#3A3732] bg-[#111111] p-4 space-y-4">
                 <div>
-                  <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Desktop-Miniwebseite</span>
-                  <p className="text-[10px] text-stone-400 mt-1">Desktop wird zum Onepager: Bereich 1 zeigt das Reel ohne Kartenbuttons, Bereich 2 zeigt dieselben Buttons separat, Bereich 3 ist gestaltbarer Inhalt. Mobile bleibt unverändert.</p>
+                  <span className="text-[10px] uppercase font-black tracking-wider text-[#E8DCC2] block">Meine ureelSeite</span>
+                  <p className="text-[10px] text-stone-400 mt-1">Konfiguriere die Desktop-Miniwebseite mit drei Bereichen: ureel-Karte, Aktionsmenü und freier Inhalt. Mobile bleibt unverändert.</p>
+                </div>
+                <div className="rounded-2xl border border-[#3A3732] bg-[#0F0F0F] p-3 space-y-3">
+                  <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bereich 1: Position der Karte</span>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { id: 'phone_left', label: 'Links', hint: 'Karte · Menü · Inhalt' },
+                      { id: 'phone_center', label: 'Mitte', hint: 'Menü · Karte · Inhalt' },
+                      { id: 'phone_right', label: 'Rechts', hint: 'Inhalt · Menü · Karte' },
+                    ].map((layout) => {
+                      const selected = desktopLayout === layout.id || (!desktopPage.layout && layout.id === 'phone_left');
+                      return (
+                        <button key={layout.id} type="button" onClick={() => updateDesktopPage({ layout: layout.id })} className={`rounded-2xl border p-3 text-left transition ${selected ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732] hover:border-[#E8DCC2]/60'}`}>
+                          <span className="block text-[10px] font-black uppercase tracking-wider">{layout.label}</span>
+                          <span className={`block text-[8.5px] mt-1 ${selected ? 'text-[#101010]/65' : 'text-stone-500'}`}>{layout.hint}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { id: 'desktop_triptych', label: '3 Bereiche', hint: 'Reel · Buttons · Inhalt' },
-                    { id: 'phone_left', label: 'Phone links', hint: 'Karte links, Inhalt rechts' },
-                    { id: 'phone_center', label: 'Phone mittig', hint: 'Präsentation zentriert' },
-                    { id: 'minimal', label: 'Minimal', hint: 'nur Karte + Aktionen' },
-                  ].map((layout) => {
-                    const selected = desktopLayout === layout.id;
-                    return (
-                      <button key={layout.id} type="button" onClick={() => updateDesktopPage({ layout: layout.id })} className={`rounded-2xl border p-3 text-left transition ${selected ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732] hover:border-[#E8DCC2]/60'}`}>
-                        <span className="block text-[10px] font-black uppercase tracking-wider">{layout.label}</span>
-                        <span className={`block text-[8.5px] mt-1 ${selected ? 'text-[#101010]/65' : 'text-stone-500'}`}>{layout.hint}</span>
-                      </button>
-                    );
-                  })}
+                  <button type="button" onClick={openLiveLink} className="h-11 rounded-2xl bg-[#F5F2EA] text-[#101010] text-[9px] font-black uppercase tracking-wider inline-flex items-center justify-center gap-2"><LucideIcons.PlayCircle size={15}/> Webseite starten</button>
+                  <button type="button" onClick={copyLiveLink} className="h-11 rounded-2xl border border-[#E8DCC2]/40 text-[#F5F2EA] text-[9px] font-black uppercase tracking-wider inline-flex items-center justify-center gap-2"><LucideIcons.Link size={15}/> Link kopieren</button>
                 </div>
               </div>
               <div className="rounded-2xl border border-[#3A3732] bg-[#111111] p-4 space-y-3">
@@ -4817,6 +4824,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 </div>
                 <div className="rounded-xl border border-[#3A3732] bg-[#0F0F0F] p-3 text-[9px] leading-relaxed text-stone-400">
                   Die Nutzerbuttons werden auf der Desktop-Webseite angezeigt, sobald dieser Bereich aktiv ist. Die zeitliche Smartphone-Logik bleibt nur im Smartphone-Werbespot.
+                </div>
+                <div className="rounded-2xl border border-[#3A3732] bg-[#0F0F0F] p-3 space-y-2">
+                  <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Begrüßung über dem Menü</span>
+                  <input value={desktopPage.buttonAreaHeadline || ''} onChange={(e) => updateDesktopPage({ buttonAreaHeadline: e.target.value })} placeholder="z.B. Willkommen bei uns" className="w-full h-10 rounded-xl border border-[#3A3732] bg-[#181818] px-3 text-xs text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
+                  <textarea value={desktopPage.buttonAreaIntro || ''} onChange={(e) => updateDesktopPage({ buttonAreaIntro: e.target.value })} placeholder="Kurzer Hinweis, Angebot oder Begrüßung oberhalb der Aktionen" rows={2} className="w-full rounded-xl border border-[#3A3732] bg-[#181818] p-3 text-xs text-[#F5F2EA] focus:outline-none focus:border-[#F5F2EA]" />
                 </div>
                 <div className="grid grid-cols-4 gap-2">
                   {[['three_col','Geordnet'],['compact_grid','Eng'],['circle','Kreis'],['triangle','Dreieck']].map(([id,label]) => (
@@ -4842,7 +4854,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <p className="text-[8.5px] leading-relaxed text-stone-500">Standard: Desktop zeigt das Reel ohne Kartenbuttons und nutzt einen separaten Aktionsbereich. Am Handy bleibt die echte Karte unverändert.</p>
               </div>
               <div className="rounded-[28px] border border-[#3A3732] overflow-hidden bg-[#0F0F0F] shadow-2xl">
-                <div className="px-4 pt-4 text-[9px] font-black uppercase tracking-[0.18em] text-[#E8DCC2]">Live-Desktop-Vorschau</div>
+                <div className="px-4 pt-4 flex items-center justify-between gap-3"><span className="text-[9px] font-black uppercase tracking-[0.18em] text-[#E8DCC2]">Vorschau der ganzen Miniwebseite</span><button type="button" onClick={openLiveLink} className="h-8 rounded-xl bg-[#F5F2EA] px-3 text-[8px] font-black uppercase tracking-wider text-[#101010] inline-flex items-center gap-1.5"><LucideIcons.PlayCircle size={12}/> Webseite starten</button></div>
                 <div className="p-3 md:p-4 min-h-[430px]">
                   <div className="h-[520px] overflow-hidden rounded-[26px] border border-white/10">
                     <PublicDesktopPageRenderer

@@ -1,3 +1,15 @@
+
+
+## v52.5.78 – Desktop ureelSeite Miniwebseite Foundation
+
+- Neue Desktop-Hauptfunktion „Meine ureelSeite“ neben Szene, Text und Buttons ergänzt.
+- Konfiguration der Miniwebseite mit drei Bereichen: Karte, Aktionsmenü, Inhalt.
+- Position der ureel-Karte auf Desktop auswählbar: links, mitte oder rechts.
+- Begrüßungstext über dem Desktop-Aktionsmenü ergänzt.
+- Vorschau zeigt die gesamte Miniwebseite mit allen drei Bereichen.
+- „Webseite starten“ als Desktop-Live-Test ergänzt.
+- PublicDesktopPageRenderer unterstützt Kartenposition rechts.
+- Mobile-Version, Mobile-Persistence und Mobile-Renderer nicht verändert.
 ## v52.5.77 – Desktop Werbetext Template Preview Editor
 
 - Desktop-only: Werbetext-Vorschaufenster optisch vergrößert und sauberer gestaltet.
