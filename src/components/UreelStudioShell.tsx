@@ -5500,9 +5500,35 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <p style={{ fontSize: getMobileTextEditorPreviewSizes().description, color: readablePreviewTextColor((activeCard as any).heroDescTextColor, '#E8DCC2'), opacity: 1 }}>{getTextLayerDraftValue('description') || 'Kurzer Werbetext für Angebot, Nutzen und nächsten Schritt.'}</p>
                   </div>
                 </div>
-                <div className="ureel-mobile-text-template-strip">
-                  <button type="button" className={currentTextTemplate.style === 'none' ? 'is-active' : ''} onClick={() => applyTextTemplatePreset('none')}><b>Klar</b><small>Neutral</small></button>
-                  {Object.values(UREEL_TEXT_TEMPLATES).slice(0, 15).map((tmpl) => <button key={tmpl.id} type="button" className={currentTextTemplate.style === tmpl.id ? 'is-active' : ''} onClick={() => applyTextTemplatePreset(tmpl.id)}><b>{lang === 'de' ? tmpl.labelDe : tmpl.labelEn}</b><small>{lang === 'de' ? tmpl.descriptionDe : tmpl.descriptionEn}</small></button>)}
+                <div className="ureel-desktop-text-bg-toolbar" role="group" aria-label="Textfeld-Hintergrund">
+                  <button type="button" className={(currentTextTemplate.box as any)?.enabled === false ? '' : 'is-active'} onClick={() => updateTextTemplate({ box: { ...(currentTextTemplate.box || {}), enabled: true, type: currentTextTemplate.box?.type && currentTextTemplate.box?.type !== 'none' ? currentTextTemplate.box.type : (selectedTextTemplatePreset?.defaultBox && selectedTextTemplatePreset.defaultBox !== 'none' ? selectedTextTemplatePreset.defaultBox : 'glass'), opacity: currentTextTemplate.box?.opacity || 85 } as any })}>Hintergrund an</button>
+                  <button type="button" className={(currentTextTemplate.box as any)?.enabled === false ? 'is-active' : ''} onClick={() => updateTextTemplate({ box: { ...(currentTextTemplate.box || {}), enabled: false, type: 'none', opacity: currentTextTemplate.box?.opacity || 85 } as any })}>Nur Schrift</button>
+                </div>
+                <div className="ureel-mobile-text-template-strip ureel-desktop-template-design-grid">
+                  <button type="button" className={`ureel-desktop-template-design-card ${currentTextTemplate.style === 'none' ? 'is-active' : ''}`} onClick={() => applyTextTemplatePreset('none')} aria-pressed={currentTextTemplate.style === 'none'}>
+                    <span className="ureel-desktop-template-card-preview box-none frame-none font-modern">
+                      <em>{getTextLayerDraftValue('subtitle') || 'Klar'}</em>
+                      <b>{getTextLayerDraftValue('title') || 'Dein Titel'}</b>
+                      <small>{getTextLayerDraftValue('description') || 'Nur Schrift auf dem Reel'}</small>
+                    </span>
+                    <strong>Klar</strong>
+                    <span>Nur Schrift / neutral</span>
+                  </button>
+                  {Object.values(UREEL_TEXT_TEMPLATES).slice(0, 15).map((tmpl) => {
+                    const title = lang === 'de' ? tmpl.labelDe : tmpl.labelEn;
+                    const active = currentTextTemplate.style === tmpl.id;
+                    return (
+                      <button key={tmpl.id} type="button" className={`ureel-desktop-template-design-card ${active ? 'is-active' : ''}`} onClick={() => applyTextTemplatePreset(tmpl.id)} aria-pressed={active}>
+                        <span className={`ureel-desktop-template-card-preview box-${tmpl.defaultBox} frame-${tmpl.defaultFrame} font-${tmpl.defaultFontStyle}`}>
+                          <em>{tmpl.defaultEmphasis?.mode === 'last_word' ? 'Highlight' : 'Preview'}</em>
+                          <b>{getTextLayerDraftValue('title') || title}</b>
+                          <small>{getTextLayerDraftValue('subtitle') || (lang === 'de' ? 'Vorlage sichtbar' : 'Template preview')}</small>
+                        </span>
+                        <strong>{title}</strong>
+                        <span>{lang === 'de' ? tmpl.descriptionDe : tmpl.descriptionEn}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}

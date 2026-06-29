@@ -1,3 +1,9 @@
+## v52.5.77 – Desktop Werbetext Template Preview Editor
+
+- Desktop-only: Werbetext-Vorschaufenster optisch vergrößert und sauberer gestaltet.
+- Desktop-only: Vorlagen-Kacheln zeigen nun kleine Design-Previews statt reiner Textlisten.
+- Desktop-only: Schnellschalter „Hintergrund an / Nur Schrift“ im Vorlagenbereich ergänzt.
+- Mobile Stable Lock respektiert; keine Mobile-Persistence, Public-Renderer oder Card-Renderer-Logik geändert.
 
 ## v52.5.75 – Desktop Real Middle Render Fix
 
