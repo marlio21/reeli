@@ -1,3 +1,10 @@
+## v52.5.71 – Desktop Middle Card Text Layout Fix
+
+- Desktop-Mittelspalte repariert: Icon, Titel, Beschreibung und Pfeil sind jetzt sauber getrennt.
+- Kein Wortbruch mehr mitten in YouTube/Beschreibungen.
+- Scene-Karten nutzen eine eigene Desktop-Klasse mit sicherem CSS-Fallback.
+- Keine Änderungen an Mobile, Persistence, Public Renderer oder gemeinsamer Card-Logik.
+
 
 ## v52.5.70 – Desktop Scene Entry & Typography Repair
 

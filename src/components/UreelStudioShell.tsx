@@ -3137,18 +3137,18 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <button
                       key={item.id}
                       onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)}
-                      className={`w-full grid grid-cols-[22px_minmax(0,1fr)_14px] items-center gap-3 px-3 py-4 rounded-2xl border transition-all text-left overflow-hidden ${
+                      className={`ureel-desktop-subnav-card w-full border transition-all text-left ${
                         selected
-                          ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
+                          ? 'is-active bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
                           : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'
                       }`}
                     >
-                      <Icon size={15} className={selected ? '!text-[#101010]' : 'text-[#E8DCC2]'} />
-                      <span className="min-w-0 block">
-                        <span className="block text-[11px] font-black uppercase tracking-[0.02em] leading-[1.05] whitespace-normal break-words">{item.label}</span>
-                        <span className={`block text-[9.5px] leading-[1.2] mt-1 whitespace-normal break-words ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`}>{item.desc}</span>
+                      <Icon size={15} className={`ureel-desktop-subnav-icon ${selected ? '!text-[#101010]' : 'text-[#E8DCC2]'}`} />
+                      <span className="ureel-desktop-subnav-copy">
+                        <span className="ureel-desktop-subnav-title">{item.label}</span>
+                        <span className={`ureel-desktop-subnav-desc ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`}>{item.desc}</span>
                       </span>
-                      <LucideIcons.ChevronRight size={13} className="opacity-50 justify-self-end" />
+                      <LucideIcons.ChevronRight size={13} className="ureel-desktop-subnav-arrow opacity-50" />
                     </button>
                   );
                 })}
