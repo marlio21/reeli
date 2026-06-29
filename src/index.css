@@ -7699,3 +7699,181 @@ body {
     color: rgba(16,16,16,.72) !important;
   }
 }
+
+/* v52.5.74: Desktop middle-card title layout + LOOK transfer top action + preview centering root fix.
+   Desktop-scoped only: does not touch mobile shell, persistence, public renderer or real card button positions. */
+@media (min-width: 768px) {
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-card {
+    display: grid !important;
+    grid-template-columns: 30px minmax(0, 1fr) 18px !important;
+    align-items: center !important;
+    column-gap: 14px !important;
+    min-height: 104px !important;
+    padding: 18px 16px !important;
+    border-radius: 26px !important;
+    overflow: hidden !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-icon {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    justify-self: center !important;
+    opacity: .96 !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-copy {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-card.is-active .ureel-desktop-subnav-copy,
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-card.bg-\[\#F5F2EA\] .ureel-desktop-subnav-copy {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-title {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    font-size: 16px !important;
+    line-height: 1.05 !important;
+    font-weight: 950 !important;
+    letter-spacing: -.012em !important;
+    text-transform: uppercase !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-desc {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    font-size: 12px !important;
+    line-height: 1.28 !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+    opacity: .86 !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-card.is-active .ureel-desktop-subnav-desc,
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-card.bg-\[\#F5F2EA\] .ureel-desktop-subnav-desc {
+    color: rgba(16,16,16,.72) !important;
+    opacity: 1 !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-arrow {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    justify-self: end !important;
+    align-self: center !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel--button .ureel-tap-big-button-stage {
+    position: relative !important;
+    display: grid !important;
+    place-items: center !important;
+    min-height: 320px !important;
+    width: 100% !important;
+    padding: 36px !important;
+    border-radius: 34px !important;
+    background: radial-gradient(circle at center, rgba(255,255,255,.115), rgba(255,255,255,.04) 42%, rgba(0,0,0,.10) 100%) !important;
+    overflow: hidden !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel--button .ureel-tap-big-button-stage > * {
+    position: relative !important;
+    inset: auto !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+    justify-self: center !important;
+    align-self: center !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-panel--button .ureel-tap-big-button-stage .ureel-button-preview-tile--large {
+    width: 190px !important;
+    height: 190px !important;
+    margin: 0 !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-look-transfer-action--top {
+    width: 100% !important;
+    min-height: 86px !important;
+    margin: 18px 0 22px !important;
+    padding: 18px 20px !important;
+    border-radius: 26px !important;
+    border: 1px solid rgba(232,220,194,.9) !important;
+    background: linear-gradient(135deg, #F5F2EA, #E8DCC2) !important;
+    color: #101010 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 16px !important;
+    text-align: left !important;
+    box-shadow: 0 22px 44px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.55) !important;
+    cursor: pointer !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-look-transfer-action--top svg {
+    flex: 0 0 auto !important;
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-look-transfer-action--top span {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+    min-width: 0 !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-look-transfer-action--top b {
+    display: block !important;
+    font-size: 13px !important;
+    line-height: 1.1 !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .065em !important;
+  }
+
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-look-transfer-action--top small {
+    display: block !important;
+    max-width: 760px !important;
+    font-size: 11.5px !important;
+    line-height: 1.35 !important;
+    font-weight: 720 !important;
+    color: rgba(16,16,16,.72) !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+  }
+}

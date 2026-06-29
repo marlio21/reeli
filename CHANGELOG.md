@@ -1,3 +1,14 @@
+
+
+## v52.5.74 – Desktop Middle Cards & Look Transfer Polish
+
+- Desktop-Mittelspalten-Karten neu ausgerichtet: Icon, Titel und Beschreibung sind sauber getrennt.
+- Titel steht wieder als Titel außerhalb eines kleinen Textfeldes; Beschreibung darunter.
+- Button-Vorschau im rechten Buttoneditor wird im Vorschaufenster zentriert.
+- LOOK: „Look auf alle Buttons übertragen“ steht oben als echter Funktionsbutton.
+- Übertragung bleibt auf Look-Werte begrenzt; Text, Aktion, Ziel und Icon bleiben erhalten.
+- Mobile Stable Lock, Public Renderer und Persistence unverändert.
+
 ## v52.5.72 – Desktop Input & Subnav Real Fix
 
 - Ursache geprüft: Die sichtbaren Textbrüche kamen daher, dass nur die Szene-Karten die neue Desktop-Subnav-Struktur hatten; Text-, Button- und Design-Karten nutzten weiter die alte Flex-Struktur.
