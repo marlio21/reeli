@@ -1,3 +1,10 @@
+
+## v52.5.85 – ureelSeite Vertical Editor & Start Actions Fix
+
+- Desktop-only: Meine ureelSeite editor now stacks Bereich 1/2/3 vertically for a cleaner configuration flow.
+- Desktop-only: Webseite starten panel now exposes real action buttons for opening, copying, sharing, QR link copy and contact download.
+- Desktop-only: Preview monitor remains unchanged at the top; mobile studio/renderers untouched.
+
 # v52.5.82 – Real ureelSeite Right Editor Routing Fix
 
 - Desktop-only: „Meine ureelSeite“ routet den rechten Editor jetzt wirklich auf den Miniwebseiten-Editor.

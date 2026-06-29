@@ -1684,6 +1684,43 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     }
   };
 
+  const copyQrPublicLink = async () => {
+    const url = await ensureCurrentCardIsPublic();
+    if (url && copyTextToClipboard(url)) {
+      triggerToast(lang === 'de' ? 'QR-/Webseitenlink kopiert.' : 'QR/page link copied.', 'success');
+    } else {
+      triggerToast(lang === 'de' ? 'QR-Link konnte nicht kopiert werden.' : 'QR link could not be copied.', 'error');
+    }
+  };
+
+  const downloadDesktopContact = () => {
+    const safe = (value: any) => String(value || '').replace(/[\r\n]+/g, ' ').trim();
+    const name = safe(activeCard.companyName || activeCard.title || activeCard.heroTitle || profile?.displayName || 'ureel Kontakt');
+    const phone = safe((activeCard as any).phone || (activeCard as any).contactPhone || '');
+    const email = safe((activeCard as any).email || (activeCard as any).contactEmail || profile?.email || '');
+    const website = getPublicCardUrl(activeCard.slug || makeSafeSlug(activeCard.title || activeCard.heroTitle || activeCard.cardId));
+    const vcf = [
+      'BEGIN:VCARD',
+      'VERSION:3.0',
+      `FN:${name}`,
+      `ORG:${name}`,
+      phone ? `TEL;TYPE=CELL:${phone}` : '',
+      email ? `EMAIL:${email}` : '',
+      website ? `URL:${website}` : '',
+      'END:VCARD',
+    ].filter(Boolean).join('\n');
+    const blob = new Blob([vcf], { type: 'text/vcard;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${makeSafeSlug(name)}.vcf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    triggerToast(lang === 'de' ? 'Kontaktdatei erstellt.' : 'Contact file created.', 'success');
+  };
+
   const openWerbetexterFromDesign = async () => {
     await updateDesktopPage({ contentMode: 'from_card', lastEditorSource: 'design' });
     setActiveTab('timeline');
@@ -3459,10 +3496,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 </div>
 
                 {activeSubSection === 'design-desktop' && (
-                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-                    <div className="rounded-3xl border border-[#3A3732] bg-[#111111] p-4 space-y-3">
-                      <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bereich 1: Karte positionieren</span>
-                      <div className="grid grid-cols-3 gap-2">
+                  <div className="space-y-4">
+                    <div className="rounded-[28px] border border-[#3A3732] bg-[#111111] p-5 space-y-4">
+                      <div><span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bereich 1: Karte positionieren</span><p className="mt-1 text-[10px] text-stone-500">Wähle, wo die 9:16-ureel-Karte in der Desktop-Webseite stehen soll.</p></div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         {[
                           { id: 'phone_left', label: 'Links', hint: 'Karte · Menü · Inhalt' },
                           { id: 'phone_center', label: 'Mitte', hint: 'Menü · Karte · Inhalt' },
@@ -3473,11 +3510,11 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         })}
                       </div>
                     </div>
-                    <div className="rounded-3xl border border-[#3A3732] bg-[#111111] p-4 space-y-3">
-                      <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bereich 2: Menü & Buttons</span>
+                    <div className="rounded-[28px] border border-[#3A3732] bg-[#111111] p-5 space-y-4">
+                      <div><span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bereich 2: Menü & Buttons</span><p className="mt-1 text-[10px] text-stone-500">Begrüßung oberhalb der Desktop-Aktionen und Darstellung des Button-Menüs.</p></div>
                       <input value={desktopPage.buttonAreaHeadline || ''} onChange={(e) => updateDesktopPage({ buttonAreaHeadline: e.target.value })} placeholder="z.B. Willkommen bei uns" className="w-full h-11 rounded-2xl border border-[#3A3732] bg-[#181818] px-3 text-xs font-bold text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
                       <textarea value={desktopPage.buttonAreaIntro || ''} onChange={(e) => updateDesktopPage({ buttonAreaIntro: e.target.value })} placeholder="Kurzer Hinweis oder Begrüßung oberhalb der Aktionen" rows={3} className="w-full rounded-2xl border border-[#3A3732] bg-[#181818] p-3 text-xs text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
-                      <div className="grid grid-cols-4 gap-2">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                         {[[ 'ordered','Geordnet' ],[ 'compact_grid','Kompakt' ],[ 'circle','Kreis' ],[ 'triangle','Dreieck' ]].map(([id,label]) => <button key={id} type="button" onClick={() => updateDesktopPage({ buttonLayout: id })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${(desktopButtonLayout === id || (!desktopPage.buttonLayout && id === 'ordered')) ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>{label}</button>)}
                       </div>
                       <div className="grid grid-cols-2 gap-2">
@@ -3485,8 +3522,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         <button type="button" onClick={() => updateDesktopPage({ showPhoneButtons: desktopPage.showPhoneButtons !== true })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${desktopPage.showPhoneButtons === true ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Kartenbuttons {desktopPage.showPhoneButtons === true ? 'AN' : 'AUS'}</button>
                       </div>
                     </div>
-                    <div className="rounded-3xl border border-[#3A3732] bg-[#111111] p-4 space-y-3">
-                      <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bereich 3: Inhalt aufbauen</span>
+                    <div className="rounded-[28px] border border-[#3A3732] bg-[#111111] p-5 space-y-4">
+                      <div><span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bereich 3: Inhalt aufbauen</span><p className="mt-1 text-[10px] text-stone-500">Text und optionales Bild/Video für den freien Inhaltsbereich der Desktop-Miniwebseite.</p></div>
                       <div className="grid grid-cols-1 gap-2">
                         {[
                           { id: 'media_top_text_bottom', label: 'Bild/Video oben', hint: 'Text darunter' },
@@ -3549,10 +3586,25 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 )}
 
                 {activeSubSection === 'design-share' && (
-                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-                    <button type="button" onClick={openLiveLink} className="min-h-[92px] rounded-3xl bg-[#F5F2EA] text-[#101010] p-4 text-left font-black uppercase tracking-wider"><LucideIcons.PlayCircle size={24}/><span className="mt-3 block">Webseite starten</span></button>
-                    <button type="button" onClick={copyLiveLink} className="min-h-[92px] rounded-3xl border border-[#E8DCC2]/40 bg-[#181818] text-[#F5F2EA] p-4 text-left font-black uppercase tracking-wider"><LucideIcons.Link size={24}/><span className="mt-3 block">Link kopieren</span></button>
-                    <button type="button" onClick={shareLiveLink} className="min-h-[92px] rounded-3xl border border-[#E8DCC2]/40 bg-[#181818] text-[#F5F2EA] p-4 text-left font-black uppercase tracking-wider"><LucideIcons.Share2 size={24}/><span className="mt-3 block">Teilen</span></button>
+                  <div className="rounded-[28px] border border-[#3A3732] bg-[#111111] p-5 space-y-4">
+                    <div>
+                      <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Webseite starten & prüfen</span>
+                      <p className="mt-1 text-[10px] text-stone-500">Diese Aktionen arbeiten mit dem echten öffentlichen Link der Karte. So kannst du die Besucheransicht direkt testen.</p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                      <button type="button" onClick={openLiveLink} className="min-h-[92px] rounded-3xl bg-[#F5F2EA] text-[#101010] p-4 text-left font-black uppercase tracking-wider inline-flex flex-col justify-between"><LucideIcons.PlayCircle size={24}/><span>Webseite öffnen</span></button>
+                      <button type="button" onClick={copyLiveLink} className="min-h-[92px] rounded-3xl border border-[#E8DCC2]/40 bg-[#181818] text-[#F5F2EA] p-4 text-left font-black uppercase tracking-wider inline-flex flex-col justify-between"><LucideIcons.Link size={24}/><span>Link kopieren</span></button>
+                      <button type="button" onClick={shareLiveLink} className="min-h-[92px] rounded-3xl border border-[#E8DCC2]/40 bg-[#181818] text-[#F5F2EA] p-4 text-left font-black uppercase tracking-wider inline-flex flex-col justify-between"><LucideIcons.Share2 size={24}/><span>Teilen</span></button>
+                      <button type="button" onClick={copyQrPublicLink} className="min-h-[92px] rounded-3xl border border-[#E8DCC2]/40 bg-[#181818] text-[#F5F2EA] p-4 text-left font-black uppercase tracking-wider inline-flex flex-col justify-between"><LucideIcons.QrCode size={24}/><span>QR-Link kopieren</span></button>
+                      <button type="button" onClick={downloadDesktopContact} className="min-h-[92px] rounded-3xl border border-[#E8DCC2]/40 bg-[#181818] text-[#F5F2EA] p-4 text-left font-black uppercase tracking-wider inline-flex flex-col justify-between"><LucideIcons.ContactRound size={24}/><span>Kontakt speichern</span></button>
+                    </div>
+                    <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4 grid grid-cols-[86px_1fr] gap-3 items-center">
+                      <img src={qrUrl} alt="QR-Code" className="w-20 h-20 rounded-xl bg-white p-1" />
+                      <div className="min-w-0"><span className="block text-[9px] uppercase font-black tracking-wider text-stone-500">Aktueller Webseitenlink</span><p className="text-[10px] text-[#F5F2EA] font-mono truncate mt-1">{qrPayload}</p><p className="text-[9px] text-stone-500 mt-2">Kontaktname: {contactDisplayName}</p></div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[['showQr','QR sichtbar',LucideIcons.QrCode],['showShare','Teilen sichtbar',LucideIcons.Share2],['showContactSave','Kontakt sichtbar',LucideIcons.ContactRound]].map(([key,label,IconAny]: any) => { const Icon = IconAny; const enabled = desktopPage[key] ?? true; return <button key={key} type="button" onClick={() => updateDesktopPage({ [key]: !enabled })} className={`rounded-2xl border p-3 text-center ${enabled ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-400 border-[#3A3732]'}`}><Icon size={16} className="mx-auto mb-1"/><span className="text-[8px] font-black uppercase tracking-wider">{label}</span></button>; })}
+                    </div>
                   </div>
                 )}
               </div>
