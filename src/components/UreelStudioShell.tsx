@@ -5290,7 +5290,28 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 { id: 'profile', icon: LucideIcons.UserCircle, title: 'Profilbild', desc: 'optional einblenden' },
               ].map((item) => {
                 const Icon = item.icon;
-                return <button key={item.id} type="button" className={tapSceneTool === item.id ? 'is-active' : ''} onClick={() => setTapSceneTool(item.id as any)}><Icon size={21}/><strong>{item.title}</strong><small>{item.desc}</small></button>;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={tapSceneTool === item.id ? 'is-active' : ''}
+                    onClick={() => setTapSceneTool(item.id as any)}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '24px minmax(0, 1fr)',
+                      gridTemplateRows: 'auto auto',
+                      columnGap: 12,
+                      rowGap: 2,
+                      alignItems: 'center',
+                      textAlign: 'left',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <span style={{ gridRow: '1 / span 2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Icon size={21}/></span>
+                    <strong style={{ display: 'block', minWidth: 0, fontSize: 16, lineHeight: 1.05, letterSpacing: '-0.02em', textTransform: 'uppercase' }}>{item.title}</strong>
+                    <small style={{ display: 'block', minWidth: 0, fontSize: 12, lineHeight: 1.2, opacity: 0.72 }}>{item.desc}</small>
+                  </button>
+                );
               })}
             </div>
 
@@ -5349,9 +5370,30 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <div className="ureel-tap-config">
                 <h4>Darstellung</h4>
                 <p>Wähle, ob das Reel wie in der Karte im 9:16-Format läuft oder als 16:9-Video oben im Header der Karte erscheint.</p>
-                <div className="ureel-tap-display-options">
-                  <button type="button" className={(activeCard.ureelScene?.video?.placement || 'background') === 'background' ? 'is-active' : ''} onClick={() => syncCardUpdate({ ureelScene: { ...(activeCard.ureelScene || {}), video: { ...(activeCard.ureelScene?.video || {}), displayMode: 'cover' as any, placement: 'background' as any } } as any, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), videoFitMode: 'cover' } as any } as any)}><span className="mock mock-fill"/> <strong>Reel im 9:16 Format</strong><small>Wie in der Karte</small></button>
-                  <button type="button" className={activeCard.ureelScene?.video?.placement === 'hero' ? 'is-active' : ''} onClick={() => syncCardUpdate({ ureelScene: { ...(activeCard.ureelScene || {}), video: { ...(activeCard.ureelScene?.video || {}), displayMode: 'contain' as any, placement: 'hero' as any, heroSize: 'wide' as any } } as any, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), videoFitMode: 'contain' } as any } as any)}><span className="mock mock-wide"/> <strong>16:9 Video im Header</strong><small>Video oben in der Karte</small></button>
+                <div
+                  className="ureel-tap-display-options"
+                  style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 14, marginTop: 18, width: '100%' }}
+                >
+                  <button
+                    type="button"
+                    className={(activeCard.ureelScene?.video?.placement || 'background') === 'background' ? 'is-active' : ''}
+                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', minHeight: 132, padding: '18px 18px 16px', borderRadius: 24, border: '1px solid rgba(245,242,234,.28)', background: (activeCard.ureelScene?.video?.placement || 'background') === 'background' ? '#F5F2EA' : 'linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.035))', color: (activeCard.ureelScene?.video?.placement || 'background') === 'background' ? '#101010' : '#F5F2EA', textAlign: 'left', cursor: 'pointer', boxShadow: '0 18px 38px rgba(0,0,0,.22)' }}
+                    onClick={() => syncCardUpdate({ ureelScene: { ...(activeCard.ureelScene || {}), video: { ...(activeCard.ureelScene?.video || {}), displayMode: 'cover' as any, placement: 'background' as any } } as any, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), videoFitMode: 'cover' } as any } as any)}
+                  >
+                    <span className="mock mock-fill" style={{ display: 'block', width: 58, height: 82, borderRadius: 14, margin: '0 0 14px', background: 'linear-gradient(145deg, #171717, #C7B071)', border: '2px solid currentColor', opacity: .92 }} />
+                    <strong style={{ display: 'block', fontSize: 15, lineHeight: 1.05, fontWeight: 950, letterSpacing: '-0.02em', textTransform: 'uppercase' }}>Reel im 9:16 Format</strong>
+                    <small style={{ display: 'block', marginTop: 6, fontSize: 11, lineHeight: 1.2, opacity: .72 }}>Wie in der Karte</small>
+                  </button>
+                  <button
+                    type="button"
+                    className={activeCard.ureelScene?.video?.placement === 'hero' ? 'is-active' : ''}
+                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', minHeight: 132, padding: '18px 18px 16px', borderRadius: 24, border: '1px solid rgba(245,242,234,.28)', background: activeCard.ureelScene?.video?.placement === 'hero' ? '#F5F2EA' : 'linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.035))', color: activeCard.ureelScene?.video?.placement === 'hero' ? '#101010' : '#F5F2EA', textAlign: 'left', cursor: 'pointer', boxShadow: '0 18px 38px rgba(0,0,0,.22)' }}
+                    onClick={() => syncCardUpdate({ ureelScene: { ...(activeCard.ureelScene || {}), video: { ...(activeCard.ureelScene?.video || {}), displayMode: 'contain' as any, placement: 'hero' as any, heroSize: 'wide' as any } } as any, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), videoFitMode: 'contain' } as any } as any)}
+                  >
+                    <span className="mock mock-wide" style={{ display: 'block', width: 96, height: 54, borderRadius: 14, margin: '14px 0 28px', background: 'linear-gradient(145deg, #171717, #C7B071)', border: '2px solid currentColor', opacity: .92 }} />
+                    <strong style={{ display: 'block', fontSize: 15, lineHeight: 1.05, fontWeight: 950, letterSpacing: '-0.02em', textTransform: 'uppercase' }}>16:9 Video im Header</strong>
+                    <small style={{ display: 'block', marginTop: 6, fontSize: 11, lineHeight: 1.2, opacity: .72 }}>Video oben in der Karte</small>
+                  </button>
                 </div>
               </div>
             )}

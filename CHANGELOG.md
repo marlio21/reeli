@@ -635,3 +635,10 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Mobile Button-Aktion: Einfügen-Button robuster gemacht, inklusive iOS/Safari-Prompt-Fallback, wenn navigator.clipboard blockiert ist.
 - Mobile Button-Aktion: Weblink-Felder nutzen URL-Keyboard, deaktivieren Autokorrektur und normalisieren Domains ohne Protokoll zu https://.
 - Mobile Vorschau-Karteneditor: sichtbarer Button „Spot neu starten“ ergänzt, der die Timeline auf 0s zurücksetzt und die Vorschau sofort neu startet.
+
+
+## v52.5.69 – Desktop Options Layout Typography Safe Fix
+
+- Repariert die Desktop-Darstellungsauswahl mit robusten echten Buttons inklusive Inline-Fallback.
+- Verbessert die Typografie in der mittleren Desktop-Szenenauswahl, damit Titel und Beschreibung nicht mehr zusammenlaufen.
+- Keine Mobile-Persistence, keine Public-Renderer-Logik und keine Mobile-Datenlogik verändert.
