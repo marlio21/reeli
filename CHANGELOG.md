@@ -1,4 +1,12 @@
 
+## v52.5.91 / RC1.1 - Desktop Miniwebseite Cleanup
+
+- Meine ureelSeite: alter Text-&-Medien-Unterbereich wird auf die kanonische Webseite-Konfiguration zurückgeführt.
+- Bereich 3 bleibt direkt unter Webseite konfigurierbar.
+- RC1.1-Testcheckliste ergänzt.
+- Mobile-Code nicht verändert.
+
+
 ## v52.5.90 – RC1 Desktop Studio Cleanup
 
 - Desktop Studio auf RC1-Regeln ausgerichtet.

@@ -501,6 +501,15 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     else if (activeTab === 'cards') setActiveSubSection('cards-list');
   }, [activeTab]);
 
+  // RC1.1: Meine-ureelSeite keeps Bereich 3 inside "Webseite".
+  // If older callbacks or restored state try to open the removed Text & Medien sub-route,
+  // route back to the canonical website editor instead of showing a hidden/duplicate panel.
+  useEffect(() => {
+    if (activeTab === 'design' && activeSubSection === 'design-content') {
+      setActiveSubSection('design-desktop');
+    }
+  }, [activeTab, activeSubSection]);
+
   useEffect(() => {
     setProfileDraft({
       displayName: profile?.displayName || profile?.name || '',
@@ -4081,7 +4090,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 {desktopPage.lastEditorSource === 'design' && (
                   <div className="rounded-2xl border border-[#E8DCC2]/35 bg-[#F5F2EA]/8 p-3 flex items-center justify-between gap-3">
                     <div><span className="text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Design-Modus</span><p className="text-[9px] text-stone-400 mt-0.5">Diese Werbetexte werden auch für die Desktop-Miniwebseite verwendet.</p></div>
-                    <button type="button" onClick={() => { setActiveTab('design'); setActiveSubSection('design-content'); }} className="h-8 px-3 rounded-xl bg-[#F5F2EA] text-[#101010] text-[8px] font-black uppercase tracking-wider">Zurück</button>
+                    <button type="button" onClick={() => { setActiveTab('design'); setActiveSubSection('design-desktop'); }} className="h-8 px-3 rounded-xl bg-[#F5F2EA] text-[#101010] text-[8px] font-black uppercase tracking-wider">Zurück zur Webseite</button>
                   </div>
                 )}
 
