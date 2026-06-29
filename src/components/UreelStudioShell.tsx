@@ -2931,7 +2931,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   };
 
   return (
-    <div className="ureel-desktop-studio-root flex flex-col md:flex-row min-h-[100dvh] md:h-screen w-full max-w-[100vw] bg-[#09090B] text-stone-200 overflow-x-hidden md:overflow-hidden overflow-y-auto font-sans antialiased text-xs">
+    <div className={`ureel-desktop-studio-root ${activeTab === 'design' ? 'ureel-desktop-studio-root--design' : ''} flex flex-col md:flex-row min-h-[100dvh] md:h-screen w-full max-w-[100vw] bg-[#09090B] text-stone-200 overflow-x-hidden md:overflow-hidden overflow-y-auto font-sans antialiased text-xs`}>
       
       <div className="ureel-desktop-dashboard-top hidden md:flex items-center justify-between gap-4 px-5 py-3 border-b border-[#242018] bg-[#0B0B0D]/96 backdrop-blur-xl shadow-xl shadow-black/30">
         <div className="flex items-center gap-3 min-w-0">

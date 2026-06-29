@@ -8180,3 +8180,37 @@ body {
     letter-spacing: -.02em !important;
   }
 }
+
+/* v52.5.82 – Real ureelSeite right-editor routing fix.
+   Desktop-only: Earlier desktop parity CSS hides .ureel-detail-panel and shows the mobile tap editor
+   on desktop. That is correct for Scene/Text/Buttons, but wrong for Meine ureelSeite because the
+   real miniwebseite editor lives in .ureel-detail-panel. Use a root state class to route desktop
+   design mode to the real right editor and prevent the stale Szene/Video tap panel from showing. */
+@media (min-width: 768px) {
+  .ureel-desktop-studio-root.ureel-desktop-studio-root--design > .ureel-detail-panel {
+    display: block !important;
+    grid-area: config !important;
+    grid-column: 3 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 22px 28px 38px !important;
+    background: #141419 !important;
+  }
+
+  .ureel-desktop-studio-root.ureel-desktop-studio-root--design > .ureel-simple-card-builder.ureel-tap-editor {
+    display: none !important;
+  }
+
+  .ureel-desktop-studio-root.ureel-desktop-studio-root--design > .ureel-detail-panel > .space-y-4,
+  .ureel-desktop-studio-root.ureel-desktop-studio-root--design > .ureel-detail-panel > .space-y-6 {
+    max-width: none !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}

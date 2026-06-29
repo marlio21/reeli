@@ -1,3 +1,10 @@
+# v52.5.82 – Real ureelSeite Right Editor Routing Fix
+
+- Desktop-only: „Meine ureelSeite“ routet den rechten Editor jetzt wirklich auf den Miniwebseiten-Editor.
+- Ursache: Ältere Desktop-Parity-CSS blendete die echte rechte Detailfläche aus und zeigte stattdessen den mobilen Tap-Editor als Desktop-Panel. Dadurch blieb rechts Szene/Video sichtbar.
+- Fix: Root-State-Klasse für Design-Modus; Detailpanel wird nur für „Meine ureelSeite“ wieder angezeigt, Tap-Editor wird dann ausgeblendet.
+- Mobile bleibt unverändert.
+
 ## v52.5.81 – Real ureelSeite Editor Switch Fix
 
 - Desktop-only: Wenn „Meine ureelSeite“ aktiv ist, rendert rechts jetzt garantiert der Miniwebseiten-Editor statt Szene/Video.
