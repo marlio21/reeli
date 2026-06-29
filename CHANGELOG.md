@@ -1,3 +1,11 @@
+
+## v52.5.70 – Desktop Scene Entry & Typography Repair
+
+- Desktop-Szene synchronisiert beim Einstieg die aktive Auswahl mit dem rechten Editor.
+- Wenn Video aktiv ist, erscheinen die Video-Einstellungen sofort ohne zweiten Klick.
+- Desktop-Mittelspalte typografisch bereinigt: Titel und Beschreibung laufen nicht mehr zusammen.
+- Keine Änderungen an Mobile-Persistence, Public Renderer oder gemeinsamer Card-Logik.
+
 # v52.5.68 – Desktop Darstellung echte Auswahl-Buttons
 
 - Desktop-Szene/Darstellung zeigt jetzt wirklich zwei große klickbare Auswahl-Buttons.

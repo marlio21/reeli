@@ -2418,6 +2418,26 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   // Button/Text special previews live in the configuration column, not in the main preview area.
   const isDesktopWorkbench = typeof window !== 'undefined' && window.innerWidth >= 768;
 
+  // Desktop Workbench safety sync: when a desktop sub-section is already active
+  // (for example Video on first load), show the matching editor immediately
+  // instead of the neutral overview. This only changes desktop state routing and
+  // does not touch mobile persistence, renderers, or public view.
+  useEffect(() => {
+    if (!isDesktopWorkbench || activeTab !== 'scene' || tapEditTarget !== 'scene') return;
+    const sceneToolMap: Record<string, 'video' | 'image' | 'color' | 'display' | 'endcard' | 'profile'> = {
+      'scene-video': 'video',
+      'scene-poster': 'image',
+      'scene-color': 'color',
+      'scene-display': 'display',
+      'scene-endcard': 'endcard',
+      'scene-profile': 'profile',
+    };
+    const expectedTool = sceneToolMap[activeSubSection];
+    if (expectedTool && tapSceneTool !== expectedTool) {
+      setTapSceneTool(expectedTool);
+    }
+  }, [isDesktopWorkbench, activeTab, activeSubSection, tapEditTarget, tapSceneTool]);
+
   const getDefaultSubSectionForModule = (module: MainModule): string => {
     const defaults: Partial<Record<MainModule, string>> = {
       scene: 'scene-video',
@@ -3117,18 +3137,18 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <button
                       key={item.id}
                       onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)}
-                      className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
+                      className={`w-full grid grid-cols-[22px_minmax(0,1fr)_14px] items-center gap-3 px-3 py-4 rounded-2xl border transition-all text-left overflow-hidden ${
                         selected
                           ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
                           : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'
                       }`}
                     >
                       <Icon size={15} className={selected ? '!text-[#101010]' : 'text-[#E8DCC2]'} />
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">{item.label}</span>
-                        <span className={`block text-[8.5px] leading-snug mt-0.5 ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`}>{item.desc}</span>
+                      <span className="min-w-0 block">
+                        <span className="block text-[11px] font-black uppercase tracking-[0.02em] leading-[1.05] whitespace-normal break-words">{item.label}</span>
+                        <span className={`block text-[9.5px] leading-[1.2] mt-1 whitespace-normal break-words ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`}>{item.desc}</span>
                       </span>
-                      <LucideIcons.ChevronRight size={13} className="opacity-50" />
+                      <LucideIcons.ChevronRight size={13} className="opacity-50 justify-self-end" />
                     </button>
                   );
                 })}
@@ -5308,8 +5328,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     }}
                   >
                     <span style={{ gridRow: '1 / span 2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Icon size={21}/></span>
-                    <strong style={{ display: 'block', minWidth: 0, fontSize: 16, lineHeight: 1.05, letterSpacing: '-0.02em', textTransform: 'uppercase' }}>{item.title}</strong>
-                    <small style={{ display: 'block', minWidth: 0, fontSize: 12, lineHeight: 1.2, opacity: 0.72 }}>{item.desc}</small>
+                    <strong style={{ gridColumn: 2, gridRow: 1, display: 'block', minWidth: 0, fontSize: 16, lineHeight: 1.05, letterSpacing: '-0.02em', textTransform: 'uppercase', whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{item.title}</strong>
+                    <small style={{ gridColumn: 2, gridRow: 2, display: 'block', minWidth: 0, fontSize: 12, lineHeight: 1.2, opacity: 0.72, whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{item.desc}</small>
                   </button>
                 );
               })}
