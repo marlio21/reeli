@@ -59,7 +59,8 @@ const AppContent: React.FC = () => {
   const [activeLang, setActiveLang] = useState<'de' | 'en'>(() => {
     const saved = getSafeLocalStorage('konu_preferred_lang');
     if (saved === 'en' || saved === 'de') return saved;
-    return 'de';
+    const browserLanguage = typeof navigator !== 'undefined' ? (navigator.language || '').toLowerCase() : '';
+    return browserLanguage.startsWith('en') ? 'en' : 'de';
   });
 
   // Test Gate Bypassed completely as requested to show normal standard registration/login

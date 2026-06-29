@@ -1,4 +1,14 @@
 
+
+## v52.5.88 – Desktop Internationalisierung & Browser-Kompatibilitätscheck
+
+- Desktop-Sprachsystem für DE/EN in der Studio-Shell eingeführt.
+- Sprachumschalter wirkt jetzt sichtbar auf Desktop-Navigation, Top-Actions und den My-ureel-page-Editor.
+- Browser-Sprache wird beim ersten Besuch defensiv erkannt; gespeicherte Sprache bleibt bevorzugt.
+- Browser-Kompatibilitätscheck für Chrome, Edge und Safari ergänzt.
+- Mobile-Renderer, ButtonRenderer, Persistence und Public-Mobile-Logik nicht verändert.
+
+
 ## v52.5.87 – YouTube-Caption-Cleanup & Desktop Language Switch
 
 - YouTube-Embed-URLs werden mit deaktivierten Untertiteln/Annotationen erzeugt (`cc_load_policy=0`, `iv_load_policy=3`).
