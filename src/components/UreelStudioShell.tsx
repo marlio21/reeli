@@ -3144,9 +3144,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       }`}
                     >
                       <Icon size={15} className={`ureel-desktop-subnav-icon ${selected ? '!text-[#101010]' : 'text-[#E8DCC2]'}`} />
-                      <span className="ureel-desktop-subnav-copy">
-                        <span className="ureel-desktop-subnav-title">{item.label}</span>
-                        <span className={`ureel-desktop-subnav-desc ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`}>{item.desc}</span>
+                      <span className="ureel-desktop-subnav-copy" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 0, width: '100%', overflow: 'hidden' }}>
+                        <span className="ureel-desktop-subnav-title" style={{ display: 'block', width: '100%', fontSize: 15, lineHeight: 1.04, fontWeight: 950, letterSpacing: '-0.015em', textTransform: 'uppercase', whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.label}</span>
+                        <span className={`ureel-desktop-subnav-desc ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`} style={{ display: 'block', width: '100%', marginTop: 5, fontSize: 11, lineHeight: 1.18, fontWeight: 750, whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.desc}</span>
                       </span>
                       <LucideIcons.ChevronRight size={13} className="ureel-desktop-subnav-arrow opacity-50" />
                     </button>
@@ -3170,18 +3170,18 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <button
                       key={item.id}
                       onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)}
-                      className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
+                      className={`ureel-desktop-subnav-card w-full border transition-all text-left ${
                         selected
-                          ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
+                          ? 'is-active bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
                           : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'
                       }`}
                     >
-                      <Icon size={15} className={selected ? '!text-[#101010]' : 'text-[#E8DCC2]'} />
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">{item.label}</span>
-                        <span className={`block text-[8.5px] leading-snug mt-0.5 ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`}>{item.desc}</span>
+                      <Icon size={15} className={`ureel-desktop-subnav-icon ${selected ? '!text-[#101010]' : 'text-[#E8DCC2]'}`} />
+                      <span className="ureel-desktop-subnav-copy" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 0, width: '100%', overflow: 'hidden' }}>
+                        <span className="ureel-desktop-subnav-title" style={{ display: 'block', width: '100%', fontSize: 15, lineHeight: 1.04, fontWeight: 950, letterSpacing: '-0.015em', textTransform: 'uppercase', whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.label}</span>
+                        <span className={`ureel-desktop-subnav-desc ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`} style={{ display: 'block', width: '100%', marginTop: 5, fontSize: 11, lineHeight: 1.18, fontWeight: 750, whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.desc}</span>
                       </span>
-                      <LucideIcons.ChevronRight size={13} className="opacity-50" />
+                      <LucideIcons.ChevronRight size={13} className="ureel-desktop-subnav-arrow opacity-50" />
                     </button>
                   );
                 })}
@@ -3203,18 +3203,18 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <button
                       key={item.id}
                       onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)}
-                      className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${
+                      className={`ureel-desktop-subnav-card w-full border transition-all text-left ${
                         selected
-                          ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
+                          ? 'is-active bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20'
                           : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'
                       }`}
                     >
-                      <Icon size={15} className={selected ? '!text-[#101010]' : 'text-[#E8DCC2]'} />
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">{item.label}</span>
-                        <span className={`block text-[8.5px] leading-snug mt-0.5 ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`}>{item.desc}</span>
+                      <Icon size={15} className={`ureel-desktop-subnav-icon ${selected ? '!text-[#101010]' : 'text-[#E8DCC2]'}`} />
+                      <span className="ureel-desktop-subnav-copy" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 0, width: '100%', overflow: 'hidden' }}>
+                        <span className="ureel-desktop-subnav-title" style={{ display: 'block', width: '100%', fontSize: 15, lineHeight: 1.04, fontWeight: 950, letterSpacing: '-0.015em', textTransform: 'uppercase', whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.label}</span>
+                        <span className={`ureel-desktop-subnav-desc ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`} style={{ display: 'block', width: '100%', marginTop: 5, fontSize: 11, lineHeight: 1.18, fontWeight: 750, whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.desc}</span>
                       </span>
-                      <LucideIcons.ChevronRight size={13} className="opacity-50" />
+                      <LucideIcons.ChevronRight size={13} className="ureel-desktop-subnav-arrow opacity-50" />
                     </button>
                   );
                 })}
@@ -3267,10 +3267,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   const Icon = item.icon;
                   const selected = activeSubSection === item.id;
                   return (
-                    <button key={item.id} onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)} className={`w-full flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-left ${selected ? 'bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20' : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'}`}>
-                      <Icon size={15} className={selected ? '!text-[#101010]' : 'text-[#E8DCC2]'} />
-                      <span className="min-w-0 flex-1"><span className="block text-[10.5px] font-black uppercase tracking-wide leading-tight">{item.label}</span><span className={`block text-[8.5px] leading-snug mt-0.5 ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`}>{item.desc}</span></span>
-                      <LucideIcons.ChevronRight size={13} className="opacity-50" />
+                    <button key={item.id} onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)} className={`ureel-desktop-subnav-card w-full border transition-all text-left ${selected ? 'is-active bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20' : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'}`}>
+                      <Icon size={15} className={`ureel-desktop-subnav-icon ${selected ? '!text-[#101010]' : 'text-[#E8DCC2]'}`} />
+                      <span className="ureel-desktop-subnav-copy" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 0, width: '100%', overflow: 'hidden' }}><span className="ureel-desktop-subnav-title" style={{ display: 'block', width: '100%', fontSize: 15, lineHeight: 1.04, fontWeight: 950, letterSpacing: '-0.015em', textTransform: 'uppercase', whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.label}</span><span className={`ureel-desktop-subnav-desc ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`} style={{ display: 'block', width: '100%', marginTop: 5, fontSize: 11, lineHeight: 1.18, fontWeight: 750, whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.desc}</span></span>
+                      <LucideIcons.ChevronRight size={13} className="ureel-desktop-subnav-arrow opacity-50" />
                     </button>
                   );
                 })}
@@ -5469,9 +5469,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   </div>
                 </div>
                 <h4>Textfelder</h4>
-                <label>Titel</label><input value={activeCard.title || ''} placeholder="z. B. Tischlerei Hager" onChange={(e) => syncCardUpdate({ title: e.target.value, heroTitle: e.target.value })} />
-                <label>Untertitel</label><input value={activeCard.subtitle || ''} placeholder="z. B. Handwerk, das bleibt" onChange={(e) => syncCardUpdate({ subtitle: e.target.value, heroSubtitle: e.target.value })} />
-                <label>Beschreibung</label><textarea rows={4} value={getTextLayerDraftValue('description')} placeholder="Kurzer Werbetext oder Angebot" onChange={(e) => { const next = e.target.value; setTextDirty(true); setTextDraft((draft) => ({ ...draft, description: next })); syncCardUpdate({ description: next, heroDescription: next } as any); }} />
+                <label>Titel</label><input value={textDraft.title} placeholder="z. B. Tischlerei Hager" onChange={(e) => { setTextDirty(true); setTextDraft((draft) => ({ ...draft, title: e.target.value })); }} onBlur={flushTextDraft} />
+                <label>Untertitel</label><input value={textDraft.subtitle} placeholder="z. B. Handwerk, das bleibt" onChange={(e) => { setTextDirty(true); setTextDraft((draft) => ({ ...draft, subtitle: e.target.value })); }} onBlur={flushTextDraft} />
+                <label>Beschreibung</label><textarea rows={4} value={textDraft.description} placeholder="Kurzer Werbetext oder Angebot" onChange={(e) => { setTextDirty(true); setTextDraft((draft) => ({ ...draft, description: e.target.value })); }} onBlur={flushTextDraft} />
                 <span className="ureel-tap-mini-label">Sichtbarkeit</span>
                 <div className="ureel-tap-chip-row">
                   {[{ key: 'title', label: 'Titel' }, { key: 'subtitle', label: 'Slogan' }, { key: 'description', label: 'Text' }].map((item) => { const enabled = isTextLayerEnabled(item.key as any); const hasContent = hasTextLayerContent(item.key as any); return <button key={item.key} type="button" className={enabled && hasContent ? 'is-active' : ''} onClick={() => setTextLayerEnabled(item.key as any, !enabled)}>{item.label} {!hasContent ? 'leer' : enabled ? 'an' : 'aus'}</button>; })}

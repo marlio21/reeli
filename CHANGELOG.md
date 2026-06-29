@@ -1,3 +1,13 @@
+## v52.5.72 – Desktop Input & Subnav Real Fix
+
+- Ursache geprüft: Die sichtbaren Textbrüche kamen daher, dass nur die Szene-Karten die neue Desktop-Subnav-Struktur hatten; Text-, Button- und Design-Karten nutzten weiter die alte Flex-Struktur.
+- Desktop-Mittelspalten-Karten jetzt überall auf dieselbe robuste Struktur umgestellt.
+- Zusätzlich Inline-Fallbacks für Titel/Beschreibung ergänzt, damit CSS-Cache oder Selektor-Probleme die Darstellung nicht wieder brechen.
+- Ursache für zitternde Texteingabe geprüft: Im Desktop-Tap-Werbetextpanel wurden Titel/Untertitel/Beschreibung bei jedem Tastendruck direkt per syncCardUpdate persistiert.
+- Textfelder schreiben jetzt lokal in textDraft und speichern erst bei Blur über flushTextDraft.
+- Mobile Stable Lock, Persistence und Public Renderer nicht verändert.
+- Build erfolgreich getestet.
+
 ## v52.5.71 – Desktop Middle Card Text Layout Fix
 
 - Desktop-Mittelspalte repariert: Icon, Titel, Beschreibung und Pfeil sind jetzt sauber getrennt.
