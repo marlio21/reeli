@@ -3426,7 +3426,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         </div>
 
         {/* Content Renderers per Section */}
-        <div className="space-y-6 max-w-full md:max-w-xl">
+        <div className={`space-y-6 max-w-full ${activeTab === 'design' ? 'md:max-w-none' : 'md:max-w-xl'}`}>
           
           {/* TAB 1: SCENE & SCENE BACKGROUNDS */}
           {activeTab === 'scene' && activeSubSection === 'scene-video' && (
@@ -4855,8 +4855,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               </div>
               <div className="rounded-[28px] border border-[#3A3732] overflow-hidden bg-[#0F0F0F] shadow-2xl">
                 <div className="px-4 pt-4 flex items-center justify-between gap-3"><span className="text-[9px] font-black uppercase tracking-[0.18em] text-[#E8DCC2]">Vorschau der ganzen Miniwebseite</span><button type="button" onClick={openLiveLink} className="h-8 rounded-xl bg-[#F5F2EA] px-3 text-[8px] font-black uppercase tracking-wider text-[#101010] inline-flex items-center gap-1.5"><LucideIcons.PlayCircle size={12}/> Webseite starten</button></div>
-                <div className="p-3 md:p-4 min-h-[430px]">
-                  <div className="h-[520px] overflow-hidden rounded-[26px] border border-white/10">
+                <div className="p-3 md:p-4">
+                  <div className="overflow-hidden rounded-[26px] border border-white/10 bg-black/30" style={{ height: 'min(560px, calc(100vh - 310px))', minHeight: 390 }}>
                     <PublicDesktopPageRenderer
                       card={activeCard}
                       lang={lang}
@@ -4865,6 +4865,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       onEditText={openWerbetexterFromDesign}
                     />
                   </div>
+                  <p className="mt-2 text-[8.5px] leading-relaxed text-stone-500">Die Vorschau ist absichtlich skaliert: alle drei Bereiche bleiben gemeinsam sichtbar. Mit „Webseite starten“ siehst du die echte Besucheransicht.</p>
                 </div>
             </div>
             </div>

@@ -92,7 +92,7 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
   const isStudioPreview = mode === 'studio-preview';
 
   const columnsClass = isStudioPreview
-    ? 'grid-cols-[minmax(190px,0.9fr)_minmax(235px,1fr)_minmax(230px,1.05fr)]'
+    ? 'grid-cols-[minmax(160px,0.82fr)_minmax(210px,1fr)_minmax(205px,0.98fr)]'
     : layout === 'phone_center'
     ? 'grid-cols-[minmax(310px,0.85fr)_minmax(410px,1fr)_minmax(360px,0.9fr)]'
     : layout === 'phone_right'
@@ -109,7 +109,7 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
         <span className="rounded-full border border-[#E8DCC2]/22 px-2 py-1 text-[8px] font-black uppercase tracking-wider text-[#E8DCC2]/85">ohne Kartenbuttons</span>
       </div>
       <div className={isStudioPreview
-        ? 'relative w-[176px] h-[313px] overflow-hidden rounded-[30px] border-[7px] border-[#1A1A1A] bg-black shadow-2xl mx-auto'
+        ? 'relative w-[132px] h-[235px] overflow-hidden rounded-[24px] border-[5px] border-[#1A1A1A] bg-black shadow-2xl mx-auto'
         : 'relative h-[78vh] max-h-[760px] aspect-[9/16] overflow-hidden rounded-[36px] border-[8px] border-[#D8D2C4] bg-black shadow-2xl'}>
         <UnifiedMobileLiveCardSurface
           card={card}
@@ -143,8 +143,8 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
       iconCircleBg: false,
     });
 
-    const tileSize = isStudioPreview ? 62 : 78;
-    const largeTileSize = isStudioPreview ? 68 : 88;
+    const tileSize = isStudioPreview ? 48 : 78;
+    const largeTileSize = isStudioPreview ? 54 : 88;
 
     if (buttonArrangement === 'circle') {
       const pos = [
@@ -172,33 +172,33 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
   };
 
   const buttonsPanel = (
-    <section className={`${isStudioPreview ? 'rounded-[26px] border border-white/10 p-4' : 'border-r border-white/10 p-6 xl:p-8'} h-full min-w-0 flex flex-col justify-center overflow-hidden`} style={buildButtonAreaStyle(desktopPage)}>
-      <div className="mb-5 flex items-start justify-between gap-3">
+    <section className={`${isStudioPreview ? 'rounded-[26px] border border-white/10 p-3' : 'border-r border-white/10 p-6 xl:p-8'} h-full min-w-0 flex flex-col justify-center overflow-hidden`} style={buildButtonAreaStyle(desktopPage)}>
+      <div className={`${isStudioPreview ? 'mb-3' : 'mb-5'} flex items-start justify-between gap-3`}>
         <div>
           <span className="block w-fit rounded-full border border-[#E8DCC2]/30 px-3 py-1 text-[10px] uppercase tracking-[0.22em] font-black text-[#E8DCC2]">Bereich 2</span>
           <h2 className={`${isStudioPreview ? 'mt-3 text-lg' : 'mt-4 text-2xl xl:text-3xl'} font-black leading-tight text-[#F5F2EA]`}>{desktopPage.buttonAreaHeadline || (lang === 'de' ? 'Aktionen bedienen' : 'Use actions')}</h2>
-          <p className="mt-2 text-xs leading-relaxed text-[#F5F2EA]/60">{desktopPage.buttonAreaIntro || (lang === 'de' ? 'Dieselben Kartenbuttons, aber auf Desktop als eigener Bedienbereich.' : 'The same card buttons, shown as a dedicated desktop action area.')}</p>
+          <p className={`${isStudioPreview ? 'mt-1 text-[9px] line-clamp-2' : 'mt-2 text-xs'} leading-relaxed text-[#F5F2EA]/60`}>{desktopPage.buttonAreaIntro || (lang === 'de' ? 'Dieselben Kartenbuttons, aber auf Desktop als eigener Bedienbereich.' : 'The same card buttons, shown as a dedicated desktop action area.')}</p>
         </div>
         <span className="rounded-full bg-black/35 px-2 py-1 text-[8px] font-black uppercase text-[#F5F2EA]/70">max. 6</span>
       </div>
       {renderDesktopButtons()}
-      <div className="mt-6 grid grid-cols-3 gap-2">
-        {(desktopPage.showQr !== false) && <button type="button" onClick={onQrClick} className="h-10 rounded-2xl bg-[#F5F2EA] text-[#101010] text-[9px] font-black uppercase tracking-wider inline-flex items-center justify-center gap-1.5"><LucideIcons.QrCode size={14}/> QR</button>}
-        {desktopPage.showShare !== false && <button type="button" onClick={onShare} className="h-10 rounded-2xl border border-[#E8DCC2]/35 text-[#F5F2EA] text-[9px] font-black uppercase tracking-wider inline-flex items-center justify-center gap-1.5"><LucideIcons.Share2 size={14}/> Teilen</button>}
-        {desktopPage.showContactSave !== false && <button type="button" onClick={onContactSave} className="h-10 rounded-2xl border border-[#E8DCC2]/35 text-[#F5F2EA] text-[9px] font-black uppercase tracking-wider inline-flex items-center justify-center gap-1.5"><LucideIcons.Contact size={14}/> Kontakt</button>}
+      <div className={`${isStudioPreview ? 'mt-3' : 'mt-6'} grid grid-cols-3 gap-2`}>
+        {(desktopPage.showQr !== false) && <button type="button" onClick={onQrClick} className={`${isStudioPreview ? 'h-8 text-[7px] rounded-xl' : 'h-10 text-[9px] rounded-2xl'} bg-[#F5F2EA] text-[#101010] font-black uppercase tracking-wider inline-flex items-center justify-center gap-1.5`}><LucideIcons.QrCode size={14}/> QR</button>}
+        {desktopPage.showShare !== false && <button type="button" onClick={onShare} className={`${isStudioPreview ? 'h-8 text-[7px] rounded-xl' : 'h-10 text-[9px] rounded-2xl'} border border-[#E8DCC2]/35 text-[#F5F2EA] font-black uppercase tracking-wider inline-flex items-center justify-center gap-1.5`}><LucideIcons.Share2 size={14}/> Teilen</button>}
+        {desktopPage.showContactSave !== false && <button type="button" onClick={onContactSave} className={`${isStudioPreview ? 'h-8 text-[7px] rounded-xl' : 'h-10 text-[9px] rounded-2xl'} border border-[#E8DCC2]/35 text-[#F5F2EA] font-black uppercase tracking-wider inline-flex items-center justify-center gap-1.5`}><LucideIcons.Contact size={14}/> Kontakt</button>}
       </div>
     </section>
   );
 
   const contentPanel = (
-    <section className={`${isStudioPreview ? 'rounded-[26px] border border-white/10 bg-black/25 p-5' : 'p-6 xl:p-9'} h-full min-w-0 flex flex-col justify-center overflow-hidden`}>
+    <section className={`${isStudioPreview ? 'rounded-[26px] border border-white/10 bg-black/25 p-4' : 'p-6 xl:p-9'} h-full min-w-0 flex flex-col justify-center overflow-hidden`}>
       <span className="w-fit rounded-full border border-[#E8DCC2]/35 px-3 py-1 text-[10px] uppercase tracking-[0.22em] font-black text-[#E8DCC2]">Bereich 3</span>
-      <h1 className={`${isStudioPreview ? 'mt-3 text-2xl' : 'mt-5 text-4xl xl:text-5xl'} font-black leading-[0.96] text-[#F5F2EA] tracking-tight`}>{text.title}</h1>
-      {text.subtitle && <p className={`${isStudioPreview ? 'mt-3 text-sm' : 'mt-5 text-xl xl:text-2xl'} font-bold leading-tight text-[#E8DCC2]`}>{text.subtitle}</p>}
-      {text.description && <p className={`${isStudioPreview ? 'mt-3 text-xs' : 'mt-5 text-base xl:text-lg'} max-w-xl leading-relaxed text-[#F5F2EA]/75`}>{text.description}</p>}
+      <h1 className={`${isStudioPreview ? 'mt-2 text-xl' : 'mt-5 text-4xl xl:text-5xl'} font-black leading-[0.96] text-[#F5F2EA] tracking-tight`}>{text.title}</h1>
+      {text.subtitle && <p className={`${isStudioPreview ? 'mt-2 text-xs' : 'mt-5 text-xl xl:text-2xl'} font-bold leading-tight text-[#E8DCC2]`}>{text.subtitle}</p>}
+      {text.description && <p className={`${isStudioPreview ? 'mt-2 text-[10px] line-clamp-3' : 'mt-5 text-base xl:text-lg'} max-w-xl leading-relaxed text-[#F5F2EA]/75`}>{text.description}</p>}
 
       {media.url ? (
-        <div className={`${isStudioPreview ? 'mt-4 h-28' : 'mt-7 h-52 xl:h-64'} overflow-hidden rounded-[28px] border border-white/10 bg-black/35 shadow-2xl`}>
+        <div className={`${isStudioPreview ? 'mt-3 h-20' : 'mt-7 h-52 xl:h-64'} overflow-hidden rounded-[28px] border border-white/10 bg-black/35 shadow-2xl`}>
           {media.type === 'video' ? (
             <video src={media.url} className="h-full w-full object-cover" muted playsInline controls={mode === 'public'} preload="metadata" />
           ) : (
@@ -206,7 +206,7 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
           )}
         </div>
       ) : (
-        <div className={`${isStudioPreview ? 'mt-4 p-3' : 'mt-7 p-5'} rounded-[28px] border border-[#E8DCC2]/16 bg-[#F5F2EA]/7`}>
+        <div className={`${isStudioPreview ? 'mt-3 p-2' : 'mt-7 p-5'} rounded-[28px] border border-[#E8DCC2]/16 bg-[#F5F2EA]/7`}>
           <div className="grid grid-cols-3 gap-3 text-center">
             <div className="rounded-2xl bg-black/22 p-3"><LucideIcons.FileText size={isStudioPreview ? 14 : 18} className="mx-auto text-[#E8DCC2]"/><span className="mt-2 block text-[8px] font-black uppercase tracking-wider text-[#F5F2EA]/70">Text</span></div>
             <div className="rounded-2xl bg-black/22 p-3"><LucideIcons.Image size={isStudioPreview ? 14 : 18} className="mx-auto text-[#E8DCC2]"/><span className="mt-2 block text-[8px] font-black uppercase tracking-wider text-[#F5F2EA]/70">Bild</span></div>
@@ -215,7 +215,7 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
         </div>
       )}
 
-      {isStudioPreview && onEditText && <button type="button" onClick={onEditText} className="mt-5 h-10 rounded-xl border border-[#E8DCC2]/35 bg-[#181818]/80 px-3 text-[9px] font-black uppercase tracking-wider text-[#F5F2EA] inline-flex items-center justify-center gap-2 self-start"><LucideIcons.Type size={12}/> Inhalt bearbeiten</button>}
+      {isStudioPreview && onEditText && <button type="button" onClick={onEditText} className="mt-3 h-8 rounded-xl border border-[#E8DCC2]/35 bg-[#181818]/80 px-3 text-[8px] font-black uppercase tracking-wider text-[#F5F2EA] inline-flex items-center justify-center gap-2 self-start"><LucideIcons.Type size={12}/> Inhalt bearbeiten</button>}
       {isStudioPreview && qrCodeUrl && <span className="mt-3 text-[8px] text-[#F5F2EA]/35 break-all">{qrCodeUrl.slice(0, 56)}…</span>}
     </section>
   );

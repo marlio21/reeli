@@ -718,3 +718,9 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - „Look auf alle Buttons übertragen“ wird als echter Funktionsbutton dargestellt.
 - Look-Transfer überträgt Designwerte wie Größe, Rahmen, Transparenz, Farben, Bild, Schrift- und Icon-Look; Text, Aktion und Icon-Identität bleiben erhalten.
 - Mobile Stable Lock bleibt unverändert.
+
+
+## v52.5.80 - Desktop ureelSeite Preview Fit
+- Desktop-only: Miniwebseiten-Vorschau im Studio so skaliert, dass Karte, Menü und Inhalt gemeinsam sichtbar bleiben.
+- Vorschauhöhe an Browserfenster angepasst; „Webseite starten“ bleibt direkt erreichbar.
+- Public Desktop Renderer im Studio-Preview-Modus kompakter gemacht, ohne Mobile/Public-9:16-Renderer zu verändern.
