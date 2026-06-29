@@ -1,4 +1,11 @@
 
+## v52.5.79 – Real ureelSeite Nav Fix
+
+- Desktop-only: Der vierte Haupttab „Meine ureelSeite“ wird nicht mehr per CSS ausgeblendet.
+- Die Desktop-Tab-Leiste bekommt genug Breite für Szene, Text, Buttons und Meine ureelSeite.
+- Keine Änderungen an Mobile, Public Renderer, ButtonRenderer, Persistence oder Hydration.
+
+
 
 ## v52.5.78 – Desktop ureelSeite Miniwebseite Foundation
 

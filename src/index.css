@@ -6020,9 +6020,19 @@ body {
     max-width: 900px !important;
   }
 
-  /* Keine zweite Desktop-spezifische Bearbeitungswelt: Website/Design wird nicht als Haupttab gezeigt. */
+  /* v52.5.79 – Desktop ureelSeite sichtbar: Der vierte Desktop-Tab ist die echte Miniwebseiten-Konfiguration. */
   .ureel-desktop-workspace-tabs button:nth-child(n+4) {
-    display: none !important;
+    display: inline-flex !important;
+  }
+  .ureel-desktop-workspace-tabs {
+    max-width: min(760px, 56vw) !important;
+  }
+  .ureel-desktop-workspace-tabs button {
+    min-width: 96px !important;
+    white-space: nowrap !important;
+  }
+  .ureel-desktop-workspace-tabs button:nth-child(4) {
+    min-width: 152px !important;
   }
 }
 
