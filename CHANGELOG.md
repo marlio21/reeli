@@ -1,4 +1,12 @@
 
+## v52.5.92 – RC1.2 Public & Miniwebseite Actions Test Fix
+
+- Desktop-Miniwebseiten-Vorschau im Studio mit echten Buttonaktionen verbunden.
+- QR, Teilen und Kontakt im Vorschau-Monitor an die vorhandenen Start-Aktionen angeschlossen.
+- RC1.2-Testcheckliste ergänzt.
+- Mobile-Code nicht verändert.
+
+
 ## v52.5.91 / RC1.1 - Desktop Miniwebseite Cleanup
 
 - Meine ureelSeite: alter Text-&-Medien-Unterbereich wird auf die kanonische Webseite-Konfiguration zurückgeführt.

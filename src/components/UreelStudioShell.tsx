@@ -6,7 +6,7 @@ import { KonuCardCore } from './KonuCardCore';
 import { ButtonRenderer } from './ButtonRenderer';
 import { PublicDesktopPageRenderer } from './PublicDesktopPageRenderer';
 import { UnifiedMobileLiveCardSurface } from './UnifiedMobileLiveCardSurface';
-import { createDefaultButton, sanitizeButtonForFirestore } from '../utils/buttonUtils';
+import { createDefaultButton, sanitizeButtonForFirestore, executeButtonAction } from '../utils/buttonUtils';
 import { UREEL_TEXT_TEMPLATES, normalizeUreelTextTemplate } from '../utils/textTemplates';
 import { persistMobileLayoutFields, hydrateCardMobileLayout } from '../utils/mobileLayoutPersistence';
 import { CARD_BUTTON_SIZE_PRESETS, CARD_BUTTON_GAP_PRESETS, CARD_BUTTON_FONT_PRESETS, CARD_BUTTON_ICON_PRESETS, CARD_BUTTON_SCALE_PRESETS, CARD_BUTTON_MIN_SIZE, CARD_BUTTON_DEFAULT_SIZE, CARD_BUTTON_MAX_SIZE, clampCardButtonSize, type CardButtonSizePreset } from '../utils/cardButtonSizePresets';
@@ -1791,6 +1791,21 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     triggerToast(lang === 'de' ? 'Kontaktdatei erstellt.' : 'Contact file created.', 'success');
   };
 
+
+  const handleDesktopPreviewButtonClick = (button: CardButton) => {
+    if (!button || !button.actionType || button.actionType === 'none') {
+      triggerToast(lang === 'de' ? 'Für diesen Button ist noch keine Aktion hinterlegt.' : 'No action has been set for this button yet.', 'info');
+      return;
+    }
+    setDesktopStartAction(null);
+    triggerToast(lang === 'de' ? 'Desktop-Buttonaktion wird getestet.' : 'Testing desktop button action.', 'info');
+    executeButtonAction(button, activeCard, {
+      onOpenOverlayModal: () => triggerToast(lang === 'de' ? 'Diese Spezialaktion öffnet in der Public-Ansicht ein eigenes Fenster.' : 'This special action opens a dedicated public view panel.', 'info'),
+      onOpenGallery: () => triggerToast(lang === 'de' ? 'Galerie-Aktion erkannt. Public-Ansicht zum vollständigen Test öffnen.' : 'Gallery action detected. Open public view for a full test.', 'info'),
+      onOpenVideoModal: (url) => window.open(url, '_blank', 'noopener,noreferrer'),
+    });
+  };
+
   const openWerbetexterFromDesign = async () => {
     await updateDesktopPage({ contentMode: 'from_card', lastEditorSource: 'design' });
     setActiveTab('timeline');
@@ -3567,6 +3582,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     lang={lang}
                     mode="studio-preview"
                     qrCodeUrl={qrPayload}
+                    onButtonClick={handleDesktopPreviewButtonClick}
+                    onContactSave={downloadDesktopContact}
+                    onShare={shareLiveLink}
                     onQrClick={openDesktopQrCode}
                     onEditText={openWerbetexterFromDesign}
                   />
@@ -5220,6 +5238,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       lang={lang}
                       mode="studio-preview"
                       qrCodeUrl={qrPayload}
+                      onButtonClick={handleDesktopPreviewButtonClick}
+                      onContactSave={downloadDesktopContact}
+                      onShare={shareLiveLink}
+                      onQrClick={openDesktopQrCode}
                       onEditText={openWerbetexterFromDesign}
                     />
                   </div>
