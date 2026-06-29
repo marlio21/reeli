@@ -1,3 +1,11 @@
+# v52.5.67 – Desktop Darstellung Beschriftung Klarstellung
+
+- Desktop-Szene: Darstellung zeigt jetzt die zwei gewünschten Optionen klar als Buttons:
+  - Reel im 9:16 Format
+  - 16:9 Video im Header
+- Beschreibung im Darstellungs-Editor verständlicher formuliert.
+- Mobile Stable Lock nicht verändert.
+
 
 ## v52.5.66 – Desktop Scene Controls Repair
 

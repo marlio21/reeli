@@ -3555,8 +3555,8 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <p className="text-[10px] text-stone-400">Steuere, ob Video oder Bild die ganze Karte füllt oder als ruhiger Hero-Bereich gezeigt wird.</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {[
-                    { id: 'cover', label: 'Reel füllt Karte', desc: '9:16 Vollfläche im Smartphone-Rahmen' },
-                    { id: 'contain', label: '16:9 Ansicht', desc: 'Video/Bild oben, Inhalt darunter' },
+                    { id: 'cover', label: 'Reel im 9:16 Format', desc: 'Wie in der Karte: volle vertikale Reel-Bühne' },
+                    { id: 'contain', label: '16:9 Video im Header', desc: 'Video oben als Header, Inhalt darunter' },
                   ].map((mode) => {
                     const selected = mode.id === 'cover'
                       ? ((activeCard.ureelScene?.video?.placement || 'background') === 'background')
@@ -5348,10 +5348,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             {tapSceneTool === 'display' && (
               <div className="ureel-tap-config">
                 <h4>Darstellung</h4>
-                <p>Zeige Video/Bild entweder als komplette 9:16 Bühne oder als 16:9 Bildschirm im Layout.</p>
+                <p>Wähle, ob das Reel wie in der Karte im 9:16-Format läuft oder als 16:9-Video oben im Header der Karte erscheint.</p>
                 <div className="ureel-tap-display-options">
-                  <button type="button" className={(activeCard.ureelScene?.video?.placement || 'background') === 'background' ? 'is-active' : ''} onClick={() => syncCardUpdate({ ureelScene: { ...(activeCard.ureelScene || {}), video: { ...(activeCard.ureelScene?.video || {}), displayMode: 'cover' as any, placement: 'background' as any } } as any, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), videoFitMode: 'cover' } as any } as any)}><span className="mock mock-fill"/> <strong>Reel füllt Karte</strong><small>9:16 Vollfläche</small></button>
-                  <button type="button" className={activeCard.ureelScene?.video?.placement === 'hero' ? 'is-active' : ''} onClick={() => syncCardUpdate({ ureelScene: { ...(activeCard.ureelScene || {}), video: { ...(activeCard.ureelScene?.video || {}), displayMode: 'contain' as any, placement: 'hero' as any, heroSize: 'wide' as any } } as any, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), videoFitMode: 'contain' } as any } as any)}><span className="mock mock-wide"/> <strong>16:9 Ansicht</strong><small>Video oben, Inhalt darunter</small></button>
+                  <button type="button" className={(activeCard.ureelScene?.video?.placement || 'background') === 'background' ? 'is-active' : ''} onClick={() => syncCardUpdate({ ureelScene: { ...(activeCard.ureelScene || {}), video: { ...(activeCard.ureelScene?.video || {}), displayMode: 'cover' as any, placement: 'background' as any } } as any, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), videoFitMode: 'cover' } as any } as any)}><span className="mock mock-fill"/> <strong>Reel im 9:16 Format</strong><small>Wie in der Karte</small></button>
+                  <button type="button" className={activeCard.ureelScene?.video?.placement === 'hero' ? 'is-active' : ''} onClick={() => syncCardUpdate({ ureelScene: { ...(activeCard.ureelScene || {}), video: { ...(activeCard.ureelScene?.video || {}), displayMode: 'contain' as any, placement: 'hero' as any, heroSize: 'wide' as any } } as any, videoBackgroundConfig: { ...(activeCard.videoBackgroundConfig || {}), videoFitMode: 'contain' } as any } as any)}><span className="mock mock-wide"/> <strong>16:9 Video im Header</strong><small>Video oben in der Karte</small></button>
                 </div>
               </div>
             )}
