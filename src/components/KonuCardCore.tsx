@@ -11,7 +11,7 @@ import { ProfileHeroSection } from './ProfileHeroSection';
 import { TRANSLATIONS } from '../translations';
 import { normalizeButtons, getButtonScaleFactor, normalizeButtonGridLayout } from '../utils/buttonUtils';
 import { canUseFeature } from '../config/plans';
-import { parseVideoUrl, resolveUreelVideo } from '../utils/video';
+import { parseVideoUrl, resolveUreelVideo, withYouTubeCaptionsDisabled } from '../utils/video';
 import { getReelTimelineState, normalizeVideoBackgroundConfig, normalizeUreelScene, normalizeUreelTimeline, normalizeUreelEndCard } from '../utils/timeline';
 import { clampCardButtonSize, CARD_BUTTON_DEFAULT_SIZE, CARD_BUTTON_MIN_SIZE } from '../utils/cardButtonSizePresets';
 
@@ -813,7 +813,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   const ytMuteParam = normalized.youtube?.mute !== false ? '&mute=1' : '';
   const ytEmbedUrl = hasUreelScene
     ? activeSceneVideoResult.embedUrl
-    : (isYoutubeActive && ytId ? `https://www.youtube.com/embed/${ytId}?autoplay=1${ytMuteParam}${ytLoopParam}&playsinline=1&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3` : '');
+    : (isYoutubeActive && ytId ? withYouTubeCaptionsDisabled(`https://www.youtube.com/embed/${ytId}?autoplay=1${ytMuteParam}${ytLoopParam}&playsinline=1&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3`) : '');
 
   const renderHeroVideoPlayer = () => {
     if (!hasUreelScene || activeSceneVideoResult.placement !== 'hero' || activeSceneVideoResult.type === 'none') {

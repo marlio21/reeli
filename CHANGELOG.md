@@ -1,3 +1,12 @@
+
+## v52.5.87 – YouTube-Caption-Cleanup & Desktop Language Switch
+
+- YouTube-Embed-URLs werden mit deaktivierten Untertiteln/Annotationen erzeugt (`cc_load_policy=0`, `iv_load_policy=3`).
+- Bestehende YouTube-Embed-URLs werden beim Rendern nachgeschärft, soweit technisch möglich.
+- Desktop-Sprachumschalter DE/EN oben rechts ergänzt.
+- Erste Desktop-Top-Actions reagieren auf die gewählte Sprache.
+- Mobile-Editorlogik, Persistence und Public-Card-Layout nicht verändert.
+
 ## v52.5.86 – ureelSeite Start QR & Public Cleanup
 
 - Desktop-only: Webseite-starten-Aktionen markieren den zuletzt geklickten Button hell.

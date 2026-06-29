@@ -8,6 +8,20 @@ interface ParsedVideo {
   url: string;
 }
 
+
+export const withYouTubeCaptionsDisabled = (embedUrl: string): string => {
+  if (!embedUrl || !embedUrl.includes('youtube.com/embed/')) return embedUrl;
+  const [base, query = ''] = embedUrl.split('?');
+  const params = new URLSearchParams(query);
+  params.set('cc_load_policy', '0');
+  params.set('iv_load_policy', '3');
+  params.set('rel', params.get('rel') || '0');
+  params.set('modestbranding', params.get('modestbranding') || '1');
+  params.set('controls', params.get('controls') || '0');
+  params.set('playsinline', params.get('playsinline') || '1');
+  return `${base}?${params.toString()}`;
+};
+
 export const parseVideoUrl = (url: string | undefined): ParsedVideo => {
   if (!url) return { type: 'unsupported', url: '' };
   
@@ -24,7 +38,7 @@ export const parseVideoUrl = (url: string | undefined): ParsedVideo => {
   if (ytMatch) {
     const videoId = ytMatch[1];
     // Create an embed URL with autoplay, mute, and loop parameters
-    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&playsinline=1&controls=0&modestbranding=1`;
+    const embedUrl = withYouTubeCaptionsDisabled(`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&playsinline=1&controls=0&modestbranding=1`);
     return { type: 'youtube', url: embedUrl };
   }
   
@@ -39,7 +53,7 @@ export const parseVideoUrl = (url: string | undefined): ParsedVideo => {
   
   // If it's already an embed URL
   if (trimmed.includes('youtube.com/embed/')) {
-    return { type: 'youtube', url: trimmed };
+    return { type: 'youtube', url: withYouTubeCaptionsDisabled(trimmed) };
   }
   if (trimmed.includes('player.vimeo.com/video/')) {
     return { type: 'vimeo', url: trimmed };
@@ -112,7 +126,7 @@ export const resolveUreelVideo = (videoConfig: any): ResolvedUreelVideo => {
     const endParam = duration > 0 ? `&end=${Math.max(1, Math.round(startAt + duration))}` : '';
     // Build secure parameters: muted play, no controls, no YouTube loop. The ureel
     // timeline overlays the endcard exactly after the configured scene duration.
-    embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=0&playsinline=1&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3${startParam}${endParam}`;
+    embedUrl = withYouTubeCaptionsDisabled(`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=0&playsinline=1&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3${startParam}${endParam}`);
   } else if (/\.(mp4|m4v)(\?.*)?$/i.test(url)) {
     type = 'direct_mp4';
     videoSrc = url;
@@ -123,7 +137,7 @@ export const resolveUreelVideo = (videoConfig: any): ResolvedUreelVideo => {
     // Fallback detection based on url string
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
       type = 'youtube';
-      embedUrl = url;
+      embedUrl = withYouTubeCaptionsDisabled(url);
     } else {
       type = 'direct_mp4';
       videoSrc = url;

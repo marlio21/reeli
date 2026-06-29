@@ -3069,10 +3069,28 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <button type="button" onClick={() => setCardManagerOpen(true)} className="ureel-desktop-dash-button"><LucideIcons.Layers size={14}/> Karten</button>
-          <button type="button" onClick={() => { setAccountManagerTab('profile'); setAccountPanelOpen(true); }} className="ureel-desktop-dash-button"><LucideIcons.UserCog size={14}/> Nutzer</button>
-          <button type="button" onClick={handleCreateNewUreel} className="ureel-desktop-dash-button"><LucideIcons.Plus size={14}/> Neue Karte</button>
-          <button type="button" onClick={shareLiveLink} className="ureel-desktop-dash-button ureel-desktop-dash-button--primary"><LucideIcons.Share2 size={14}/> Teilen</button>
+          <button type="button" onClick={() => setCardManagerOpen(true)} className="ureel-desktop-dash-button"><LucideIcons.Layers size={14}/> {lang === 'de' ? 'Karten' : 'Cards'}</button>
+          <button type="button" onClick={() => { setAccountManagerTab('profile'); setAccountPanelOpen(true); }} className="ureel-desktop-dash-button"><LucideIcons.UserCog size={14}/> {lang === 'de' ? 'Nutzer' : 'User'}</button>
+          <button type="button" onClick={handleCreateNewUreel} className="ureel-desktop-dash-button"><LucideIcons.Plus size={14}/> {lang === 'de' ? 'Neue Karte' : 'New card'}</button>
+          <button type="button" onClick={shareLiveLink} className="ureel-desktop-dash-button ureel-desktop-dash-button--primary"><LucideIcons.Share2 size={14}/> {lang === 'de' ? 'Teilen' : 'Share'}</button>
+          <div className="ml-2 flex items-center gap-1 rounded-2xl border border-[#2B261E] bg-[#111115] p-1" aria-label={lang === 'de' ? 'Sprache wechseln' : 'Switch language'}>
+            <button
+              type="button"
+              onClick={() => setLang('de')}
+              className={`h-9 px-3 rounded-xl inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider transition ${lang === 'de' ? 'bg-[#F5F2EA] text-[#101010]' : 'text-stone-400 hover:text-[#F5F2EA] hover:bg-[#1A1A1E]'}`}
+              title="Deutsch"
+            >
+              <span aria-hidden="true">🇩🇪</span> DE
+            </button>
+            <button
+              type="button"
+              onClick={() => setLang('en')}
+              className={`h-9 px-3 rounded-xl inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider transition ${lang === 'en' ? 'bg-[#F5F2EA] text-[#101010]' : 'text-stone-400 hover:text-[#F5F2EA] hover:bg-[#1A1A1E]'}`}
+              title="English"
+            >
+              <span aria-hidden="true">🇬🇧</span> EN
+            </button>
+          </div>
         </div>
       </div>
 
@@ -5339,7 +5357,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <div className="absolute right-0 top-10 z-[80] w-[260px] rounded-2xl border border-[#E8DCC2]/30 bg-[#121216] p-3 shadow-2xl text-[#F5F2EA]">
                 <button type="button" onClick={() => { setDashboardMenuOpen(false); setCardManagerOpen(true); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.Layers size={14}/> Kartenverwaltung</button>
                 <button type="button" onClick={() => { setDashboardMenuOpen(false); setAccountManagerTab('profile'); setAccountPanelOpen(true); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.UserCog size={14}/> Nutzerverwaltung / Konto</button>
-                <button type="button" onClick={() => { setDashboardMenuOpen(false); handleCreateNewUreel(); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.Plus size={14}/> Neue Karte</button>
+                <button type="button" onClick={() => { setDashboardMenuOpen(false); handleCreateNewUreel(); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.Plus size={14}/> {lang === 'de' ? 'Neue Karte' : 'New card'}</button>
                 <button type="button" onClick={() => { setDashboardMenuOpen(false); shareLiveLink(); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.Share2 size={14}/> Teilen</button>
               </div>
             )}
@@ -5407,7 +5425,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               <div className="absolute right-0 top-10 z-[80] w-[260px] rounded-2xl border border-[#E8DCC2]/30 bg-[#121216] p-3 shadow-2xl text-[#F5F2EA]">
                 <button type="button" onClick={() => { setDashboardMenuOpen(false); setCardManagerOpen(true); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.Layers size={14}/> Kartenverwaltung</button>
                 <button type="button" onClick={() => { setDashboardMenuOpen(false); setAccountManagerTab('profile'); setAccountPanelOpen(true); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.UserCog size={14}/> Nutzerverwaltung / Konto</button>
-                <button type="button" onClick={() => { setDashboardMenuOpen(false); handleCreateNewUreel(); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.Plus size={14}/> Neue Karte</button>
+                <button type="button" onClick={() => { setDashboardMenuOpen(false); handleCreateNewUreel(); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.Plus size={14}/> {lang === 'de' ? 'Neue Karte' : 'New card'}</button>
                 <button type="button" onClick={() => { setDashboardMenuOpen(false); shareLiveLink(); }} className="w-full rounded-xl px-3 py-2 text-left hover:bg-[#F5F2EA]/10 flex items-center gap-2 text-[11px] font-black"><LucideIcons.Share2 size={14}/> Teilen</button>
               </div>
             )}
@@ -5563,7 +5581,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           <div><span>Dashboard</span><strong>Karten & Konto</strong></div>
           <button type="button" onClick={() => setCardManagerOpen(true)}><LucideIcons.Layers size={14}/> Kartenverwaltung</button>
           <button type="button" onClick={() => { setAccountManagerTab('profile'); setAccountPanelOpen(true); }}><LucideIcons.UserCog size={14}/> Nutzerverwaltung</button>
-          <button type="button" onClick={handleCreateNewUreel}><LucideIcons.Plus size={14}/> Neue Karte</button>
+          <button type="button" onClick={handleCreateNewUreel}><LucideIcons.Plus size={14}/> {lang === 'de' ? 'Neue Karte' : 'New card'}</button>
           <button type="button" onClick={shareLiveLink}><LucideIcons.Share2 size={14}/> Teilen</button>
         </section>
 
