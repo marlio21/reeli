@@ -5442,9 +5442,12 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         {tapEditTarget === 'text' && (
           <section className="ureel-tap-panel ureel-tap-panel--text ureel-desktop-single-panel">
             <div className="ureel-tap-panel-head"><div><span>Text / Timeline</span><h3>{activeSubSection === 'timeline-templates' ? 'Vorlagen' : activeSubSection === 'timeline-style' ? 'Rahmen & Stil' : activeSubSection === 'timeline-times' ? 'Timing' : 'Werbetext bearbeiten'}</h3><p>{activeSubSection === 'timeline-templates' ? 'Wähle eine mobile Werbetext-Vorlage.' : activeSubSection === 'timeline-style' ? 'Schrift, Farben, Höhe und Rahmen wie in der mobilen Version.' : activeSubSection === 'timeline-times' ? 'Einblendung und Reihenfolge der Text- und Button-Elemente.' : 'Titel, Slogan und Beschreibung bearbeiten.'}</p></div><LucideIcons.Type size={18} /></div>
-            <div className="ureel-mobile-adtext-master-toggle">
+            <div className="ureel-mobile-adtext-master-toggle ureel-desktop-adtext-toggle" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, padding: '14px 16px', borderRadius: 22, border: '1px solid rgba(232,220,194,.22)', background: 'rgba(255,255,255,.045)', margin: '0 0 18px' }}>
               <span>Werbetext auf Karte</span>
-              <button type="button" className={isMobileWerbetextEnabled ? 'is-active' : ''} onClick={() => setMobileWerbetextEnabled(!isMobileWerbetextEnabled)}>{isMobileWerbetextEnabled ? 'Aktiviert' : 'Deaktiviert'}</button>
+              <div className="ureel-profile-image-switch-buttons" style={{ display: 'flex', gap: 8, flex: '0 0 auto' }}>
+                <button type="button" className={isMobileWerbetextEnabled ? 'is-active' : ''} aria-pressed={isMobileWerbetextEnabled} onClick={() => setMobileWerbetextEnabled(true)}>AN</button>
+                <button type="button" className={!isMobileWerbetextEnabled ? 'is-active' : ''} aria-pressed={!isMobileWerbetextEnabled} onClick={() => setMobileWerbetextEnabled(false)}>AUS</button>
+              </div>
             </div>
 
             <div className="ureel-tap-chip-row ureel-mobile-text-entry-tabs" aria-label="Werbetext Bereiche">
@@ -5608,8 +5611,22 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 <div className="ureel-tap-chip-row"><button type="button" className={mobileButtonWeightKey === 'normal' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontWeight: '600' } as any)}>Normal</button><button type="button" className={mobileButtonWeightKey === 'fett' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { fontWeight: '900' } as any)}>Fett</button></div>
                 <SpectrumColorPicker label="Textfarbe" value={(currentButton.textColor || '#111111').startsWith('rgba') ? '#111111' : (currentButton.textColor || '#111111')} fallback="#111111" onChange={(value) => applyMobileButtonLook(currentButton.id, { textColor: value } as any)} />
                 <span className="ureel-tap-mini-label">Icon</span>
-                <button type="button" className="ureel-mobile-open-icon-library" onClick={() => setMobileIconLibraryOpen(!mobileIconLibraryOpen)}><LucideIcons.Sparkles size={14}/> {mobileIconLibraryOpen ? 'Icon-Bibliothek schließen' : 'Icon-Bibliothek öffnen'}</button>
-                {mobileIconLibraryOpen && <div className="ureel-mobile-icon-library">
+                <button
+                  type="button"
+                  className="ureel-mobile-open-icon-library ureel-desktop-icon-library-trigger"
+                  onClick={() => setMobileIconLibraryOpen(!mobileIconLibraryOpen)}
+                  style={{ width: '100%', minHeight: 60, borderRadius: 20, border: '1px solid rgba(232,220,194,.32)', background: mobileIconLibraryOpen ? '#F5F2EA' : 'linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.035))', color: mobileIconLibraryOpen ? '#101010' : '#F5F2EA', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontWeight: 950, textTransform: 'uppercase', letterSpacing: '.06em', cursor: 'pointer' }}
+                >
+                  <LucideIcons.Sparkles size={16}/> {mobileIconLibraryOpen ? 'Icon-Bibliothek schließen' : 'Icon-Bibliothek öffnen'}
+                </button>
+                {mobileIconLibraryOpen && <div className="ureel-mobile-icon-library ureel-desktop-icon-library-panel" style={{ marginTop: 16, padding: 18, borderRadius: 28, border: '1px solid rgba(232,220,194,.22)', background: 'linear-gradient(145deg, rgba(255,255,255,.075), rgba(255,255,255,.025))', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.08), 0 24px 56px rgba(0,0,0,.26)', maxHeight: 520, overflow: 'auto' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 16 }}>
+                    <div>
+                      <b style={{ display: 'block', fontSize: 18, fontWeight: 950, letterSpacing: '-.03em', color: '#F5F2EA' }}>Icon-Bibliothek</b>
+                      <small style={{ display: 'block', marginTop: 4, fontSize: 12, lineHeight: 1.35, color: 'rgba(245,242,234,.62)' }}>Wähle nur das Icon für diesen Button. Look übertragen kopiert das Icon selbst nicht.</small>
+                    </div>
+                    <button type="button" onClick={() => setMobileIconLibraryOpen(false)} style={{ minWidth: 42, height: 42, borderRadius: 14, border: '1px solid rgba(232,220,194,.28)', background: 'rgba(0,0,0,.25)', color: '#F5F2EA', display: 'grid', placeItems: 'center', cursor: 'pointer' }} aria-label="Icon-Bibliothek schließen"><LucideIcons.X size={18}/></button>
+                  </div>
                   {[
                     { label: 'Kontakt', icons: ['Phone','Smartphone','Mail','MessageCircle','Send','Contact','UserPlus'] },
                     { label: 'Web & Social', icons: ['Globe','ExternalLink','Link','Instagram','Facebook','Linkedin','Youtube','Share2','QrCode'] },
@@ -5619,14 +5636,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     { label: 'Aktion', icons: ['ShoppingBag','ShoppingCart','Gift','Ticket','Tag','Lock','Star','Heart','Info','CheckCircle2','PlusCircle','Sparkles'] },
                     { label: 'Branchen', icons: ['Wrench','Hammer','Scissors','Utensils','Coffee','Car','Truck','Dumbbell','GraduationCap','Palette'] },
                   ].map((group) => (
-                    <div key={group.label} className="ureel-mobile-icon-group">
-                      <span>{group.label}</span>
-                      <div className="ureel-mobile-icon-grid">
-                        {group.icons.map((iconName) => { const Icon = (LucideIcons as any)[iconName] || LucideIcons.Circle; return <button key={iconName} type="button" title={iconName} className={(currentButton.icon || '') === iconName && currentButton.iconEnabled !== false ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { icon: iconName, iconId: iconName, iconEnabled: true, iconPosition: currentButton.iconPosition || 'top', iconOffsetX: 0, iconOffsetY: 0 } as any)}><Icon size={24}/><small>{iconName.replace(/([A-Z])/g, ' $1').trim()}</small></button>; })}
+                    <div key={group.label} className="ureel-mobile-icon-group" style={{ border: 0, background: 'transparent', padding: 0, margin: '0 0 18px' }}>
+                      <span style={{ display: 'block', margin: '0 0 10px', color: '#E8DCC2', fontSize: 11, fontWeight: 950, letterSpacing: '.12em', textTransform: 'uppercase' }}>{group.label}</span>
+                      <div className="ureel-mobile-icon-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(92px, 1fr))', gap: 10 }}>
+                        {group.icons.map((iconName) => { const Icon = (LucideIcons as any)[iconName] || LucideIcons.Circle; const active = (currentButton.icon || '') === iconName && currentButton.iconEnabled !== false; return <button key={iconName} type="button" title={iconName} className={active ? 'is-active' : ''} style={{ minHeight: 88, borderRadius: 20, border: active ? '1px solid #F5F2EA' : '1px solid rgba(232,220,194,.22)', background: active ? '#F5F2EA' : 'rgba(0,0,0,.22)', color: active ? '#101010' : '#F5F2EA', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 10, cursor: 'pointer' }} onClick={() => applyMobileButtonLook(currentButton.id, { icon: iconName, iconId: iconName, iconEnabled: true, iconPosition: currentButton.iconPosition || 'top', iconOffsetX: 0, iconOffsetY: 0 } as any)}><Icon size={26}/><small style={{ fontSize: 10, fontWeight: 850, lineHeight: 1.1, textAlign: 'center', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{iconName.replace(/([A-Z])/g, ' $1').trim()}</small></button>; })}
                       </div>
                     </div>
                   ))}
-                  <button type="button" className={`ureel-mobile-icon-off ${currentButton.iconEnabled === false ? 'is-active' : ''}`} onClick={() => applyMobileButtonLook(currentButton.id, { iconEnabled: false } as any)}>Ohne Icon</button>
+                  <button type="button" className={`ureel-mobile-icon-off ${currentButton.iconEnabled === false ? 'is-active' : ''}`} style={{ width: '100%', minHeight: 50, borderRadius: 17, border: '1px solid rgba(232,220,194,.25)', background: currentButton.iconEnabled === false ? '#F5F2EA' : 'rgba(0,0,0,.35)', color: currentButton.iconEnabled === false ? '#101010' : '#F5F2EA', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '.06em', cursor: 'pointer' }} onClick={() => applyMobileButtonLook(currentButton.id, { iconEnabled: false } as any)}>Ohne Icon</button>
                 </div>}
                 <span className="ureel-tap-mini-label">Iconposition</span>
                 <div className="ureel-tap-chip-row ureel-mobile-icon-position-row"><button type="button" className={(currentButton.iconPosition || 'top') === 'top' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconEnabled: true, iconPosition: 'top' } as any)}>Oben</button><button type="button" className={currentButton.iconPosition === 'left' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconEnabled: true, iconPosition: 'left' } as any)}>Links</button><button type="button" className={currentButton.iconPosition === 'center' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconEnabled: true, iconPosition: 'center' } as any)}>Mitte</button><button type="button" className={currentButton.iconPosition === 'right' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconEnabled: true, iconPosition: 'right' } as any)}>Rechts</button><button type="button" className={currentButton.iconPosition === 'bottom' ? 'is-active' : ''} onClick={() => applyMobileButtonLook(currentButton.id, { iconEnabled: true, iconPosition: 'bottom' } as any)}>Unten</button></div>
