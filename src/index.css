@@ -7877,3 +7877,70 @@ body {
     text-transform: none !important;
   }
 }
+
+/* v52.5.75: Real desktop subnav + LOOK transfer + preview stage hardening.
+   Desktop-only. Mobile shell, public renderer and persistence are untouched. */
+@media (min-width: 768px) {
+  .ureel-desktop-studio-root .ureel-subnav-panel { width: 286px !important; flex-basis: 286px !important; }
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-card {
+    display: grid !important;
+    grid-template-columns: 28px minmax(0, 1fr) 16px !important;
+    gap: 14px !important;
+    align-items: center !important;
+    min-height: 110px !important;
+    padding: 18px 18px !important;
+  }
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-copy {
+    display: block !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-title,
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-desc {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+  }
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-title {
+    font-size: 16px !important;
+    line-height: 1.08 !important;
+    font-weight: 950 !important;
+    letter-spacing: -.015em !important;
+    text-transform: uppercase !important;
+    margin: 0 !important;
+  }
+  .ureel-desktop-studio-root .ureel-subnav-panel .ureel-desktop-subnav-desc {
+    font-size: 12px !important;
+    line-height: 1.32 !important;
+    font-weight: 700 !important;
+    margin-top: 7px !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+  }
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-big-button-stage {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 340px !important;
+    width: 100% !important;
+    padding: 36px !important;
+    box-sizing: border-box !important;
+  }
+  .ureel-desktop-studio-root .ureel-detail-panel .ureel-tap-big-button-stage > .ureel-button-preview-tile--large {
+    margin: auto !important;
+    position: relative !important;
+    inset: auto !important;
+    flex: 0 0 auto !important;
+  }
+}

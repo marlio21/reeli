@@ -3100,7 +3100,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       </div>
 
       {/* COLUMN 2: LINKES MODULPANEL (SUB NAV / SUB OPTIONS) */}
-      <div className="order-3 md:order-none w-full md:w-[220px] bg-[#111115] md:max-h-screen ureel-subnav-panel overflow-y-visible md:overflow-visible border-b md:border-b-0 md:border-r border-stone-900 flex flex-col justify-between shrink-0">
+      <div className="order-3 md:order-none w-full md:w-[286px] bg-[#111115] md:max-h-screen ureel-subnav-panel overflow-y-visible md:overflow-visible border-b md:border-b-0 md:border-r border-stone-900 flex flex-col justify-between shrink-0">
         <div>
           {/* Active Module Title */}
           <div className="p-4 border-b border-stone-850/60">
@@ -3151,10 +3151,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       }`}
                     >
                       <Icon size={15} className={`ureel-desktop-subnav-icon ${selected ? '!text-[#101010]' : 'text-[#E8DCC2]'}`} />
-                      <span className="ureel-desktop-subnav-copy" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 0, width: '100%', overflow: 'hidden' }}>
-                        <span className="ureel-desktop-subnav-title" style={{ display: 'block', width: '100%', fontSize: 15, lineHeight: 1.04, fontWeight: 950, letterSpacing: '-0.015em', textTransform: 'uppercase', whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.label}</span>
-                        <span className={`ureel-desktop-subnav-desc ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`} style={{ display: 'block', width: '100%', marginTop: 5, fontSize: 11, lineHeight: 1.18, fontWeight: 750, whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.desc}</span>
-                      </span>
+                      <div className="ureel-desktop-subnav-copy" style={{ display: 'block', minWidth: 0, width: '100%', maxWidth: '100%', overflow: 'visible' }}>
+                        <div className="ureel-desktop-subnav-title" style={{ display: 'block', width: '100%', maxWidth: '100%', fontSize: 16, lineHeight: 1.08, fontWeight: 950, letterSpacing: '-0.015em', textTransform: 'uppercase', whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none', margin: 0 }}>{item.label}</div>
+                        <div className={`ureel-desktop-subnav-desc ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`} style={{ display: 'block', width: '100%', maxWidth: '100%', marginTop: 7, fontSize: 12, lineHeight: 1.32, fontWeight: 700, whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.desc}</div>
+                      </div>
                       <LucideIcons.ChevronRight size={13} className="ureel-desktop-subnav-arrow opacity-50" />
                     </button>
                   );
@@ -3184,10 +3184,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       }`}
                     >
                       <Icon size={15} className={`ureel-desktop-subnav-icon ${selected ? '!text-[#101010]' : 'text-[#E8DCC2]'}`} />
-                      <span className="ureel-desktop-subnav-copy" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 0, width: '100%', overflow: 'hidden' }}>
-                        <span className="ureel-desktop-subnav-title" style={{ display: 'block', width: '100%', fontSize: 15, lineHeight: 1.04, fontWeight: 950, letterSpacing: '-0.015em', textTransform: 'uppercase', whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.label}</span>
-                        <span className={`ureel-desktop-subnav-desc ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`} style={{ display: 'block', width: '100%', marginTop: 5, fontSize: 11, lineHeight: 1.18, fontWeight: 750, whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.desc}</span>
-                      </span>
+                      <div className="ureel-desktop-subnav-copy" style={{ display: 'block', minWidth: 0, width: '100%', maxWidth: '100%', overflow: 'visible' }}>
+                        <div className="ureel-desktop-subnav-title" style={{ display: 'block', width: '100%', maxWidth: '100%', fontSize: 16, lineHeight: 1.08, fontWeight: 950, letterSpacing: '-0.015em', textTransform: 'uppercase', whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none', margin: 0 }}>{item.label}</div>
+                        <div className={`ureel-desktop-subnav-desc ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`} style={{ display: 'block', width: '100%', maxWidth: '100%', marginTop: 7, fontSize: 12, lineHeight: 1.32, fontWeight: 700, whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.desc}</div>
+                      </div>
                       <LucideIcons.ChevronRight size={13} className="ureel-desktop-subnav-arrow opacity-50" />
                     </button>
                   );
@@ -3217,10 +3217,10 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       }`}
                     >
                       <Icon size={15} className={`ureel-desktop-subnav-icon ${selected ? '!text-[#101010]' : 'text-[#E8DCC2]'}`} />
-                      <span className="ureel-desktop-subnav-copy" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 0, width: '100%', overflow: 'hidden' }}>
-                        <span className="ureel-desktop-subnav-title" style={{ display: 'block', width: '100%', fontSize: 15, lineHeight: 1.04, fontWeight: 950, letterSpacing: '-0.015em', textTransform: 'uppercase', whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.label}</span>
-                        <span className={`ureel-desktop-subnav-desc ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`} style={{ display: 'block', width: '100%', marginTop: 5, fontSize: 11, lineHeight: 1.18, fontWeight: 750, whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.desc}</span>
-                      </span>
+                      <div className="ureel-desktop-subnav-copy" style={{ display: 'block', minWidth: 0, width: '100%', maxWidth: '100%', overflow: 'visible' }}>
+                        <div className="ureel-desktop-subnav-title" style={{ display: 'block', width: '100%', maxWidth: '100%', fontSize: 16, lineHeight: 1.08, fontWeight: 950, letterSpacing: '-0.015em', textTransform: 'uppercase', whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none', margin: 0 }}>{item.label}</div>
+                        <div className={`ureel-desktop-subnav-desc ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`} style={{ display: 'block', width: '100%', maxWidth: '100%', marginTop: 7, fontSize: 12, lineHeight: 1.32, fontWeight: 700, whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.desc}</div>
+                      </div>
                       <LucideIcons.ChevronRight size={13} className="ureel-desktop-subnav-arrow opacity-50" />
                     </button>
                   );
@@ -5576,12 +5576,25 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
             <section className="ureel-tap-panel ureel-tap-panel--button">
               <div className="ureel-tap-panel-head"><div><span>Buttons / Aktionen</span><h3>Button bearbeiten</h3><p className="ureel-tap-active-button-line">Aktiver Button: <b>{currentButton.title || 'Button'}</b></p></div><LucideIcons.MousePointerClick size={18} /></div>
               {tapButtonTool === 'look' && (
-                <button type="button" className="ureel-look-transfer-action ureel-look-transfer-action--top" onClick={transferButtonDesignToAll}>
-                  <LucideIcons.Paintbrush size={18}/>
-                  <span><b>Look auf alle Buttons übertragen</b><small>Überträgt Größe, Form, Farbe, Transparenz, Buttonbild, Rahmen, Schrift- und Icon-Look. Text, Aktion, Ziel und Icon bleiben pro Button erhalten.</small></span>
+                <button
+                  type="button"
+                  className="ureel-look-transfer-action ureel-look-transfer-action--top"
+                  onClick={transferButtonDesignToAll}
+                  style={{
+                    width: '100%', minHeight: 86, margin: '18px 0 22px', padding: '18px 20px', borderRadius: 26,
+                    border: '1px solid rgba(232,220,194,.95)', background: 'linear-gradient(135deg, #F5F2EA, #E8DCC2)',
+                    color: '#101010', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 16,
+                    textAlign: 'left', cursor: 'pointer', boxShadow: '0 22px 44px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.55)'
+                  }}
+                >
+                  <LucideIcons.Paintbrush size={24} style={{ flex: '0 0 auto' }}/>
+                  <span style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 }}>
+                    <b style={{ display: 'block', fontSize: 13, lineHeight: 1.1, fontWeight: 950, textTransform: 'uppercase', letterSpacing: '.065em' }}>Look auf alle Buttons übertragen</b>
+                    <small style={{ display: 'block', fontSize: 11.5, lineHeight: 1.35, fontWeight: 720, color: 'rgba(16,16,16,.72)' }}>Überträgt Größe, Form, Farbe, Transparenz, Buttonbild, Rahmen, Schrift- und Icon-Look. Text, Aktion, Ziel und Icon bleiben pro Button erhalten.</small>
+                  </span>
                 </button>
               )}
-              <div className="ureel-tap-big-button-stage">{renderButtonPreviewTile(currentButton)}</div>
+              <div className="ureel-tap-big-button-stage" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 340, width: '100%', padding: 36, boxSizing: 'border-box' }}>{renderButtonPreviewTile(currentButton)}</div>
               <div className="ureel-tap-chip-row ureel-mobile-button-editor-tabs"><button type="button" className={tapButtonTool === 'overview' || tapButtonTool === 'text' ? 'is-active' : ''} onClick={() => setTapButtonTool('text')}>Text</button><button type="button" className={tapButtonTool === 'action' ? 'is-active' : ''} onClick={() => setTapButtonTool('action')}>Aktion</button><button type="button" className={tapButtonTool === 'look' ? 'is-active' : ''} onClick={() => setTapButtonTool('look')}>Look</button><button type="button" className={tapButtonTool === 'manage' ? 'is-active' : ''} onClick={() => setTapButtonTool('manage')}>Verwalten</button></div>
               {(tapButtonTool === 'overview' || tapButtonTool === 'text') && <div className="ureel-tap-config ureel-mobile-text-editor">
                 <h4>Text auf dem Button</h4>

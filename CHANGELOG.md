@@ -1,4 +1,12 @@
 
+## v52.5.75 – Desktop Real Middle Render Fix
+
+- Desktop-only hardening for middle navigation cards: wider column, real title/description block layout.
+- LOOK transfer action now has inline button styling at the real render point.
+- Button preview stage receives inline flex centering at the real render point.
+- Mobile shell, persistence, public renderer and shared card renderer untouched.
+
+
 
 ## v52.5.74 – Desktop Middle Cards & Look Transfer Polish
 
