@@ -1,3 +1,10 @@
+# v52.5.68 – Desktop Darstellung echte Auswahl-Buttons
+
+- Desktop-Szene/Darstellung zeigt jetzt wirklich zwei große klickbare Auswahl-Buttons.
+- Aktive Auswahl wird hell hervorgehoben.
+- Optionen bleiben: Reel im 9:16 Format und 16:9 Video im Header.
+- Nur Desktop-CSS ergänzt; Mobile Stable Lock nicht verändert.
+
 # v52.5.67 – Desktop Darstellung Beschriftung Klarstellung
 
 - Desktop-Szene: Darstellung zeigt jetzt die zwei gewünschten Optionen klar als Buttons:
