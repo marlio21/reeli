@@ -667,3 +667,10 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Repariert die Desktop-Darstellungsauswahl mit robusten echten Buttons inklusive Inline-Fallback.
 - Verbessert die Typografie in der mittleren Desktop-Szenenauswahl, damit Titel und Beschreibung nicht mehr zusammenlaufen.
 - Keine Mobile-Persistence, keine Public-Renderer-Logik und keine Mobile-Datenlogik verändert.
+
+## v52.5.73 – Desktop Button-Editor Textbox & Transfer Repair
+- Desktop-Mittelspalten-Karten bekommen ein eigenes Textfeld-Design, damit Titel und Erklärung sauber getrennt bleiben.
+- Button-Vorschau im Editor wird im Vorschaufenster zentriert.
+- „Look auf alle Buttons übertragen“ wird als echter Funktionsbutton dargestellt.
+- Look-Transfer überträgt Designwerte wie Größe, Rahmen, Transparenz, Farben, Bild, Schrift- und Icon-Look; Text, Aktion und Icon-Identität bleiben erhalten.
+- Mobile Stable Lock bleibt unverändert.
