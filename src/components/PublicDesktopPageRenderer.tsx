@@ -162,12 +162,12 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
 
     if (buttonArrangement === 'compact_grid') {
       return <div className="grid grid-cols-3 gap-3 place-items-center max-w-[390px] mx-auto">
-        {list.map((b: any) => <ButtonRenderer key={b.id} button={getActionButton(b)} mode="public" lang={lang} forceSquare={true} forceSizePx={tileSize}/>) }
+        {list.map((b: any) => <ButtonRenderer key={b.id} button={getActionButton(b)} mode="public" lang={lang} forceSquare={true} forceSizePx={tileSize} onClick={() => onButtonClick?.(b)}/>) }
       </div>;
     }
 
     return <div className="grid grid-cols-2 gap-4 place-items-center max-w-[390px] mx-auto">
-      {list.map((b: any) => <ButtonRenderer key={b.id} button={getActionButton(b)} mode="public" lang={lang} forceSquare={true} forceSizePx={largeTileSize}/>) }
+      {list.map((b: any) => <ButtonRenderer key={b.id} button={getActionButton(b)} mode="public" lang={lang} forceSquare={true} forceSizePx={largeTileSize} onClick={() => onButtonClick?.(b)}/>) }
     </div>;
   };
 
@@ -190,31 +190,54 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
     </section>
   );
 
-  const contentPanel = (
-    <section className={`${isStudioPreview ? 'rounded-[26px] border border-white/10 bg-black/25 p-4' : 'p-6 xl:p-9'} h-full min-w-0 flex flex-col justify-center overflow-hidden`}>
+  const renderContentMediaBlock = () => {
+    if (!media.url) {
+      return <div className={`${isStudioPreview ? 'p-2' : 'p-5'} rounded-[28px] border border-[#E8DCC2]/16 bg-[#F5F2EA]/7`}>
+        <div className="grid grid-cols-3 gap-3 text-center">
+          <div className="rounded-2xl bg-black/22 p-3"><LucideIcons.FileText size={isStudioPreview ? 14 : 18} className="mx-auto text-[#E8DCC2]"/><span className="mt-2 block text-[8px] font-black uppercase tracking-wider text-[#F5F2EA]/70">Text</span></div>
+          <div className="rounded-2xl bg-black/22 p-3"><LucideIcons.Image size={isStudioPreview ? 14 : 18} className="mx-auto text-[#E8DCC2]"/><span className="mt-2 block text-[8px] font-black uppercase tracking-wider text-[#F5F2EA]/70">Bild</span></div>
+          <div className="rounded-2xl bg-black/22 p-3"><LucideIcons.Video size={isStudioPreview ? 14 : 18} className="mx-auto text-[#E8DCC2]"/><span className="mt-2 block text-[8px] font-black uppercase tracking-wider text-[#F5F2EA]/70">Video</span></div>
+        </div>
+      </div>;
+    }
+    return <div className={`${isStudioPreview ? 'h-20' : 'h-52 xl:h-64'} overflow-hidden rounded-[28px] border border-white/10 bg-black/35 shadow-2xl`}>
+      {media.type === 'video' ? (
+        <video src={media.url} className="h-full w-full object-cover" muted playsInline controls={mode === 'public'} preload="metadata" />
+      ) : (
+        <img src={media.url} alt="Desktop Inhalt" className="h-full w-full object-cover" loading="lazy" decoding="async" referrerPolicy="no-referrer" />
+      )}
+    </div>;
+  };
+
+  const renderContentTextBlock = (variant: 'primary' | 'compact' = 'primary') => (
+    <div className={variant === 'compact' ? '' : ''}>
       <span className="w-fit rounded-full border border-[#E8DCC2]/35 px-3 py-1 text-[10px] uppercase tracking-[0.22em] font-black text-[#E8DCC2]">Bereich 3</span>
       <h1 className={`${isStudioPreview ? 'mt-2 text-xl' : 'mt-5 text-4xl xl:text-5xl'} font-black leading-[0.96] text-[#F5F2EA] tracking-tight`}>{text.title}</h1>
       {text.subtitle && <p className={`${isStudioPreview ? 'mt-2 text-xs' : 'mt-5 text-xl xl:text-2xl'} font-bold leading-tight text-[#E8DCC2]`}>{text.subtitle}</p>}
       {text.description && <p className={`${isStudioPreview ? 'mt-2 text-[10px] line-clamp-3' : 'mt-5 text-base xl:text-lg'} max-w-xl leading-relaxed text-[#F5F2EA]/75`}>{text.description}</p>}
+    </div>
+  );
 
-      {media.url ? (
-        <div className={`${isStudioPreview ? 'mt-3 h-20' : 'mt-7 h-52 xl:h-64'} overflow-hidden rounded-[28px] border border-white/10 bg-black/35 shadow-2xl`}>
-          {media.type === 'video' ? (
-            <video src={media.url} className="h-full w-full object-cover" muted playsInline controls={mode === 'public'} preload="metadata" />
-          ) : (
-            <img src={media.url} alt="Desktop Inhalt" className="h-full w-full object-cover" loading="lazy" decoding="async" referrerPolicy="no-referrer" />
-          )}
+  const contentLayout = desktopPage.contentLayout || 'media_top_text_bottom';
+  const contentPanel = (
+    <section className={`${isStudioPreview ? 'rounded-[26px] border border-white/10 bg-black/25 p-4' : 'p-6 xl:p-9'} h-full min-w-0 flex flex-col justify-center overflow-hidden`}>
+      {contentLayout === 'media_middle' ? (
+        <div className="space-y-4">
+          {renderContentTextBlock('compact')}
+          {renderContentMediaBlock()}
+          {text.description && <p className={`${isStudioPreview ? 'text-[10px] line-clamp-2' : 'text-base'} leading-relaxed text-[#F5F2EA]/70`}>{text.description}</p>}
+        </div>
+      ) : contentLayout === 'media_bottom' ? (
+        <div className="space-y-4">
+          {renderContentTextBlock('primary')}
+          {renderContentMediaBlock()}
         </div>
       ) : (
-        <div className={`${isStudioPreview ? 'mt-3 p-2' : 'mt-7 p-5'} rounded-[28px] border border-[#E8DCC2]/16 bg-[#F5F2EA]/7`}>
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <div className="rounded-2xl bg-black/22 p-3"><LucideIcons.FileText size={isStudioPreview ? 14 : 18} className="mx-auto text-[#E8DCC2]"/><span className="mt-2 block text-[8px] font-black uppercase tracking-wider text-[#F5F2EA]/70">Text</span></div>
-            <div className="rounded-2xl bg-black/22 p-3"><LucideIcons.Image size={isStudioPreview ? 14 : 18} className="mx-auto text-[#E8DCC2]"/><span className="mt-2 block text-[8px] font-black uppercase tracking-wider text-[#F5F2EA]/70">Bild</span></div>
-            <div className="rounded-2xl bg-black/22 p-3"><LucideIcons.Video size={isStudioPreview ? 14 : 18} className="mx-auto text-[#E8DCC2]"/><span className="mt-2 block text-[8px] font-black uppercase tracking-wider text-[#F5F2EA]/70">Video</span></div>
-          </div>
+        <div className="space-y-4">
+          {renderContentMediaBlock()}
+          {renderContentTextBlock('primary')}
         </div>
       )}
-
       {isStudioPreview && onEditText && <button type="button" onClick={onEditText} className="mt-3 h-8 rounded-xl border border-[#E8DCC2]/35 bg-[#181818]/80 px-3 text-[8px] font-black uppercase tracking-wider text-[#F5F2EA] inline-flex items-center justify-center gap-2 self-start"><LucideIcons.Type size={12}/> Inhalt bearbeiten</button>}
       {isStudioPreview && qrCodeUrl && <span className="mt-3 text-[8px] text-[#F5F2EA]/35 break-all">{qrCodeUrl.slice(0, 56)}…</span>}
     </section>

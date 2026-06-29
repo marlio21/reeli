@@ -2560,7 +2560,6 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
       return [
         { id: 'design-desktop', label: 'Desktopseite' },
         { id: 'design-background', label: 'Hintergrund' },
-        { id: 'design-content', label: 'Kartenlook' },
         { id: 'design-buttons', label: 'Buttonbereich' },
         { id: 'design-share', label: 'Teilen / QR' },
       ];
@@ -3316,7 +3315,6 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                 {[
                   { id: 'design-desktop', icon: LucideIcons.LayoutPanelTop, label: 'Webseite', desc: '3 Bereiche: Karte, Menü, Inhalt' },
                   { id: 'design-background', icon: LucideIcons.ImagePlus, label: 'Hintergrund', desc: 'Bild, Verlauf, Abdunklung' },
-                  { id: 'design-content', icon: LucideIcons.Type, label: 'Text & Medien', desc: 'Begrüßung, Info, Bild' },
                   { id: 'design-share', icon: LucideIcons.ExternalLink, label: 'Webseite starten', desc: 'Live-Link öffnen, QR, Teilen' },
                 ].map((item) => {
                   const Icon = item.icon;
@@ -3454,14 +3452,14 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   <div>
                     <span className="block text-[9px] uppercase font-black tracking-[0.2em] text-[#E8DCC2]">Aktiver Editor</span>
                     <h2 className="mt-1 text-xl font-black text-white">
-                      {activeSubSection === 'design-background' ? 'Hintergrund gestalten' : activeSubSection === 'design-content' ? 'Text & Medien bearbeiten' : activeSubSection === 'design-share' ? 'Webseite starten & teilen' : 'Webseite aufbauen'}
+                      {activeSubSection === 'design-background' ? 'Hintergrund gestalten' : activeSubSection === 'design-share' ? 'Webseite starten & teilen' : 'Webseite aufbauen'}
                     </h2>
                   </div>
                   <span className="rounded-full bg-[#F5F2EA]/8 px-3 py-1 text-[8px] font-black uppercase tracking-wider text-stone-400">Preview bleibt oben</span>
                 </div>
 
                 {activeSubSection === 'design-desktop' && (
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
                     <div className="rounded-3xl border border-[#3A3732] bg-[#111111] p-4 space-y-3">
                       <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bereich 1: Karte positionieren</span>
                       <div className="grid grid-cols-3 gap-2">
@@ -3487,6 +3485,25 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                         <button type="button" onClick={() => updateDesktopPage({ showPhoneButtons: desktopPage.showPhoneButtons !== true })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${desktopPage.showPhoneButtons === true ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Kartenbuttons {desktopPage.showPhoneButtons === true ? 'AN' : 'AUS'}</button>
                       </div>
                     </div>
+                    <div className="rounded-3xl border border-[#3A3732] bg-[#111111] p-4 space-y-3">
+                      <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bereich 3: Inhalt aufbauen</span>
+                      <div className="grid grid-cols-1 gap-2">
+                        {[
+                          { id: 'media_top_text_bottom', label: 'Bild/Video oben', hint: 'Text darunter' },
+                          { id: 'media_middle', label: 'Bild/Video Mitte', hint: 'Text oben und unten' },
+                          { id: 'media_bottom', label: 'Bild/Video unten', hint: 'Textfelder oben' },
+                        ].map((preset) => <button key={preset.id} type="button" onClick={() => updateDesktopPage({ contentLayout: preset.id })} className={`min-h-[54px] rounded-2xl border px-3 py-2 text-left ${(desktopPage.contentLayout || 'media_top_text_bottom') === preset.id ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732]'}`}><span className="block text-[9px] font-black uppercase tracking-wider">{preset.label}</span><span className={`block mt-1 text-[8px] font-bold ${(desktopPage.contentLayout || 'media_top_text_bottom') === preset.id ? 'text-[#101010]/65' : 'text-stone-500'}`}>{preset.hint}</span></button>)}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2"><button type="button" onClick={() => updateDesktopPage({ contentMode: 'from_card' })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${(desktopPage.contentMode || 'from_card') !== 'custom' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Aus Werbetext</button><button type="button" onClick={() => updateDesktopPage({ contentMode: 'custom' })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${desktopPage.contentMode === 'custom' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Eigener Text</button></div>
+                      <input value={desktopPage.title || ''} onChange={(e) => updateDesktopPage({ title: e.target.value, contentMode: 'custom' })} placeholder={activeCard.title || 'Titel'} className="w-full h-10 rounded-xl border border-[#3A3732] bg-[#181818] px-3 text-xs font-bold text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
+                      <input value={desktopPage.subtitle || ''} onChange={(e) => updateDesktopPage({ subtitle: e.target.value, contentMode: 'custom' })} placeholder={activeCard.subtitle || 'Untertitel'} className="w-full h-10 rounded-xl border border-[#3A3732] bg-[#181818] px-3 text-xs font-bold text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
+                      <textarea value={desktopPage.description || ''} onChange={(e) => updateDesktopPage({ description: e.target.value, contentMode: 'custom' })} placeholder={activeCard.description || 'Beschreibung'} rows={3} className="w-full rounded-xl border border-[#3A3732] bg-[#181818] p-3 text-xs text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
+                      <div className="grid grid-cols-2 gap-2"><button type="button" onClick={() => updateDesktopPage({ contentMediaType: 'image' })} className={`h-9 rounded-xl border text-[8px] font-black uppercase tracking-wider ${(desktopPage.contentMediaType || 'image') !== 'video' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Bild</button><button type="button" onClick={() => updateDesktopPage({ contentMediaType: 'video' })} className={`h-9 rounded-xl border text-[8px] font-black uppercase tracking-wider ${desktopPage.contentMediaType === 'video' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Video</button></div>
+                      <input value={desktopPage.contentMediaUrl || ''} onChange={(e) => updateDesktopPage({ contentMediaUrl: e.target.value, contentImageUrl: e.target.value, contentMode: 'custom' })} placeholder="Bild- oder Video-Link" className="w-full h-10 rounded-xl border border-[#3A3732] bg-[#181818] px-3 text-[10px] font-mono text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
+                      <label className="h-10 rounded-xl bg-[#F5F2EA] text-[#101010] text-[8px] font-black uppercase tracking-wider cursor-pointer inline-flex items-center justify-center gap-2"><LucideIcons.UploadCloud size={13}/> Bild/Video hochladen<input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleDesktopContentMediaUpload(file); e.currentTarget.value = ''; }} /></label>
+                      {desktopContentUploading && <div className="h-1.5 rounded-full bg-stone-800 overflow-hidden"><div className="h-full bg-[#E8DCC2]" style={{ width: `${desktopContentUploadProgress || 0}%` }} /></div>}
+                      {desktopPage.contentMediaUrl && <button type="button" onClick={() => updateDesktopPage({ contentMediaUrl: '', contentImageUrl: '', contentVideoUrl: '', contentMediaType: '' })} className="w-full h-9 rounded-xl border border-[#3A3732] text-[8px] font-black uppercase tracking-wider text-stone-300">Medium entfernen</button>}
+                    </div>
                   </div>
                 )}
 
@@ -3495,18 +3512,19 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     <div className="rounded-3xl border border-[#3A3732] bg-[#111111] p-4 space-y-3">
                       <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Webseiten-Hintergrund</span>
                       <div className="grid grid-cols-3 gap-2">
-                        {[[ 'gradient','Verlauf' ],[ 'image','Bild' ],[ 'color','Fläche' ]].map(([id,label]) => <button key={id} type="button" onClick={() => updateDesktopPage({ backgroundMode: id })} className={`h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${(desktopPage.backgroundMode || 'gradient') === id ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>{label}</button>)}
+                        {[[ 'gradient','Verlauf' ],[ 'image','Bild' ],[ 'color','Fläche' ],[ 'none','Entfernen' ]].map(([id,label]) => <button key={id} type="button" onClick={() => updateDesktopPage(id === 'none' ? { backgroundImageUrl: '', backgroundMode: 'gradient', gradientFrom: '#0F0F0F', gradientTo: '#3A3328' } : { backgroundMode: id })} className={`h-10 rounded-xl border text-[9px] font-black uppercase tracking-wider ${(desktopPage.backgroundMode || 'gradient') === id ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>{label}</button>)}
                       </div>
                       <div className="grid grid-cols-2 gap-3"><input type="color" value={desktopPage.gradientFrom || '#0F0F0F'} onChange={(e) => updateDesktopPage({ gradientFrom: e.target.value, backgroundMode: 'gradient' })} className="h-11 rounded-xl border border-[#3A3732] bg-[#181818]"/><input type="color" value={desktopPage.gradientTo || '#3A3328'} onChange={(e) => updateDesktopPage({ gradientTo: e.target.value, backgroundMode: 'gradient' })} className="h-11 rounded-xl border border-[#3A3732] bg-[#181818]"/></div>
                       <label className="h-11 rounded-2xl bg-[#F5F2EA] text-[#101010] text-[9px] font-black uppercase tracking-wider cursor-pointer inline-flex items-center justify-center gap-2"><LucideIcons.ImagePlus size={14}/> Hintergrundbild hochladen<input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleDesktopBackgroundUpload(file); e.currentTarget.value = ''; }} /></label>
                       {desktopBgUploading && <div className="h-1.5 rounded-full bg-stone-800 overflow-hidden"><div className="h-full bg-[#E8DCC2]" style={{ width: `${desktopBgUploadProgress || 0}%` }} /></div>}
-                      {desktopPage.backgroundImageUrl && <button type="button" onClick={() => updateDesktopPage({ backgroundImageUrl: '', backgroundMode: 'gradient' })} className="w-full h-10 rounded-xl border border-[#3A3732] text-[8px] font-black uppercase tracking-wider text-stone-300">Hintergrundbild entfernen</button>}
+                      {desktopPage.backgroundImageUrl && <button type="button" onClick={() => updateDesktopPage({ backgroundImageUrl: '', backgroundMode: 'gradient' })} className="w-full h-10 rounded-xl border border-[#3A3732] text-[8px] font-black uppercase tracking-wider text-stone-300">Bild/Video entfernen</button>}
                     </div>
                     <div className="rounded-3xl border border-[#3A3732] bg-[#111111] p-4 space-y-3">
                       <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Button-Menü Hintergrund</span>
                       <div className="grid grid-cols-3 gap-2">{[[ 'none','Ohne' ],[ 'gradient','Verlauf' ],[ 'image','Bild' ]].map(([id,label]) => <button key={id} type="button" onClick={() => updateDesktopPage({ buttonAreaBackgroundMode: id })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${(desktopPage.buttonAreaBackgroundMode || 'none') === id ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>{label}</button>)}</div>
                       <label className="h-11 rounded-2xl bg-[#F5F2EA] text-[#101010] text-[9px] font-black uppercase tracking-wider cursor-pointer inline-flex items-center justify-center gap-2"><LucideIcons.ImagePlus size={14}/> Menübild hochladen<input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleDesktopButtonBackgroundUpload(file); e.currentTarget.value = ''; }} /></label>
                       {desktopButtonBgUploading && <div className="h-1.5 rounded-full bg-stone-800 overflow-hidden"><div className="h-full bg-[#E8DCC2]" style={{ width: `${desktopButtonBgUploadProgress || 0}%` }} /></div>}
+                      {desktopPage.buttonAreaBackgroundImageUrl && <button type="button" onClick={() => updateDesktopPage({ buttonAreaBackgroundImageUrl: '', buttonAreaBackgroundMode: 'none' })} className="w-full h-10 rounded-xl border border-[#3A3732] text-[8px] font-black uppercase tracking-wider text-stone-300">Menübild entfernen</button>}
                     </div>
                   </div>
                 )}
@@ -3561,7 +3579,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               </div>
             )}
 
-            {activeTab === 'design' && (activeSubSection === 'design-desktop' ? 'Desktop-Seite' : activeSubSection === 'design-background' ? 'Desktop-Hintergrund' : activeSubSection === 'design-content' ? 'Desktop-Werbetexte' : 'Link & Teilen')}
+            {activeTab === 'design' && (activeSubSection === 'design-desktop' ? 'Desktop-Seite' : activeSubSection === 'design-background' ? 'Desktop-Hintergrund' : 'Link & Teilen')}
               {activeTab === 'cards' && 'Meine ureels / Karten'}
             </h1>
             <p className="text-[10px] text-stone-450 mt-1">
@@ -3580,7 +3598,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
               </div>
             )}
 
-            {activeTab === 'design' && (activeSubSection === 'design-desktop' ? 'Konfiguriere die Desktop-Ansicht als Miniwebseite mit echter Smartphone-Karte daneben.' : activeSubSection === 'design-background' ? 'Wähle Verlauf, Farbe oder ein eigenes Bild für die Desktop-Miniwebseite.' : activeSubSection === 'design-content' ? 'Springe in den Werbetexter und nutze dieselben Vorlagen für die Desktop-Miniwebseite.' : 'Bereite QR-Code, Teilen und Kontakt speichern für den Live-Link vor.')}
+            {activeTab === 'design' && (activeSubSection === 'design-desktop' ? 'Konfiguriere die Desktop-Ansicht als Miniwebseite mit echter Smartphone-Karte daneben.' : activeSubSection === 'design-background' ? 'Wähle Verlauf, Farbe oder ein eigenes Bild für die Desktop-Miniwebseite.' : 'Bereite QR-Code, Teilen und Kontakt speichern für den Live-Link vor.')}
               {activeTab === 'cards' && 'Öffne, dupliziere oder lösche deine ureel-Karten.'}
             </p>
           </div>
