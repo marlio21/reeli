@@ -1,3 +1,10 @@
+## v52.5.81 – Real ureelSeite Editor Switch Fix
+
+- Desktop-only: Wenn „Meine ureelSeite“ aktiv ist, rendert rechts jetzt garantiert der Miniwebseiten-Editor statt Szene/Video.
+- Desktop-only: Große Gesamtvorschau mit Karte, Menü und Inhalt wird direkt im rechten Editor angezeigt und kompakt skaliert.
+- Desktop-only: Design-Mittelspaltenkarten für Webseite/Hintergrund/Text/Webseite starten typografisch sauberer getrennt.
+- Mobile, Public Mobile Renderer, ButtonRenderer, Persistence und Hydration nicht verändert.
+
 
 ## v52.5.79 – Real ureelSeite Nav Fix
 

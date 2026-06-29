@@ -3277,7 +3277,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                   return (
                     <button key={item.id} onClick={() => selectDesktopWorkbenchSection(activeTab as MainModule, item.id)} className={`ureel-desktop-subnav-card w-full border transition-all text-left ${selected ? 'is-active bg-[#F5F2EA] !text-[#101010] border-[#F5F2EA] shadow-lg shadow-black/20' : 'bg-[#181818] text-[#F5F2EA]/80 border-[#3A3732] hover:border-[#F5F2EA]/50 hover:bg-[#202020]'}`}>
                       <Icon size={15} className={`ureel-desktop-subnav-icon ${selected ? '!text-[#101010]' : 'text-[#E8DCC2]'}`} />
-                      <span className="ureel-desktop-subnav-copy" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 0, width: '100%', overflow: 'hidden' }}><span className="ureel-desktop-subnav-title" style={{ display: 'block', width: '100%', fontSize: 15, lineHeight: 1.04, fontWeight: 950, letterSpacing: '-0.015em', textTransform: 'uppercase', whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.label}</span><span className={`ureel-desktop-subnav-desc ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`} style={{ display: 'block', width: '100%', marginTop: 5, fontSize: 11, lineHeight: 1.18, fontWeight: 750, whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.desc}</span></span>
+                      <div className="ureel-desktop-subnav-copy" style={{ display: 'block', minWidth: 0, width: '100%', maxWidth: '100%', overflow: 'visible', paddingRight: 4 }}><div className="ureel-desktop-subnav-title" style={{ display: 'block', width: '100%', fontSize: 16, lineHeight: 1.08, fontWeight: 950, letterSpacing: '-0.015em', textTransform: 'uppercase', whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none', margin: 0 }}>{item.label}</div><div className={`ureel-desktop-subnav-desc ${selected ? '!text-[#101010]/70' : 'text-stone-500'}`} style={{ display: 'block', width: '100%', marginTop: 7, fontSize: 12, lineHeight: 1.32, fontWeight: 700, whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'normal', hyphens: 'none' }}>{item.desc}</div></div>
                       <LucideIcons.ChevronRight size={13} className="ureel-desktop-subnav-arrow opacity-50" />
                     </button>
                   );
@@ -3370,8 +3370,84 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
           <p>{getMobilePanelHelp()}</p>
         </div>
         
+        {/* v52.5.81: Real desktop ureelSeite editor. Render this before the legacy detail renderers so the active desktop tab can never fall back to Szene/Video. */}
+        {activeTab === 'design' && (
+          <div className="space-y-4">
+            <div className="rounded-[28px] border border-[#3A3732] bg-gradient-to-br from-[#19191D] to-[#101013] p-4 shadow-2xl shadow-black/35">
+              <div className="flex items-start justify-between gap-4 border-b border-[#3A3732] pb-4">
+                <div>
+                  <span className="block text-[10px] uppercase font-black tracking-[0.22em] text-[#E8DCC2]">Meine ureelSeite</span>
+                  <h1 className="mt-1 text-2xl font-black tracking-tight text-white">Desktop-Miniwebseite</h1>
+                  <p className="mt-1 max-w-2xl text-[11px] leading-relaxed text-stone-400">Konfiguriere eine Desktop-Webseite aus drei Bereichen: ureel-Karte, Aktionsmenü und freier Inhalt. Die mobile 9:16-Karte bleibt unverändert.</p>
+                </div>
+                <div className="flex shrink-0 gap-2">
+                  <button type="button" onClick={openLiveLink} className="h-10 rounded-2xl bg-[#F5F2EA] px-4 text-[9px] font-black uppercase tracking-wider text-[#101010] inline-flex items-center gap-2"><LucideIcons.PlayCircle size={14}/> Webseite starten</button>
+                  <button type="button" onClick={copyLiveLink} className="h-10 rounded-2xl border border-[#E8DCC2]/40 px-4 text-[9px] font-black uppercase tracking-wider text-[#F5F2EA] inline-flex items-center gap-2"><LucideIcons.Link size={14}/> Link kopieren</button>
+                </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-[minmax(260px,0.72fr)_minmax(520px,1.28fr)] gap-4 items-stretch">
+                <div className="space-y-3">
+                  <div className="rounded-3xl border border-[#3A3732] bg-[#0F0F0F] p-3">
+                    <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bereich 1: Karte positionieren</span>
+                    <div className="mt-3 grid grid-cols-3 gap-2">
+                      {[
+                        { id: 'phone_left', label: 'Links', hint: 'Karte · Menü · Inhalt' },
+                        { id: 'phone_center', label: 'Mitte', hint: 'Menü · Karte · Inhalt' },
+                        { id: 'phone_right', label: 'Rechts', hint: 'Inhalt · Menü · Karte' },
+                      ].map((layout) => {
+                        const selected = desktopLayout === layout.id || (!desktopPage.layout && layout.id === 'phone_left');
+                        return <button key={layout.id} type="button" onClick={() => updateDesktopPage({ layout: layout.id })} className={`min-h-[62px] rounded-2xl border px-2 py-2 text-left transition ${selected ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-[#F5F2EA] border-[#3A3732] hover:border-[#E8DCC2]/60'}`}><span className="block text-[9px] font-black uppercase tracking-wider">{layout.label}</span><span className={`mt-1 block text-[8px] leading-tight ${selected ? 'text-[#101010]/65' : 'text-stone-500'}`}>{layout.hint}</span></button>;
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl border border-[#3A3732] bg-[#0F0F0F] p-3 space-y-3">
+                    <div>
+                      <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bereich 2: Menü & Begrüßung</span>
+                      <p className="mt-1 text-[9px] leading-relaxed text-stone-500">Text oberhalb der Aktionsbuttons. Die Buttons kommen aus deiner ureel-Karte.</p>
+                    </div>
+                    <input value={desktopPage.buttonAreaHeadline || ''} onChange={(e) => updateDesktopPage({ buttonAreaHeadline: e.target.value })} placeholder="z.B. Willkommen bei uns" className="h-10 w-full rounded-xl border border-[#3A3732] bg-[#181818] px-3 text-xs font-bold text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
+                    <textarea value={desktopPage.buttonAreaIntro || ''} onChange={(e) => updateDesktopPage({ buttonAreaIntro: e.target.value })} placeholder="Kurzer Hinweis, Angebot oder Begrüßung oberhalb der Aktionen" rows={2} className="w-full rounded-xl border border-[#3A3732] bg-[#181818] p-3 text-xs font-medium leading-relaxed text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
+                    <div className="grid grid-cols-2 gap-2">
+                      <button type="button" onClick={() => updateDesktopPage({ showActionButtons: desktopPage.showActionButtons === false })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${desktopPage.showActionButtons !== false ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Desktop-Buttons {desktopPage.showActionButtons !== false ? 'AN' : 'AUS'}</button>
+                      <button type="button" onClick={() => updateDesktopPage({ showPhoneButtons: desktopPage.showPhoneButtons !== true })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${desktopPage.showPhoneButtons === true ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Karten-Buttons {desktopPage.showPhoneButtons === true ? 'AN' : 'AUS'}</button>
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl border border-[#3A3732] bg-[#0F0F0F] p-3 space-y-3">
+                    <span className="block text-[9px] uppercase font-black tracking-wider text-[#E8DCC2]">Bereich 3: Inhalt</span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button type="button" onClick={() => updateDesktopPage({ contentMode: 'from_card' })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${(desktopPage.contentMode || 'from_card') === 'from_card' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Live aus Werbetext</button>
+                      <button type="button" onClick={() => updateDesktopPage({ contentMode: 'custom' })} className={`h-10 rounded-xl border text-[8px] font-black uppercase tracking-wider ${desktopPage.contentMode === 'custom' ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA]' : 'bg-[#181818] text-stone-300 border-[#3A3732]'}`}>Eigener Text</button>
+                    </div>
+                    <input value={desktopPage.title || ''} onChange={(e) => updateDesktopPage({ title: e.target.value, contentMode: 'custom' })} placeholder={activeCard.title || 'Titel aus Werbetext'} className="h-10 w-full rounded-xl border border-[#3A3732] bg-[#181818] px-3 text-xs font-bold text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
+                    <textarea value={desktopPage.description || ''} onChange={(e) => updateDesktopPage({ description: e.target.value, contentMode: 'custom' })} placeholder={activeCard.description || 'Beschreibung aus Werbetext'} rows={2} className="w-full rounded-xl border border-[#3A3732] bg-[#181818] p-3 text-xs font-medium leading-relaxed text-[#F5F2EA] outline-none focus:border-[#F5F2EA]" />
+                  </div>
+                </div>
+
+                <div className="rounded-[30px] border border-[#3A3732] bg-[#09090B] p-3 shadow-inner shadow-black/50 overflow-hidden">
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#E8DCC2]">Gesamtvorschau: Karte · Menü · Inhalt</span>
+                    <span className="rounded-full border border-[#3A3732] px-3 py-1 text-[8px] font-black uppercase tracking-wider text-stone-400">passt ohne Scrollen</span>
+                  </div>
+                  <div className="overflow-hidden rounded-[24px] border border-white/10 bg-black/40" style={{ height: 'min(500px, calc(100vh - 250px))', minHeight: 420 }}>
+                    <PublicDesktopPageRenderer
+                      card={activeCard}
+                      lang={lang}
+                      mode="studio-preview"
+                      qrCodeUrl={qrPayload}
+                      onEditText={openWerbetexterFromDesign}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Module Header block */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-900 pb-4">
+        <div className={`${activeTab === 'design' ? 'hidden' : 'flex'} flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-900 pb-4`}> 
           <div>
             <h1 className="text-base font-black text-white tracking-tight uppercase">
               {activeTab === 'scene' && (activeSubSection === 'scene-video' ? 'Clip-Video / Background Reel' : activeSubSection === 'scene-poster' ? 'Bild / Poster einrichten' : activeSubSection === 'scene-display' ? 'Darstellung & Zuschnitt' : activeSubSection === 'scene-endcard' ? 'Endkarte in der Szene' : 'Farbe, Verlauf & Overlay')}
@@ -3426,7 +3502,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
         </div>
 
         {/* Content Renderers per Section */}
-        <div className={`space-y-6 max-w-full ${activeTab === 'design' ? 'md:max-w-none' : 'md:max-w-xl'}`}>
+        <div className={`${activeTab === 'design' ? 'hidden' : 'block'} space-y-6 max-w-full ${activeTab === 'design' ? 'md:max-w-none' : 'md:max-w-xl'}`}>
           
           {/* TAB 1: SCENE & SCENE BACKGROUNDS */}
           {activeTab === 'scene' && activeSubSection === 'scene-video' && (
