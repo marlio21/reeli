@@ -388,6 +388,9 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
   const [desktopButtonBgUploading, setDesktopButtonBgUploading] = useState(false);
   const [desktopContentUploadProgress, setDesktopContentUploadProgress] = useState<number | null>(null);
   const [desktopContentUploading, setDesktopContentUploading] = useState(false);
+  const [desktopQrModalOpen, setDesktopQrModalOpen] = useState(false);
+  const [desktopQrModalUrl, setDesktopQrModalUrl] = useState('');
+  const [desktopStartAction, setDesktopStartAction] = useState<'open' | 'copy' | 'share' | 'qr' | 'contact' | null>(null);
 
   const isProfileImageVisible = React.useMemo(() => (
     (activeCard as any).profileImageEnabled === true ||
@@ -1684,13 +1687,25 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
     }
   };
 
-  const copyQrPublicLink = async () => {
+  const openDesktopQrCode = async () => {
+    setDesktopStartAction('qr');
     const url = await ensureCurrentCardIsPublic();
-    if (url && copyTextToClipboard(url)) {
-      triggerToast(lang === 'de' ? 'QR-/Webseitenlink kopiert.' : 'QR/page link copied.', 'success');
-    } else {
-      triggerToast(lang === 'de' ? 'QR-Link konnte nicht kopiert werden.' : 'QR link could not be copied.', 'error');
+    if (!url) {
+      triggerToast(lang === 'de' ? 'QR-Code konnte nicht geöffnet werden.' : 'QR code could not be opened.', 'error');
+      return;
     }
+    setDesktopQrModalUrl(url);
+    setDesktopQrModalOpen(true);
+    triggerToast(lang === 'de' ? 'QR-Code geöffnet.' : 'QR code opened.', 'success');
+  };
+
+  const handleDesktopStartAction = async (action: 'open' | 'copy' | 'share' | 'qr' | 'contact') => {
+    setDesktopStartAction(action);
+    if (action === 'open') return openLiveLink();
+    if (action === 'copy') return copyLiveLink();
+    if (action === 'share') return shareLiveLink();
+    if (action === 'qr') return openDesktopQrCode();
+    return downloadDesktopContact();
   };
 
   const downloadDesktopContact = () => {
@@ -3479,6 +3494,7 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     lang={lang}
                     mode="studio-preview"
                     qrCodeUrl={qrPayload}
+                    onQrClick={openDesktopQrCode}
                     onEditText={openWerbetexterFromDesign}
                   />
                 </div>
@@ -3592,11 +3608,15 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                       <p className="mt-1 text-[10px] text-stone-500">Diese Aktionen arbeiten mit dem echten öffentlichen Link der Karte. So kannst du die Besucheransicht direkt testen.</p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-                      <button type="button" onClick={openLiveLink} className="min-h-[92px] rounded-3xl bg-[#F5F2EA] text-[#101010] p-4 text-left font-black uppercase tracking-wider inline-flex flex-col justify-between"><LucideIcons.PlayCircle size={24}/><span>Webseite öffnen</span></button>
-                      <button type="button" onClick={copyLiveLink} className="min-h-[92px] rounded-3xl border border-[#E8DCC2]/40 bg-[#181818] text-[#F5F2EA] p-4 text-left font-black uppercase tracking-wider inline-flex flex-col justify-between"><LucideIcons.Link size={24}/><span>Link kopieren</span></button>
-                      <button type="button" onClick={shareLiveLink} className="min-h-[92px] rounded-3xl border border-[#E8DCC2]/40 bg-[#181818] text-[#F5F2EA] p-4 text-left font-black uppercase tracking-wider inline-flex flex-col justify-between"><LucideIcons.Share2 size={24}/><span>Teilen</span></button>
-                      <button type="button" onClick={copyQrPublicLink} className="min-h-[92px] rounded-3xl border border-[#E8DCC2]/40 bg-[#181818] text-[#F5F2EA] p-4 text-left font-black uppercase tracking-wider inline-flex flex-col justify-between"><LucideIcons.QrCode size={24}/><span>QR-Link kopieren</span></button>
-                      <button type="button" onClick={downloadDesktopContact} className="min-h-[92px] rounded-3xl border border-[#E8DCC2]/40 bg-[#181818] text-[#F5F2EA] p-4 text-left font-black uppercase tracking-wider inline-flex flex-col justify-between"><LucideIcons.ContactRound size={24}/><span>Kontakt speichern</span></button>
+                      {[
+                        ['open','Webseite öffnen',LucideIcons.PlayCircle],
+                        ['copy','Link kopieren',LucideIcons.Link],
+                        ['share','Teilen',LucideIcons.Share2],
+                        ['qr','QR-Code öffnen',LucideIcons.QrCode],
+                        ['contact','Kontakt speichern',LucideIcons.ContactRound],
+                      ].map(([action,label,IconAny]: any) => { const Icon = IconAny; const active = desktopStartAction === action; return (
+                        <button key={action} type="button" onClick={() => handleDesktopStartAction(action)} className={`min-h-[92px] rounded-3xl border p-4 text-left font-black uppercase tracking-wider inline-flex flex-col justify-between transition ${active ? 'bg-[#F5F2EA] text-[#101010] border-[#F5F2EA] shadow-[0_0_0_2px_rgba(245,242,234,.25)]' : 'bg-[#181818] text-[#F5F2EA] border-[#E8DCC2]/40 hover:border-[#F5F2EA]'}`}><Icon size={24}/><span>{label}</span></button>
+                      ); })}
                     </div>
                     <div className="rounded-2xl border border-[#3A3732] bg-[#181818] p-4 grid grid-cols-[86px_1fr] gap-3 items-center">
                       <img src={qrUrl} alt="QR-Code" className="w-20 h-20 rounded-xl bg-white p-1" />
@@ -3607,6 +3627,29 @@ export const UreelStudioShell: React.FC<UreelStudioShellProps> = ({
                     </div>
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {desktopQrModalOpen && (
+          <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => setDesktopQrModalOpen(false)}>
+            <div className="w-full max-w-sm rounded-[32px] border border-[#E8DCC2]/30 bg-[#111111] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <span className="block text-[10px] uppercase font-black tracking-[0.22em] text-[#E8DCC2]">QR-Code</span>
+                  <h3 className="mt-1 text-xl font-black text-white">Zur ureel-Karte</h3>
+                  <p className="mt-1 text-xs leading-relaxed text-stone-400">Dieser QR-Code öffnet den aktuellen öffentlichen Link.</p>
+                </div>
+                <button type="button" onClick={() => setDesktopQrModalOpen(false)} className="h-10 w-10 rounded-full border border-[#3A3732] text-stone-300 inline-flex items-center justify-center"><LucideIcons.X size={18}/></button>
+              </div>
+              <div className="mt-5 rounded-[24px] bg-white p-4 flex items-center justify-center">
+                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=420x420&margin=14&data=${encodeURIComponent(desktopQrModalUrl || qrPayload)}`} alt="QR-Code zur ureel-Karte" className="h-64 w-64 object-contain" />
+              </div>
+              <p className="mt-4 break-all rounded-2xl bg-black/35 p-3 text-[10px] font-mono text-stone-300">{desktopQrModalUrl || qrPayload}</p>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <button type="button" onClick={() => { copyTextToClipboard(desktopQrModalUrl || qrPayload); triggerToast(lang === 'de' ? 'Link kopiert.' : 'Link copied.', 'success'); }} className="h-11 rounded-2xl bg-[#F5F2EA] text-[#101010] text-[9px] font-black uppercase tracking-wider">Link kopieren</button>
+                <button type="button" onClick={() => window.open(desktopQrModalUrl || qrPayload, '_blank', 'noopener,noreferrer')} className="h-11 rounded-2xl border border-[#E8DCC2]/40 text-[#F5F2EA] text-[9px] font-black uppercase tracking-wider">Öffnen</button>
               </div>
             </div>
           </div>

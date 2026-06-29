@@ -103,7 +103,7 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
     <section className={`${isStudioPreview ? 'rounded-[26px] border border-white/10 bg-black/20 p-3' : 'border-r border-white/10 p-5 xl:p-7'} h-full min-w-0 flex flex-col items-center justify-center overflow-hidden`}>
       <div className="mb-3 flex w-full items-center justify-between gap-2">
         <div>
-          <span className="block text-[9px] font-black uppercase tracking-[0.22em] text-[#E8DCC2]">Bereich 1</span>
+          {isStudioPreview && <span className="block text-[9px] font-black uppercase tracking-[0.22em] text-[#E8DCC2]">Karte</span>}
           <span className="block text-[11px] font-black uppercase tracking-wider text-[#F5F2EA]">Reel / Video</span>
         </div>
         <span className="rounded-full border border-[#E8DCC2]/22 px-2 py-1 text-[8px] font-black uppercase tracking-wider text-[#E8DCC2]/85">ohne Kartenbuttons</span>
@@ -172,10 +172,10 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
   };
 
   const buttonsPanel = (
-    <section className={`${isStudioPreview ? 'rounded-[26px] border border-white/10 p-3' : 'border-r border-white/10 p-6 xl:p-8'} h-full min-w-0 flex flex-col justify-center overflow-hidden`} style={buildButtonAreaStyle(desktopPage)}>
+    <section className={`${isStudioPreview ? 'rounded-[26px] border border-white/10 p-3' : 'border-r border-white/10 p-6 xl:p-8'} h-full min-w-0 flex flex-col justify-center overflow-hidden`} style={{ ...buildButtonAreaStyle(desktopPage), textShadow: '0 1px 2px rgba(0,0,0,.72)' }}>
       <div className={`${isStudioPreview ? 'mb-3' : 'mb-5'} flex items-start justify-between gap-3`}>
         <div>
-          <span className="block w-fit rounded-full border border-[#E8DCC2]/30 px-3 py-1 text-[10px] uppercase tracking-[0.22em] font-black text-[#E8DCC2]">Bereich 2</span>
+          {isStudioPreview && <span className="block w-fit rounded-full border border-[#E8DCC2]/30 px-3 py-1 text-[10px] uppercase tracking-[0.22em] font-black text-[#E8DCC2]">Menü</span>}
           <h2 className={`${isStudioPreview ? 'mt-3 text-lg' : 'mt-4 text-2xl xl:text-3xl'} font-black leading-tight text-[#F5F2EA]`}>{desktopPage.buttonAreaHeadline || (lang === 'de' ? 'Aktionen bedienen' : 'Use actions')}</h2>
           <p className={`${isStudioPreview ? 'mt-1 text-[9px] line-clamp-2' : 'mt-2 text-xs'} leading-relaxed text-[#F5F2EA]/60`}>{desktopPage.buttonAreaIntro || (lang === 'de' ? 'Dieselben Kartenbuttons, aber auf Desktop als eigener Bedienbereich.' : 'The same card buttons, shown as a dedicated desktop action area.')}</p>
         </div>
@@ -211,7 +211,7 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
 
   const renderContentTextBlock = (variant: 'primary' | 'compact' = 'primary') => (
     <div className={variant === 'compact' ? '' : ''}>
-      <span className="w-fit rounded-full border border-[#E8DCC2]/35 px-3 py-1 text-[10px] uppercase tracking-[0.22em] font-black text-[#E8DCC2]">Bereich 3</span>
+      {isStudioPreview && <span className="w-fit rounded-full border border-[#E8DCC2]/35 px-3 py-1 text-[10px] uppercase tracking-[0.22em] font-black text-[#E8DCC2]">Inhalt</span>}
       <h1 className={`${isStudioPreview ? 'mt-2 text-xl' : 'mt-5 text-4xl xl:text-5xl'} font-black leading-[0.96] text-[#F5F2EA] tracking-tight`}>{text.title}</h1>
       {text.subtitle && <p className={`${isStudioPreview ? 'mt-2 text-xs' : 'mt-5 text-xl xl:text-2xl'} font-bold leading-tight text-[#E8DCC2]`}>{text.subtitle}</p>}
       {text.description && <p className={`${isStudioPreview ? 'mt-2 text-[10px] line-clamp-3' : 'mt-5 text-base xl:text-lg'} max-w-xl leading-relaxed text-[#F5F2EA]/75`}>{text.description}</p>}
@@ -220,7 +220,7 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
 
   const contentLayout = desktopPage.contentLayout || 'media_top_text_bottom';
   const contentPanel = (
-    <section className={`${isStudioPreview ? 'rounded-[26px] border border-white/10 bg-black/25 p-4' : 'p-6 xl:p-9'} h-full min-w-0 flex flex-col justify-center overflow-hidden`}>
+    <section className={`${isStudioPreview ? 'rounded-[26px] border border-white/10 bg-black/25 p-4' : 'p-6 xl:p-9'} h-full min-w-0 flex flex-col justify-center overflow-hidden`} style={{ textShadow: '0 1px 2px rgba(0,0,0,.72)' }}>
       {contentLayout === 'media_middle' ? (
         <div className="space-y-4">
           {renderContentTextBlock('compact')}
@@ -238,8 +238,6 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
           {renderContentTextBlock('primary')}
         </div>
       )}
-      {isStudioPreview && onEditText && <button type="button" onClick={onEditText} className="mt-3 h-8 rounded-xl border border-[#E8DCC2]/35 bg-[#181818]/80 px-3 text-[8px] font-black uppercase tracking-wider text-[#F5F2EA] inline-flex items-center justify-center gap-2 self-start"><LucideIcons.Type size={12}/> Inhalt bearbeiten</button>}
-      {isStudioPreview && qrCodeUrl && <span className="mt-3 text-[8px] text-[#F5F2EA]/35 break-all">{qrCodeUrl.slice(0, 56)}…</span>}
     </section>
   );
 

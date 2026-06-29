@@ -1,3 +1,12 @@
+## v52.5.86 – ureelSeite Start QR & Public Cleanup
+
+- Desktop-only: Webseite-starten-Aktionen markieren den zuletzt geklickten Button hell.
+- Desktop-only: QR öffnet jetzt ein QR-Code-Bild/Modal zum aktuellen öffentlichen Kartenlink statt nur einen QR-Link zu kopieren.
+- Desktop-only: Beschriftungen „Bereich 1/2/3“ werden aus der echten Desktop-Webseite entfernt; im Studio bleiben die Bereiche verständlich.
+- Desktop-only: Der Inhalt-bearbeiten/Link-Hinweis wurde aus der Miniwebseiten-Vorschau entfernt.
+- Desktop-only: Textlesbarkeit auf helleren Desktop-Hintergründen verbessert.
+- Mobile-Version nicht verändert.
+
 
 ## v52.5.85 – ureelSeite Vertical Editor & Start Actions Fix
 
