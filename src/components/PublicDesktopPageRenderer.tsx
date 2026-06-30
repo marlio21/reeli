@@ -106,7 +106,7 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
           {isStudioPreview && <span className="block text-[9px] font-black uppercase tracking-[0.22em] text-[#E8DCC2]">Karte</span>}
           <span className="block text-[11px] font-black uppercase tracking-wider text-[#F5F2EA]">Reel / Video</span>
         </div>
-        <span className="rounded-full border border-[#E8DCC2]/22 px-2 py-1 text-[8px] font-black uppercase tracking-wider text-[#E8DCC2]/85">ohne Kartenbuttons</span>
+        {isStudioPreview && <span className="rounded-full border border-[#E8DCC2]/22 px-2 py-1 text-[8px] font-black uppercase tracking-wider text-[#E8DCC2]/85">ohne Kartenbuttons</span>}
       </div>
       <div className={isStudioPreview
         ? 'relative w-[132px] h-[235px] overflow-hidden rounded-[24px] border-[5px] border-[#1A1A1A] bg-black shadow-2xl mx-auto'
@@ -125,9 +125,11 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
           onShare={onShare}
         />
       </div>
-      <p className={`${isStudioPreview ? 'mt-2 text-[8px]' : 'mt-4 text-[11px]'} max-w-[260px] text-center leading-relaxed text-[#F5F2EA]/48`}>
-        {lang === 'de' ? 'Die mobile Karte bleibt unverändert. Auf Desktop werden die Aktionen separat daneben bedient.' : 'The mobile card stays unchanged. On desktop, actions are controlled in a separate panel.'}
-      </p>
+      {isStudioPreview && (
+        <p className="mt-2 max-w-[260px] text-center text-[8px] leading-relaxed text-[#F5F2EA]/48">
+          {lang === 'de' ? 'Die mobile Karte bleibt unverändert. Auf Desktop werden die Aktionen separat daneben bedient.' : 'The mobile card stays unchanged. On desktop, actions are controlled in a separate panel.'}
+        </p>
+      )}
     </section>
   );
 
@@ -179,7 +181,7 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
           <h2 className={`${isStudioPreview ? 'mt-3 text-lg' : 'mt-4 text-2xl xl:text-3xl'} font-black leading-tight text-[#F5F2EA]`}>{desktopPage.buttonAreaHeadline || (lang === 'de' ? 'Aktionen bedienen' : 'Use actions')}</h2>
           <p className={`${isStudioPreview ? 'mt-1 text-[9px] line-clamp-2' : 'mt-2 text-xs'} leading-relaxed text-[#F5F2EA]/60`}>{desktopPage.buttonAreaIntro || (lang === 'de' ? 'Dieselben Kartenbuttons, aber auf Desktop als eigener Bedienbereich.' : 'The same card buttons, shown as a dedicated desktop action area.')}</p>
         </div>
-        <span className="rounded-full bg-black/35 px-2 py-1 text-[8px] font-black uppercase text-[#F5F2EA]/70">max. 6</span>
+        {isStudioPreview && <span className="rounded-full bg-black/35 px-2 py-1 text-[8px] font-black uppercase text-[#F5F2EA]/70">max. 6</span>}
       </div>
       {renderDesktopButtons()}
       <div className={`${isStudioPreview ? 'mt-3' : 'mt-6'} grid grid-cols-3 gap-2`}>

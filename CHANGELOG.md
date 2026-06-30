@@ -1,4 +1,10 @@
 
+## v52.5.98 / RC2.5 Public Desktop Clean View
+- Public Desktop-Webseite bereinigt: Editor-/Studio-Hinweise wie „ohne Kartenbuttons“, „max. 6“ und Erklärungstext unter dem Smartphone werden in der öffentlichen Ansicht nicht mehr angezeigt.
+- Studio-Preview-Hinweise bleiben im Editor erhalten.
+- Keine Änderungen an Mobile Studio oder Landingpage-Medien.
+
+
 
 ## v52.5.95 / RC2.2 Landing Hero MiniPreview Fix
 - Replaced iframe-based hero preview with a dedicated lightweight LandingMiniUreelPreview.
