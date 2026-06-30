@@ -8,7 +8,8 @@ import * as LucideIcons from 'lucide-react';
 import QRCode from 'qrcode';
 import { toPng } from 'html-to-image';
 import { motion, AnimatePresence } from 'motion/react';
-import { Card, CardButton, getPublicCardUrl } from '../types';
+import { Card, CardButton } from '../types';
+import { buildShareText, buildShareTitle, copyToClipboard, getEmailShareUrl, getFacebookShareUrl, getLinkedInShareUrl, getPublicCardUrl, getSharePageUrl, getWhatsAppShareUrl } from '../utils/shareUtils';
 import { downloadVCardFileFromCard } from '../utils/vcard-wrapper';
 import { canUseFeature } from '../config/plans';
 import { UpgradeModal } from './UpgradeModal';
@@ -92,13 +93,14 @@ export function ShareExportModal({ card, isOpen, onClose, lang = 'de', isUpdateS
   const previewRefPromo = useRef<HTMLDivElement>(null);
 
   const publicUrl = getPublicCardUrl(card.slug);
+  const sharePageUrl = getSharePageUrl(card.slug);
 
   const instagramText = lang === 'de'
     ? 'Meine digitale Karte findest du über den Link im Profil. Dort kannst du mich direkt kontaktieren.'
     : 'My digital card is available through the link in my profile. You can contact me directly there.';
 
   const youtubeText = lang === 'de'
-    ? `Hier geht’s zu meiner interaktiven Karte: ${publicUrl}`
+    ? `Hier geht’s zu meiner interaktiven Karte: ${sharePageUrl || publicUrl}`
     : `Open my interactive card here: ${publicUrl}`;
 
   const facebookText = lang === 'de'
@@ -255,7 +257,7 @@ export function ShareExportModal({ card, isOpen, onClose, lang = 'de', isUpdateS
     showToast(
       lang === 'de'
         ? 'Für Social Media nutze ureel-Werbebild teilen.'
-        : 'For social media, use Share ureel promo image.'
+        : 'For social media, use Share promo image.'
     );
     setTimeout(() => setCopiedLink(false), 2000);
   };
@@ -382,8 +384,8 @@ export function ShareExportModal({ card, isOpen, onClose, lang = 'de', isUpdateS
   const handleWhatsAppShare = async () => {
     const title = card.title || 'ureel';
     const textMsg = lang === 'de'
-      ? `Schau dir meine ureel an: ${publicUrl}`
-      : `Check out my ureel: ${publicUrl}`;
+      ? `Aus Video wird Aktion. ${sharePageUrl || publicUrl}`
+      : `Turn video into action. ${sharePageUrl || publicUrl}`;
     const filename = `ureel-promo-${card.slug}.png`;
 
     setDownloadingImage('promo');
@@ -430,8 +432,7 @@ export function ShareExportModal({ card, isOpen, onClose, lang = 'de', isUpdateS
       link.click();
       document.body.removeChild(link);
 
-      const encodedText = encodeURIComponent(textMsg);
-      window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+      window.open(getWhatsAppShareUrl(textMsg), '_blank');
 
       showToast(
         lang === 'de'
@@ -440,8 +441,7 @@ export function ShareExportModal({ card, isOpen, onClose, lang = 'de', isUpdateS
       );
     } catch (err) {
       console.error('Failed to generate promo image for WhatsApp, falling back:', err);
-      const encodedText = encodeURIComponent(textMsg);
-      window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+      window.open(getWhatsAppShareUrl(textMsg), '_blank');
       showToast(
         lang === 'de'
           ? 'Werbebild konnte nicht erstellt werden. Link wurde geteilt.'
@@ -460,6 +460,34 @@ export function ShareExportModal({ card, isOpen, onClose, lang = 'de', isUpdateS
     const smsUrl = `sms:${isIos ? '&' : '?'}body=${encodeURIComponent(smsText)}`;
     window.location.href = smsUrl;
   };
+
+  const handleCopySharePageLink = async () => {
+    await copyToClipboard(sharePageUrl || publicUrl);
+    setCopiedLink(true);
+    showToast(lang === 'de' ? 'Share-Link kopiert' : 'Share link copied');
+    setTimeout(() => setCopiedLink(false), 2000);
+  };
+
+  const handleLinkedInShare = () => {
+    window.open(getLinkedInShareUrl(sharePageUrl || publicUrl), '_blank', 'noopener,noreferrer');
+  };
+
+  const handleFacebookShare = () => {
+    window.open(getFacebookShareUrl(sharePageUrl || publicUrl), '_blank', 'noopener,noreferrer');
+  };
+
+  const handleEmailShare = () => {
+    const subject = buildShareTitle(card, lang);
+    const body = buildShareText(card, lang, sharePageUrl || publicUrl);
+    window.location.href = getEmailShareUrl(subject, body);
+  };
+
+  const handleCopyNfcLink = async () => {
+    await copyToClipboard(publicUrl);
+    showToast(lang === 'de' ? 'NFC-Direktlink kopiert' : 'NFC direct link copied');
+  };
+
+  const handleDownloadStoryImage = () => downloadImageExport('story');
 
   // Web Share Integration
   const handleNativeShare = async () => {
@@ -652,10 +680,10 @@ export function ShareExportModal({ card, isOpen, onClose, lang = 'de', isUpdateS
         <div className="px-6 py-4.5 border-b border-stone-900 flex items-center justify-between">
           <div>
             <h2 className="text-base font-black text-[#F5EFE3] tracking-wider uppercase">
-              {lang === 'de' ? 'ureel teilen' : 'Share ureel'}
+              {lang === 'de' ? 'Teilen' : 'Share'}
             </h2>
             <p className="text-[10px] text-stone-400 font-medium mt-0.5">
-              {lang === 'de' ? 'Ein Link. Deine digitale Präsenz.' : 'One link. Your digital presence.'}
+              {lang === 'de' ? 'Aus Video wird Aktion.' : 'Turn video into action.'}
             </p>
           </div>
           <button 
@@ -703,12 +731,12 @@ export function ShareExportModal({ card, isOpen, onClose, lang = 'de', isUpdateS
               {/* Public Link Box Component */}
               <div className="bg-stone-950 border border-stone-850/80 p-4.5 rounded-2.5xl space-y-3 shadow-inner">
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#A855F7] block">
-                  Dein öffentlicher ureel-Link
+                  Share-Link
                 </span>
                 <div className="flex items-center justify-between gap-3 bg-stone-900 border border-stone-850 p-2.5 rounded-xl">
                   <LucideIcons.Link size={14} className="text-[#A855F7] shrink-0" />
                   <span className="text-xs font-mono text-stone-200 select-all truncate flex-1 min-w-0 pr-1">
-                    {publicUrl}
+                    {sharePageUrl || publicUrl}
                   </span>
                   <button
                     onClick={triggerCopyLink}
@@ -759,6 +787,51 @@ export function ShareExportModal({ card, isOpen, onClose, lang = 'de', isUpdateS
                     )}
                   </div>
                 </button>
+              </div>
+
+              {/* Premium Share Kanäle */}
+              <div className="space-y-2.5">
+                <h3 className="text-[10px] font-black uppercase tracking-wider text-[#E8C56A] pl-1">
+                  {lang === 'de' ? 'Premium Share Kanäle' : 'Premium Share Channels'}
+                </h3>
+                {renderOptionRow({
+                  icon: <LucideIcons.Copy size={15} />,
+                  title: lang === 'de' ? 'Share-Link kopieren' : 'Copy share link',
+                  subtitle: lang === 'de' ? '/share Link mit hochwertiger Vorschau' : '/share link with premium preview',
+                  onClick: handleCopySharePageLink
+                })}
+                {renderOptionRow({
+                  icon: <LucideIcons.Linkedin size={15} />,
+                  title: 'LinkedIn',
+                  subtitle: lang === 'de' ? 'Mit Open-Graph-Vorschau teilen' : 'Share with Open Graph preview',
+                  onClick: handleLinkedInShare
+                })}
+                {renderOptionRow({
+                  icon: <LucideIcons.Facebook size={15} />,
+                  title: 'Facebook',
+                  subtitle: lang === 'de' ? 'Als Beitrag mit Vorschau teilen' : 'Share as post with preview',
+                  onClick: handleFacebookShare
+                })}
+                {renderOptionRow({
+                  icon: <LucideIcons.Mail size={15} />,
+                  title: 'E-Mail',
+                  subtitle: lang === 'de' ? 'Betreff und Text automatisch vorbereiten' : 'Prepare subject and message automatically',
+                  onClick: handleEmailShare
+                })}
+                {renderOptionRow({
+                  icon: <LucideIcons.RadioTower size={15} />,
+                  title: 'NFC',
+                  subtitle: lang === 'de' ? 'Direktlink für NFC-Tags kopieren' : 'Copy direct link for NFC tags',
+                  onClick: handleCopyNfcLink
+                })}
+                {renderOptionRow({
+                  icon: <LucideIcons.Instagram size={15} />,
+                  title: lang === 'de' ? 'Story-Bild herunterladen' : 'Download story image',
+                  subtitle: lang === 'de' ? '1080×1920 für Instagram Story / WhatsApp Status' : '1080×1920 for Instagram Story / WhatsApp Status',
+                  onClick: handleDownloadStoryImage,
+                  disabled: downloadingImage !== null,
+                  rightElement: downloadingImage === 'story' ? <LucideIcons.Loader2 size={14} className="animate-spin text-purple-400" /> : undefined
+                })}
               </div>
 
               {/* Bereich: Reel teilen */}
@@ -827,7 +900,7 @@ export function ShareExportModal({ card, isOpen, onClose, lang = 'de', isUpdateS
                   <LucideIcons.ArrowLeft size={14} />
                   <span>{lang === 'de' ? 'Teilen-Menü' : 'Share Menu'}</span>
                 </button>
-                <span className="text-[11px] font-extrabold uppercase text-purple-400 tracking-widest">ureel QR Code</span>
+                <span className="text-[11px] font-extrabold uppercase text-purple-400 tracking-widest">QR Code</span>
                 <div className="w-14" />
               </div>
 
@@ -835,7 +908,7 @@ export function ShareExportModal({ card, isOpen, onClose, lang = 'de', isUpdateS
               <div className="bg-stone-950 border border-stone-850 p-6 rounded-3xl w-full max-w-sm flex flex-col items-center justify-center text-center shadow-inner space-y-4">
                 <div className="p-3 bg-[#F5EFE3] rounded-2xl flex items-center justify-center shadow-lg inline-block">
                   {qrCodeUrl ? (
-                    <img src={qrCodeUrl} alt="ureel QR Code" className="w-44 h-44 object-contain rounded-lg" />
+                    <img src={qrCodeUrl} alt="QR Code" className="w-44 h-44 object-contain rounded-lg" />
                   ) : (
                     <div className="w-44 h-44 flex items-center justify-center text-[#A855F7]">
                       <LucideIcons.Loader className="animate-spin" size={24} />
@@ -1348,85 +1421,37 @@ export function ShareExportModal({ card, isOpen, onClose, lang = 'de', isUpdateS
          ========================================================================= */}
       <div className="absolute left-[-9999px] top-[-9999px] pointer-events-none select-none z-0">
         
-        {/* TEMPLATE A: OPEN GRAPH (1200 x 630 px) */}
-        <div 
+        {/* TEMPLATE A: OPEN GRAPH (1200 x 630 px) – brand-neutral slogan fallback */}
+        <div
           ref={previewRefOG}
-          style={{ width: '1200px', height: '630px', background: '#111111' }}
-          className="relative flex flex-row p-12 bg-neutral-950 text-white font-sans overflow-hidden border border-amber-900/10"
+          style={{ width: '1200px', height: '630px', background: '#050505' }}
+          className="relative bg-neutral-950 text-white font-sans overflow-hidden"
         >
-          {/* Dot Grid Background */}
-          <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#A855F7 1.5px, transparent 1.5px)', backgroundSize: '30px 30px' }} />
-          
-          <div className="w-7/12 flex flex-col justify-between h-full z-10 pr-6 relative">
-            <div className="space-y-4">
-              {/* Branding Header */}
-              {!isHidden ? (
-                <div className="flex items-center gap-2">
-                  <span className="text-purple-400 text-lg font-black tracking-widest border border-purple-500/30 px-2 py-0.5 rounded-md">ureel</span>
-                  <span className="text-[10px] uppercase font-bold text-stone-450 tracking-widest">Digital-Vibe Profile</span>
-                </div>
-              ) : (
-                <div className="h-6" />
-              )}
-              
-              {/* Title Content */}
-              <div className="space-y-2 pt-4">
-                <h2 className="text-4xl font-extrabold text-[#F5EFE3] font-sans leading-tight tracking-tight">
-                  {card.title || 'Mein LiveCard Profil'}
-                </h2>
-                {card.subtitle && (
-                  <p className="text-xl text-[#A855F7] font-medium font-sans">
-                    {card.subtitle}
-                  </p>
-                )}
-                {card.description && (
-                  <p className="text-[13px] text-stone-400 font-sans line-clamp-3 leading-relaxed pt-1.5 max-w-md">
-                    {card.description}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Slogan & Web Link footer */}
-            <div className="space-y-1.5">
-              <span className="text-[11px] text-stone-500 font-mono tracking-wide">{publicUrl}</span>
-              {!isHidden && (
-                <p className="text-xs uppercase tracking-widest text-[#A855F7] font-extrabold">
-                  {lang === 'de' ? 'Aus Video wird Aktion.' : 'Your World. One Link.'}
-                </p>
-              )}
-            </div>
+          <img src="/brand/ureel-share-og.png" alt="" className="absolute inset-0 w-full h-full object-cover" crossOrigin="anonymous" />
+          <div className="absolute inset-0 bg-black/5" />
+          <div className="absolute left-[70px] top-[82px] max-w-[510px]">
+            <h2 className="text-[72px] font-black leading-[0.96] tracking-[-0.04em] text-[#F7F0E4] drop-shadow-2xl">
+              {lang === 'de' ? <>Aus Video<br />wird <span className="text-[#E8C56A]">Aktion.</span></> : <>Turn Video<br />into <span className="text-[#E8C56A]">Action.</span></>}
+            </h2>
+            <div className="h-px w-[420px] bg-gradient-to-r from-[#E8C56A] via-[#F6E4B1] to-transparent mt-7 mb-8" />
+            <p className="text-[27px] leading-tight text-[#F5F2EA] font-medium max-w-[470px]">
+              {lang === 'de' ? 'Interaktive Karten. Ein Link. Unendliche Möglichkeiten.' : 'Interactive cards. One link. Endless possibilities.'}
+            </p>
           </div>
-
-          <div className="w-5/12 flex flex-col items-center justify-between h-full z-10 pl-6 border-l border-stone-850/60">
-            {/* Visual Profile Cover Or Logo */}
-            <div className="flex flex-col items-center justify-center flex-grow space-y-4">
-              {card.profileImageUrl ? (
-                <div className="w-28 h-28 rounded-full border-2 border-[#A855F7] overflow-hidden shadow-lg bg-stone-900">
-                  <img src={card.profileImageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" referrerPolicy="no-referrer" />
-                </div>
-              ) : (
-                <div className="w-24 h-24 rounded-full border border-stone-800 bg-stone-900 flex items-center justify-center text-[#A855F7] shadow-inner">
-                  <LucideIcons.User size={40} />
-                </div>
-              )}
-
-              {/* QR Image embedded in card */}
-              {qrCodeUrl && (
-                <div className="p-1.5 bg-[#F5EFE3] rounded-xl shadow-md">
-                  <img src={qrCodeUrl} alt="" className="w-[110px] h-[110px] object-contain rounded" />
-                </div>
-              )}
-            </div>
-
-            {!isHidden ? (
-              <p className="text-[11px] uppercase tracking-widest text-stone-500 font-bold">
-                {isFree ? 'Erstellt mit ureel (ureel.me)' : 'ureel.me'}
-              </p>
-            ) : (
-              <div className="h-4" />
-            )}
+          <div className="absolute left-[70px] bottom-[54px] flex items-center gap-9 text-[#E8C56A]">
+            <div className="text-center"><LucideIcons.Play size={42} className="mx-auto mb-2" /><span className="text-[15px] font-black uppercase text-white">Video & Bild</span></div>
+            <div className="h-16 w-px bg-[#E8C56A]/30" />
+            <div className="text-center"><LucideIcons.Smartphone size={42} className="mx-auto mb-2" /><span className="text-[15px] font-black uppercase text-white">Interaktive<br />Karte</span></div>
+            <div className="h-16 w-px bg-[#E8C56A]/30" />
+            <div className="text-center"><LucideIcons.QrCode size={42} className="mx-auto mb-2" /><span className="text-[15px] font-black uppercase text-white">QR Code<br />& NFC</span></div>
+            <div className="h-16 w-px bg-[#E8C56A]/30" />
+            <div className="text-center"><LucideIcons.Zap size={42} className="mx-auto mb-2" /><span className="text-[15px] font-black uppercase text-white">Aktion</span></div>
           </div>
+          {qrCodeUrl && (
+            <div className="absolute right-[132px] bottom-[82px] p-3 bg-[#F6E4B1] rounded-2xl shadow-2xl">
+              <img src={qrCodeUrl} alt="" className="w-[150px] h-[150px] object-contain rounded" />
+            </div>
+          )}
         </div>
 
         {/* TEMPLATE B: SQUARE (1080 x 1080 px) */}
@@ -1509,85 +1534,37 @@ export function ShareExportModal({ card, isOpen, onClose, lang = 'de', isUpdateS
           </div>
         </div>
 
-        {/* TEMPLATE C: STORY (1080 x 1920 px) */}
-        <div 
+        {/* TEMPLATE C: STORY (1080 x 1920 px) – Instagram / Status image */}
+        <div
           ref={previewRefStory}
-          style={{ width: '1080px', height: '1920px', background: '#111111' }}
-          className="relative flex flex-col justify-between p-24 bg-neutral-950 text-white font-sans overflow-hidden"
+          style={{ width: '1080px', height: '1920px', background: '#050505' }}
+          className="relative bg-neutral-950 text-white font-sans overflow-hidden"
         >
-          {/* Dot Grid Background */}
-          <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#A855F7 2.5px, transparent 2.5px)', backgroundSize: '40px 40px' }} />
-          
-          {/* Gold Glowing ambient accent */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-[#A855F7]/5 blur-[120px] pointer-events-none" />
-
-          {/* Brand top logo */}
-          {!isHidden ? (
-            <div className="flex flex-col items-center justify-center space-y-2 z-10 mt-6">
-              <span className="text-purple-400 text-4xl font-black tracking-widest border border-purple-500/45 px-5 py-1.5 rounded-xl">ureel</span>
-              <span className="text-xs uppercase font-extrabold text-[#A855F7] tracking-widest">
-                {lang === 'de' ? 'Aus Video wird Aktion.' : 'Turn Video into Action.'}
-              </span>
+          <img src="/brand/ureel-story-template.png" alt="" className="absolute inset-0 w-full h-full object-cover" crossOrigin="anonymous" />
+          <div className="absolute inset-0 bg-black/5" />
+          <div className="absolute left-[120px] right-[120px] top-[150px]">
+            <h2 className="text-[92px] font-black leading-[0.96] tracking-[-0.045em] text-[#F7F0E4] drop-shadow-2xl">
+              {lang === 'de' ? <>Aus Video<br />wird <span className="text-[#E8C56A]">Aktion.</span></> : <>Turn Video<br />into <span className="text-[#E8C56A]">Action.</span></>}
+            </h2>
+            <div className="h-px w-[520px] bg-gradient-to-r from-[#E8C56A] via-[#F6E4B1] to-transparent mt-9 mb-10" />
+            <p className="text-[37px] leading-tight text-[#F5F2EA] font-medium">
+              {lang === 'de' ? <>Interaktive Karten.<br />Ein Link.<br />Unendliche Möglichkeiten.</> : <>Interactive cards.<br />One link.<br />Endless possibilities.</>}
+            </p>
+          </div>
+          {qrCodeUrl && (
+            <div className="absolute left-1/2 top-[805px] -translate-x-1/2 p-8 bg-[#F6E4B1] rounded-[34px] shadow-2xl border border-[#E8C56A]/40">
+              <img src={qrCodeUrl} alt="" className="w-[360px] h-[360px] object-contain rounded-2xl" />
             </div>
-          ) : (
-            <div className="h-16" />
           )}
-
-          {/* Massive card block */}
-          <div className="w-full flex flex-col items-center space-y-8 z-10 my-12 bg-stone-900/50 border border-stone-850 rounded-[45px] p-12 shadow-2xl">
-            {/* Visual circle image */}
-            {card.profileImageUrl ? (
-              <div className="w-44 h-44 rounded-full border-4 border-[#A855F7] overflow-hidden shadow-2xl bg-stone-900">
-                <img src={card.profileImageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" referrerPolicy="no-referrer" />
-              </div>
-            ) : (
-              <div className="w-32 h-32 rounded-full border border-stone-800 bg-stone-900 flex items-center justify-center text-[#A855F7]">
-                <LucideIcons.User size={55} />
-              </div>
-            )}
-
-            <div className="text-center space-y-3 max-w-md">
-              <h1 className="text-4xl font-extrabold text-[#F5EFE3] tracking-tight">{card.title}</h1>
-              {card.subtitle && (
-                <p className="text-lg text-[#A855F7] font-bold uppercase tracking-widest">{card.subtitle}</p>
-              )}
-              {card.description && (
-                <p className="text-sm text-stone-400 leading-relaxed leading-relaxed">{card.description}</p>
-              )}
-            </div>
-
-            {/* Mini visual mockup of buttons (up to 5 buttons as neat stacked block links) */}
-            {activeButtonsToShow.length > 0 && (
-              <div className="w-full max-w-sm space-y-3 pt-4 border-t border-stone-850/60">
-                {activeButtonsToShow.map((b) => (
-                  <div key={b.id} className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl py-3.5 px-5 text-stone-300 font-bold text-center text-xs uppercase tracking-wider flex items-center justify-between">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#A855F7]" />
-                    <span className="text-stone-250 truncate block max-w-[200px] mx-auto">{b.title}</span>
-                    <LucideIcons.ChevronRight size={14} className="text-stone-600" />
-                  </div>
-                ))}
-              </div>
-            )}
+          <div className="absolute left-[128px] right-[128px] bottom-[210px] rounded-full border border-[#E8C56A]/55 bg-black/45 py-8 px-10 flex items-center justify-center gap-5 shadow-2xl">
+            <LucideIcons.ScanLine size={40} className="text-[#E8C56A]" />
+            <span className="text-[32px] font-black uppercase tracking-[0.16em] text-[#E8C56A]">
+              {lang === 'de' ? 'Scannen & öffnen' : 'Scan & open'}
+            </span>
           </div>
-
-          {/* Footer QR scan directions */}
-          <div className="flex flex-col items-center justify-center z-10 mb-8 space-y-4">
-            {qrCodeUrl && (
-              <div className="p-4 bg-[#F5EFE3] rounded-3xl shadow-2xl border border-white/5 inline-block">
-                <img src={qrCodeUrl} alt="" className="w-32 h-32 object-contain rounded-lg" />
-              </div>
-            )}
-            
-            <div className="text-center space-y-1">
-              <span className="text-[10px] text-[#A855F7] font-extrabold uppercase tracking-widest">Scanne den QR-Code zum Verbinden</span>
-              <p className="text-[13px] text-stone-550 font-mono select-all font-semibold">{publicUrl}</p>
-              {!isHidden && (
-                <p className="text-xs text-stone-500 font-bold uppercase tracking-widest mt-2">
-                  {isFree ? 'Erstellt mit ureel · ureel.me' : 'ureel.me'}
-                </p>
-              )}
-            </div>
-          </div>
+          <p className="absolute left-0 right-0 bottom-[130px] text-center text-[31px] text-[#F5F2EA] font-medium">
+            {lang === 'de' ? 'Ein Scan. Eine Aktion.' : 'One scan. One action.'}
+          </p>
         </div>
 
         {/* TEMPLATE D: PROMO (1080 x 1350 px) */}

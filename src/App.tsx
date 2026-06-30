@@ -9,6 +9,7 @@ import { LandingPage } from './components/LandingPage';
 import { DashboardView } from './components/DashboardView';
 import { OnboardingForm } from './components/OnboardingForm';
 import { PublicCardView } from './components/PublicCardView';
+import { PublicSharePage } from './components/PublicSharePage';
 import { AdminView } from './components/AdminView';
 import { LegalPages } from './components/LegalPages';
 import { TestGate } from './components/TestGate';
@@ -37,8 +38,8 @@ const extractSlugFromPath = (path: string): string => {
       decoded = decoded.substring(0, hashIdx);
     }
     
-    if (decoded.startsWith('/u/')) {
-      let slugPart = decoded.substring(3);
+    if (decoded.startsWith('/u/') || decoded.startsWith('/share/')) {
+      let slugPart = decoded.startsWith('/share/') ? decoded.substring(7) : decoded.substring(3);
       // Strip trailing slashes
       if (slugPart.endsWith('/')) {
         slugPart = slugPart.substring(0, slugPart.length - 1);
@@ -135,7 +136,7 @@ const AppContent: React.FC = () => {
             isWhatsAppWebView: isWA,
             projectId: resolvedConfig.projectId,
             databaseId: resolvedConfig.databaseId,
-            route: `/u/${slug}`,
+            route: currentPath.startsWith('/share/') ? `/share/${slug}` : `/u/${slug}`,
             slug: slug,
             queryCollection: 'cards',
             queryResultCount: 0,
@@ -167,7 +168,7 @@ const AppContent: React.FC = () => {
             isWhatsAppWebView: isWA,
             projectId: resolvedConfig.projectId,
             databaseId: resolvedConfig.databaseId,
-            route: `/u/${slug}`,
+            route: currentPath.startsWith('/share/') ? `/share/${slug}` : `/u/${slug}`,
             slug: slug,
             queryCollection: 'cards',
             queryResultCount: 1,
@@ -213,7 +214,7 @@ const AppContent: React.FC = () => {
           isWhatsAppWebView: isWA,
           projectId: resolvedConfig.projectId,
           databaseId: resolvedConfig.databaseId,
-          route: `/u/${slug}`,
+          route: currentPath.startsWith('/share/') ? `/share/${slug}` : `/u/${slug}`,
           slug: slug,
           queryCollection: 'cards',
           queryResultCount: -1,
@@ -232,7 +233,7 @@ const AppContent: React.FC = () => {
 
   // Evaluate visitor slug loads
   useEffect(() => {
-    if (currentPath.startsWith('/u/')) {
+    if (currentPath.startsWith('/u/') || currentPath.startsWith('/share/')) {
       const slug = extractSlugFromPath(currentPath);
       loadPublicCard(slug);
     } else {
@@ -281,7 +282,7 @@ const AppContent: React.FC = () => {
   }
 
   // Active Test Gate Guard (Completely bypassed for visitor profiles `/u/:slug`)
-  const isPublicCardRoute = currentPath.startsWith('/u/');
+  const isPublicCardRoute = currentPath.startsWith('/u/') || currentPath.startsWith('/share/');
   if (!testGatePassed && !isPublicCardRoute) {
     return (
       <TestGate 
@@ -291,8 +292,8 @@ const AppContent: React.FC = () => {
     );
   }
 
-  // ===== ROUTE 1: PUBLIC VISITOR PROFILE =====
-  if (currentPath.startsWith('/u/')) {
+  // ===== ROUTE 1: PUBLIC VISITOR PROFILE / PREMIUM SHARE PAGE =====
+  if (currentPath.startsWith('/u/') || currentPath.startsWith('/share/')) {
     if (visitorLoading) {
       return (
         <div className="min-h-screen bg-[#111111] flex flex-col items-center justify-center p-4">
@@ -453,6 +454,25 @@ const AppContent: React.FC = () => {
 
           </div>
         </div>
+      );
+    }
+
+    if (visitorCard && currentPath.startsWith('/share/')) {
+      return (
+        <ErrorBoundary
+          lang={activeLang}
+          fallbackNode={
+            <div className="min-h-screen bg-[#0B0B0B] text-[#F5F2EA] flex flex-col items-center justify-center p-6 text-center">
+              <div className="max-w-sm rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-2xl">
+                <div className="text-xs uppercase tracking-[0.24em] text-[#D7C9A0] font-black mb-2">share recovery</div>
+                <h1 className="text-2xl font-black mb-3">{activeLang === 'de' ? 'Share-Seite konnte nicht angezeigt werden' : 'Share page could not be displayed'}</h1>
+                <button type="button" onClick={() => window.location.href = `/u/${visitorCard.slug}`} className="mt-5 w-full rounded-2xl bg-[#F5F2EA] text-black font-black py-3 uppercase text-xs tracking-widest">{activeLang === 'de' ? 'UREEL öffnen' : 'Open card'}</button>
+              </div>
+            </div>
+          }
+        >
+          <PublicSharePage card={visitorCard} lang={activeLang} setLang={setActiveLang} />
+        </ErrorBoundary>
       );
     }
 

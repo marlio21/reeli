@@ -902,3 +902,13 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Neue kompakte Textgrafik-Sektion für Begegnungen, Branchen und Einsatzbereiche ergänzt.
 - Abschluss-/Upgrade-Bereich auf „Werde kostenlos zum UREELER“ geschärft.
 - Mobile Studio unverändert / geschützt.
+
+## v52.6.08 / RC3.1 – Premium Share System
+
+- Neue öffentliche Share-Seite `/share/:slug` als hochwertiger Teilenmodus ergänzt.
+- Open-Graph-Auslieferung serverseitig für `/u/:slug` und `/share/:slug` vereinheitlicht.
+- Brand-neutrale Share-Fallbacks mit Fokus auf den Slogan „Aus Video wird Aktion.“ vorbereitet.
+- Neue Share-Assets ergänzt: `public/brand/ureel-share-og.png` (1200×630) und `public/brand/ureel-story-template.png` (1080×1920).
+- Share-Modal um Premium-Kanäle ergänzt: Share-Link, LinkedIn, Facebook, E-Mail, NFC und Story-Bild.
+- QR/NFC bleibt direkter Erlebnislink auf `/u/:slug`; Social Sharing nutzt bevorzugt `/share/:slug`.
+- Mobile Studio, Mobile Renderer und Mobile Layout Persistence wurden nicht verändert.

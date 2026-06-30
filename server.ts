@@ -128,8 +128,26 @@ app.post('/api/verify-password', async (req: express.Request, res: express.Respo
   }
 });
 
+
+function escapeHtml(value: any): string {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function toAbsoluteUrl(value: any, origin: string): string {
+  const raw = String(value || '').trim();
+  if (!raw) return `${origin}/brand/ureel-share-og.png`;
+  if (/^https?:\/\//i.test(raw)) return raw;
+  if (raw.startsWith('/')) return `${origin}${raw}`;
+  return `${origin}/${raw}`;
+}
+
 // SEO & Scraping Gate: Inject dynamic Open-Graph meta tags on demand
-app.get('/u/:slug', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.get(['/u/:slug', '/share/:slug'], async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const { slug } = req.params;
   if (!slug) return next();
 
@@ -178,7 +196,7 @@ app.get('/u/:slug', async (req: express.Request, res: express.Response, next: ex
 
     // Block page generation if card is draft/privatized
     if (!card.isPublished) {
-      return res.status(403).send("<h1>Diese KONU-Seite ist unveröffentlicht / This KONU page is draft/private</h1>");
+      return res.status(403).send("<h1>Diese Seite ist unveröffentlicht / This page is draft/private</h1>");
     }
 
     const isDev = process.env.NODE_ENV !== 'production';
@@ -193,42 +211,50 @@ app.get('/u/:slug', async (req: express.Request, res: express.Response, next: ex
     let html = fs.readFileSync(htmlPath, 'utf8');
 
     // Build responsive, dynamic Open-Graph metadata header snippet with custom SEO if provided
-    const domain = req.get('host') || 'konu.live';
+    const domain = req.get('host') || 'www.ureel.me';
     const protocol = req.protocol || 'https';
-    const seoTitle = card.metaTitle || card.heroTitle || card.title || "KONU";
-    const seoDescription = card.metaDescription || card.heroSubtitle || card.description || "Deine Welt. Ein Link.";
+    const origin = `${protocol}://${domain}`;
+    const isShareRoute = req.path.startsWith('/share/');
+    const seoTitle = card.metaTitle || card.heroTitle || card.title || "Aus Video wird Aktion.";
+    const seoDescription = card.metaDescription || card.heroSubtitle || card.description || "Interaktive Karten. Ein Link. Unendliche Möglichkeiten.";
     
-    const dOgTitle = card.ogTitle || card.metaTitle || card.heroTitle || card.title || "KONU";
-    const dOgDescription = card.ogDescription || card.metaDescription || card.heroSubtitle || card.description || "Deine Welt. Ein Link.";
+    const dOgTitle = card.ogTitle || card.metaTitle || card.heroTitle || card.title || "Aus Video wird Aktion.";
+    const dOgDescription = card.ogDescription || card.metaDescription || card.heroSubtitle || card.description || "Interaktive Karten. Ein Link. Unendliche Möglichkeiten.";
     
-    const ogImage = card.ogImageUrl ||
+    const ogImageCandidate = card.ogImageUrl ||
+                    card.shareImageUrl ||
                     card.videoBackgroundConfig?.afterSequence?.imageUrl ||
                     card.videoBackgroundConfig?.afterVideo?.imageUrl ||
-                    card.shareImageUrl ||
                     card.backgroundImageUrl ||
                     card.coverImageUrl ||
                     card.heroImageUrl ||
                     card.profileImageUrl ||
-                    "/brand/konu-share-og.png";
-    const ogUrl = `${protocol}://${domain}/u/${card.slug || slug}`;
+                    "/brand/ureel-share-og.png";
+    const ogImage = toAbsoluteUrl(ogImageCandidate, origin);
+    const routePrefix = isShareRoute ? 'share' : 'u';
+    const ogUrl = `${origin}/${routePrefix}/${card.slug || slug}`;
+    const canonicalUrl = `${origin}/u/${card.slug || slug}`;
 
     const keywordsList = card.keywords && Array.isArray(card.keywords) && card.keywords.length > 0
       ? card.keywords.join(', ')
       : '';
 
     const ogSnippet = `
-  <title>${seoTitle}</title>
-  <meta name="description" content="${seoDescription}" />
-  ${keywordsList ? `<meta name="keywords" content="${keywordsList}" />` : ''}
-  <meta property="og:title" content="${dOgTitle}" />
-  <meta property="og:description" content="${dOgDescription}" />
-  <meta property="og:image" content="${ogImage}" />
-  <meta property="og:url" content="${ogUrl}" />
+  <title>${escapeHtml(seoTitle)}</title>
+  <meta name="description" content="${escapeHtml(seoDescription)}" />
+  ${keywordsList ? `<meta name="keywords" content="${escapeHtml(keywordsList)}" />` : ''}
+  <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />
+  <meta property="og:title" content="${escapeHtml(dOgTitle)}" />
+  <meta property="og:description" content="${escapeHtml(dOgDescription)}" />
+  <meta property="og:image" content="${escapeHtml(ogImage)}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:url" content="${escapeHtml(ogUrl)}" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="${dOgTitle}" />
-  <meta name="twitter:description" content="${dOgDescription}" />
-  <meta name="twitter:image" content="${ogImage}" />
+  <meta name="twitter:title" content="${escapeHtml(dOgTitle)}" />
+  <meta name="twitter:description" content="${escapeHtml(dOgDescription)}" />
+  <meta name="twitter:image" content="${escapeHtml(ogImage)}" />
 `;
 
     // Inject before the end of the head tag

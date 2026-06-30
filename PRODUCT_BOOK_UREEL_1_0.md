@@ -143,3 +143,39 @@ Safari, Chrome, Edge, Firefox, iPhone, Android.
 ## Launch-Leitsatz
 
 **Ureel macht aus Aufmerksamkeit direkte Handlung.**
+
+---
+
+## v52.6.08 / RC3.1 – Premium Share System
+
+### Umsetzung
+
+Der Teilenmodus erhält eine eigene öffentliche Seite unter `/share/:slug`. Diese Seite ist der Distributions-Layer für Social Media, QR, NFC und E-Mail. Die echte interaktive Karte bleibt unter `/u/:slug` und wird nicht mit Marketing-Elementen überladen.
+
+### Visuelle Regel
+
+Für die Share-Fallbacks wird bewusst kein dauerhaftes App-Branding in den Bildern verwendet. Da der Produktname später zentral wechselbar bleiben soll, tragen die Fallback-Grafiken primär den Leitsatz:
+
+**Aus Video wird Aktion.**
+
+### Share-Assets
+
+- `public/brand/ureel-share-og.png` – 1200×630 für Open Graph, WhatsApp, LinkedIn und Facebook.
+- `public/brand/ureel-story-template.png` – 1080×1920 für Instagram Story und WhatsApp Status.
+
+### Link-Strategie
+
+```text
+/share/...  = hochwertiger Teilenmodus mit Vorschau, Kanälen, QR und CTA
+/u/...      = direkte interaktive Karte
+```
+
+### Kanal-Strategie
+
+- WhatsApp, LinkedIn, Facebook und E-Mail teilen bevorzugt `/share/:slug`.
+- QR-Code und NFC öffnen direkt `/u/:slug`.
+- Instagram Story und WhatsApp Status verwenden ein eigenes Story-Bild mit QR-Code.
+
+### Schutzregel
+
+Mobile Studio, Mobile Renderer und Mobile Layout Persistence bleiben unangetastet.
