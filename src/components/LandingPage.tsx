@@ -270,6 +270,57 @@ const toneBackground: Record<ShowcaseTone, string> = {
   travel: 'from-[#062023] via-[#0f5f67] to-[#061012]'
 };
 
+const MARKETING_STORIES = [
+  {
+    audience: 'Schüler & Studenten',
+    title: 'Teile dein Profil. Öffne Türen.',
+    text: 'Mit einer UREEL wird ein kurzer Moment zu deinem digitalen Profil – mit Projekten, Portfolio, Dokumenten und Kontakt auf einen Blick.',
+    image: '/landing/students-share-ureel.webp',
+    icon: 'GraduationCap'
+  },
+  {
+    audience: 'Business & Netzwerken',
+    title: 'Aus einem Gespräch wird ein starker Eindruck.',
+    text: 'Teile Expertise, Referenzen und direkte Kontaktwege in einer Präsentation, die professionell wirkt und in Erinnerung bleibt.',
+    image: '/landing/business-share-ureel.webp',
+    icon: 'BriefcaseBusiness'
+  },
+  {
+    audience: 'Unternehmer & Selbstständige',
+    title: 'Präsentiere Leistung, Produkt und Persönlichkeit.',
+    text: 'Zeige Kunden sofort, wer du bist, was du anbietest und wie sie dich erreichen – per QR, Link oder NFC.',
+    image: '/landing/entrepreneur-share-ureel.webp',
+    icon: 'UserRound'
+  }
+];
+
+const LANDING_TRANSLATION_KEYS = {
+  de: {
+    shareKicker: 'Teilen. Verbinden. Beeindrucken.',
+    shareHeadline: 'UREEL tauschen. Chancen schaffen.',
+    shareText: 'Mit einem Scan oder Klick teilst du mehr als Kontaktdaten. Du teilst eine interaktive Erfahrung, die in Erinnerung bleibt.',
+    casesKicker: 'UREEL in Aktion',
+    casesHeadline: 'Eine Karte. Zwei Erlebnisse.',
+    casesText: 'Auf dem Smartphone entsteht Aufmerksamkeit. Auf dem Desktop entsteht die vollständige Miniwebseite – für Persönlichkeit, Produkt, Verein oder Unternehmen.',
+    explainHeadline: 'Mehr als eine digitale Visitenkarte.',
+    explainText: 'Eine UREEL verbindet Video, Botschaft, Buttons, QR-Code, Teilen und Desktop-Miniwebseite in einer einzigen Präsentation.',
+    upgradesHeadline: 'Starte einfach. Wachse mit deinen Möglichkeiten.',
+    upgradesText: 'Von der ersten kostenlosen UREEL bis zur professionellen Business-Präsentation mit Showcases, Domains und Erweiterungen.'
+  },
+  en: {
+    shareKicker: 'Share. Connect. Impress.',
+    shareHeadline: 'Exchange UREELs. Create opportunities.',
+    shareText: 'With one scan or click, you share more than contact details. You share an interactive experience people remember.',
+    casesKicker: 'UREEL in action',
+    casesHeadline: 'One card. Two experiences.',
+    casesText: 'On mobile, UREEL creates attention. On desktop, it becomes a complete mini website for your personality, product, club or business.',
+    explainHeadline: 'More than a digital business card.',
+    explainText: 'A UREEL combines video, message, buttons, QR code, sharing and desktop mini website in one presentation.',
+    upgradesHeadline: 'Start simple. Grow with your needs.',
+    upgradesText: 'From your first free UREEL to professional business presentations with showcases, domains and upgrades.'
+  }
+};
+
 const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; index: number; card?: Card | null; loading?: boolean }> = ({ item, index, card, loading }) => {
   const FallbackIcon = (LucideIcons as any)[item.icon] || LucideIcons.Sparkles;
   const media = resolveShowcaseMedia(card, item.youtubeUrl, item.startSeconds || 4);
@@ -301,16 +352,9 @@ const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; i
       {media.kind === 'youtube' && media.poster && (
         <div className="absolute inset-0 bg-cover bg-center opacity-80 scale-[1.12]" style={{ backgroundImage: `url(${media.poster})` }} />
       )}
-      {media.kind === 'youtube' && (
-        <iframe
-          title={`UREEL Video ${item.title}`}
-          src={media.src}
-          className="absolute inset-0 h-full w-full scale-[1.46] opacity-72 pointer-events-none"
-          allow="autoplay; encrypted-media; picture-in-picture"
-          referrerPolicy="strict-origin-when-cross-origin"
-          loading="eager"
-        />
-      )}
+      {/* YouTube is intentionally not embedded in the premium landing hero.
+          We use the poster/thumbnail only and open the real UREEL via the public link.
+          This prevents visible YouTube controls, pause overlays and transition jitter. */}
       {media.kind === 'direct' && (
         <video
           key={media.src}
@@ -351,7 +395,7 @@ const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; i
         </div>
       )}
 
-      {showReelOnly && !loading && (
+      {false && showReelOnly && !loading && (
         <div className="absolute inset-x-8 top-[132px] z-10 rounded-[30px] border border-white/10 bg-black/18 px-6 py-8 text-center backdrop-blur-[2px]">
           <FallbackIcon size={56} className="mx-auto text-white/72" strokeWidth={1.45} />
           <div className="mt-6 text-[10px] font-black uppercase tracking-[0.22em] text-[#F2D28B]">Live-Reel</div>
@@ -359,7 +403,7 @@ const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; i
         </div>
       )}
 
-      {showHeadline && (
+      {false && showHeadline && (
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="absolute top-[96px] left-6 right-6 z-20 text-center">
           <FallbackIcon size={34} className="mx-auto mb-4 text-white/72" strokeWidth={1.45} />
           <div className="text-[28px] font-black uppercase leading-[0.9] tracking-[-0.055em] text-white drop-shadow-[0_8px_22px_rgba(0,0,0,0.45)]">{text.subtitle}</div>
@@ -367,7 +411,7 @@ const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; i
         </motion.div>
       )}
 
-      {showCopy && (
+      {false && showCopy && (
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="absolute left-7 right-7 bottom-[132px] z-20 rounded-[22px] bg-black/34 border border-white/10 px-4 py-4 text-center backdrop-blur-xl">
           <div className="text-[8px] font-black uppercase tracking-[0.22em] text-[#F2D28B]">Werbetext</div>
           <div className="mt-2 text-[12px] font-bold leading-snug text-white/88 line-clamp-4">{text.copy}</div>
@@ -596,6 +640,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   const scrollToAuth = () => document.getElementById('auth-box')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const landingCopy = LANDING_TRANSLATION_KEYS[lang];
 
   const handleEmailAction = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -743,6 +788,61 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
           </div>
         </section>
 
+        <section className="relative max-w-7xl mx-auto px-5 md:px-8 py-16 border-t border-white/10">
+          <div className="mx-auto max-w-4xl text-center mb-10">
+            <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">{landingCopy.shareKicker}</div>
+            <h2 className="text-3xl md:text-6xl font-black tracking-[-0.055em] leading-[0.95]">{landingCopy.shareHeadline}</h2>
+            <p className="mt-5 text-lg text-white/62 font-semibold leading-relaxed">{landingCopy.shareText}</p>
+          </div>
+          <div className="grid lg:grid-cols-3 gap-5">
+            {MARKETING_STORIES.map((story) => {
+              const StoryIcon = (LucideIcons as any)[story.icon] || LucideIcons.Sparkles;
+              return (
+                <article key={story.audience} className="group relative overflow-hidden rounded-[34px] border border-white/10 bg-white/[0.035] shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
+                  <div className="relative h-[390px] overflow-hidden">
+                    <img src={story.image} alt={story.audience} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.035]" loading="lazy" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/18 to-black/14" />
+                    <div className="absolute left-5 top-5 rounded-full border border-[#F2D28B]/22 bg-black/36 px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#F6E2A5] backdrop-blur-md">{story.audience}</div>
+                    <div className="absolute left-5 right-5 bottom-5">
+                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#F2D28B]/25 bg-black/36 text-[#F2D28B] backdrop-blur-md"><StoryIcon size={23} /></div>
+                      <h3 className="text-2xl font-black tracking-tight text-white">{story.title}</h3>
+                      <p className="mt-3 text-sm font-semibold leading-relaxed text-white/72">{story.text}</p>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="relative max-w-7xl mx-auto px-5 md:px-8 py-16 border-t border-white/10">
+          <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-10 items-end">
+            <div>
+              <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">{landingCopy.casesKicker}</div>
+              <h2 className="text-3xl md:text-6xl font-black tracking-[-0.055em] leading-[0.95]">{landingCopy.casesHeadline}</h2>
+              <p className="mt-5 text-lg text-white/62 font-semibold leading-relaxed">{landingCopy.casesText}</p>
+            </div>
+            <div className="rounded-[34px] border border-white/10 bg-white/[0.035] p-5 md:p-7">
+              <div className="grid gap-4">
+                {SHOWCASE_ITEMS.slice(0, 4).map((item) => {
+                  const CaseIcon = (LucideIcons as any)[item.icon] || LucideIcons.Sparkles;
+                  return (
+                    <a key={item.slug} href={item.publicPath || `/u/${item.slug}`} className="group grid sm:grid-cols-[72px_1fr_auto] gap-4 items-center rounded-[24px] border border-white/10 bg-black/22 p-4 hover:border-[#F2D28B]/45 hover:bg-white/[0.055] transition-colors">
+                      <div className={`h-[72px] w-[72px] rounded-2xl bg-gradient-to-br ${toneBackground[item.tone]} border border-white/10 flex items-center justify-center text-white/80`}><CaseIcon size={28} /></div>
+                      <div>
+                        <div className="text-lg font-black text-white">{item.title}</div>
+                        <div className="text-sm font-bold text-[#F2D28B]">{item.desktopSubtitle}</div>
+                        <div className="mt-1 text-sm text-white/55 font-semibold line-clamp-2">{item.desktopCopy}</div>
+                      </div>
+                      <div className="hidden sm:flex h-11 w-11 items-center justify-center rounded-full bg-[#F2D28B] text-black transition-transform group-hover:translate-x-1"><LucideIcons.ArrowRight size={19} /></div>
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section id="beispiele" className="relative max-w-7xl mx-auto px-5 md:px-8 py-16 border-t border-white/10">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-9">
             <div>
@@ -779,6 +879,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
           </div>
         </section>
 
+        <section className="max-w-7xl mx-auto px-5 md:px-8 py-16 border-t border-white/10">
+          <div className="rounded-[36px] border border-[#F2D28B]/18 bg-gradient-to-br from-white/[0.07] to-white/[0.025] p-7 md:p-10">
+            <div className="grid lg:grid-cols-[1fr_0.8fr] gap-8 items-center">
+              <div>
+                <h2 className="text-3xl md:text-5xl font-black tracking-[-0.05em] leading-[0.98]">{landingCopy.explainHeadline}</h2>
+                <p className="mt-5 text-lg text-white/64 font-semibold leading-relaxed">{landingCopy.explainText}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-sm font-black">
+                {['Video','Smartphone-Karte','Desktop-Webseite','QR-Code','Buttons','Teilen'].map((item) => (
+                  <div key={item} className="rounded-2xl border border-white/10 bg-black/22 px-4 py-4 text-white/78">{item}</div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section id="vorteile" className="max-w-7xl mx-auto px-5 md:px-8 pb-20 grid md:grid-cols-4 gap-4">
           {[
             ['Video oder Bild','Wähle deine Szene und schaffe Aufmerksamkeit.','Image'],
@@ -796,6 +912,28 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
             );
           })}
         </section>
+
+        <section className="max-w-7xl mx-auto px-5 md:px-8 pb-24">
+          <div className="rounded-[38px] border border-white/10 bg-[#111]/72 p-7 md:p-10 text-center">
+            <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">Upgrades</div>
+            <h2 className="text-3xl md:text-5xl font-black tracking-[-0.05em] leading-[0.98]">{landingCopy.upgradesHeadline}</h2>
+            <p className="mx-auto mt-5 max-w-3xl text-lg text-white/62 font-semibold leading-relaxed">{landingCopy.upgradesText}</p>
+            <div className="mt-8 grid md:grid-cols-3 gap-4 text-left">
+              {[
+                ['Free','Erste UREEL erstellen und teilen.'],
+                ['Pro','Mehr Design, mehr Showcases, mehr Wirkung.'],
+                ['Business','Für Unternehmen, Teams und professionelle Präsentationen.']
+              ].map(([plan, desc]) => (
+                <div key={plan} className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
+                  <div className="text-2xl font-black text-white">{plan}</div>
+                  <p className="mt-3 text-sm font-semibold text-white/58 leading-relaxed">{desc}</p>
+                </div>
+              ))}
+            </div>
+            <button onClick={scrollToAuth} className="mt-8 rounded-2xl bg-[#F2D28B] text-black px-8 py-4 text-sm font-black uppercase tracking-widest">Kostenlos starten</button>
+          </div>
+        </section>
+
       </main>
     </div>
   );
