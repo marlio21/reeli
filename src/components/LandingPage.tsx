@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import * as LucideIcons from 'lucide-react';
 import { useFirebase } from '../context/FirebaseContext';
@@ -61,6 +61,108 @@ const MiniUreelCard: React.FC<{
           })}
         </div>
       </div>
+    </div>
+  );
+};
+
+
+
+type ShowcaseTone = 'consulting' | 'golf' | 'hotel' | 'craft' | 'stage' | 'auto' | 'student' | 'portrait';
+
+const SHOWCASE_ITEMS: Array<{
+  title: string;
+  label: string;
+  slug: string;
+  icon: keyof typeof LucideIcons;
+  tone: ShowcaseTone;
+  reveal: 'reel' | 'headline' | 'buttons' | 'copy' | 'complete';
+}> = [
+  { title: 'Unternehmensberaterin', label: 'Beratung klar präsentieren', slug: 'dein-angebot-sofort-klickbar', icon: 'BriefcaseBusiness', tone: 'consulting', reveal: 'reel' },
+  { title: 'Golfclub', label: 'Erlebnis & Buchung verbinden', slug: 'your-offer-instantly-clickable-2', icon: 'Flag', tone: 'golf', reveal: 'reel' },
+  { title: 'Hotel', label: 'Angebot direkt buchbar machen', slug: 'dein-angebot-sofort-klickbar-3', icon: 'Building2', tone: 'hotel', reveal: 'headline' },
+  { title: 'Tischlerei', label: 'Handwerk sichtbar machen', slug: 'dein-angebot-sofort-klickbar-4', icon: 'Hammer', tone: 'craft', reveal: 'headline' },
+  { title: 'Rednerpult', label: 'Event und Produkt inszenieren', slug: 'dein-angebot-sofort-klickbar-2', icon: 'Mic2', tone: 'stage', reveal: 'buttons' },
+  { title: 'Automarke', label: 'Produkt, Anfrage und Termin', slug: 'mario-kozuh-schneeberger', icon: 'Car', tone: 'auto', reveal: 'buttons' },
+  { title: 'Studentin', label: 'Portfolio & Kontakt in Sekunden', slug: 'your-offer-instantly-clickable', icon: 'GraduationCap', tone: 'student', reveal: 'copy' },
+  { title: 'Baron Lukas', label: 'Persönlichkeit & Story', slug: 'dein-angebot-sofort-klickbar-5', icon: 'Crown', tone: 'portrait', reveal: 'complete' }
+];
+
+const toneBackground: Record<ShowcaseTone, string> = {
+  consulting: 'from-[#1a1714] via-[#4b4036] to-[#0b0b0b]',
+  golf: 'from-[#07140e] via-[#1d5a35] to-[#070b08]',
+  hotel: 'from-[#20150f] via-[#75512d] to-[#0a0806]',
+  craft: 'from-[#1c120a] via-[#604022] to-[#0d0906]',
+  stage: 'from-[#16081c] via-[#4a1b58] to-[#09050b]',
+  auto: 'from-[#07101a] via-[#26394c] to-[#05070a]',
+  student: 'from-[#10151f] via-[#514333] to-[#08090b]',
+  portrait: 'from-[#1f1510] via-[#8a642b] to-[#070604]'
+};
+
+const ShowcasePhoneSequence: React.FC = () => {
+  const [index, setIndex] = useState(0);
+  const item = SHOWCASE_ITEMS[index];
+  const Icon = (LucideIcons as any)[item.icon] || LucideIcons.Sparkles;
+  const showHeadline = ['headline', 'buttons', 'copy', 'complete'].includes(item.reveal);
+  const showButtons = ['buttons', 'copy', 'complete'].includes(item.reveal);
+  const showCopy = ['copy', 'complete'].includes(item.reveal);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setIndex((current) => (current + 1) % SHOWCASE_ITEMS.length), 3000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="relative flex flex-col items-center gap-5">
+      <div className="relative w-[292px] h-[578px] rounded-[46px] border border-white/25 bg-white/[0.08] p-[7px] shadow-[0_32px_90px_rgba(0,0,0,0.52)] backdrop-blur-sm">
+        <div className={`relative h-full rounded-[38px] overflow-hidden bg-gradient-to-br ${toneBackground[item.tone]} text-white`}>
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 rounded-b-2xl bg-[#0B0B0B]/90 border-x border-b border-white/10" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_18%,rgba(255,255,255,0.2),transparent_26%),radial-gradient(circle_at_70%_72%,rgba(232,196,106,0.18),transparent_32%)]" />
+          <motion.div key={item.slug} initial={{ opacity: 0, scale: 1.04 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55 }} className="absolute inset-0">
+            <div className="absolute inset-0 bg-black/10" />
+            <div className="absolute top-16 left-6 right-6 flex items-center justify-center">
+              <div className="rounded-full border border-white/20 bg-black/25 px-4 py-2 text-[10px] font-black uppercase tracking-[0.22em] text-[#F5E4B8]">{item.title}</div>
+            </div>
+            <div className="absolute inset-x-7 top-[132px] bottom-[150px] rounded-[30px] border border-white/12 bg-white/[0.06] backdrop-blur-[2px] overflow-hidden">
+              <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.14),transparent_34%),radial-gradient(circle_at_50%_70%,rgba(0,0,0,0.45),transparent_48%)]" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Icon size={84} className="text-white/72 drop-shadow-[0_0_24px_rgba(255,255,255,0.18)]" />
+              </div>
+              <div className="absolute bottom-4 left-4 right-4">
+                <div className="h-1 rounded-full bg-white/18 overflow-hidden"><motion.div key={index} initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 2.85, ease: 'linear' }} className="h-full bg-[#F2D28B]" /></div>
+                <div className="mt-2 text-right text-[10px] font-black text-white/80">0:03</div>
+              </div>
+            </div>
+          </motion.div>
+
+          {showHeadline && (
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="absolute top-[92px] left-7 right-7 text-center">
+              <div className="text-3xl font-black uppercase leading-[0.92] tracking-[-0.04em]">{item.title}</div>
+              <div className="mt-2 text-[11px] font-black uppercase tracking-[0.16em] text-[#F2D28B]">{item.label}</div>
+            </motion.div>
+          )}
+
+          {showCopy && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="absolute left-7 right-7 bottom-[126px] rounded-2xl bg-black/34 border border-white/10 px-4 py-3 text-center">
+              <div className="text-[12px] font-bold leading-snug text-white/85">Video, Botschaft und Aktionen werden zu einer vollständigen UREEL.</div>
+            </motion.div>
+          )}
+
+          {showButtons && (
+            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="absolute bottom-8 left-7 right-7 grid grid-cols-3 gap-3">
+              {['Phone','Globe','Mail','Link','FileText','Share2'].map((icon) => {
+                const ButtonIcon = (LucideIcons as any)[icon] || LucideIcons.Circle;
+                return <div key={icon} className="aspect-square rounded-full bg-[#F6F0E6]/96 border border-[#F2D28B]/30 flex items-center justify-center shadow-lg"><ButtonIcon size={18} className="text-[#141414]" /></div>;
+              })}
+            </motion.div>
+          )}
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        {SHOWCASE_ITEMS.map((entry, i) => (
+          <button key={entry.slug} onClick={() => setIndex(i)} className={`h-2 rounded-full transition-all ${i === index ? 'w-8 bg-[#F2D28B]' : 'w-2 bg-white/25'}`} aria-label={`Showcase ${entry.title}`} />
+        ))}
+      </div>
+      <a href={`/u/${item.slug}`} className="rounded-full border border-[#F2D28B]/35 bg-[#F2D28B]/10 px-5 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[#F6E2A5] hover:bg-[#F2D28B] hover:text-black transition-colors">Live ansehen: {item.title}</a>
     </div>
   );
 };
@@ -196,24 +298,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
           </motion.div>
 
           <div className="relative min-h-[560px] flex items-center justify-center">
-            <div className="absolute w-[380px] h-[560px] rounded-[48px] bg-[#F6F0E6]/10 blur-3xl" />
-            <div className="relative w-[300px] h-[590px] rounded-[48px] p-3 bg-[#F6F0E6] shadow-[0_40px_100px_rgba(0,0,0,0.55)]">
-              <div className="h-full rounded-[38px] overflow-hidden bg-gradient-to-br from-[#211b16] via-[#101010] to-[#322112] relative">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-[#F6F0E6] rounded-b-2xl" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_20%,rgba(232,196,106,0.28),transparent_28%),radial-gradient(circle_at_70%_70%,rgba(255,255,255,0.12),transparent_28%)]" />
-                <div className="absolute top-20 left-6 right-6 rounded-[26px] bg-black/38 border border-[#E8DCC2]/30 p-5 text-center backdrop-blur-sm">
-                  <div className="text-[10px] uppercase tracking-[0.28em] text-[#E8DCC2] font-black">mein angebot</div>
-                  <div className="mt-4 text-3xl leading-[0.9] font-black uppercase">Deine Aktion startet hier</div>
-                  <p className="mt-4 text-xs text-white/75 font-bold">Video, Bild oder Angebot in eine klickbare Werbekarte verwandeln.</p>
-                </div>
-                <div className="absolute bottom-8 left-6 right-6 grid grid-cols-3 gap-4">
-                  {['Phone','Globe','Mail','MessageCircle','FileText','UserPlus'].map((icon) => {
-                    const Icon = (LucideIcons as any)[icon] || LucideIcons.Circle;
-                    return <div key={icon} className="aspect-square rounded-full bg-[#F6F0E6] flex items-center justify-center shadow-xl"><Icon size={20} className="text-[#151515]" /></div>;
-                  })}
-                </div>
-              </div>
-            </div>
+            <div className="absolute w-[360px] h-[540px] rounded-[56px] bg-[#F2D28B]/8 blur-3xl" />
+            <ShowcasePhoneSequence />
           </div>
 
           <div id="auth-box" className="rounded-[34px] bg-[#151515]/88 border border-white/12 shadow-[0_30px_90px_rgba(0,0,0,0.45)] p-6 md:p-7 backdrop-blur-xl">
@@ -241,24 +327,38 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
         </section>
 
         <section id="beispiele" className="relative max-w-7xl mx-auto px-5 md:px-8 py-16 border-t border-white/10">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Beispiele für deine ureel-Karten</h2>
-            <p className="mt-3 text-white/60 font-bold">Kurz, verständlich und direkt als Aktion nutzbar.</p>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-9">
+            <div>
+              <div className="text-[11px] font-black uppercase tracking-[0.22em] text-[#F2D28B] mb-3">Live-Showcases</div>
+              <h2 className="text-3xl md:text-5xl font-black tracking-tight">Echte UREELs. Echte Beispiele.</h2>
+              <p className="mt-3 text-white/60 font-bold max-w-2xl">Diese Beispiele sind als Links eingebunden. Wenn du die Karten später im Studio änderst, bleiben die Landingpage-Beispiele aktuell.</p>
+            </div>
+            <a href="#auth-box" className="rounded-2xl bg-[#F2D28B] text-black px-6 py-4 text-xs font-black uppercase tracking-widest text-center">Eigene UREEL starten</a>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              ['Privatperson','Momente, Kontakte und Links in einer persönlichen Karte.','private'],
-              ['Unternehmen','Leistungen, Ansprechpartner und Aktionen professionell präsentieren.','business'],
-              ['Gastro / Event','Angebote, Reservierung, Standort und Datei direkt erreichbar.','gastro']
-            ].map(([title, desc, tone]) => (
-              <div key={title} className="rounded-[30px] border border-white/10 bg-white/[0.045] p-6 flex gap-5 items-center">
-                <MiniUreelCard title={title as string} subtitle={desc as string} tone={tone as any} />
-                <div>
-                  <h3 className="text-2xl font-black mb-2">{title}</h3>
-                  <p className="text-sm text-white/62 leading-relaxed font-bold">{desc}</p>
-                </div>
-              </div>
-            ))}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {SHOWCASE_ITEMS.map((item, i) => {
+              const Icon = (LucideIcons as any)[item.icon] || LucideIcons.Sparkles;
+              return (
+                <a key={item.slug} href={`/u/${item.slug}`} className="group rounded-[28px] border border-white/10 bg-white/[0.04] hover:bg-white/[0.07] hover:border-[#F2D28B]/45 transition-all p-4 overflow-hidden">
+                  <div className={`relative h-48 rounded-[22px] overflow-hidden bg-gradient-to-br ${toneBackground[item.tone]} border border-white/10 mb-4`}>
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_20%,rgba(255,255,255,0.16),transparent_28%),linear-gradient(180deg,transparent,rgba(0,0,0,0.68))]" />
+                    <div className="absolute top-3 left-3 rounded-full bg-black/45 border border-white/15 px-3 py-1 text-[10px] font-black text-[#F2D28B]">{String(i + 1).padStart(2, '0')}</div>
+                    <Icon size={58} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white/70" />
+                    <div className="absolute left-4 right-4 bottom-4">
+                      <div className="text-lg font-black leading-tight">{item.title}</div>
+                      <div className="text-xs text-white/70 font-bold mt-1">{item.label}</div>
+                    </div>
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 flex items-center justify-center">
+                      <div className="w-14 h-14 rounded-full bg-[#F2D28B] text-black flex items-center justify-center"><LucideIcons.Play size={22} /></div>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-[11px] font-black uppercase tracking-[0.16em] text-white/70">Live ansehen</span>
+                    <LucideIcons.ArrowRight size={17} className="text-[#F2D28B] group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </a>
+              );
+            })}
           </div>
         </section>
 

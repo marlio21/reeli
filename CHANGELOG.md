@@ -807,3 +807,12 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Desktop-only: Miniwebseiten-Vorschau im Studio so skaliert, dass Karte, Menü und Inhalt gemeinsam sichtbar bleiben.
 - Vorschauhöhe an Browserfenster angepasst; „Webseite starten“ bleibt direkt erreichbar.
 - Public Desktop Renderer im Studio-Preview-Modus kompakter gemacht, ohne Mobile/Public-9:16-Renderer zu verändern.
+
+## v52.5.93 – RC2 Landingpage Hero Showcase Sequence
+- Landingpage-Hero erweitert: animierte Showcase-Sequenz mit 3-Sekunden-Wechseln.
+- Die Sequenz erzählt den Ablauf Reel → nächstes Beispiel → Headline → Buttons → Werbetext → vollständige UREEL.
+- Smartphone-Rahmen im Hero deutlich zarter und moderner gestaltet.
+- Live-Showcases direkt auf der Landingpage eingebunden: Unternehmensberaterin, Golfclub, Hotel, Tischlerei, Rednerpult, Automarke, Studentin, Baron Lukas.
+- Showcase-Links werden als relative /u/... Links verwendet, damit sie unter ureel.me funktionieren.
+- Keine Medien in die ZIP gelegt; keine Videos/Bilder kopiert; ZIP bleibt GitHub-freundlich.
+- Mobile Studio, Public Mobile Renderer und Firestore-Datenmodell nicht verändert.
