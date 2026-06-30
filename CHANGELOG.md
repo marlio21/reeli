@@ -1,4 +1,17 @@
 
+
+## v52.6.00 / RC2.7 – Landing Hero Transformation Showcases
+
+- Landingpage verwendet im Hero nur noch freigegebene Showcase-Einträge mit YouTube-Link und Public-View-Link.
+- Golfclub/Baron-Lukas-Platzhalter ohne YouTube-Link wurden aus der Hero-Video-Sequenz entfernt.
+- Hero zeigt zusätzlich eine Desktop-Miniwebseite neben der Smartphone-UREEL.
+- Landingpage-Texte sind jetzt kuratierte kurze Marketingtexte und werden nicht mehr direkt aus langen Public-Card-Texten übernommen.
+- Showcase-Wechsel verlängert und weicher gestaltet.
+- YouTube-Embeds starten weiter ab ca. Sekunde 4; Player bleibt nicht interaktiv.
+- Keine Videos/Bilder in der ZIP ergänzt.
+- Mobile Studio nicht verändert.
+
+
 ## v52.5.98 / RC2.5 Public Desktop Clean View
 - Public Desktop-Webseite bereinigt: Editor-/Studio-Hinweise wie „ohne Kartenbuttons“, „max. 6“ und Erklärungstext unter dem Smartphone werden in der öffentlichen Ansicht nicht mehr angezeigt.
 - Studio-Preview-Hinweise bleiben im Editor erhalten.

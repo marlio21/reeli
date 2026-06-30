@@ -72,10 +72,12 @@ const resolveShowcaseMedia = (card?: Card | null, directYoutubeUrl?: string, sta
   return { kind: 'none', src: '' };
 };
 
-const resolveShowcaseText = (item: any, card?: Card | null) => ({
-  title: card?.heroTitle || card?.title || item.title,
-  subtitle: card?.heroSubtitle || card?.subtitle || item.label,
-  copy: card?.heroDescription || card?.description || card?.slogan || 'Aus einem kurzen Moment entsteht eine klickbare UREEL – mit Video, Botschaft und direkter Aktion.',
+const resolveShowcaseText = (item: any, _card?: Card | null) => ({
+  // Landingpage texts are intentionally curated and short.
+  // Public card texts can be longer and are not used in the hero sequence.
+  title: item.landingTitle || item.title,
+  subtitle: item.landingSubtitle || item.label,
+  copy: item.landingCopy || 'Aus einem kurzen Moment entsteht eine klickbare UREEL – mit Video, Botschaft und direkter Aktion.',
 });
 
 const iconForButton = (button: any): string => {
@@ -127,42 +129,149 @@ const MiniUreelCard: React.FC<{
 
 
 
-type ShowcaseTone = 'consulting' | 'golf' | 'hotel' | 'craft' | 'stage' | 'auto' | 'student' | 'portrait';
+
+type ShowcaseTone = 'consulting' | 'hotel' | 'craft' | 'stage' | 'auto' | 'student' | 'travel';
 
 const SHOWCASE_ITEMS: Array<{
   title: string;
   label: string;
   slug: string;
-  youtubeUrl?: string;
+  youtubeUrl: string;
   startSeconds?: number;
-  publicPath?: string;
+  publicPath: string;
   icon: keyof typeof LucideIcons;
   tone: ShowcaseTone;
   reveal: 'reel' | 'headline' | 'buttons' | 'copy' | 'complete';
+  landingTitle: string;
+  landingSubtitle: string;
+  landingCopy: string;
+  desktopTitle: string;
+  desktopSubtitle: string;
+  desktopCopy: string;
+  desktopPoints: string[];
 }> = [
-  { title: 'Studentin', label: 'Portfolio & Kontakt in Sekunden', slug: 'your-offer-instantly-clickable', youtubeUrl: 'https://youtube.com/shorts/VF41Qhgy7ik?feature=share', startSeconds: 4, publicPath: '/u/your-offer-instantly-clickable', icon: 'GraduationCap', tone: 'student', reveal: 'reel' },
-  { title: 'Unternehmensberaterin', label: 'Beratung klar präsentieren', slug: 'dein-angebot-sofort-klickbar', youtubeUrl: 'https://youtube.com/shorts/phgVor0F9Xw?feature=share', startSeconds: 4, publicPath: '/u/dein-angebot-sofort-klickbar', icon: 'BriefcaseBusiness', tone: 'consulting', reveal: 'reel' },
-  { title: 'Automarke', label: 'Produkt, Anfrage und Termin', slug: 'mario-kozuh-schneeberger', youtubeUrl: 'https://youtube.com/shorts/UQEDw9BCDPo?feature=share', startSeconds: 4, publicPath: '/u/mario-kozuh-schneeberger', icon: 'Car', tone: 'auto', reveal: 'headline' },
-  { title: 'Tischlerei', label: 'Handwerk sichtbar machen', slug: 'dein-angebot-sofort-klickbar-4', youtubeUrl: 'https://youtube.com/shorts/nJi-Fl3u57o?feature=share', startSeconds: 4, publicPath: '/u/dein-angebot-sofort-klickbar-4', icon: 'Hammer', tone: 'craft', reveal: 'headline' },
-  { title: 'Rednerpult', label: 'Event und Produkt inszenieren', slug: 'dein-angebot-sofort-klickbar-2', youtubeUrl: 'https://youtube.com/shorts/fGvO5yAjxjo?', startSeconds: 4, publicPath: '/u/dein-angebot-sofort-klickbar-2', icon: 'Mic2', tone: 'stage', reveal: 'buttons' },
-  { title: 'Reisebüro', label: 'Reiseangebot emotional präsentieren', slug: 'dein-angebot-sofort-klickbar-3', youtubeUrl: 'https://youtube.com/shorts/Pi30hv6D7WA?feature=sharefeature=share', startSeconds: 4, publicPath: '/u/dein-angebot-sofort-klickbar-3', icon: 'Plane', tone: 'hotel', reveal: 'copy' },
-  { title: 'Golfclub', label: 'Erlebnis & Buchung verbinden', slug: 'your-offer-instantly-clickable-2', publicPath: '/u/your-offer-instantly-clickable-2', icon: 'Flag', tone: 'golf', reveal: 'buttons' },
-  { title: 'Baron Lukas', label: 'Persönlichkeit & Story', slug: 'dein-angebot-sofort-klickbar-5', publicPath: '/u/dein-angebot-sofort-klickbar-5', icon: 'Crown', tone: 'portrait', reveal: 'complete' }
+  {
+    title: 'Jennifer Lawson',
+    label: 'Studentin',
+    slug: 'your-offer-instantly-clickable',
+    youtubeUrl: 'https://youtube.com/shorts/VF41Qhgy7ik?feature=share',
+    startSeconds: 4,
+    publicPath: '/u/your-offer-instantly-clickable',
+    icon: 'GraduationCap',
+    tone: 'student',
+    reveal: 'reel',
+    landingTitle: 'Jennifer Lawson',
+    landingSubtitle: 'Portfolio & Kontakt in Sekunden',
+    landingCopy: 'Eine persönliche UREEL zeigt Profil, Motivation und Kontaktmöglichkeiten – ideal für Studium, Bewerbung und Netzwerk.',
+    desktopTitle: 'Jennifer Lawson',
+    desktopSubtitle: 'Studentin mit Profil',
+    desktopCopy: 'Aus einem kurzen Video entsteht eine moderne persönliche Miniwebseite mit Bild, Text und direkten Kontaktaktionen.',
+    desktopPoints: ['Portfolio', 'Kontakt', 'Persönlichkeit']
+  },
+  {
+    title: 'Nadine Jersey',
+    label: 'Unternehmensberaterin',
+    slug: 'dein-angebot-sofort-klickbar',
+    youtubeUrl: 'https://youtube.com/shorts/phgVor0F9Xw?feature=share',
+    startSeconds: 4,
+    publicPath: '/u/dein-angebot-sofort-klickbar',
+    icon: 'BriefcaseBusiness',
+    tone: 'consulting',
+    reveal: 'reel',
+    landingTitle: 'Nadine Jersey',
+    landingSubtitle: 'Beratung klar präsentieren',
+    landingCopy: 'Ein professionelles Reel wird zur strukturierten Beratungsvorstellung – mit Angebot, Kontakt und Miniwebseite.',
+    desktopTitle: 'Strategie sichtbar machen',
+    desktopSubtitle: 'Beratung. Vertrauen. Kontakt.',
+    desktopCopy: 'Die Desktop-Miniwebseite bündelt Profil, Nutzen und Handlungsmöglichkeiten in einer klaren Präsentation.',
+    desktopPoints: ['Expertise', 'Anfrage', 'Termin']
+  },
+  {
+    title: 'MX9',
+    label: 'Automarke',
+    slug: 'mario-kozuh-schneeberger',
+    youtubeUrl: 'https://youtube.com/shorts/UQEDw9BCDPo?feature=share',
+    startSeconds: 4,
+    publicPath: '/u/mario-kozuh-schneeberger',
+    icon: 'Car',
+    tone: 'auto',
+    reveal: 'headline',
+    landingTitle: 'Der neue MX9',
+    landingSubtitle: 'Produkt, Anfrage und Termin',
+    landingCopy: 'Ein Produktvideo wird zur klickbaren Präsentation mit Highlights, Anfrage-Button und direktem Kontakt.',
+    desktopTitle: 'Der neue MX9',
+    desktopSubtitle: 'Top Performance. Pure Electric.',
+    desktopCopy: 'Elektrisch, edel und schnell: In 4 Sekunden von 0 auf 100 – mit hochwertigem Innenraum und moderner Technologie.',
+    desktopPoints: ['E-Auto', '0–100 in 4 s', 'Edles Interieur']
+  },
+  {
+    title: 'Irene Hager',
+    label: 'Tischlerei',
+    slug: 'dein-angebot-sofort-klickbar-4',
+    youtubeUrl: 'https://youtube.com/shorts/nJi-Fl3u57o?feature=share',
+    startSeconds: 4,
+    publicPath: '/u/dein-angebot-sofort-klickbar-4',
+    icon: 'Hammer',
+    tone: 'craft',
+    reveal: 'headline',
+    landingTitle: 'Tischlerei Irene Hager',
+    landingSubtitle: 'Handwerk sichtbar machen',
+    landingCopy: 'Ein Werkstattmoment wird zur digitalen Präsentation für Möbel, Kurse, Anfragen und direkte Kontakte.',
+    desktopTitle: 'Möbelmanufaktur',
+    desktopSubtitle: 'Von Hand gefertigt',
+    desktopCopy: 'Die Desktopseite zeigt Leistung, Bildwelt und Kontaktmöglichkeiten – sauber aus derselben UREEL-Karte.',
+    desktopPoints: ['Maßarbeit', 'Restaurierung', 'Kurse']
+  },
+  {
+    title: 'Rednerpult',
+    label: 'Event & Produkt',
+    slug: 'dein-angebot-sofort-klickbar-2',
+    youtubeUrl: 'https://youtube.com/shorts/fGvO5yAjxjo?',
+    startSeconds: 4,
+    publicPath: '/u/dein-angebot-sofort-klickbar-2',
+    icon: 'Mic2',
+    tone: 'stage',
+    reveal: 'buttons',
+    landingTitle: 'Rednerpult',
+    landingSubtitle: 'Event und Produkt inszenieren',
+    landingCopy: 'Ein Produkt wird nicht nur gezeigt, sondern direkt erlebbar – mit Präsentation, Kontakt und Anfrage.',
+    desktopTitle: 'Perfekt inszeniert',
+    desktopSubtitle: 'Produkt. Bühne. Anfrage.',
+    desktopCopy: 'Aus dem Video entsteht eine Landing-Erfahrung, die das Produkt erklärt und sofort zur Aktion führt.',
+    desktopPoints: ['Event', 'Produkt', 'Kontakt']
+  },
+  {
+    title: 'Reisebüro',
+    label: 'Reiseangebot',
+    slug: 'dein-angebot-sofort-klickbar-3',
+    youtubeUrl: 'https://youtube.com/shorts/Pi30hv6D7WA?feature=sharefeature=share',
+    startSeconds: 4,
+    publicPath: '/u/dein-angebot-sofort-klickbar-3',
+    icon: 'Plane',
+    tone: 'travel',
+    reveal: 'copy',
+    landingTitle: 'Reisebüro',
+    landingSubtitle: 'Reisen emotional präsentieren',
+    landingCopy: 'Aus einem Reisetraum wird eine klickbare Angebotsseite – mit Anfrage, Buchung und persönlichem Kontakt.',
+    desktopTitle: 'Reise erleben',
+    desktopSubtitle: 'Inspiration trifft Anfrage',
+    desktopCopy: 'Die Miniwebseite verbindet Emotion, Angebot und Kontakt in einer kompakten Präsentation.',
+    desktopPoints: ['Inspiration', 'Angebot', 'Buchung']
+  }
 ];
 
 const toneBackground: Record<ShowcaseTone, string> = {
   consulting: 'from-[#1a1714] via-[#4b4036] to-[#0b0b0b]',
-  golf: 'from-[#07140e] via-[#1d5a35] to-[#070b08]',
   hotel: 'from-[#20150f] via-[#75512d] to-[#0a0806]',
   craft: 'from-[#1c120a] via-[#604022] to-[#0d0906]',
   stage: 'from-[#16081c] via-[#4a1b58] to-[#09050b]',
   auto: 'from-[#07101a] via-[#26394c] to-[#05070a]',
   student: 'from-[#10151f] via-[#514333] to-[#08090b]',
-  portrait: 'from-[#1f1510] via-[#8a642b] to-[#070604]'
+  travel: 'from-[#062023] via-[#0f5f67] to-[#061012]'
 };
 
 const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; index: number; card?: Card | null; loading?: boolean }> = ({ item, index, card, loading }) => {
-  const fallbackIcon = (LucideIcons as any)[item.icon] || LucideIcons.Sparkles;
+  const FallbackIcon = (LucideIcons as any)[item.icon] || LucideIcons.Sparkles;
   const media = resolveShowcaseMedia(card, item.youtubeUrl, item.startSeconds || 4);
   const text = resolveShowcaseText(item, card);
   const activeButtons = (card?.buttons || []).filter((button) => button?.isActive !== false).slice(0, 6);
@@ -196,7 +305,7 @@ const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; i
         <iframe
           title={`UREEL Video ${item.title}`}
           src={media.src}
-          className="absolute inset-0 h-full w-full scale-[1.42] opacity-78"
+          className="absolute inset-0 h-full w-full scale-[1.46] opacity-72 pointer-events-none"
           allow="autoplay; encrypted-media; picture-in-picture"
           referrerPolicy="strict-origin-when-cross-origin"
           loading="eager"
@@ -244,7 +353,7 @@ const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; i
 
       {showReelOnly && !loading && (
         <div className="absolute inset-x-8 top-[132px] z-10 rounded-[30px] border border-white/10 bg-black/18 px-6 py-8 text-center backdrop-blur-[2px]">
-          <fallbackIcon size={56} className="mx-auto text-white/72" strokeWidth={1.45} />
+          <FallbackIcon size={56} className="mx-auto text-white/72" strokeWidth={1.45} />
           <div className="mt-6 text-[10px] font-black uppercase tracking-[0.22em] text-[#F2D28B]">Live-Reel</div>
           <div className="mt-2 text-xl font-black leading-tight text-white">{text.title}</div>
         </div>
@@ -252,7 +361,7 @@ const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; i
 
       {showHeadline && (
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="absolute top-[96px] left-6 right-6 z-20 text-center">
-          <fallbackIcon size={34} className="mx-auto mb-4 text-white/72" strokeWidth={1.45} />
+          <FallbackIcon size={34} className="mx-auto mb-4 text-white/72" strokeWidth={1.45} />
           <div className="text-[28px] font-black uppercase leading-[0.9] tracking-[-0.055em] text-white drop-shadow-[0_8px_22px_rgba(0,0,0,0.45)]">{text.subtitle}</div>
           <div className="mx-auto mt-4 h-px w-20 bg-[#F2D28B]/62" />
         </motion.div>
@@ -282,10 +391,125 @@ const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; i
 
       <div className="absolute bottom-4 left-7 right-7 z-30">
         <div className="h-[2px] rounded-full bg-white/16 overflow-hidden">
-          <motion.div key={`${item.slug}-${index}`} initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 3.75, ease: 'linear' }} className="h-full bg-[#F2D28B]" />
+          <motion.div key={`${item.slug}-${index}`} initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 4.75, ease: 'linear' }} className="h-full bg-[#F2D28B]" />
         </div>
       </div>
     </motion.div>
+  );
+};
+
+
+const LandingDesktopMiniWebsitePreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; card?: Card | null }> = ({ item, card }) => {
+  const Icon = (LucideIcons as any)[item.icon] || LucideIcons.Sparkles;
+  const media = resolveShowcaseMedia(card, item.youtubeUrl, item.startSeconds || 4);
+  const points = item.desktopPoints || [];
+  return (
+    <motion.div
+      key={`desktop-${item.slug}`}
+      initial={{ opacity: 0, x: 20, filter: 'blur(8px)' }}
+      animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+      transition={{ duration: 0.85, ease: 'easeOut' }}
+      className="relative w-full max-w-[430px] rounded-[30px] border border-white/10 bg-white/[0.035] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.32)] backdrop-blur-xl overflow-hidden"
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_12%,rgba(242,210,139,0.12),transparent_35%),linear-gradient(135deg,rgba(255,255,255,0.055),transparent_45%)]" />
+      <div className="relative rounded-[22px] overflow-hidden border border-white/10 bg-black/28 min-h-[260px]">
+        <div className={`absolute inset-0 bg-gradient-to-br ${toneBackground[item.tone]}`} />
+        {media.poster && <div className="absolute inset-0 bg-cover bg-center opacity-36 scale-110" style={{ backgroundImage: `url(${media.poster})` }} />}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/72 via-black/36 to-black/22" />
+        <div className="relative z-10 p-6 md:p-7">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/14 bg-black/24 px-3 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-[#F2D28B]">
+            <Icon size={12} /> Desktop-Miniwebseite
+          </div>
+          <h3 className="mt-5 text-3xl md:text-4xl font-black leading-[0.95] tracking-[-0.05em] text-white">{item.desktopTitle}</h3>
+          <p className="mt-3 text-base font-black text-[#F2D28B]">{item.desktopSubtitle}</p>
+          <p className="mt-3 max-w-[320px] text-sm leading-relaxed text-white/72 font-semibold">{item.desktopCopy}</p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {points.map((point) => <span key={point} className="rounded-full border border-white/12 bg-white/7 px-3 py-2 text-[10px] font-black uppercase tracking-[0.12em] text-white/78">{point}</span>)}
+          </div>
+          <div className="mt-5 flex gap-2">
+            <span className="rounded-xl bg-[#F2D28B] px-4 py-3 text-[10px] font-black uppercase tracking-[0.12em] text-black">Kontakt</span>
+            <span className="rounded-xl border border-white/14 bg-black/22 px-4 py-3 text-[10px] font-black uppercase tracking-[0.12em] text-white/75">Live ansehen</span>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+const LandingHeroTransformation: React.FC = () => {
+  const { getCardBySlug } = useFirebase();
+  const [index, setIndex] = useState(0);
+  const [cardCache, setCardCache] = useState<Record<string, Card | null>>({});
+  const [loadingSlug, setLoadingSlug] = useState<string | null>(null);
+  const item = SHOWCASE_ITEMS[index];
+  const activeCard = cardCache[item.slug];
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setIndex((current) => (current + 1) % SHOWCASE_ITEMS.length), 5000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const slug = item.slug;
+    if (Object.prototype.hasOwnProperty.call(cardCache, slug)) return;
+    setLoadingSlug(slug);
+    getCardBySlug(slug, true)
+      .then((card) => {
+        if (!cancelled) setCardCache((current) => ({ ...current, [slug]: card || null }));
+      })
+      .catch((error) => {
+        console.warn('Landing showcase card could not be loaded', slug, error);
+        if (!cancelled) setCardCache((current) => ({ ...current, [slug]: null }));
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingSlug((current) => current === slug ? null : current);
+      });
+    return () => { cancelled = true; };
+  }, [item.slug, cardCache, getCardBySlug]);
+
+  useEffect(() => {
+    const next = SHOWCASE_ITEMS[(index + 1) % SHOWCASE_ITEMS.length];
+    if (!next || Object.prototype.hasOwnProperty.call(cardCache, next.slug)) return;
+    const t = window.setTimeout(() => {
+      getCardBySlug(next.slug, true)
+        .then((card) => setCardCache((current) => ({ ...current, [next.slug]: card || null })))
+        .catch(() => setCardCache((current) => ({ ...current, [next.slug]: null })));
+    }, 900);
+    return () => window.clearTimeout(t);
+  }, [index, cardCache, getCardBySlug]);
+
+  return (
+    <div className="relative grid xl:grid-cols-[300px_430px] gap-6 items-center justify-center w-full">
+      <div className="relative flex flex-col items-center gap-4">
+        <div className="pointer-events-none absolute -inset-8 rounded-[64px] bg-[#F2D28B]/8 blur-3xl" />
+        <div className="hidden" aria-hidden="true">
+          {SHOWCASE_ITEMS.map((entry) => {
+            const thumb = getYoutubeThumbnail(entry.youtubeUrl);
+            return thumb ? <img key={entry.slug} src={thumb} alt="" /> : null;
+          })}
+        </div>
+        <div className="relative w-[278px] h-[548px] rounded-[42px] border border-white/12 bg-white/[0.028] p-[3px] shadow-[0_24px_70px_rgba(0,0,0,0.34)] backdrop-blur-sm">
+          <div className="relative h-full rounded-[38px] overflow-hidden bg-[#070707] text-white ring-1 ring-white/7">
+            <div className="absolute top-0 left-1/2 z-40 -translate-x-1/2 w-24 h-5 rounded-b-2xl bg-[#050505]/96 border-x border-b border-white/8" />
+            <LandingMiniUreelPreview item={item} index={index} card={activeCard || null} loading={loadingSlug === item.slug && activeCard === undefined} />
+            <div className="absolute inset-0 z-30 pointer-events-none bg-[linear-gradient(115deg,rgba(255,255,255,0.08),transparent_24%,transparent_72%,rgba(255,255,255,0.04))]" />
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {SHOWCASE_ITEMS.map((entry, i) => (
+            <button key={entry.slug} onClick={() => setIndex(i)} className={`h-2 rounded-full transition-all ${i === index ? 'w-8 bg-[#F2D28B]' : 'w-2 bg-white/22 hover:bg-white/40'}`} aria-label={`Showcase ${entry.title}`} />
+          ))}
+        </div>
+        <a href={item.publicPath || `/u/${item.slug}`} className="rounded-full border border-[#F2D28B]/25 bg-white/[0.035] px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#F6E2A5] hover:bg-[#F2D28B] hover:text-black transition-colors">Live ansehen: {item.title}</a>
+      </div>
+      <div className="hidden xl:block">
+        <LandingDesktopMiniWebsitePreview item={item} card={activeCard || null} />
+      </div>
+      <div className="xl:hidden w-full max-w-[430px] mx-auto">
+        <LandingDesktopMiniWebsitePreview item={item} card={activeCard || null} />
+      </div>
+    </div>
   );
 };
 
@@ -298,7 +522,7 @@ const ShowcasePhoneSequence: React.FC = () => {
   const activeCard = cardCache[item.slug];
 
   useEffect(() => {
-    const timer = window.setInterval(() => setIndex((current) => (current + 1) % SHOWCASE_ITEMS.length), 3900);
+    const timer = window.setInterval(() => setIndex((current) => (current + 1) % SHOWCASE_ITEMS.length), 5000);
     return () => window.clearInterval(timer);
   }, []);
 
@@ -412,7 +636,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
   const handleGoogleLogin = async () => {
     try {
       setIsAuthenticating(true);
-      await loginWithGoogle();
+      await loginWithGoogle(true, true, false);
       onEnterDashboard();
     } catch (err: any) {
       setAuthError('Google-Anmeldung fehlgeschlagen.');
@@ -464,7 +688,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
       </header>
 
       <main className="relative z-10">
-        <section className="max-w-7xl mx-auto px-5 md:px-8 py-12 lg:py-20 grid lg:grid-cols-[1.05fr_0.9fr_0.85fr] gap-10 items-center">
+        <section className="max-w-7xl mx-auto px-5 md:px-8 py-12 lg:py-20 grid lg:grid-cols-[1.0fr_1.45fr_0.85fr] gap-10 items-center">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="space-y-7">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#E8DCC2]/25 bg-white/5 px-4 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-[#E8DCC2]">
               <LucideIcons.Sparkles size={14} /> Klickbare Smartphone-Werbekarten
@@ -473,7 +697,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
               Aus Video wird <span className="text-[#F2D28B]">Aktion.</span>
             </h1>
             <p className="text-lg md:text-xl text-white/72 leading-relaxed max-w-xl">
-              Dein Reel wird zur klickbaren Präsentation – mit Video, Botschaft, Buttons, QR-Code und Miniwebseite.
+              Dein Reel wird zur klickbaren Präsentation – mit Smartphone-Karte, Buttons, QR-Code und Desktop-Miniwebseite.
             </p>
             <div className="grid gap-3 text-sm font-bold text-white/78">
               {[
@@ -490,9 +714,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
             </div>
           </motion.div>
 
-          <div className="relative min-h-[560px] flex items-center justify-center">
-            <div className="absolute w-[360px] h-[540px] rounded-[56px] bg-[#F2D28B]/8 blur-3xl" />
-            <ShowcasePhoneSequence />
+          <div className="relative min-h-[560px] flex items-center justify-center lg:col-span-2 xl:col-span-1">
+            <div className="absolute w-[640px] h-[540px] rounded-[56px] bg-[#F2D28B]/8 blur-3xl" />
+            <LandingHeroTransformation />
           </div>
 
           <div id="auth-box" className="rounded-[34px] bg-[#151515]/88 border border-white/12 shadow-[0_30px_90px_rgba(0,0,0,0.45)] p-6 md:p-7 backdrop-blur-xl">
@@ -524,7 +748,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
             <div>
               <div className="text-[11px] font-black uppercase tracking-[0.22em] text-[#F2D28B] mb-3">Live-Showcases</div>
               <h2 className="text-3xl md:text-5xl font-black tracking-tight">Echte UREELs. Echte Beispiele.</h2>
-              <p className="mt-3 text-white/60 font-bold max-w-2xl">Diese Beispiele sind als Links eingebunden. Wenn du die Karten später im Studio änderst, bleiben die Landingpage-Beispiele aktuell.</p>
+              <p className="mt-3 text-white/60 font-bold max-w-2xl">Nur freigegebene Showcases mit YouTube-Link und Public-View-Link werden hier gezeigt. Die vollständige UREEL öffnet sich über „Live ansehen“.</p>
             </div>
             <a href="#auth-box" className="rounded-2xl bg-[#F2D28B] text-black px-6 py-4 text-xs font-black uppercase tracking-widest text-center">Eigene UREEL starten</a>
           </div>
