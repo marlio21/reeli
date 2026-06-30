@@ -491,6 +491,21 @@ const AppContent: React.FC = () => {
     return <LegalPages route={currentPath} onGoHome={() => navigateTo('/')} />;
   }
 
+
+  // ===== ROUTE 2A: PUBLIC LANDING PAGE (ALWAYS ACCESSIBLE) =====
+  // /landing is intentionally public, even for signed-in users.
+  // This allows the owner and testers to review the marketing page without logging out.
+  if (currentPath === '/landing' || currentPath === '/home') {
+    return (
+      <LandingPage 
+        lang={activeLang} 
+        setLang={setActiveLang} 
+        onEnterDashboard={() => navigateTo('/')}
+        onGoToRoute={navigateTo}
+      />
+    );
+  }
+
   // ===== ROUTE 3: SYSTEM ADMIN CONSOLE =====
   if (currentPath === '/admin') {
     return (

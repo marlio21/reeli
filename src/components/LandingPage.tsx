@@ -48,12 +48,13 @@ const getYoutubeThumbnail = (url?: string): string => {
   return id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : '';
 };
 
-const resolveShowcaseMedia = (card?: Card | null, directYoutubeUrl?: string): { kind: 'youtube' | 'direct' | 'image' | 'none'; src: string; poster?: string } => {
+const resolveShowcaseMedia = (card?: Card | null, directYoutubeUrl?: string, startSeconds = 0): { kind: 'youtube' | 'direct' | 'image' | 'none'; src: string; poster?: string } => {
   const directYtId = getYoutubeId(directYoutubeUrl);
+  const startParam = startSeconds > 0 ? `&start=${startSeconds}` : '';
   if (directYtId) {
     return {
       kind: 'youtube',
-      src: withYouTubeCaptionsDisabled(`https://www.youtube.com/embed/${directYtId}?autoplay=1&mute=1&playsinline=1&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&loop=1&playlist=${directYtId}`),
+      src: withYouTubeCaptionsDisabled(`https://www.youtube.com/embed/${directYtId}?autoplay=1&mute=1&playsinline=1&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&loop=1&playlist=${directYtId}${startParam}`),
       poster: getYoutubeThumbnail(directYoutubeUrl)
     };
   }
@@ -133,17 +134,18 @@ const SHOWCASE_ITEMS: Array<{
   label: string;
   slug: string;
   youtubeUrl?: string;
+  startSeconds?: number;
   publicPath?: string;
   icon: keyof typeof LucideIcons;
   tone: ShowcaseTone;
   reveal: 'reel' | 'headline' | 'buttons' | 'copy' | 'complete';
 }> = [
-  { title: 'Studentin', label: 'Portfolio & Kontakt in Sekunden', slug: 'your-offer-instantly-clickable', youtubeUrl: 'https://youtube.com/shorts/VF41Qhgy7ik?feature=share', publicPath: '/u/your-offer-instantly-clickable', icon: 'GraduationCap', tone: 'student', reveal: 'reel' },
-  { title: 'Unternehmensberaterin', label: 'Beratung klar präsentieren', slug: 'dein-angebot-sofort-klickbar', youtubeUrl: 'https://youtube.com/shorts/phgVor0F9Xw?feature=share', publicPath: '/u/dein-angebot-sofort-klickbar', icon: 'BriefcaseBusiness', tone: 'consulting', reveal: 'reel' },
-  { title: 'Automarke', label: 'Produkt, Anfrage und Termin', slug: 'mario-kozuh-schneeberger', youtubeUrl: 'https://youtube.com/shorts/UQEDw9BCDPo?feature=share', publicPath: '/u/mario-kozuh-schneeberger', icon: 'Car', tone: 'auto', reveal: 'headline' },
-  { title: 'Tischlerei', label: 'Handwerk sichtbar machen', slug: 'dein-angebot-sofort-klickbar-4', youtubeUrl: 'https://youtube.com/shorts/nJi-Fl3u57o?feature=share', publicPath: '/u/dein-angebot-sofort-klickbar-4', icon: 'Hammer', tone: 'craft', reveal: 'headline' },
-  { title: 'Rednerpult', label: 'Event und Produkt inszenieren', slug: 'dein-angebot-sofort-klickbar-2', youtubeUrl: 'https://youtube.com/shorts/fGvO5yAjxjo?', publicPath: '/u/dein-angebot-sofort-klickbar-2', icon: 'Mic2', tone: 'stage', reveal: 'buttons' },
-  { title: 'Reisebüro', label: 'Reiseangebot emotional präsentieren', slug: 'dein-angebot-sofort-klickbar-3', youtubeUrl: 'https://youtube.com/shorts/Pi30hv6D7WA?feature=sharefeature=share', publicPath: '/u/dein-angebot-sofort-klickbar-3', icon: 'Plane', tone: 'hotel', reveal: 'copy' },
+  { title: 'Studentin', label: 'Portfolio & Kontakt in Sekunden', slug: 'your-offer-instantly-clickable', youtubeUrl: 'https://youtube.com/shorts/VF41Qhgy7ik?feature=share', startSeconds: 4, publicPath: '/u/your-offer-instantly-clickable', icon: 'GraduationCap', tone: 'student', reveal: 'reel' },
+  { title: 'Unternehmensberaterin', label: 'Beratung klar präsentieren', slug: 'dein-angebot-sofort-klickbar', youtubeUrl: 'https://youtube.com/shorts/phgVor0F9Xw?feature=share', startSeconds: 4, publicPath: '/u/dein-angebot-sofort-klickbar', icon: 'BriefcaseBusiness', tone: 'consulting', reveal: 'reel' },
+  { title: 'Automarke', label: 'Produkt, Anfrage und Termin', slug: 'mario-kozuh-schneeberger', youtubeUrl: 'https://youtube.com/shorts/UQEDw9BCDPo?feature=share', startSeconds: 4, publicPath: '/u/mario-kozuh-schneeberger', icon: 'Car', tone: 'auto', reveal: 'headline' },
+  { title: 'Tischlerei', label: 'Handwerk sichtbar machen', slug: 'dein-angebot-sofort-klickbar-4', youtubeUrl: 'https://youtube.com/shorts/nJi-Fl3u57o?feature=share', startSeconds: 4, publicPath: '/u/dein-angebot-sofort-klickbar-4', icon: 'Hammer', tone: 'craft', reveal: 'headline' },
+  { title: 'Rednerpult', label: 'Event und Produkt inszenieren', slug: 'dein-angebot-sofort-klickbar-2', youtubeUrl: 'https://youtube.com/shorts/fGvO5yAjxjo?', startSeconds: 4, publicPath: '/u/dein-angebot-sofort-klickbar-2', icon: 'Mic2', tone: 'stage', reveal: 'buttons' },
+  { title: 'Reisebüro', label: 'Reiseangebot emotional präsentieren', slug: 'dein-angebot-sofort-klickbar-3', youtubeUrl: 'https://youtube.com/shorts/Pi30hv6D7WA?feature=sharefeature=share', startSeconds: 4, publicPath: '/u/dein-angebot-sofort-klickbar-3', icon: 'Plane', tone: 'hotel', reveal: 'copy' },
   { title: 'Golfclub', label: 'Erlebnis & Buchung verbinden', slug: 'your-offer-instantly-clickable-2', publicPath: '/u/your-offer-instantly-clickable-2', icon: 'Flag', tone: 'golf', reveal: 'buttons' },
   { title: 'Baron Lukas', label: 'Persönlichkeit & Story', slug: 'dein-angebot-sofort-klickbar-5', publicPath: '/u/dein-angebot-sofort-klickbar-5', icon: 'Crown', tone: 'portrait', reveal: 'complete' }
 ];
@@ -161,7 +163,7 @@ const toneBackground: Record<ShowcaseTone, string> = {
 
 const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; index: number; card?: Card | null; loading?: boolean }> = ({ item, index, card, loading }) => {
   const fallbackIcon = (LucideIcons as any)[item.icon] || LucideIcons.Sparkles;
-  const media = resolveShowcaseMedia(card, item.youtubeUrl);
+  const media = resolveShowcaseMedia(card, item.youtubeUrl, item.startSeconds || 4);
   const text = resolveShowcaseText(item, card);
   const activeButtons = (card?.buttons || []).filter((button) => button?.isActive !== false).slice(0, 6);
   const demoButtons = activeButtons.length > 0 ? activeButtons : [

@@ -60,7 +60,7 @@ const buildButtonAreaStyle = (desktopPage: any): React.CSSProperties | undefined
 const getDesktopText = (card: Card, desktopPage: any) => ({
   title: desktopPage.contentMode === 'custom' && desktopPage.title ? desktopPage.title : (card.title || card.heroTitle || 'ureel'),
   subtitle: desktopPage.contentMode === 'custom' && desktopPage.subtitle ? desktopPage.subtitle : (card.subtitle || card.heroSubtitle || 'Aus Video wird Aktion.'),
-  description: desktopPage.contentMode === 'custom' && desktopPage.description ? desktopPage.description : (card.description || card.heroDescription || ''),
+  description: getReadableDesktopDescription(desktopPage.contentMode === 'custom' && desktopPage.description ? desktopPage.description : (card.description || card.heroDescription || '')),
 });
 
 const getDesktopContentMedia = (card: Card, desktopPage: any) => {
@@ -68,6 +68,21 @@ const getDesktopContentMedia = (card: Card, desktopPage: any) => {
   const explicitType = desktopPage.contentMediaType || (desktopPage.contentVideoUrl ? 'video' : desktopPage.contentImageUrl ? 'image' : '');
   const type = explicitType || (/\.(mp4|webm|mov)(\?|#|$)/i.test(url) ? 'video' : 'image');
   return { url, type };
+};
+
+const getReadableDesktopDescription = (value?: string): string => {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  return raw
+    .replace(/\r\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/[ \t]+\n/g, '\n');
+};
+
+const getPublicTextSizeStyle = (card: Card): React.CSSProperties => {
+  const configured = Number((card as any).heroDescriptionSize || (card as any).descriptionSize || 0);
+  const fontSize = configured > 0 ? Math.max(15, Math.min(22, configured + 2)) : 18;
+  return { fontSize, lineHeight: 1.58, whiteSpace: 'pre-line' };
 };
 
 export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps> = ({
@@ -110,7 +125,7 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
       </div>
       <div className={isStudioPreview
         ? 'relative w-[132px] h-[235px] overflow-hidden rounded-[24px] border-[5px] border-[#1A1A1A] bg-black shadow-2xl mx-auto'
-        : 'relative h-[78vh] max-h-[760px] aspect-[9/16] overflow-hidden rounded-[36px] border-[8px] border-[#D8D2C4] bg-black shadow-2xl'}>
+        : 'relative h-[78vh] max-h-[760px] aspect-[9/16] overflow-hidden rounded-[36px] border-[6px] border-[#D8D2C4]/90 bg-black shadow-2xl'}>
         <UnifiedMobileLiveCardSurface
           card={card}
           lang={lang}
@@ -216,18 +231,17 @@ export const PublicDesktopPageRenderer: React.FC<PublicDesktopPageRendererProps>
       {isStudioPreview && <span className="w-fit rounded-full border border-[#E8DCC2]/35 px-3 py-1 text-[10px] uppercase tracking-[0.22em] font-black text-[#E8DCC2]">Inhalt</span>}
       <h1 className={`${isStudioPreview ? 'mt-2 text-xl' : 'mt-5 text-4xl xl:text-5xl'} font-black leading-[0.96] text-[#F5F2EA] tracking-tight`}>{text.title}</h1>
       {text.subtitle && <p className={`${isStudioPreview ? 'mt-2 text-xs' : 'mt-5 text-xl xl:text-2xl'} font-bold leading-tight text-[#E8DCC2]`}>{text.subtitle}</p>}
-      {text.description && <p className={`${isStudioPreview ? 'mt-2 text-[10px] line-clamp-3' : 'mt-5 text-base xl:text-lg'} max-w-xl leading-relaxed text-[#F5F2EA]/75`}>{text.description}</p>}
+      {text.description && <p className={`${isStudioPreview ? 'mt-2 text-[10px] line-clamp-3' : 'mt-5 max-w-xl text-[#F5F2EA]/76'}`} style={isStudioPreview ? undefined : getPublicTextSizeStyle(card)}>{text.description}</p>}
     </div>
   );
 
   const contentLayout = desktopPage.contentLayout || 'media_top_text_bottom';
   const contentPanel = (
-    <section className={`${isStudioPreview ? 'rounded-[26px] border border-white/10 bg-black/25 p-4' : 'p-6 xl:p-9'} h-full min-w-0 flex flex-col justify-center overflow-hidden`} style={{ textShadow: '0 1px 2px rgba(0,0,0,.72)' }}>
+    <section className={`${isStudioPreview ? 'rounded-[26px] border border-white/10 bg-black/25 p-4' : 'p-6 xl:p-9'} h-full min-w-0 flex flex-col justify-center overflow-y-auto`} style={{ textShadow: '0 1px 2px rgba(0,0,0,.72)' }}>
       {contentLayout === 'media_middle' ? (
         <div className="space-y-4">
           {renderContentTextBlock('compact')}
           {renderContentMediaBlock()}
-          {text.description && <p className={`${isStudioPreview ? 'text-[10px] line-clamp-2' : 'text-base'} leading-relaxed text-[#F5F2EA]/70`}>{text.description}</p>}
         </div>
       ) : contentLayout === 'media_bottom' ? (
         <div className="space-y-4">
