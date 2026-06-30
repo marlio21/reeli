@@ -835,3 +835,13 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Showcase-Links werden als relative /u/... Links verwendet, damit sie unter ureel.me funktionieren.
 - Keine Medien in die ZIP gelegt; keine Videos/Bilder kopiert; ZIP bleibt GitHub-freundlich.
 - Mobile Studio, Public Mobile Renderer und Firestore-Datenmodell nicht verändert.
+
+
+## v52.5.96 / RC2.3 – Landing Hero Real Showcase Data Loader
+
+- Landing-Hero lädt die Showcase-Karten jetzt per Slug aus Firestore.
+- Hero-Smartphone kann YouTube-/Direct-Video, Poster oder Bild aus den echten Kartendaten anzeigen.
+- Es wird nur die aktive Karte plus ein sanfter Prefetch der nächsten Karte geladen, damit die Landingpage leicht bleibt.
+- Keine Videos oder großen Medien in der ZIP; nur Code und Slugs.
+- Showcase-Galerie bleibt als leichte Link-Galerie erhalten.
+- Mobile Studio, Public-Karten und Desktop-Studio wurden nicht verändert.

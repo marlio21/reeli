@@ -8,6 +8,7 @@ import { motion } from 'motion/react';
 import * as LucideIcons from 'lucide-react';
 import { useFirebase } from '../context/FirebaseContext';
 import { TRANSLATIONS } from '../translations';
+import { Card } from '../types';
 
 interface LandingPageProps {
   lang: 'de' | 'en';
@@ -29,6 +30,51 @@ const UPlayIcon: React.FC<{ size?: number }> = ({ size = 64 }) => (
     </div>
   </div>
 );
+
+
+const getYoutubeId = (url?: string): string => {
+  if (!url) return '';
+  const match = url.trim().match(/(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|v\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : '';
+};
+
+const withYouTubeCaptionsDisabled = (url: string): string => {
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}cc_load_policy=0&disablekb=1&fs=0`;
+};
+
+const resolveShowcaseMedia = (card?: Card | null): { kind: 'youtube' | 'direct' | 'image' | 'none'; src: string; poster?: string } => {
+  if (!card) return { kind: 'none', src: '' };
+  const sceneVideo = card.ureelScene?.mode === 'video' ? card.ureelScene.video?.url : '';
+  const youtubeUrl = card.videoBackgroundConfig?.youtube?.url || card.videoBackgroundConfig?.youtubeUrl || sceneVideo || '';
+  const uploadUrl = card.videoBackgroundConfig?.upload?.optimizedVideoUrl || card.videoBackgroundConfig?.upload?.fileUrl || card.heroVideoUrl || card.productVideoUrl || '';
+  const poster = card.videoBackgroundConfig?.upload?.thumbnailUrl || card.coverImageUrl || card.heroImageUrl || card.cardBackgroundImageUrl || card.backgroundImageUrl || card.profileImageUrl || '';
+  const ytId = getYoutubeId(youtubeUrl);
+  if (ytId) {
+    return { kind: 'youtube', src: withYouTubeCaptionsDisabled(`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&playsinline=1&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&loop=1&playlist=${ytId}`), poster };
+  }
+  if (uploadUrl) return { kind: 'direct', src: uploadUrl, poster };
+  if (poster) return { kind: 'image', src: poster };
+  return { kind: 'none', src: '' };
+};
+
+const resolveShowcaseText = (item: any, card?: Card | null) => ({
+  title: card?.heroTitle || card?.title || item.title,
+  subtitle: card?.heroSubtitle || card?.subtitle || item.label,
+  copy: card?.heroDescription || card?.description || card?.slogan || 'Aus einem kurzen Moment entsteht eine klickbare UREEL – mit Video, Botschaft und direkter Aktion.',
+});
+
+const iconForButton = (button: any): string => {
+  const value = String(button?.icon || button?.iconId || button?.actionType || '').toLowerCase();
+  if (value.includes('phone') || value.includes('telefon') || value.includes('call')) return 'Phone';
+  if (value.includes('mail') || value.includes('email')) return 'Mail';
+  if (value.includes('web') || value.includes('globe') || value.includes('url')) return 'Globe';
+  if (value.includes('folder') || value.includes('file') || value.includes('pdf') || value.includes('download')) return 'FileText';
+  if (value.includes('map') || value.includes('route') || value.includes('location')) return 'MapPin';
+  if (value.includes('share') || value.includes('teilen')) return 'Share2';
+  if (value.includes('linkedin')) return 'Linkedin';
+  return 'Sparkles';
+};
 
 const MiniUreelCard: React.FC<{
   title: string;
@@ -98,8 +144,19 @@ const toneBackground: Record<ShowcaseTone, string> = {
   portrait: 'from-[#1f1510] via-[#8a642b] to-[#070604]'
 };
 
-const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; index: number }> = ({ item, index }) => {
-  const Icon = (LucideIcons as any)[item.icon] || LucideIcons.Sparkles;
+const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; index: number; card?: Card | null; loading?: boolean }> = ({ item, index, card, loading }) => {
+  const fallbackIcon = (LucideIcons as any)[item.icon] || LucideIcons.Sparkles;
+  const media = resolveShowcaseMedia(card);
+  const text = resolveShowcaseText(item, card);
+  const activeButtons = (card?.buttons || []).filter((button) => button?.isActive !== false).slice(0, 6);
+  const demoButtons = activeButtons.length > 0 ? activeButtons : [
+    { title: 'Anruf', actionType: 'phone', icon: 'Phone' },
+    { title: 'Web', actionType: 'url', icon: 'Globe' },
+    { title: 'Mail', actionType: 'email', icon: 'Mail' },
+    { title: 'Info', actionType: 'file', icon: 'FileText' },
+    { title: 'Teilen', actionType: 'share', icon: 'Share2' },
+    { title: 'Kontakt', actionType: 'contact', icon: 'UserPlus' }
+  ];
   const showHeadline = index >= 2;
   const showButtons = index >= 4;
   const showCopy = index >= 6;
@@ -108,62 +165,94 @@ const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; i
 
   return (
     <motion.div
-      key={item.slug}
-      initial={{ opacity: 0, scale: 1.015, y: 8, filter: 'blur(8px)' }}
+      key={`${item.slug}-${card?.cardId || 'fallback'}-${index}`}
+      initial={{ opacity: 0, scale: 1.012, y: 8, filter: 'blur(8px)' }}
       animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
       transition={{ duration: 0.7, ease: 'easeOut' }}
       className={`absolute inset-0 overflow-hidden bg-gradient-to-br ${toneBackground[item.tone]}`}
     >
-      <div className="absolute inset-0 opacity-75 bg-[radial-gradient(circle_at_28%_18%,rgba(255,255,255,0.20),transparent_25%),radial-gradient(circle_at_72%_76%,rgba(232,196,106,0.18),transparent_34%),linear-gradient(180deg,rgba(0,0,0,0.02),rgba(0,0,0,0.70))]" />
-      <motion.div
-        initial={{ scale: 1 }}
-        animate={{ scale: 1.06 }}
-        transition={{ duration: 3.15, ease: 'linear' }}
-        className="absolute inset-0 opacity-80"
-      >
-        <div className="absolute left-[-20%] top-[12%] h-44 w-44 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute right-[-20%] bottom-[18%] h-52 w-52 rounded-full bg-[#F2D28B]/12 blur-3xl" />
-        <div className="absolute inset-x-6 top-24 h-72 rounded-[38px] border border-white/8 bg-black/10 backdrop-blur-[1px]" />
-      </motion.div>
+      <div className="absolute inset-0 bg-black/20" />
+      {media.kind === 'youtube' && (
+        <iframe
+          title={`UREEL Video ${item.title}`}
+          src={media.src}
+          className="absolute inset-0 h-full w-full scale-[1.28] opacity-85"
+          allow="autoplay; encrypted-media; picture-in-picture"
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
+      )}
+      {media.kind === 'direct' && (
+        <video
+          key={media.src}
+          src={media.src}
+          poster={media.poster}
+          className="absolute inset-0 h-full w-full object-cover opacity-85"
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      )}
+      {media.kind === 'image' && (
+        <div className="absolute inset-0 bg-cover bg-center opacity-86" style={{ backgroundImage: `url(${media.src})` }} />
+      )}
+      {media.kind === 'none' && (
+        <motion.div
+          initial={{ scale: 1 }}
+          animate={{ scale: 1.06 }}
+          transition={{ duration: 3.15, ease: 'linear' }}
+          className="absolute inset-0 opacity-85"
+        >
+          <div className="absolute left-[-20%] top-[12%] h-44 w-44 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute right-[-20%] bottom-[18%] h-52 w-52 rounded-full bg-[#F2D28B]/12 blur-3xl" />
+        </motion.div>
+      )}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_34%_18%,rgba(255,255,255,0.10),transparent_30%),linear-gradient(180deg,rgba(0,0,0,0.06),rgba(0,0,0,0.35)_38%,rgba(0,0,0,0.82))]" />
 
       <div className="absolute top-9 left-6 right-6 z-10 flex items-center justify-between">
-        <div className="rounded-full border border-white/14 bg-black/20 px-3 py-1 text-[8px] font-black uppercase tracking-[0.22em] text-[#F2D28B] backdrop-blur-md">{item.title}</div>
-        <div className="rounded-full border border-white/12 bg-black/18 px-2 py-1 text-[8px] font-black text-white/60">0:03</div>
+        <div className="rounded-full border border-white/16 bg-black/28 px-3 py-1 text-[8px] font-black uppercase tracking-[0.22em] text-[#F2D28B] backdrop-blur-md">{item.title}</div>
+        <div className="rounded-full border border-white/12 bg-black/22 px-2 py-1 text-[8px] font-black text-white/62">0:03</div>
       </div>
 
-      {showReelOnly && (
-        <div className="absolute inset-x-8 top-[128px] z-10 rounded-[30px] border border-white/10 bg-black/18 px-6 py-10 text-center backdrop-blur-sm">
-          <Icon size={74} className="mx-auto text-white/78" strokeWidth={1.55} />
-          <div className="mt-8 text-[11px] font-black uppercase tracking-[0.22em] text-[#F2D28B]">Reel läuft</div>
-          <div className="mt-2 text-xl font-black leading-tight text-white">{item.title}</div>
+      {loading && (
+        <div className="absolute inset-x-8 top-[138px] z-10 rounded-[28px] border border-white/10 bg-black/20 px-5 py-8 text-center backdrop-blur-md">
+          <LucideIcons.Loader2 size={38} className="mx-auto animate-spin text-[#F2D28B]" />
+          <div className="mt-4 text-[10px] font-black uppercase tracking-[0.20em] text-white/62">Live-UREEL lädt</div>
+        </div>
+      )}
+
+      {showReelOnly && !loading && (
+        <div className="absolute inset-x-8 top-[132px] z-10 rounded-[30px] border border-white/10 bg-black/18 px-6 py-8 text-center backdrop-blur-[2px]">
+          <fallbackIcon size={56} className="mx-auto text-white/72" strokeWidth={1.45} />
+          <div className="mt-6 text-[10px] font-black uppercase tracking-[0.22em] text-[#F2D28B]">Live-Reel</div>
+          <div className="mt-2 text-xl font-black leading-tight text-white">{text.title}</div>
         </div>
       )}
 
       {showHeadline && (
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="absolute top-[98px] left-6 right-6 z-20 text-center">
-          <Icon size={42} className="mx-auto mb-5 text-white/75" strokeWidth={1.5} />
-          <div className="text-[30px] font-black uppercase leading-[0.9] tracking-[-0.05em] text-white drop-shadow-[0_8px_22px_rgba(0,0,0,0.45)]">{item.label}</div>
-          <div className="mx-auto mt-4 h-px w-24 bg-[#F2D28B]/60" />
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="absolute top-[96px] left-6 right-6 z-20 text-center">
+          <fallbackIcon size={34} className="mx-auto mb-4 text-white/72" strokeWidth={1.45} />
+          <div className="text-[28px] font-black uppercase leading-[0.9] tracking-[-0.055em] text-white drop-shadow-[0_8px_22px_rgba(0,0,0,0.45)]">{text.subtitle}</div>
+          <div className="mx-auto mt-4 h-px w-20 bg-[#F2D28B]/62" />
         </motion.div>
       )}
 
       {showCopy && (
-        <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="absolute left-7 right-7 bottom-[135px] z-20 rounded-[22px] bg-black/28 border border-white/10 px-4 py-4 text-center backdrop-blur-xl">
-          <div className="text-[9px] font-black uppercase tracking-[0.22em] text-[#F2D28B]">Werbetext</div>
-          <div className="mt-2 text-[13px] font-bold leading-snug text-white/86">Ein kurzer Moment wird zur klickbaren Karte – mit Botschaft, Link und direkter Aktion.</div>
+        <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="absolute left-7 right-7 bottom-[132px] z-20 rounded-[22px] bg-black/34 border border-white/10 px-4 py-4 text-center backdrop-blur-xl">
+          <div className="text-[8px] font-black uppercase tracking-[0.22em] text-[#F2D28B]">Werbetext</div>
+          <div className="mt-2 text-[12px] font-bold leading-snug text-white/88 line-clamp-4">{text.copy}</div>
         </motion.div>
       )}
 
       {showButtons && (
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="absolute bottom-10 left-8 right-8 z-20 grid grid-cols-3 gap-3">
-          {[
-            ['Phone','Anruf'], ['Globe','Web'], ['Mail','Mail'], ['Link','Link'], ['FileText','Info'], ['Share2','Teilen']
-          ].map(([icon,label]) => {
-            const ButtonIcon = (LucideIcons as any)[icon] || LucideIcons.Circle;
+          {demoButtons.map((button: any, idx: number) => {
+            const iconName = iconForButton(button);
+            const ButtonIcon = (LucideIcons as any)[iconName] || LucideIcons.Circle;
             return (
-              <div key={icon} className="aspect-square rounded-full bg-[#F8F1E5]/95 border border-[#F2D28B]/25 flex flex-col items-center justify-center gap-1 shadow-[0_12px_28px_rgba(0,0,0,0.24)]">
+              <div key={button?.id || `${iconName}-${idx}`} className="aspect-square rounded-full bg-[#F8F1E5]/96 border border-[#F2D28B]/25 flex flex-col items-center justify-center gap-1 shadow-[0_12px_28px_rgba(0,0,0,0.24)]">
                 <ButtonIcon size={17} className="text-[#111]" strokeWidth={1.8} />
-                {isComplete && <span className="text-[7px] font-black text-[#111]/70 uppercase tracking-wide">{label}</span>}
+                {isComplete && <span className="text-[7px] font-black text-[#111]/70 uppercase tracking-wide truncate max-w-[52px]">{button?.title || button?.label || button?.actionType || 'Aktion'}</span>}
               </div>
             );
           })}
@@ -180,21 +269,57 @@ const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; i
 };
 
 const ShowcasePhoneSequence: React.FC = () => {
+  const { getCardBySlug } = useFirebase();
   const [index, setIndex] = useState(0);
+  const [cardCache, setCardCache] = useState<Record<string, Card | null>>({});
+  const [loadingSlug, setLoadingSlug] = useState<string | null>(null);
   const item = SHOWCASE_ITEMS[index];
+  const activeCard = cardCache[item.slug];
 
   useEffect(() => {
     const timer = window.setInterval(() => setIndex((current) => (current + 1) % SHOWCASE_ITEMS.length), 3200);
     return () => window.clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    const slug = item.slug;
+    if (Object.prototype.hasOwnProperty.call(cardCache, slug)) return;
+    setLoadingSlug(slug);
+    getCardBySlug(slug, true)
+      .then((card) => {
+        if (cancelled) return;
+        setCardCache((current) => ({ ...current, [slug]: card || null }));
+      })
+      .catch((error) => {
+        console.warn('Landing showcase card could not be loaded', slug, error);
+        if (!cancelled) setCardCache((current) => ({ ...current, [slug]: null }));
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingSlug((current) => current === slug ? null : current);
+      });
+    return () => { cancelled = true; };
+  }, [item.slug, cardCache, getCardBySlug]);
+
+  // Gentle prefetch of the next card only, so the hero feels alive without loading all videos at once.
+  useEffect(() => {
+    const next = SHOWCASE_ITEMS[(index + 1) % SHOWCASE_ITEMS.length];
+    if (!next || Object.prototype.hasOwnProperty.call(cardCache, next.slug)) return;
+    const t = window.setTimeout(() => {
+      getCardBySlug(next.slug, true)
+        .then((card) => setCardCache((current) => ({ ...current, [next.slug]: card || null })))
+        .catch(() => setCardCache((current) => ({ ...current, [next.slug]: null })));
+    }, 900);
+    return () => window.clearTimeout(t);
+  }, [index, cardCache, getCardBySlug]);
+
   return (
     <div className="relative flex flex-col items-center gap-4">
       <div className="pointer-events-none absolute -inset-8 rounded-[64px] bg-[#F2D28B]/8 blur-3xl" />
-      <div className="relative w-[278px] h-[548px] rounded-[42px] border border-white/14 bg-white/[0.035] p-[4px] shadow-[0_24px_70px_rgba(0,0,0,0.38)] backdrop-blur-sm">
-        <div className="relative h-full rounded-[37px] overflow-hidden bg-[#070707] text-white ring-1 ring-white/8">
+      <div className="relative w-[278px] h-[548px] rounded-[42px] border border-white/12 bg-white/[0.028] p-[3px] shadow-[0_24px_70px_rgba(0,0,0,0.34)] backdrop-blur-sm">
+        <div className="relative h-full rounded-[38px] overflow-hidden bg-[#070707] text-white ring-1 ring-white/7">
           <div className="absolute top-0 left-1/2 z-40 -translate-x-1/2 w-24 h-5 rounded-b-2xl bg-[#050505]/96 border-x border-b border-white/8" />
-          <LandingMiniUreelPreview item={item} index={index} />
+          <LandingMiniUreelPreview item={item} index={index} card={activeCard || null} loading={loadingSlug === item.slug && activeCard === undefined} />
           <div className="absolute inset-0 z-30 pointer-events-none bg-[linear-gradient(115deg,rgba(255,255,255,0.08),transparent_24%,transparent_72%,rgba(255,255,255,0.04))]" />
         </div>
       </div>
@@ -207,7 +332,6 @@ const ShowcasePhoneSequence: React.FC = () => {
     </div>
   );
 };
-
 
 export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnterDashboard, onGoToRoute }) => {
   const { user, loginWithGoogle, loginWithEmail, registerWithEmail, sendPasswordReset } = useFirebase();
