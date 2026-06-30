@@ -864,3 +864,10 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Keine Videos oder großen Medien in der ZIP; nur Code und Slugs.
 - Showcase-Galerie bleibt als leichte Link-Galerie erhalten.
 - Mobile Studio, Public-Karten und Desktop-Studio wurden nicht verändert.
+
+## v52.6.04 / RC2.11 – Landingpage Showcase Refinement
+- Hero zeigt jetzt Nadine Jersey statt Jennifer Lawson, da das Studentin-Video aktuell beschädigt wirkt.
+- MX9 Desktop-Webseite wird als hochwertiges Screenshot-Bild ohne Beschnitt dargestellt.
+- Vier Public-View-Showcases bleiben auf die freigegebenen Links beschränkt.
+- Public-View-Showcase-Iframes werden um jeweils 1 Sekunde versetzt geladen.
+- Mobile Studio unverändert.

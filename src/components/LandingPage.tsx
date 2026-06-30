@@ -593,6 +593,34 @@ const ShowcasePhoneSequence: React.FC = () => {
   );
 };
 
+
+const DelayedPublicIframe: React.FC<{ title: string; src: string; delayMs?: number; eager?: boolean }> = ({ title, src, delayMs = 0, eager = false }) => {
+  const [visible, setVisible] = useState(delayMs === 0);
+  useEffect(() => {
+    if (delayMs === 0) return;
+    const timer = window.setTimeout(() => setVisible(true), delayMs);
+    return () => window.clearTimeout(timer);
+  }, [delayMs]);
+
+  if (!visible) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-black">
+        <div className="h-8 w-8 rounded-full border border-[#F2D28B]/35 border-t-[#F2D28B] animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <iframe
+      title={title}
+      src={src}
+      className="absolute inset-0 h-full w-full border-0 bg-black"
+      loading={eager ? 'eager' : 'lazy'}
+      allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+    />
+  );
+};
+
 export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnterDashboard, onGoToRoute }) => {
   const { user, loginWithGoogle, loginWithEmail, registerWithEmail, sendPasswordReset } = useFirebase();
   const tGlobal = TRANSLATIONS[lang];
@@ -734,15 +762,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
             <div className="relative w-[306px] h-[620px] rounded-[46px] border border-white/16 bg-white/[0.035] p-[4px] shadow-[0_28px_80px_rgba(0,0,0,0.42)]">
               <div className="relative h-full rounded-[42px] overflow-hidden bg-black ring-1 ring-white/8">
                 <iframe
-                  title="Jennifer Lawson UREEL"
-                  src={publicUrl('/u/your-offer-instantly-clickable')}
+                  title="Nadine Jersey UREEL"
+                  src={publicUrl('/u/dein-angebot-sofort-klickbar')}
                   className="absolute inset-0 h-full w-full border-0 bg-black"
                   loading="eager"
                   allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
                 />
               </div>
             </div>
-            <a href="/u/your-offer-instantly-clickable" className="absolute -bottom-11 rounded-full border border-[#F2D28B]/25 bg-black/55 px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#F6E2A5] hover:bg-[#F2D28B] hover:text-black transition-colors">Live ansehen: Jennifer Lawson</a>
+            <a href="/u/dein-angebot-sofort-klickbar" className="absolute -bottom-11 rounded-full border border-[#F2D28B]/25 bg-black/55 px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#F6E2A5] hover:bg-[#F2D28B] hover:text-black transition-colors">Live ansehen: Nadine Jersey</a>
           </div>
 
           <div id="auth-box" className="rounded-[30px] bg-[#151515]/86 border border-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.42)] p-6 md:p-7 backdrop-blur-xl">
@@ -773,7 +801,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
           <div className="mx-auto max-w-4xl text-center mb-12">
             <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">Smartphone + Desktop</div>
             <h2 className="text-3xl md:text-6xl font-black tracking-[-0.055em] leading-[0.95]">Ein Reel. Eine Präsentation.</h2>
-            <p className="mt-5 text-lg text-white/62 font-semibold leading-relaxed">Links läuft die echte UREEL-Karte. Rechts sieht man die Desktop-Webseite als hochwertige Präsentation – am Beispiel des MX9.</p>
+            <p className="mt-5 text-lg text-white/62 font-semibold leading-relaxed">Links läuft die echte UREEL-Karte. Rechts zeigen wir die Desktop-Webseite als klares, hochwertiges Vorschaubild – am Beispiel des MX9.</p>
           </div>
           <div className="space-y-10">
             {featuredCases.map((item) => (
@@ -787,7 +815,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
                   <img
                     src={item.slug === 'dein-angebot-sofort-klickbar-6' ? '/landing/auto-desktop-showcase.webp' : '/landing/jennifer-desktop-showcase.webp'}
                     alt={`${item.title} Desktop-Webseite`}
-                    className="absolute inset-0 h-full w-full object-cover object-center"
+                    className="absolute inset-0 h-full w-full object-contain object-center p-3 md:p-5"
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10 pointer-events-none" />
@@ -827,7 +855,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
               <article key={item.slug} className="rounded-[30px] border border-white/10 bg-white/[0.035] p-4 overflow-hidden">
                 <div className="relative mx-auto w-full max-w-[230px] h-[455px] rounded-[34px] border border-white/13 bg-black p-[3px]">
                   <div className="relative h-full rounded-[30px] overflow-hidden bg-black">
-                    <iframe title={`${item.title} loop`} src={item.publicPath} className="absolute inset-0 h-full w-full border-0 bg-black" loading="lazy" style={{ transitionDelay: `${i}s` }} allow="autoplay; encrypted-media; fullscreen; picture-in-picture" />
+                    <DelayedPublicIframe title={`${item.title} loop`} src={item.publicPath} delayMs={i * 1000} />
                   </div>
                 </div>
                 <div className="mt-4 flex items-center justify-between gap-3">
