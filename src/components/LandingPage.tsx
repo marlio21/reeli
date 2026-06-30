@@ -43,7 +43,20 @@ const withYouTubeCaptionsDisabled = (url: string): string => {
   return `${url}${separator}cc_load_policy=0&disablekb=1&fs=0`;
 };
 
-const resolveShowcaseMedia = (card?: Card | null): { kind: 'youtube' | 'direct' | 'image' | 'none'; src: string; poster?: string } => {
+const getYoutubeThumbnail = (url?: string): string => {
+  const id = getYoutubeId(url);
+  return id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : '';
+};
+
+const resolveShowcaseMedia = (card?: Card | null, directYoutubeUrl?: string): { kind: 'youtube' | 'direct' | 'image' | 'none'; src: string; poster?: string } => {
+  const directYtId = getYoutubeId(directYoutubeUrl);
+  if (directYtId) {
+    return {
+      kind: 'youtube',
+      src: withYouTubeCaptionsDisabled(`https://www.youtube.com/embed/${directYtId}?autoplay=1&mute=1&playsinline=1&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&loop=1&playlist=${directYtId}`),
+      poster: getYoutubeThumbnail(directYoutubeUrl)
+    };
+  }
   if (!card) return { kind: 'none', src: '' };
   const sceneVideo = card.ureelScene?.mode === 'video' ? card.ureelScene.video?.url : '';
   const youtubeUrl = card.videoBackgroundConfig?.youtube?.url || card.videoBackgroundConfig?.youtubeUrl || sceneVideo || '';
@@ -119,18 +132,20 @@ const SHOWCASE_ITEMS: Array<{
   title: string;
   label: string;
   slug: string;
+  youtubeUrl?: string;
+  publicPath?: string;
   icon: keyof typeof LucideIcons;
   tone: ShowcaseTone;
   reveal: 'reel' | 'headline' | 'buttons' | 'copy' | 'complete';
 }> = [
-  { title: 'Unternehmensberaterin', label: 'Beratung klar präsentieren', slug: 'dein-angebot-sofort-klickbar', icon: 'BriefcaseBusiness', tone: 'consulting', reveal: 'reel' },
-  { title: 'Golfclub', label: 'Erlebnis & Buchung verbinden', slug: 'your-offer-instantly-clickable-2', icon: 'Flag', tone: 'golf', reveal: 'reel' },
-  { title: 'Hotel', label: 'Angebot direkt buchbar machen', slug: 'dein-angebot-sofort-klickbar-3', icon: 'Building2', tone: 'hotel', reveal: 'headline' },
-  { title: 'Tischlerei', label: 'Handwerk sichtbar machen', slug: 'dein-angebot-sofort-klickbar-4', icon: 'Hammer', tone: 'craft', reveal: 'headline' },
-  { title: 'Rednerpult', label: 'Event und Produkt inszenieren', slug: 'dein-angebot-sofort-klickbar-2', icon: 'Mic2', tone: 'stage', reveal: 'buttons' },
-  { title: 'Automarke', label: 'Produkt, Anfrage und Termin', slug: 'mario-kozuh-schneeberger', icon: 'Car', tone: 'auto', reveal: 'buttons' },
-  { title: 'Studentin', label: 'Portfolio & Kontakt in Sekunden', slug: 'your-offer-instantly-clickable', icon: 'GraduationCap', tone: 'student', reveal: 'copy' },
-  { title: 'Baron Lukas', label: 'Persönlichkeit & Story', slug: 'dein-angebot-sofort-klickbar-5', icon: 'Crown', tone: 'portrait', reveal: 'complete' }
+  { title: 'Studentin', label: 'Portfolio & Kontakt in Sekunden', slug: 'your-offer-instantly-clickable', youtubeUrl: 'https://youtube.com/shorts/VF41Qhgy7ik?feature=share', publicPath: '/u/your-offer-instantly-clickable', icon: 'GraduationCap', tone: 'student', reveal: 'reel' },
+  { title: 'Unternehmensberaterin', label: 'Beratung klar präsentieren', slug: 'dein-angebot-sofort-klickbar', youtubeUrl: 'https://youtube.com/shorts/phgVor0F9Xw?feature=share', publicPath: '/u/dein-angebot-sofort-klickbar', icon: 'BriefcaseBusiness', tone: 'consulting', reveal: 'reel' },
+  { title: 'Automarke', label: 'Produkt, Anfrage und Termin', slug: 'mario-kozuh-schneeberger', youtubeUrl: 'https://youtube.com/shorts/UQEDw9BCDPo?feature=share', publicPath: '/u/mario-kozuh-schneeberger', icon: 'Car', tone: 'auto', reveal: 'headline' },
+  { title: 'Tischlerei', label: 'Handwerk sichtbar machen', slug: 'dein-angebot-sofort-klickbar-4', youtubeUrl: 'https://youtube.com/shorts/nJi-Fl3u57o?feature=share', publicPath: '/u/dein-angebot-sofort-klickbar-4', icon: 'Hammer', tone: 'craft', reveal: 'headline' },
+  { title: 'Rednerpult', label: 'Event und Produkt inszenieren', slug: 'dein-angebot-sofort-klickbar-2', youtubeUrl: 'https://youtube.com/shorts/fGvO5yAjxjo?', publicPath: '/u/dein-angebot-sofort-klickbar-2', icon: 'Mic2', tone: 'stage', reveal: 'buttons' },
+  { title: 'Reisebüro', label: 'Reiseangebot emotional präsentieren', slug: 'dein-angebot-sofort-klickbar-3', youtubeUrl: 'https://youtube.com/shorts/Pi30hv6D7WA?feature=sharefeature=share', publicPath: '/u/dein-angebot-sofort-klickbar-3', icon: 'Plane', tone: 'hotel', reveal: 'copy' },
+  { title: 'Golfclub', label: 'Erlebnis & Buchung verbinden', slug: 'your-offer-instantly-clickable-2', publicPath: '/u/your-offer-instantly-clickable-2', icon: 'Flag', tone: 'golf', reveal: 'buttons' },
+  { title: 'Baron Lukas', label: 'Persönlichkeit & Story', slug: 'dein-angebot-sofort-klickbar-5', publicPath: '/u/dein-angebot-sofort-klickbar-5', icon: 'Crown', tone: 'portrait', reveal: 'complete' }
 ];
 
 const toneBackground: Record<ShowcaseTone, string> = {
@@ -146,7 +161,7 @@ const toneBackground: Record<ShowcaseTone, string> = {
 
 const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; index: number; card?: Card | null; loading?: boolean }> = ({ item, index, card, loading }) => {
   const fallbackIcon = (LucideIcons as any)[item.icon] || LucideIcons.Sparkles;
-  const media = resolveShowcaseMedia(card);
+  const media = resolveShowcaseMedia(card, item.youtubeUrl);
   const text = resolveShowcaseText(item, card);
   const activeButtons = (card?.buttons || []).filter((button) => button?.isActive !== false).slice(0, 6);
   const demoButtons = activeButtons.length > 0 ? activeButtons : [
@@ -172,13 +187,17 @@ const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; i
       className={`absolute inset-0 overflow-hidden bg-gradient-to-br ${toneBackground[item.tone]}`}
     >
       <div className="absolute inset-0 bg-black/20" />
+      {media.kind === 'youtube' && media.poster && (
+        <div className="absolute inset-0 bg-cover bg-center opacity-80 scale-[1.12]" style={{ backgroundImage: `url(${media.poster})` }} />
+      )}
       {media.kind === 'youtube' && (
         <iframe
           title={`UREEL Video ${item.title}`}
           src={media.src}
-          className="absolute inset-0 h-full w-full scale-[1.28] opacity-85"
+          className="absolute inset-0 h-full w-full scale-[1.42] opacity-78"
           allow="autoplay; encrypted-media; picture-in-picture"
           referrerPolicy="strict-origin-when-cross-origin"
+          loading="eager"
         />
       )}
       {media.kind === 'direct' && (
@@ -261,7 +280,7 @@ const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; i
 
       <div className="absolute bottom-4 left-7 right-7 z-30">
         <div className="h-[2px] rounded-full bg-white/16 overflow-hidden">
-          <motion.div key={`${item.slug}-${index}`} initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 3.05, ease: 'linear' }} className="h-full bg-[#F2D28B]" />
+          <motion.div key={`${item.slug}-${index}`} initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 3.75, ease: 'linear' }} className="h-full bg-[#F2D28B]" />
         </div>
       </div>
     </motion.div>
@@ -277,7 +296,7 @@ const ShowcasePhoneSequence: React.FC = () => {
   const activeCard = cardCache[item.slug];
 
   useEffect(() => {
-    const timer = window.setInterval(() => setIndex((current) => (current + 1) % SHOWCASE_ITEMS.length), 3200);
+    const timer = window.setInterval(() => setIndex((current) => (current + 1) % SHOWCASE_ITEMS.length), 3900);
     return () => window.clearInterval(timer);
   }, []);
 
@@ -316,6 +335,12 @@ const ShowcasePhoneSequence: React.FC = () => {
   return (
     <div className="relative flex flex-col items-center gap-4">
       <div className="pointer-events-none absolute -inset-8 rounded-[64px] bg-[#F2D28B]/8 blur-3xl" />
+      <div className="hidden" aria-hidden="true">
+        {SHOWCASE_ITEMS.map((entry) => {
+          const thumb = getYoutubeThumbnail(entry.youtubeUrl);
+          return thumb ? <img key={entry.slug} src={thumb} alt="" /> : null;
+        })}
+      </div>
       <div className="relative w-[278px] h-[548px] rounded-[42px] border border-white/12 bg-white/[0.028] p-[3px] shadow-[0_24px_70px_rgba(0,0,0,0.34)] backdrop-blur-sm">
         <div className="relative h-full rounded-[38px] overflow-hidden bg-[#070707] text-white ring-1 ring-white/7">
           <div className="absolute top-0 left-1/2 z-40 -translate-x-1/2 w-24 h-5 rounded-b-2xl bg-[#050505]/96 border-x border-b border-white/8" />
@@ -328,7 +353,7 @@ const ShowcasePhoneSequence: React.FC = () => {
           <button key={entry.slug} onClick={() => setIndex(i)} className={`h-2 rounded-full transition-all ${i === index ? 'w-8 bg-[#F2D28B]' : 'w-2 bg-white/22 hover:bg-white/40'}`} aria-label={`Showcase ${entry.title}`} />
         ))}
       </div>
-      <a href={`/u/${item.slug}`} className="rounded-full border border-[#F2D28B]/25 bg-white/[0.035] px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#F6E2A5] hover:bg-[#F2D28B] hover:text-black transition-colors">Live ansehen: {item.title}</a>
+      <a href={item.publicPath || `/u/${item.slug}`} className="rounded-full border border-[#F2D28B]/25 bg-white/[0.035] px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#F6E2A5] hover:bg-[#F2D28B] hover:text-black transition-colors">Live ansehen: {item.title}</a>
     </div>
   );
 };
@@ -446,13 +471,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
               Aus Video wird <span className="text-[#F2D28B]">Aktion.</span>
             </h1>
             <p className="text-lg md:text-xl text-white/72 leading-relaxed max-w-xl">
-              Verwandle Reels, Bilder und Angebote in interaktive ureel-Karten mit Werbetext, Buttons, QR-Code, Teilen und Desktop-Miniwebseite.
+              Dein Reel wird zur klickbaren Präsentation – mit Video, Botschaft, Buttons, QR-Code und Miniwebseite.
             </p>
             <div className="grid gap-3 text-sm font-bold text-white/78">
               {[
-                'Video oder Bild als starke Szene',
-                'Werbebotschaft mit Timing und Vorlagen',
-                'Direkte Aktionen: Telefon, Website, Mail, Datei'
+                'Video als starker erster Eindruck',
+                'Botschaft, die im richtigen Moment erscheint',
+                'Kontakt, Anfrage, Datei oder Website direkt öffnen'
               ].map((item) => (
                 <div key={item} className="flex items-center gap-3"><span className="w-7 h-7 rounded-full bg-[#F2D28B] text-black flex items-center justify-center"><LucideIcons.Check size={15} /></span>{item}</div>
               ))}
@@ -505,7 +530,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
             {SHOWCASE_ITEMS.map((item, i) => {
               const Icon = (LucideIcons as any)[item.icon] || LucideIcons.Sparkles;
               return (
-                <a key={item.slug} href={`/u/${item.slug}`} className="group rounded-[28px] border border-white/10 bg-white/[0.04] hover:bg-white/[0.07] hover:border-[#F2D28B]/45 transition-all p-4 overflow-hidden">
+                <a key={item.slug} href={item.publicPath || `/u/${item.slug}`} className="group rounded-[28px] border border-white/10 bg-white/[0.04] hover:bg-white/[0.07] hover:border-[#F2D28B]/45 transition-all p-4 overflow-hidden">
                   <div className={`relative h-48 rounded-[22px] overflow-hidden bg-gradient-to-br ${toneBackground[item.tone]} border border-white/10 mb-4`}>
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_20%,rgba(255,255,255,0.16),transparent_28%),linear-gradient(180deg,transparent,rgba(0,0,0,0.68))]" />
                     <div className="absolute top-3 left-3 rounded-full bg-black/45 border border-white/15 px-3 py-1 text-[10px] font-black text-[#F2D28B]">{String(i + 1).padStart(2, '0')}</div>
