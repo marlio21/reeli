@@ -881,3 +881,14 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Vier Public-View-Showcases bleiben auf die freigegebenen Links beschränkt.
 - Public-View-Showcase-Iframes werden um jeweils 1 Sekunde versetzt geladen.
 - Mobile Studio unverändert.
+
+## v52.6.06 / RC2.13 – Landingpage Scroll Playback + Textgrafik
+
+- Landingpage-Struktur weiter vereinfacht: Hero mit Nadine und Login bleibt ruhig.
+- MX9 bleibt als Smartphone + Desktop-Präsentation im Desktop-Abschnitt.
+- Die vier Public-View-Karten werden erst geladen, wenn der Showcase-Bereich sichtbar ist.
+- Vier Public-View-Karten starten versetzt mit 1 Sekunde Abstand.
+- Große Bildsektion „UREEL tauschen. Chancen schaffen.“ entfernt.
+- Neue kompakte Textgrafik-Sektion für Begegnungen, Branchen und Einsatzbereiche ergänzt.
+- Abschluss-/Upgrade-Bereich auf „Werde kostenlos zum UREELER“ geschärft.
+- Mobile Studio unverändert / geschützt.

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import * as LucideIcons from 'lucide-react';
 import { useFirebase } from '../context/FirebaseContext';
@@ -595,29 +595,50 @@ const ShowcasePhoneSequence: React.FC = () => {
 
 
 const DelayedPublicIframe: React.FC<{ title: string; src: string; delayMs?: number; eager?: boolean }> = ({ title, src, delayMs = 0, eager = false }) => {
-  const [visible, setVisible] = useState(delayMs === 0);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const [hasEnteredViewport, setHasEnteredViewport] = useState(false);
+  const [visible, setVisible] = useState(false);
+
   useEffect(() => {
-    if (delayMs === 0) return;
+    const node = rootRef.current;
+    if (!node) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setHasEnteredViewport(true);
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      if (entry?.isIntersecting) {
+        setHasEnteredViewport(true);
+        observer.disconnect();
+      }
+    }, { threshold: 0.42, rootMargin: '0px 0px -8% 0px' });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!hasEnteredViewport) return;
     const timer = window.setTimeout(() => setVisible(true), delayMs);
     return () => window.clearTimeout(timer);
-  }, [delayMs]);
-
-  if (!visible) {
-    return (
-      <div className="absolute inset-0 flex items-center justify-center bg-black">
-        <div className="h-8 w-8 rounded-full border border-[#F2D28B]/35 border-t-[#F2D28B] animate-spin" />
-      </div>
-    );
-  }
+  }, [hasEnteredViewport, delayMs]);
 
   return (
-    <iframe
-      title={title}
-      src={src}
-      className="absolute inset-0 h-full w-full border-0 bg-black"
-      loading={eager ? 'eager' : 'lazy'}
-      allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-    />
+    <div ref={rootRef} className="absolute inset-0 bg-black">
+      {!visible ? (
+        <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_50%_38%,rgba(242,210,139,0.10),transparent_34%),#050505]">
+          <div className="h-8 w-8 rounded-full border border-[#F2D28B]/35 border-t-[#F2D28B] animate-spin" />
+        </div>
+      ) : (
+        <iframe
+          title={title}
+          src={src}
+          className="absolute inset-0 h-full w-full border-0 bg-black"
+          loading={eager ? 'eager' : 'lazy'}
+          allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+        />
+      )}
+    </div>
   );
 };
 
@@ -697,11 +718,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
     }
   };
 
-  const approvedCases = SHOWCASE_ITEMS.slice(0, 4);
+  const approvedCases = [
+    SHOWCASE_ITEMS.find((item) => item.slug === 'dein-angebot-sofort-klickbar')!,
+    SHOWCASE_ITEMS.find((item) => item.slug === 'dein-angebot-sofort-klickbar-6')!,
+    SHOWCASE_ITEMS.find((item) => item.slug === 'dein-angebot-sofort-klickbar-4')!,
+    SHOWCASE_ITEMS.find((item) => item.slug === 'your-offer-instantly-clickable')!,
+  ];
   const featuredCases = SHOWCASE_ITEMS.filter((item) => item.slug === 'dein-angebot-sofort-klickbar-6');
 
   const publicUrl = (path: string) => path.startsWith('http') ? path : path;
-  const publicPreviewUrl = (path: string, idx = 0) => `${publicUrl(path)}${path.includes('?') ? '&' : '?'}mobilePublic=1&landingPreview=1&autoplay=1&muted=1&once=1&delay=${idx * 1000}`;
+  const publicPreviewUrl = (path: string) => `${publicUrl(path)}${path.includes('?') ? '&' : '?'}mobilePublic=1&landingPreview=1&autoplay=1&muted=1&once=1&delay=0`;
 
   return (
     <div className="min-h-screen bg-[#080808] text-[#F6F0E6] font-sans overflow-x-hidden">
@@ -862,7 +888,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
               <article key={item.slug} className="rounded-[30px] border border-white/10 bg-white/[0.035] p-4 overflow-hidden">
                 <div className="relative mx-auto w-full max-w-[230px] h-[455px] rounded-[34px] border border-white/13 bg-black p-[3px]">
                   <div className="relative h-full rounded-[30px] overflow-hidden bg-black">
-                    <DelayedPublicIframe title={`${item.title} loop`} src={publicPreviewUrl(item.publicPath, i)} delayMs={i * 1000} eager />
+                    <DelayedPublicIframe title={`${item.title} loop`} src={publicPreviewUrl(item.publicPath)} delayMs={i * 1000} eager />
                   </div>
                 </div>
                 <div className="mt-4 flex items-center justify-between gap-3">
@@ -877,42 +903,67 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
           </div>
         </section>
 
-        <section className="relative max-w-7xl mx-auto px-5 md:px-8 py-16 border-t border-white/8">
-          <div className="mx-auto max-w-4xl text-center mb-10">
-            <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">{landingCopy.shareKicker}</div>
-            <h2 className="text-3xl md:text-6xl font-black tracking-[-0.055em] leading-[0.95]">{landingCopy.shareHeadline}</h2>
-            <p className="mt-5 text-lg text-white/62 font-semibold leading-relaxed">{landingCopy.shareText}</p>
+        <section className="relative max-w-7xl mx-auto px-5 md:px-8 py-18 border-t border-white/8">
+          <div className="mx-auto max-w-4xl text-center mb-12">
+            <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">Teilen. Verbinden. Erinnern.</div>
+            <h2 className="text-3xl md:text-6xl font-black tracking-[-0.055em] leading-[0.95]">Eine UREEL passt zu jeder Begegnung.</h2>
+            <p className="mt-5 text-lg text-white/62 font-semibold leading-relaxed">
+              Ob Verein, Schule, Messe, Unternehmen, Praxis, Sportclub, Produkt oder persönliche Marke: Eine UREEL zeigt in Sekunden, wer du bist, was du anbietest und wie man mit dir in Kontakt kommt.
+            </p>
           </div>
-          <div className="overflow-hidden rounded-[38px] border border-white/10 bg-white/[0.03] shadow-[0_28px_90px_rgba(0,0,0,0.34)]">
-            <img src="/landing/ureel-chancen-schaffen.webp" alt="UREEL tauschen – Chancen schaffen" className="w-full h-auto object-cover" loading="lazy" />
+
+          <div className="grid lg:grid-cols-4 gap-4 mb-6">
+            {[
+              ['Du glänzt.', 'Nicht nur Kontaktdaten teilen – sondern Persönlichkeit, Leistung und Haltung sichtbar machen.', 'Sparkles'],
+              ['Dein Produkt erklärt sich selbst.', 'Video, Bild, Beschreibung, Datei und Anfrage verbinden sich zu einer Präsentation.', 'PackageCheck'],
+              ['Deine Zielgruppe versteht sofort.', 'Auf dem Smartphone schnell erleben. Am Desktop vollständig informieren.', 'MonitorSmartphone'],
+              ['Ein Scan genügt.', 'QR-Code, Link oder Teilen-Button öffnen deine UREEL ohne App und ohne Umweg.', 'QrCode']
+            ].map(([title, text, icon]) => {
+              const Icon = (LucideIcons as any)[icon] || LucideIcons.Sparkles;
+              return (
+                <div key={title} className="rounded-[30px] border border-white/10 bg-white/[0.04] p-6 min-h-[210px]">
+                  <div className="w-12 h-12 rounded-2xl bg-[#F2D28B] text-black flex items-center justify-center mb-5"><Icon size={22} /></div>
+                  <h3 className="text-xl font-black tracking-tight">{title}</h3>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-white/60">{text}</p>
+                </div>
+              );
+            })}
           </div>
-          <div className="mt-8 grid lg:grid-cols-[1.05fr_0.95fr] gap-6 items-stretch">
-            <div className="rounded-[34px] border border-white/10 bg-white/[0.04] p-7 md:p-9">
-              <h3 className="text-2xl md:text-4xl font-black tracking-[-0.04em] leading-tight">Eine UREEL passt zu fast jeder Begegnung.</h3>
-              <p className="mt-5 text-white/68 font-semibold leading-relaxed text-lg">Ob Verein, Schule, Messe, Unternehmen, Praxis, Sportclub, Einzelunternehmen, Produkt oder persönliches Profil: Eine UREEL macht sichtbar, was sonst nach einem Gespräch oft verloren geht.</p>
-              <p className="mt-4 text-white/68 font-semibold leading-relaxed text-lg">Ein Scan. Ein Link. Eine Präsentation. Der andere sieht sofort, wer du bist, was du anbietest und wie er handeln kann.</p>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-3">
+
+          <div className="rounded-[36px] border border-white/10 bg-[#101010]/72 p-6 md:p-8">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {[
-                ['Vereine & Clubs', 'Mitglieder, Sponsoren und Projekte professionell zeigen.'],
-                ['Schulen & Bildung', 'Profile, Projekte und Angebote modern teilen.'],
-                ['Messen & Events', 'Aus jedem Kontakt wird eine vollständige Präsentation.'],
-                ['Unternehmen & Produkte', 'Angebote, Dateien, Termine und Kontakt direkt öffnen.']
+                ['Vereine & Clubs', 'Mitglieder, Sponsoren, Termine und Projekte.'],
+                ['Unternehmen', 'Leistungen, Produkte, Ansprechpartner und Dateien.'],
+                ['Schulen & Bildung', 'Projekte, Kurse, Bewerbungen und Informationen.'],
+                ['Messen & Events', 'Kontakte werden sofort zu vollständigen Präsentationen.'],
+                ['Selbständige', 'Persönlichkeit, Angebot und Kontakt in einem Link.'],
+                ['Produkte', 'Video, Vorteile, Downloads und Anfrage direkt verbinden.'],
+                ['Tourismus', 'Hotels, Regionen, Angebote und Buchungen erlebbar machen.'],
+                ['Ärzte & Praxen', 'Leistungen, Formulare, Kontakt und Terminzugang bündeln.'],
+                ['Sportclubs', 'Teams, Sponsoren, Spielpläne und Ansprechpartner teilen.'],
+                ['Handwerk', 'Werkstatt, Arbeiten, Referenzen und Anfrage modern zeigen.'],
+                ['Künstler & Kreative', 'Portfolio, Termine, Videos und Social Media verbinden.'],
+                ['Gemeinden', 'Informationen, Ansprechpersonen und Aktionen einfach teilen.']
               ].map(([title, text]) => (
-                <div key={title} className="rounded-[26px] border border-white/10 bg-black/22 p-5">
-                  <div className="text-[#F2D28B] font-black text-sm uppercase tracking-[0.12em]">{title}</div>
-                  <p className="mt-3 text-sm font-semibold leading-relaxed text-white/62">{text}</p>
+                <div key={title} className="rounded-[24px] border border-white/10 bg-black/24 p-5">
+                  <div className="text-[#F2D28B] font-black text-[12px] uppercase tracking-[0.14em]">{title}</div>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-white/58">{text}</p>
                 </div>
               ))}
+            </div>
+            <div className="mt-7 rounded-[28px] border border-[#F2D28B]/20 bg-[#F2D28B]/8 p-6 text-center">
+              <div className="text-2xl md:text-4xl font-black tracking-[-0.04em]">Aus einem Moment wird eine Präsentation.</div>
+              <p className="mt-3 text-white/66 font-semibold max-w-3xl mx-auto">Du teilst nicht nur einen Link. Du öffnest eine Tür: zu deinem Profil, deinem Angebot, deinem Produkt oder deiner Organisation.</p>
             </div>
           </div>
         </section>
 
         <section id="vorteile" className="max-w-7xl mx-auto px-5 md:px-8 py-16 border-t border-white/8">
           <div className="rounded-[38px] border border-white/10 bg-[#111]/72 p-7 md:p-10 text-center">
-            <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">Vorteile</div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-[-0.05em] leading-[0.98]">Lust, es selbst auszuprobieren?</h2>
-            <p className="mx-auto mt-5 max-w-3xl text-lg text-white/62 font-semibold leading-relaxed">Erstelle deine erste UREEL kostenlos und erlebe, wie aus deinem Video eine interaktive Präsentation wird.</p>
+            <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">Upgrades</div>
+            <h2 className="text-3xl md:text-5xl font-black tracking-[-0.05em] leading-[0.98]">Werde kostenlos zum UREELER.</h2>
+            <p className="mx-auto mt-5 max-w-3xl text-lg text-white/62 font-semibold leading-relaxed">Starte mit deiner ersten UREEL kostenlos. Wenn deine Ideen wachsen, wächst UREEL mit: mehr Design, mehr Präsentationen und mehr Möglichkeiten.</p>
             <div className="mt-8 grid md:grid-cols-3 gap-4 text-left">
               {[
                 ['Free','Erste UREEL erstellen und teilen.'],
