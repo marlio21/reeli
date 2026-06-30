@@ -704,10 +704,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
     }
   };
 
+  const approvedCases = SHOWCASE_ITEMS.slice(0, 4);
+  const featuredCases = SHOWCASE_ITEMS.slice(0, 2);
+
+  const publicUrl = (path: string) => path.startsWith('http') ? path : path;
+
   return (
-    <div className="min-h-screen bg-[#0B0B0B] text-[#F6F0E6] font-sans overflow-x-hidden">
-      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_10%_8%,rgba(232,196,106,0.16),transparent_30%),radial-gradient(circle_at_88%_16%,rgba(255,255,255,0.08),transparent_28%),linear-gradient(180deg,#111,#050505)]" />
-      <header className="relative z-10 border-b border-white/10 bg-[#0B0B0B]/78 backdrop-blur-xl">
+    <div className="min-h-screen bg-[#080808] text-[#F6F0E6] font-sans overflow-x-hidden">
+      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_12%_8%,rgba(242,210,139,0.13),transparent_30%),radial-gradient(circle_at_86%_18%,rgba(255,255,255,0.06),transparent_26%),linear-gradient(180deg,#111,#050505)]" />
+      <header className="relative z-30 border-b border-white/8 bg-[#0B0B0B]/82 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-5 md:px-8 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <UPlayIcon size={54} />
@@ -718,8 +723,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
           </div>
           <nav className="hidden lg:flex items-center gap-8 text-[12px] font-black uppercase tracking-[0.18em] text-white/60">
             <a href="#beispiele" className="hover:text-white">Beispiele</a>
+            <a href="#desktop" className="hover:text-white">Desktop-Webseite</a>
             <a href="#vorteile" className="hover:text-white">Vorteile</a>
-            <a href="#auth-box" className="hover:text-white">Login</a>
           </nav>
           <div className="flex items-center gap-2">
             <button onClick={() => setLang(lang === 'de' ? 'en' : 'de')} className="rounded-full border border-white/15 px-3 py-2 text-xs font-black bg-white/5">{lang.toUpperCase()}</button>
@@ -733,44 +738,55 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
       </header>
 
       <main className="relative z-10">
-        <section className="max-w-7xl mx-auto px-5 md:px-8 py-12 lg:py-20 grid lg:grid-cols-[1.0fr_1.45fr_0.85fr] gap-10 items-center">
+        <section className="max-w-7xl mx-auto px-5 md:px-8 py-12 lg:py-18 grid xl:grid-cols-[0.92fr_0.92fr_0.78fr] gap-9 items-center min-h-[calc(100vh-88px)]">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="space-y-7">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#E8DCC2]/25 bg-white/5 px-4 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-[#E8DCC2]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#E8DCC2]/22 bg-white/[0.035] px-4 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-[#E8DCC2]">
               <LucideIcons.Sparkles size={14} /> Klickbare Smartphone-Werbekarten
             </div>
             <h1 className="text-5xl md:text-7xl font-black leading-[0.92] tracking-[-0.06em]">
               Aus Video wird <span className="text-[#F2D28B]">Aktion.</span>
             </h1>
-            <p className="text-lg md:text-xl text-white/72 leading-relaxed max-w-xl">
+            <p className="text-lg md:text-xl text-white/70 leading-relaxed max-w-xl">
               Dein Reel wird zur klickbaren Präsentation – mit Smartphone-Karte, Buttons, QR-Code und Desktop-Miniwebseite.
             </p>
-            <div className="grid gap-3 text-sm font-bold text-white/78">
+            <div className="grid gap-3 text-sm font-bold text-white/76">
               {[
                 'Video als starker erster Eindruck',
-                'Botschaft, die im richtigen Moment erscheint',
-                'Kontakt, Anfrage, Datei oder Website direkt öffnen'
+                'Die echte UREEL läuft exakt wie konfiguriert',
+                'Desktop-Webseite automatisch dabei'
               ].map((item) => (
                 <div key={item} className="flex items-center gap-3"><span className="w-7 h-7 rounded-full bg-[#F2D28B] text-black flex items-center justify-center"><LucideIcons.Check size={15} /></span>{item}</div>
               ))}
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
               <button onClick={scrollToAuth} className="rounded-2xl bg-[#F2D28B] text-black px-7 py-4 text-sm font-black uppercase tracking-widest">Kostenlos starten</button>
-              <a href="#beispiele" className="rounded-2xl border border-white/18 bg-white/5 px-7 py-4 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-2">Demo ansehen <LucideIcons.Play size={16} /></a>
+              <a href="#beispiele" className="rounded-2xl border border-white/16 bg-white/[0.035] px-7 py-4 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-2">Live ansehen <LucideIcons.Play size={16} /></a>
             </div>
           </motion.div>
 
-          <div className="relative min-h-[560px] flex items-center justify-center lg:col-span-2 xl:col-span-1">
-            <div className="absolute w-[640px] h-[540px] rounded-[56px] bg-[#F2D28B]/8 blur-3xl" />
-            <LandingHeroTransformation />
+          <div className="relative flex items-center justify-center">
+            <div className="absolute -inset-10 rounded-[64px] bg-[#F2D28B]/7 blur-3xl" />
+            <div className="relative w-[306px] h-[620px] rounded-[46px] border border-white/16 bg-white/[0.035] p-[4px] shadow-[0_28px_80px_rgba(0,0,0,0.42)]">
+              <div className="relative h-full rounded-[42px] overflow-hidden bg-black ring-1 ring-white/8">
+                <iframe
+                  title="Jennifer Lawson UREEL"
+                  src={publicUrl('/u/your-offer-instantly-clickable')}
+                  className="absolute inset-0 h-full w-full border-0 bg-black"
+                  loading="eager"
+                  allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                />
+              </div>
+            </div>
+            <a href="/u/your-offer-instantly-clickable" className="absolute -bottom-11 rounded-full border border-[#F2D28B]/25 bg-black/55 px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#F6E2A5] hover:bg-[#F2D28B] hover:text-black transition-colors">Live ansehen: Jennifer Lawson</a>
           </div>
 
-          <div id="auth-box" className="rounded-[34px] bg-[#151515]/88 border border-white/12 shadow-[0_30px_90px_rgba(0,0,0,0.45)] p-6 md:p-7 backdrop-blur-xl">
+          <div id="auth-box" className="rounded-[30px] bg-[#151515]/86 border border-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.42)] p-6 md:p-7 backdrop-blur-xl">
             <div className="flex rounded-2xl bg-white/5 p-1 mb-6">
               <button onClick={() => setAuthMode('login')} className={`flex-1 rounded-xl py-3 text-xs font-black uppercase tracking-widest ${authMode === 'login' ? 'bg-[#F6F0E6] text-black' : 'text-white/60'}`}>Einloggen</button>
               <button onClick={() => setAuthMode('register')} className={`flex-1 rounded-xl py-3 text-xs font-black uppercase tracking-widest ${authMode === 'register' ? 'bg-[#F6F0E6] text-black' : 'text-white/60'}`}>Registrieren</button>
             </div>
-            <h2 className="text-2xl font-black mb-1">{authMode === 'login' ? 'Willkommen zurück' : 'Starte deine ureel'}</h2>
-            <p className="text-sm text-white/55 mb-6">{authMode === 'login' ? 'Melde dich an und öffne dein Studio.' : 'Konto erstellen und direkt mit deiner ersten Startkarte loslegen.'}</p>
+            <h2 className="text-2xl font-black mb-1">{authMode === 'login' ? 'Willkommen zurück' : 'Starte deine UREEL'}</h2>
+            <p className="text-sm text-white/55 mb-6">{authMode === 'login' ? 'Melde dich an und öffne dein Studio.' : 'Konto erstellen und direkt mit deiner ersten Karte loslegen.'}</p>
             <form onSubmit={handleEmailAction} className="space-y-4">
               {authMode === 'register' && (
                 <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name oder Firma" className="w-full rounded-2xl bg-black/35 border border-white/12 px-4 py-4 text-sm font-bold outline-none focus:border-[#F2D28B]" />
@@ -788,7 +804,74 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
           </div>
         </section>
 
-        <section className="relative max-w-7xl mx-auto px-5 md:px-8 py-16 border-t border-white/10">
+        <section id="desktop" className="relative max-w-7xl mx-auto px-5 md:px-8 py-16 border-t border-white/8">
+          <div className="mx-auto max-w-4xl text-center mb-12">
+            <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">Smartphone + Desktop</div>
+            <h2 className="text-3xl md:text-6xl font-black tracking-[-0.055em] leading-[0.95]">Eine UREEL. Zwei Erlebnisse.</h2>
+            <p className="mt-5 text-lg text-white/62 font-semibold leading-relaxed">Links läuft die Smartphone-Karte exakt wie konfiguriert. Rechts zeigt die Desktop-Webseite die vollständige Präsentation – ideal für Persönlichkeit, Produkt und Unternehmen.</p>
+          </div>
+          <div className="space-y-10">
+            {featuredCases.map((item) => (
+              <article key={item.slug} className="grid lg:grid-cols-[360px_1fr] gap-7 items-center rounded-[38px] border border-white/10 bg-white/[0.028] p-5 md:p-7 overflow-hidden">
+                <div className="mx-auto relative w-[260px] h-[520px] rounded-[40px] border border-white/14 bg-white/[0.025] p-[3px] shadow-2xl">
+                  <div className="relative h-full rounded-[36px] overflow-hidden bg-black ring-1 ring-white/8">
+                    <iframe title={`${item.title} mobile`} src={item.publicPath} className="absolute inset-0 h-full w-full border-0 bg-black" loading="lazy" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" />
+                  </div>
+                </div>
+                <div className="relative rounded-[30px] border border-white/10 bg-black/24 overflow-hidden h-[460px] shadow-[0_22px_70px_rgba(0,0,0,0.28)]">
+                  <iframe title={`${item.title} desktop`} src={item.publicPath} className="absolute inset-0 h-full w-full border-0 bg-black" loading="lazy" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" />
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="max-w-7xl mx-auto px-5 md:px-8 py-16 border-t border-white/8">
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
+            <div>
+              <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">Video oder Bild</div>
+              <h2 className="text-3xl md:text-5xl font-black tracking-[-0.055em] leading-[0.98]">Dein Inhalt bestimmt den Auftritt.</h2>
+              <p className="mt-5 text-lg text-white/64 font-semibold leading-relaxed">Starte mit einem Reel, einem Bild oder einer Kombination aus beidem. UREEL macht daraus eine teilbare Präsentation mit Aktionen, QR-Code und Desktop-Webseite.</p>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              {[['Video','Ein kurzer Spot erzeugt Aufmerksamkeit.','Video'],['Bild','Ein starkes Bild wird zur interaktiven Karte.','Image']].map(([title, text, icon]) => {
+                const Icon = (LucideIcons as any)[icon] || LucideIcons.Sparkles;
+                return <div key={title} className="rounded-[30px] border border-white/10 bg-white/[0.04] p-7"><div className="w-12 h-12 rounded-2xl bg-[#F2D28B] text-black flex items-center justify-center mb-5"><Icon size={22}/></div><h3 className="font-black text-2xl mb-3">{title}</h3><p className="text-white/58 font-semibold leading-relaxed">{text}</p></div>;
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section id="beispiele" className="relative max-w-7xl mx-auto px-5 md:px-8 py-16 border-t border-white/8">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-9">
+            <div>
+              <div className="text-[11px] font-black uppercase tracking-[0.22em] text-[#F2D28B] mb-3">Live-Showcases</div>
+              <h2 className="text-3xl md:text-5xl font-black tracking-tight">Vier echte Karten. Vier Einsatzbereiche.</h2>
+              <p className="mt-3 text-white/60 font-bold max-w-2xl">Alle Karten kommen aus den echten Public-View-Links. Änderungen im Studio bleiben dadurch automatisch aktuell.</p>
+            </div>
+            <button onClick={scrollToAuth} className="rounded-2xl bg-[#F2D28B] text-black px-6 py-4 text-xs font-black uppercase tracking-widest text-center">Eigene UREEL starten</button>
+          </div>
+          <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5">
+            {approvedCases.map((item, i) => (
+              <article key={item.slug} className="rounded-[30px] border border-white/10 bg-white/[0.035] p-4 overflow-hidden">
+                <div className="relative mx-auto w-full max-w-[230px] h-[455px] rounded-[34px] border border-white/13 bg-black p-[3px]">
+                  <div className="relative h-full rounded-[30px] overflow-hidden bg-black">
+                    <iframe title={`${item.title} loop`} src={item.publicPath} className="absolute inset-0 h-full w-full border-0 bg-black" loading="lazy" style={{ transitionDelay: `${i}s` }} allow="autoplay; encrypted-media; fullscreen; picture-in-picture" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-lg font-black">{item.title}</div>
+                    <div className="text-xs font-bold text-white/52">{item.label}</div>
+                  </div>
+                  <a href={item.publicPath} className="h-10 w-10 rounded-full bg-[#F2D28B] text-black flex items-center justify-center"><LucideIcons.ArrowRight size={18}/></a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="relative max-w-7xl mx-auto px-5 md:px-8 py-16 border-t border-white/8">
           <div className="mx-auto max-w-4xl text-center mb-10">
             <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">{landingCopy.shareKicker}</div>
             <h2 className="text-3xl md:text-6xl font-black tracking-[-0.055em] leading-[0.95]">{landingCopy.shareHeadline}</h2>
@@ -815,109 +898,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
           </div>
         </section>
 
-        <section className="relative max-w-7xl mx-auto px-5 md:px-8 py-16 border-t border-white/10">
-          <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-10 items-end">
-            <div>
-              <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">{landingCopy.casesKicker}</div>
-              <h2 className="text-3xl md:text-6xl font-black tracking-[-0.055em] leading-[0.95]">{landingCopy.casesHeadline}</h2>
-              <p className="mt-5 text-lg text-white/62 font-semibold leading-relaxed">{landingCopy.casesText}</p>
-            </div>
-            <div className="rounded-[34px] border border-white/10 bg-white/[0.035] p-5 md:p-7">
-              <div className="grid gap-4">
-                {SHOWCASE_ITEMS.slice(0, 4).map((item) => {
-                  const CaseIcon = (LucideIcons as any)[item.icon] || LucideIcons.Sparkles;
-                  return (
-                    <a key={item.slug} href={item.publicPath || `/u/${item.slug}`} className="group grid sm:grid-cols-[72px_1fr_auto] gap-4 items-center rounded-[24px] border border-white/10 bg-black/22 p-4 hover:border-[#F2D28B]/45 hover:bg-white/[0.055] transition-colors">
-                      <div className={`h-[72px] w-[72px] rounded-2xl bg-gradient-to-br ${toneBackground[item.tone]} border border-white/10 flex items-center justify-center text-white/80`}><CaseIcon size={28} /></div>
-                      <div>
-                        <div className="text-lg font-black text-white">{item.title}</div>
-                        <div className="text-sm font-bold text-[#F2D28B]">{item.desktopSubtitle}</div>
-                        <div className="mt-1 text-sm text-white/55 font-semibold line-clamp-2">{item.desktopCopy}</div>
-                      </div>
-                      <div className="hidden sm:flex h-11 w-11 items-center justify-center rounded-full bg-[#F2D28B] text-black transition-transform group-hover:translate-x-1"><LucideIcons.ArrowRight size={19} /></div>
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="beispiele" className="relative max-w-7xl mx-auto px-5 md:px-8 py-16 border-t border-white/10">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-9">
-            <div>
-              <div className="text-[11px] font-black uppercase tracking-[0.22em] text-[#F2D28B] mb-3">Live-Showcases</div>
-              <h2 className="text-3xl md:text-5xl font-black tracking-tight">Echte UREELs. Echte Beispiele.</h2>
-              <p className="mt-3 text-white/60 font-bold max-w-2xl">Nur freigegebene Showcases mit YouTube-Link und Public-View-Link werden hier gezeigt. Die vollständige UREEL öffnet sich über „Live ansehen“.</p>
-            </div>
-            <a href="#auth-box" className="rounded-2xl bg-[#F2D28B] text-black px-6 py-4 text-xs font-black uppercase tracking-widest text-center">Eigene UREEL starten</a>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {SHOWCASE_ITEMS.map((item, i) => {
-              const Icon = (LucideIcons as any)[item.icon] || LucideIcons.Sparkles;
-              return (
-                <a key={item.slug} href={item.publicPath || `/u/${item.slug}`} className="group rounded-[28px] border border-white/10 bg-white/[0.04] hover:bg-white/[0.07] hover:border-[#F2D28B]/45 transition-all p-4 overflow-hidden">
-                  <div className={`relative h-48 rounded-[22px] overflow-hidden bg-gradient-to-br ${toneBackground[item.tone]} border border-white/10 mb-4`}>
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_20%,rgba(255,255,255,0.16),transparent_28%),linear-gradient(180deg,transparent,rgba(0,0,0,0.68))]" />
-                    <div className="absolute top-3 left-3 rounded-full bg-black/45 border border-white/15 px-3 py-1 text-[10px] font-black text-[#F2D28B]">{String(i + 1).padStart(2, '0')}</div>
-                    <Icon size={58} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white/70" />
-                    <div className="absolute left-4 right-4 bottom-4">
-                      <div className="text-lg font-black leading-tight">{item.title}</div>
-                      <div className="text-xs text-white/70 font-bold mt-1">{item.label}</div>
-                    </div>
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 flex items-center justify-center">
-                      <div className="w-14 h-14 rounded-full bg-[#F2D28B] text-black flex items-center justify-center"><LucideIcons.Play size={22} /></div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-[11px] font-black uppercase tracking-[0.16em] text-white/70">Live ansehen</span>
-                    <LucideIcons.ArrowRight size={17} className="text-[#F2D28B] group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </a>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="max-w-7xl mx-auto px-5 md:px-8 py-16 border-t border-white/10">
-          <div className="rounded-[36px] border border-[#F2D28B]/18 bg-gradient-to-br from-white/[0.07] to-white/[0.025] p-7 md:p-10">
-            <div className="grid lg:grid-cols-[1fr_0.8fr] gap-8 items-center">
-              <div>
-                <h2 className="text-3xl md:text-5xl font-black tracking-[-0.05em] leading-[0.98]">{landingCopy.explainHeadline}</h2>
-                <p className="mt-5 text-lg text-white/64 font-semibold leading-relaxed">{landingCopy.explainText}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-3 text-sm font-black">
-                {['Video','Smartphone-Karte','Desktop-Webseite','QR-Code','Buttons','Teilen'].map((item) => (
-                  <div key={item} className="rounded-2xl border border-white/10 bg-black/22 px-4 py-4 text-white/78">{item}</div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="vorteile" className="max-w-7xl mx-auto px-5 md:px-8 pb-20 grid md:grid-cols-4 gap-4">
-          {[
-            ['Video oder Bild','Wähle deine Szene und schaffe Aufmerksamkeit.','Image'],
-            ['Texte & Timing','Botschaften erscheinen im richtigen Moment.','TextCursorInput'],
-            ['Aktionen & Buttons','Besucher rufen an, schreiben oder öffnen Dateien.','MousePointerClick'],
-            ['Link & QR-Code','Überall teilen – online, offline und mobil.','QrCode']
-          ].map(([title, desc, icon]) => {
-            const Icon = (LucideIcons as any)[icon] || LucideIcons.Star;
-            return (
-              <div key={title} className="rounded-[26px] border border-white/10 bg-white/[0.04] p-6">
-                <div className="w-12 h-12 rounded-2xl bg-[#F2D28B] text-black flex items-center justify-center mb-5"><Icon size={22}/></div>
-                <h3 className="font-black text-lg mb-2">{title}</h3>
-                <p className="text-sm text-white/55 font-bold leading-relaxed">{desc}</p>
-              </div>
-            );
-          })}
-        </section>
-
-        <section className="max-w-7xl mx-auto px-5 md:px-8 pb-24">
+        <section id="vorteile" className="max-w-7xl mx-auto px-5 md:px-8 py-16 border-t border-white/8">
           <div className="rounded-[38px] border border-white/10 bg-[#111]/72 p-7 md:p-10 text-center">
-            <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">Upgrades</div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-[-0.05em] leading-[0.98]">{landingCopy.upgradesHeadline}</h2>
-            <p className="mx-auto mt-5 max-w-3xl text-lg text-white/62 font-semibold leading-relaxed">{landingCopy.upgradesText}</p>
+            <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">Vorteile</div>
+            <h2 className="text-3xl md:text-5xl font-black tracking-[-0.05em] leading-[0.98]">Lust, es selbst auszuprobieren?</h2>
+            <p className="mx-auto mt-5 max-w-3xl text-lg text-white/62 font-semibold leading-relaxed">Erstelle deine erste UREEL kostenlos und erlebe, wie aus deinem Video eine interaktive Präsentation wird.</p>
             <div className="mt-8 grid md:grid-cols-3 gap-4 text-left">
               {[
                 ['Free','Erste UREEL erstellen und teilen.'],
@@ -933,7 +918,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
             <button onClick={scrollToAuth} className="mt-8 rounded-2xl bg-[#F2D28B] text-black px-8 py-4 text-sm font-black uppercase tracking-widest">Kostenlos starten</button>
           </div>
         </section>
-
       </main>
     </div>
   );
