@@ -1,3 +1,13 @@
+## v52.5.94 / RC2.1 Landing Hero Live UREEL Preview
+
+- Landingpage-Hero nutzt jetzt echte öffentliche UREEL-Seiten im Smartphone-Preview-Iframe.
+- Showcase-Sequenz wechselt ca. alle 3,2 Sekunden zwischen den Beispielkarten.
+- Schrittweise Inszenierung: Reel-Vorschau, Headline, Aktionsbuttons, Werbetext, vollständige UREEL.
+- Smartphone-Rahmen zarter und moderner gestaltet.
+- Keine Medien/Videos in das Repository aufgenommen; Showcases bleiben Link-/Slug-basiert.
+- Mobile Studio und Public-Kartenlogik nicht verändert.
+- Build lokal erfolgreich ausgeführt.
+
 
 ## v52.5.92 – RC1.2 Public & Miniwebseite Actions Test Fix
 

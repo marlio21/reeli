@@ -101,60 +101,78 @@ const toneBackground: Record<ShowcaseTone, string> = {
 const ShowcasePhoneSequence: React.FC = () => {
   const [index, setIndex] = useState(0);
   const item = SHOWCASE_ITEMS[index];
-  const Icon = (LucideIcons as any)[item.icon] || LucideIcons.Sparkles;
-  const showHeadline = ['headline', 'buttons', 'copy', 'complete'].includes(item.reveal);
-  const showButtons = ['buttons', 'copy', 'complete'].includes(item.reveal);
-  const showCopy = ['copy', 'complete'].includes(item.reveal);
+  const showHeadline = index >= 2;
+  const showButtons = index >= 4;
+  const showCopy = index >= 6;
+  const isComplete = index >= 7;
 
   useEffect(() => {
-    const timer = window.setInterval(() => setIndex((current) => (current + 1) % SHOWCASE_ITEMS.length), 3000);
+    const timer = window.setInterval(() => setIndex((current) => (current + 1) % SHOWCASE_ITEMS.length), 3200);
     return () => window.clearInterval(timer);
   }, []);
 
   return (
     <div className="relative flex flex-col items-center gap-5">
-      <div className="relative w-[292px] h-[578px] rounded-[46px] border border-white/25 bg-white/[0.08] p-[7px] shadow-[0_32px_90px_rgba(0,0,0,0.52)] backdrop-blur-sm">
-        <div className={`relative h-full rounded-[38px] overflow-hidden bg-gradient-to-br ${toneBackground[item.tone]} text-white`}>
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 rounded-b-2xl bg-[#0B0B0B]/90 border-x border-b border-white/10" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_18%,rgba(255,255,255,0.2),transparent_26%),radial-gradient(circle_at_70%_72%,rgba(232,196,106,0.18),transparent_32%)]" />
-          <motion.div key={item.slug} initial={{ opacity: 0, scale: 1.04 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55 }} className="absolute inset-0">
-            <div className="absolute inset-0 bg-black/10" />
-            <div className="absolute top-16 left-6 right-6 flex items-center justify-center">
-              <div className="rounded-full border border-white/20 bg-black/25 px-4 py-2 text-[10px] font-black uppercase tracking-[0.22em] text-[#F5E4B8]">{item.title}</div>
-            </div>
-            <div className="absolute inset-x-7 top-[132px] bottom-[150px] rounded-[30px] border border-white/12 bg-white/[0.06] backdrop-blur-[2px] overflow-hidden">
-              <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.14),transparent_34%),radial-gradient(circle_at_50%_70%,rgba(0,0,0,0.45),transparent_48%)]" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Icon size={84} className="text-white/72 drop-shadow-[0_0_24px_rgba(255,255,255,0.18)]" />
+      <div className="pointer-events-none absolute -inset-10 rounded-[70px] bg-[#F2D28B]/10 blur-3xl" />
+      <div className="relative w-[292px] h-[578px] rounded-[44px] border border-white/18 bg-white/[0.055] p-[5px] shadow-[0_26px_78px_rgba(0,0,0,0.46)] backdrop-blur-sm">
+        <div className="relative h-full rounded-[38px] overflow-hidden bg-[#070707] text-white ring-1 ring-white/10">
+          <div className="absolute top-0 left-1/2 z-30 -translate-x-1/2 w-28 h-6 rounded-b-2xl bg-[#050505]/95 border-x border-b border-white/10" />
+          <motion.div
+            key={item.slug}
+            initial={{ opacity: 0, scale: 1.025, filter: 'blur(8px)' }}
+            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+            transition={{ duration: 0.65, ease: 'easeOut' }}
+            className="absolute inset-0"
+          >
+            <iframe
+              title={`Live UREEL Vorschau ${item.title}`}
+              src={`/u/${item.slug}`}
+              className="absolute left-1/2 top-1/2 h-[844px] w-[390px] -translate-x-1/2 -translate-y-1/2 border-0 bg-black"
+              style={{ transform: 'translate(-50%, -50%) scale(0.73)', transformOrigin: 'center center' }}
+              loading="eager"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+            />
+            {!isComplete && (
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.06),rgba(0,0,0,0.24))]" />
+            )}
+            {index < 2 && (
+              <div className="absolute inset-x-8 bottom-10 z-20 rounded-2xl border border-white/12 bg-black/50 px-4 py-3 backdrop-blur-md">
+                <div className="text-[10px] font-black uppercase tracking-[0.22em] text-[#F2D28B]">Reel läuft</div>
+                <div className="mt-1 text-sm font-black">{item.title}</div>
               </div>
-              <div className="absolute bottom-4 left-4 right-4">
-                <div className="h-1 rounded-full bg-white/18 overflow-hidden"><motion.div key={index} initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 2.85, ease: 'linear' }} className="h-full bg-[#F2D28B]" /></div>
-                <div className="mt-2 text-right text-[10px] font-black text-white/80">0:03</div>
-              </div>
-            </div>
+            )}
           </motion.div>
 
+          <div className="absolute inset-0 z-20 pointer-events-none bg-[radial-gradient(circle_at_35%_15%,rgba(255,255,255,0.11),transparent_26%),linear-gradient(180deg,rgba(255,255,255,0.04),transparent_22%,rgba(0,0,0,0.18))]" />
+
           {showHeadline && (
-            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="absolute top-[92px] left-7 right-7 text-center">
-              <div className="text-3xl font-black uppercase leading-[0.92] tracking-[-0.04em]">{item.title}</div>
-              <div className="mt-2 text-[11px] font-black uppercase tracking-[0.16em] text-[#F2D28B]">{item.label}</div>
+            <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} className="absolute top-[72px] left-6 right-6 z-20 text-center">
+              <div className="inline-flex rounded-full border border-[#F2D28B]/35 bg-black/48 px-4 py-2 text-[9px] font-black uppercase tracking-[0.22em] text-[#F2D28B] backdrop-blur-md">{item.title}</div>
+              <div className="mt-3 text-[27px] font-black uppercase leading-[0.92] tracking-[-0.04em] drop-shadow-[0_5px_18px_rgba(0,0,0,0.5)]">{item.label}</div>
             </motion.div>
           )}
 
           {showCopy && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="absolute left-7 right-7 bottom-[126px] rounded-2xl bg-black/34 border border-white/10 px-4 py-3 text-center">
-              <div className="text-[12px] font-bold leading-snug text-white/85">Video, Botschaft und Aktionen werden zu einer vollständigen UREEL.</div>
+            <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="absolute left-7 right-7 bottom-[124px] z-20 rounded-2xl bg-black/46 border border-white/12 px-4 py-3 text-center backdrop-blur-md">
+              <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#F2D28B]">Werbetext</div>
+              <div className="mt-1 text-[12px] font-bold leading-snug text-white/88">Aus einem kurzen Reel entsteht eine klickbare UREEL mit Botschaft, Link und direkter Aktion.</div>
             </motion.div>
           )}
 
           {showButtons && (
-            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="absolute bottom-8 left-7 right-7 grid grid-cols-3 gap-3">
+            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="absolute bottom-8 left-7 right-7 z-20 grid grid-cols-3 gap-3">
               {['Phone','Globe','Mail','Link','FileText','Share2'].map((icon) => {
                 const ButtonIcon = (LucideIcons as any)[icon] || LucideIcons.Circle;
                 return <div key={icon} className="aspect-square rounded-full bg-[#F6F0E6]/96 border border-[#F2D28B]/30 flex items-center justify-center shadow-lg"><ButtonIcon size={18} className="text-[#141414]" /></div>;
               })}
             </motion.div>
           )}
+
+          <div className="absolute bottom-4 left-7 right-7 z-30">
+            <div className="h-[3px] rounded-full bg-white/18 overflow-hidden">
+              <motion.div key={index} initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 3.05, ease: 'linear' }} className="h-full bg-[#F2D28B]" />
+            </div>
+          </div>
         </div>
       </div>
       <div className="flex items-center gap-2">
