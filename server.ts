@@ -129,6 +129,43 @@ app.post('/api/verify-password', async (req: express.Request, res: express.Respo
 });
 
 
+
+const PUBLIC_SHARE_ORIGIN = process.env.PUBLIC_SITE_URL || process.env.VITE_PUBLIC_SITE_URL || 'https://www.ureel.me';
+
+function getPublicOrigin(req: express.Request): string {
+  const host = (req.get('host') || '').toLowerCase();
+  const protocol = req.protocol || 'https';
+
+  if (host.startsWith('localhost') || host.startsWith('127.0.0.1')) {
+    return `${protocol}://${host}`;
+  }
+
+  // Social previews must not point to temporary Vercel preview domains.
+  return PUBLIC_SHARE_ORIGIN.replace(/\/$/, '');
+}
+
+function stripBrandPrefix(value: any): string {
+  return String(value || '')
+    .replace(/^\s*(ureel(?:\.me)?|konu(?:\.live|\.app)?)\s*[–—-]\s*/i, '')
+    .trim();
+}
+
+function pickSocialTitle(...values: any[]): string {
+  for (const value of values) {
+    const clean = stripBrandPrefix(value);
+    if (clean) return clean;
+  }
+  return 'Aus Video wird Aktion.';
+}
+
+function pickSocialDescription(...values: any[]): string {
+  for (const value of values) {
+    const clean = String(value || '').trim();
+    if (clean) return clean;
+  }
+  return 'Interaktive Karten. Ein Link. Unendliche Möglichkeiten.';
+}
+
 function escapeHtml(value: any): string {
   return String(value || '')
     .replace(/&/g, '&amp;')
@@ -144,6 +181,15 @@ function toAbsoluteUrl(value: any, origin: string): string {
   if (/^https?:\/\//i.test(raw)) return raw;
   if (raw.startsWith('/')) return `${origin}${raw}`;
   return `${origin}/${raw}`;
+}
+
+function stripExistingSocialMeta(html: string): string {
+  // LinkedIn and WhatsApp can behave unpredictably when static and dynamic
+  // Open-Graph tags are duplicated. Keep one authoritative RC3.1.2 block only.
+  return html
+    .replace(/\s*<title>[\s\S]*?<\/title>\s*/i, '\n')
+    .replace(/\s*<meta\s+(?:name|property)=["'](?:title|description|keywords|og:[^"']+|twitter:[^"']+)["'][^>]*>\s*/gi, '\n')
+    .replace(/\s*<link\s+rel=["']canonical["'][^>]*>\s*/gi, '\n');
 }
 
 // SEO & Scraping Gate: Inject dynamic Open-Graph meta tags on demand
@@ -209,17 +255,16 @@ app.get(['/u/:slug', '/share/:slug'], async (req: express.Request, res: express.
     }
 
     let html = fs.readFileSync(htmlPath, 'utf8');
+    html = stripExistingSocialMeta(html);
 
     // Build responsive, dynamic Open-Graph metadata header snippet with custom SEO if provided
-    const domain = req.get('host') || 'www.ureel.me';
-    const protocol = req.protocol || 'https';
-    const origin = `${protocol}://${domain}`;
+    const origin = getPublicOrigin(req);
     const isShareRoute = req.path.startsWith('/share/');
-    const seoTitle = card.metaTitle || card.heroTitle || card.title || "Aus Video wird Aktion.";
-    const seoDescription = card.metaDescription || card.heroSubtitle || card.description || "Interaktive Karten. Ein Link. Unendliche Möglichkeiten.";
+    const seoTitle = pickSocialTitle(card.metaTitle, card.heroTitle, card.title);
+    const seoDescription = pickSocialDescription(card.metaDescription, card.heroSubtitle, card.description);
     
-    const dOgTitle = card.ogTitle || card.metaTitle || card.heroTitle || card.title || "Aus Video wird Aktion.";
-    const dOgDescription = card.ogDescription || card.metaDescription || card.heroSubtitle || card.description || "Interaktive Karten. Ein Link. Unendliche Möglichkeiten.";
+    const dOgTitle = pickSocialTitle(card.ogTitle, card.metaTitle, card.heroTitle, card.title);
+    const dOgDescription = pickSocialDescription(card.ogDescription, card.metaDescription, card.heroSubtitle, card.description);
     
     const ogImageCandidate = card.ogImageUrl ||
                     card.shareImageUrl ||
@@ -247,11 +292,15 @@ app.get(['/u/:slug', '/share/:slug'], async (req: express.Request, res: express.
   <meta property="og:title" content="${escapeHtml(dOgTitle)}" />
   <meta property="og:description" content="${escapeHtml(dOgDescription)}" />
   <meta property="og:image" content="${escapeHtml(ogImage)}" />
+  <meta property="og:image:secure_url" content="${escapeHtml(ogImage)}" />
+  <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
+  <meta property="og:image:height" content="627" />
+  <meta property="og:image:alt" content="Aus Video wird Aktion." />
   <meta property="og:url" content="${escapeHtml(ogUrl)}" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="${escapeHtml(ogUrl)}" />
   <meta name="twitter:title" content="${escapeHtml(dOgTitle)}" />
   <meta name="twitter:description" content="${escapeHtml(dOgDescription)}" />
   <meta name="twitter:image" content="${escapeHtml(ogImage)}" />

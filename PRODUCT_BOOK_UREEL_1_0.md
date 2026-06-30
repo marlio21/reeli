@@ -179,3 +179,34 @@ Für die Share-Fallbacks wird bewusst kein dauerhaftes App-Branding in den Bilde
 ### Schutzregel
 
 Mobile Studio, Mobile Renderer und Mobile Layout Persistence bleiben unangetastet.
+
+### RC3.1.1 – WhatsApp Preview Stabilisierung
+
+Nach dem ersten Live-Test zeigten LinkedIn und Facebook das Premium-Share-Bild korrekt an. WhatsApp zeigte zwar Titel, Beschreibung und Domain, aber kein Vorschaubild. Ursache: WhatsApp ist bei Open-Graph-Bildern strenger und benötigt besonders zuverlässig absolute, öffentlich erreichbare HTTPS-Bild-URLs.
+
+Für RC3.1.1 gilt deshalb:
+
+```text
+Social Preview Bild: absolute HTTPS-URL
+Standard-Domain: https://www.ureel.me
+Kein temporärer Vercel-Preview-Link im geteilten Share-Link
+Kein App-Name im Social-Titel erzwingen
+```
+
+Damit bleibt das Brand-System zukunftssicher: Der visuelle Fallback zeigt nur den Slogan und das Nutzenversprechen, während der Name später zentral gewechselt werden kann.
+
+
+## RC3.1.2 – LinkedIn Large Preview Polish
+
+LinkedIn behandelt Link-Vorschauen nicht immer wie Facebook. Eine Open-Graph-Vorschau kann trotz korrektem Bild kleiner dargestellt werden, weil LinkedIn die Feed-Darstellung selbst steuert.
+
+Für RC3.1.2 gilt deshalb eine Doppelstrategie:
+
+```text
+Link Preview = /share/... mit 1200×627 Open-Graph-Bild
+Großer LinkedIn-Beitrag = Bild direkt in LinkedIn hochladen + Link/Text aus Share Modal einfügen
+```
+
+Das Share Modal enthält dafür eine eigene Aktion „LinkedIn großes Bild“. Diese lädt das optimierte 1200×627-Bild und kopiert den passenden Beitragstext. So bleibt die normale Social Preview erhalten, aber für wichtige Beiträge gibt es eine große, visuelle LinkedIn-Variante.
+
+Mobile Studio bleibt unverändert.

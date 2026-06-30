@@ -7,10 +7,22 @@ import { Card } from "../types";
 export const SHARE_SLOGAN_DE = "Aus Video wird Aktion.";
 export const SHARE_SLOGAN_EN = "Turn video into action.";
 
+export const PUBLIC_SHARE_ORIGIN = "https://www.ureel.me";
+
 const getOrigin = (): string => {
-  if (typeof window !== "undefined" && window.location?.origin)
-    return window.location.origin;
-  return "https://www.ureel.me";
+  if (typeof window === "undefined" || !window.location?.origin) {
+    return PUBLIC_SHARE_ORIGIN;
+  }
+
+  const { origin, hostname } = window.location;
+
+  // Local development should keep working on localhost. Public shares should always
+  // use the stable production domain, not temporary Vercel preview domains.
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
+    return origin;
+  }
+
+  return PUBLIC_SHARE_ORIGIN;
 };
 
 const cleanSlug = (slug?: string): string => (slug || "").toString().trim();

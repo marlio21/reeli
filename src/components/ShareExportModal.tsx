@@ -472,6 +472,14 @@ export function ShareExportModal({ card, isOpen, onClose, lang = 'de', isUpdateS
     window.open(getLinkedInShareUrl(sharePageUrl || publicUrl), '_blank', 'noopener,noreferrer');
   };
 
+  const handleDownloadLinkedInImage = async () => {
+    await copyToClipboard(buildShareText(card, lang, sharePageUrl || publicUrl));
+    await downloadImageExport('og');
+    showToast(lang === 'de'
+      ? 'LinkedIn-Text kopiert und großes Bild heruntergeladen. Für maximale Bildgröße das Bild direkt in den Beitrag hochladen.'
+      : 'LinkedIn text copied and large image downloaded. Upload the image directly to the post for maximum image size.');
+  };
+
   const handleFacebookShare = () => {
     window.open(getFacebookShareUrl(sharePageUrl || publicUrl), '_blank', 'noopener,noreferrer');
   };
@@ -805,6 +813,14 @@ export function ShareExportModal({ card, isOpen, onClose, lang = 'de', isUpdateS
                   title: 'LinkedIn',
                   subtitle: lang === 'de' ? 'Mit Open-Graph-Vorschau teilen' : 'Share with Open Graph preview',
                   onClick: handleLinkedInShare
+                })}
+                {renderOptionRow({
+                  icon: <LucideIcons.ImageDown size={15} />,
+                  title: lang === 'de' ? 'LinkedIn großes Bild' : 'LinkedIn large image',
+                  subtitle: lang === 'de' ? '1200×627 Bild + Text für großen Bildpost' : '1200×627 image + text for a large image post',
+                  onClick: handleDownloadLinkedInImage,
+                  disabled: downloadingImage !== null,
+                  rightElement: downloadingImage === 'og' ? <LucideIcons.Loader2 size={14} className="animate-spin text-purple-400" /> : undefined
                 })}
                 {renderOptionRow({
                   icon: <LucideIcons.Facebook size={15} />,
@@ -1421,10 +1437,10 @@ export function ShareExportModal({ card, isOpen, onClose, lang = 'de', isUpdateS
          ========================================================================= */}
       <div className="absolute left-[-9999px] top-[-9999px] pointer-events-none select-none z-0">
         
-        {/* TEMPLATE A: OPEN GRAPH (1200 x 630 px) – brand-neutral slogan fallback */}
+        {/* TEMPLATE A: OPEN GRAPH (1200 x 627 px) – brand-neutral slogan fallback */}
         <div
           ref={previewRefOG}
-          style={{ width: '1200px', height: '630px', background: '#050505' }}
+          style={{ width: '1200px', height: '627px', background: '#050505' }}
           className="relative bg-neutral-950 text-white font-sans overflow-hidden"
         >
           <img src="/brand/ureel-share-og.png" alt="" className="absolute inset-0 w-full h-full object-cover" crossOrigin="anonymous" />

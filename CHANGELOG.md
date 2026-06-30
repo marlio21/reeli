@@ -1,5 +1,15 @@
 
 
+## v52.6.08 / RC3.1.2 – LinkedIn Large Preview Polish
+
+- Open-Graph-Fallbackbild auf LinkedIn-empfohlenes Format 1200×627 optimiert.
+- Dynamische Server-OG-Tags werden nun ohne doppelte statische Social-Meta-Tags ausgeliefert, damit LinkedIn/WhatsApp eindeutiger scrapen.
+- `og:image:alt` ergänzt und OG-Bildmetadaten auf 1200×627 vereinheitlicht.
+- Share Modal um „LinkedIn großes Bild“ erweitert: kopiert den Beitragstext und lädt ein 1200×627-Bild für große LinkedIn-Bildposts herunter.
+- Hinweis: Die Größe einer reinen LinkedIn-Link-Card wird weiterhin von LinkedIn selbst entschieden; garantierte große Darstellung erreicht man über Bild-Upload im Beitrag.
+- Mobile Studio unverändert.
+
+
 ## v52.6.07 / RC2.14 – Brand Config + Landing Text Neutralization
 
 - Neue zentrale Brand-Konfiguration `src/brand/brandConfig.ts`.
@@ -912,3 +922,11 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Share-Modal um Premium-Kanäle ergänzt: Share-Link, LinkedIn, Facebook, E-Mail, NFC und Story-Bild.
 - QR/NFC bleibt direkter Erlebnislink auf `/u/:slug`; Social Sharing nutzt bevorzugt `/share/:slug`.
 - Mobile Studio, Mobile Renderer und Mobile Layout Persistence wurden nicht verändert.
+
+## v52.6.08 / RC3.1.1 – WhatsApp Share Preview Fix
+
+- Statische Open-Graph-Fallbacks in `index.html` auf absolute `https://www.ureel.me/...` Bild-URLs umgestellt, damit WhatsApp das Default-Share-Bild zuverlässiger laden kann.
+- `og:image:secure_url`, `og:image:type`, Breite/Höhe und `twitter:url` ergänzt.
+- Öffentliche Share-Links werden außerhalb von localhost konsequent auf `https://www.ureel.me` normalisiert, statt temporäre Vercel-Preview-Domains zu teilen.
+- Social-Titel im Server-Fallback entfernt sichtbare Brand-Präfixe wie `ureel –`, damit der spätere Namenswechsel sauberer bleibt.
+- Mobile Studio unverändert.
