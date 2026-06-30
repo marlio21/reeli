@@ -189,10 +189,10 @@ const SHOWCASE_ITEMS: Array<{
   {
     title: 'MX9',
     label: 'Automarke',
-    slug: 'mario-kozuh-schneeberger',
+    slug: 'dein-angebot-sofort-klickbar-6',
     youtubeUrl: 'https://youtube.com/shorts/UQEDw9BCDPo?feature=share',
     startSeconds: 4,
-    publicPath: '/u/mario-kozuh-schneeberger',
+    publicPath: '/u/dein-angebot-sofort-klickbar-6',
     icon: 'Car',
     tone: 'auto',
     reveal: 'headline',
@@ -222,42 +222,7 @@ const SHOWCASE_ITEMS: Array<{
     desktopCopy: 'Die Desktopseite zeigt Leistung, Bildwelt und Kontaktmöglichkeiten – sauber aus derselben UREEL-Karte.',
     desktopPoints: ['Maßarbeit', 'Restaurierung', 'Kurse']
   },
-  {
-    title: 'Rednerpult',
-    label: 'Event & Produkt',
-    slug: 'dein-angebot-sofort-klickbar-2',
-    youtubeUrl: 'https://youtube.com/shorts/fGvO5yAjxjo?',
-    startSeconds: 4,
-    publicPath: '/u/dein-angebot-sofort-klickbar-2',
-    icon: 'Mic2',
-    tone: 'stage',
-    reveal: 'buttons',
-    landingTitle: 'Rednerpult',
-    landingSubtitle: 'Event und Produkt inszenieren',
-    landingCopy: 'Ein Produkt wird nicht nur gezeigt, sondern direkt erlebbar – mit Präsentation, Kontakt und Anfrage.',
-    desktopTitle: 'Perfekt inszeniert',
-    desktopSubtitle: 'Produkt. Bühne. Anfrage.',
-    desktopCopy: 'Aus dem Video entsteht eine Landing-Erfahrung, die das Produkt erklärt und sofort zur Aktion führt.',
-    desktopPoints: ['Event', 'Produkt', 'Kontakt']
-  },
-  {
-    title: 'Reisebüro',
-    label: 'Reiseangebot',
-    slug: 'dein-angebot-sofort-klickbar-3',
-    youtubeUrl: 'https://youtube.com/shorts/Pi30hv6D7WA?feature=sharefeature=share',
-    startSeconds: 4,
-    publicPath: '/u/dein-angebot-sofort-klickbar-3',
-    icon: 'Plane',
-    tone: 'travel',
-    reveal: 'copy',
-    landingTitle: 'Reisebüro',
-    landingSubtitle: 'Reisen emotional präsentieren',
-    landingCopy: 'Aus einem Reisetraum wird eine klickbare Angebotsseite – mit Anfrage, Buchung und persönlichem Kontakt.',
-    desktopTitle: 'Reise erleben',
-    desktopSubtitle: 'Inspiration trifft Anfrage',
-    desktopCopy: 'Die Miniwebseite verbindet Emotion, Angebot und Kontakt in einer kompakten Präsentation.',
-    desktopPoints: ['Inspiration', 'Angebot', 'Buchung']
-  }
+
 ];
 
 const toneBackground: Record<ShowcaseTone, string> = {
@@ -705,7 +670,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
   };
 
   const approvedCases = SHOWCASE_ITEMS.slice(0, 4);
-  const featuredCases = SHOWCASE_ITEMS.slice(0, 2);
+  const featuredCases = SHOWCASE_ITEMS.filter((item) => item.slug === 'dein-angebot-sofort-klickbar-6');
 
   const publicUrl = (path: string) => path.startsWith('http') ? path : path;
 
@@ -807,8 +772,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
         <section id="desktop" className="relative max-w-7xl mx-auto px-5 md:px-8 py-16 border-t border-white/8">
           <div className="mx-auto max-w-4xl text-center mb-12">
             <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">Smartphone + Desktop</div>
-            <h2 className="text-3xl md:text-6xl font-black tracking-[-0.055em] leading-[0.95]">Eine UREEL. Zwei Erlebnisse.</h2>
-            <p className="mt-5 text-lg text-white/62 font-semibold leading-relaxed">Links läuft die Smartphone-Karte exakt wie konfiguriert. Rechts zeigt die Desktop-Webseite die vollständige Präsentation – ideal für Persönlichkeit, Produkt und Unternehmen.</p>
+            <h2 className="text-3xl md:text-6xl font-black tracking-[-0.055em] leading-[0.95]">Ein Reel. Eine Präsentation.</h2>
+            <p className="mt-5 text-lg text-white/62 font-semibold leading-relaxed">Links läuft die echte UREEL-Karte. Rechts sieht man die Desktop-Webseite als hochwertige Präsentation – am Beispiel des MX9.</p>
           </div>
           <div className="space-y-10">
             {featuredCases.map((item) => (
@@ -819,7 +784,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
                   </div>
                 </div>
                 <div className="relative rounded-[30px] border border-white/10 bg-black/24 overflow-hidden h-[460px] shadow-[0_22px_70px_rgba(0,0,0,0.28)]">
-                  <iframe title={`${item.title} desktop`} src={item.publicPath} className="absolute inset-0 h-full w-full border-0 bg-black" loading="lazy" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" />
+                  <img
+                    src={item.slug === 'dein-angebot-sofort-klickbar-6' ? '/landing/auto-desktop-showcase.webp' : '/landing/jennifer-desktop-showcase.webp'}
+                    alt={`${item.title} Desktop-Webseite`}
+                    className="absolute inset-0 h-full w-full object-cover object-center"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10 pointer-events-none" />
                 </div>
               </article>
             ))}
