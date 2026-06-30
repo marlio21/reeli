@@ -9,6 +9,7 @@ import * as LucideIcons from 'lucide-react';
 import { useFirebase } from '../context/FirebaseContext';
 import { TRANSLATIONS } from '../translations';
 import { Card } from '../types';
+import { BRAND, brandText } from '../brand/brandConfig';
 
 interface LandingPageProps {
   lang: 'de' | 'en';
@@ -21,7 +22,7 @@ const UPlayIcon: React.FC<{ size?: number }> = ({ size = 64 }) => (
   <div
     className="relative rounded-[24%] bg-gradient-to-br from-[#171717] via-[#26221c] to-[#0b0b0b] border border-[#E9D8A6]/35 shadow-[0_18px_50px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.16)] flex items-center justify-center overflow-hidden"
     style={{ width: size, height: size }}
-    aria-label="ureel icon"
+    aria-label={`${BRAND.name} icon`}
   >
     <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_20%,rgba(255,255,255,0.16),transparent_36%),radial-gradient(circle_at_70%_80%,rgba(232,196,106,0.18),transparent_38%)]" />
     <div className="relative flex items-center gap-[-2px]">
@@ -77,7 +78,7 @@ const resolveShowcaseText = (item: any, _card?: Card | null) => ({
   // Public card texts can be longer and are not used in the hero sequence.
   title: item.landingTitle || item.title,
   subtitle: item.landingSubtitle || item.label,
-  copy: item.landingCopy || 'Aus einem kurzen Moment entsteht eine klickbare UREEL – mit Video, Botschaft und direkter Aktion.',
+  copy: item.landingCopy || 'Aus einem kurzen Moment entsteht eine klickbare Präsentation – mit Video, Botschaft und direkter Aktion.',
 });
 
 const iconForButton = (button: any): string => {
@@ -107,7 +108,7 @@ const MiniUreelCard: React.FC<{
     <div className="w-[155px] h-[276px] rounded-[30px] p-2 bg-[#F5F1E8] shadow-[0_20px_50px_rgba(0,0,0,0.35)]">
       <div className={`relative w-full h-full rounded-[24px] overflow-hidden bg-gradient-to-br ${bg} text-white`}>
         <div className="absolute inset-0 opacity-35 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.35),transparent_22%),radial-gradient(circle_at_80%_80%,rgba(255,255,255,0.18),transparent_30%)]" />
-        <div className="absolute top-4 left-4 right-4 rounded-full border border-white/25 bg-black/25 px-3 py-1 text-center text-[8px] font-black uppercase tracking-[0.22em]">ureel</div>
+        <div className="absolute top-4 left-4 right-4 rounded-full border border-white/25 bg-black/25 px-3 py-1 text-center text-[8px] font-black uppercase tracking-[0.22em]">{BRAND.logoText.toLowerCase()}</div>
         <div className="absolute top-[78px] left-4 right-4 text-center">
           <div className="text-[21px] font-black uppercase leading-[0.92] tracking-tight" style={{ color: accent }}>{title}</div>
           <div className="mt-2 text-[9px] leading-tight font-bold text-white/80">{subtitle}</div>
@@ -162,7 +163,7 @@ const SHOWCASE_ITEMS: Array<{
     reveal: 'reel',
     landingTitle: 'Jennifer Lawson',
     landingSubtitle: 'Portfolio & Kontakt in Sekunden',
-    landingCopy: 'Eine persönliche UREEL zeigt Profil, Motivation und Kontaktmöglichkeiten – ideal für Studium, Bewerbung und Netzwerk.',
+    landingCopy: 'Eine persönliche Präsentation zeigt Profil, Motivation und Kontaktmöglichkeiten – ideal für Studium, Bewerbung und Netzwerk.',
     desktopTitle: 'Jennifer Lawson',
     desktopSubtitle: 'Studentin mit Profil',
     desktopCopy: 'Aus einem kurzen Video entsteht eine moderne persönliche Miniwebseite mit Bild, Text und direkten Kontaktaktionen.',
@@ -219,7 +220,7 @@ const SHOWCASE_ITEMS: Array<{
     landingCopy: 'Ein Werkstattmoment wird zur digitalen Präsentation für Möbel, Kurse, Anfragen und direkte Kontakte.',
     desktopTitle: 'Möbelmanufaktur',
     desktopSubtitle: 'Von Hand gefertigt',
-    desktopCopy: 'Die Desktopseite zeigt Leistung, Bildwelt und Kontaktmöglichkeiten – sauber aus derselben UREEL-Karte.',
+    desktopCopy: 'Die Desktopseite zeigt Leistung, Bildwelt und Kontaktmöglichkeiten – sauber aus derselben Präsentationskarte.',
     desktopPoints: ['Maßarbeit', 'Restaurierung', 'Kurse']
   },
 
@@ -239,7 +240,7 @@ const MARKETING_STORIES = [
   {
     audience: 'Schüler & Studenten',
     title: 'Teile dein Profil. Öffne Türen.',
-    text: 'Mit einer UREEL wird ein kurzer Moment zu deinem digitalen Profil – mit Projekten, Portfolio, Dokumenten und Kontakt auf einen Blick.',
+    text: 'Mit einer modernen Präsentation wird ein kurzer Moment zu deinem digitalen Profil – mit Projekten, Portfolio, Dokumenten und Kontakt auf einen Blick.',
     image: '/landing/students-share-ureel.webp',
     icon: 'GraduationCap'
   },
@@ -261,28 +262,28 @@ const MARKETING_STORIES = [
 
 const LANDING_TRANSLATION_KEYS = {
   de: {
-    shareKicker: 'Teilen. Verbinden. Beeindrucken.',
-    shareHeadline: 'UREEL tauschen. Chancen schaffen.',
-    shareText: 'Mit einem Scan oder Klick wird aus einem Gespräch eine Präsentation: für Vereine, Schulen, Unternehmen, Messen, Produkte, Praxen, Sportclubs und persönliche Profile.',
-    casesKicker: 'UREEL in Aktion',
-    casesHeadline: 'Eine Karte. Zwei Erlebnisse.',
-    casesText: 'Auf dem Smartphone entsteht Aufmerksamkeit. Auf dem Desktop entsteht die vollständige Miniwebseite – für Persönlichkeit, Produkt, Verein oder Unternehmen.',
+    shareKicker: 'Teilen. Eindruck machen. Chancen schaffen.',
+    shareHeadline: 'Teilen. Eindruck machen. Chancen schaffen.',
+    shareText: 'Mit einem Scan oder Klick wird aus einer Begegnung eine Präsentation: für Vereine, Schulen, Unternehmen, Messen, Produkte, Praxen, Sportclubs und persönliche Profile.',
+    casesKicker: 'Live-Beispiele',
+    casesHeadline: 'Eine Präsentation. Zwei Ansichten.',
+    casesText: 'Auf dem Smartphone entsteht der erste Eindruck. Auf dem Desktop entsteht die vollständige Miniwebseite – für Persönlichkeit, Produkt, Verein oder Unternehmen.',
     explainHeadline: 'Mehr als eine digitale Visitenkarte.',
-    explainText: 'Eine UREEL verbindet Video, Botschaft, Buttons, QR-Code, Teilen und Desktop-Miniwebseite in einer einzigen Präsentation.',
+    explainText: 'Eine moderne Präsentation verbindet Video, Botschaft, Buttons, QR-Code, Teilen und Desktop-Miniwebseite in einem einzigen Link.',
     upgradesHeadline: 'Starte einfach. Wachse mit deinen Möglichkeiten.',
-    upgradesText: 'Von der ersten kostenlosen UREEL bis zur professionellen Business-Präsentation mit Showcases, Domains und Erweiterungen.'
+    upgradesText: 'Von der ersten kostenlosen Präsentation bis zur professionellen Business-Präsentation mit Showcases, Domains und Erweiterungen.'
   },
   en: {
     shareKicker: 'Share. Connect. Impress.',
-    shareHeadline: 'Exchange UREELs. Create opportunities.',
+    shareHeadline: 'Share. Impress. Create opportunities.',
     shareText: 'With one scan or click, a conversation becomes a presentation: for clubs, schools, businesses, trade fairs, products, practices, sport teams and personal profiles.',
-    casesKicker: 'UREEL in action',
+    casesKicker: 'Live examples',
     casesHeadline: 'One card. Two experiences.',
-    casesText: 'On mobile, UREEL creates attention. On desktop, it becomes a complete mini website for your personality, product, club or business.',
+    casesText: 'On mobile, the first impression begins. On desktop, it becomes a complete mini website for your personality, product, club or business.',
     explainHeadline: 'More than a digital business card.',
-    explainText: 'A UREEL combines video, message, buttons, QR code, sharing and desktop mini website in one presentation.',
+    explainText: 'A modern presentation combines video, message, buttons, QR code, sharing and desktop mini website in one link.',
     upgradesHeadline: 'Start simple. Grow with your needs.',
-    upgradesText: 'From your first free UREEL to professional business presentations with showcases, domains and upgrades.'
+    upgradesText: 'From your first free presentation to professional business presentations with showcases, domains and upgrades.'
   }
 };
 
@@ -318,7 +319,7 @@ const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; i
         <div className="absolute inset-0 bg-cover bg-center opacity-80 scale-[1.12]" style={{ backgroundImage: `url(${media.poster})` }} />
       )}
       {/* YouTube is intentionally not embedded in the premium landing hero.
-          We use the poster/thumbnail only and open the real UREEL via the public link.
+          We use the poster/thumbnail only and open the real public presentation via the public link.
           This prevents visible YouTube controls, pause overlays and transition jitter. */}
       {media.kind === 'direct' && (
         <video
@@ -356,7 +357,7 @@ const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; i
       {loading && (
         <div className="absolute inset-x-8 top-[138px] z-10 rounded-[28px] border border-white/10 bg-black/20 px-5 py-8 text-center backdrop-blur-md">
           <LucideIcons.Loader2 size={38} className="mx-auto animate-spin text-[#F2D28B]" />
-          <div className="mt-4 text-[10px] font-black uppercase tracking-[0.20em] text-white/62">Live-UREEL lädt</div>
+          <div className="mt-4 text-[10px] font-black uppercase tracking-[0.20em] text-white/62">Live-Präsentation lädt</div>
         </div>
       )}
 
@@ -645,6 +646,7 @@ const DelayedPublicIframe: React.FC<{ title: string; src: string; delayMs?: numb
 export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnterDashboard, onGoToRoute }) => {
   const { user, loginWithGoogle, loginWithEmail, registerWithEmail, sendPasswordReset } = useFirebase();
   const tGlobal = TRANSLATIONS[lang];
+  const brand = brandText(lang);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -737,8 +739,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
           <div className="flex items-center gap-3">
             <UPlayIcon size={54} />
             <div>
-              <div className="text-2xl font-black tracking-tight">ureel.me</div>
-              <div className="text-[#E8DCC2] text-sm font-bold">Aus Video wird Aktion.</div>
+              <div className="text-2xl font-black tracking-tight">{brand.domain}</div>
+              <div className="text-[#E8DCC2] text-sm font-bold">{brand.slogan}</div>
             </div>
           </div>
           <nav className="hidden lg:flex items-center gap-8 text-[12px] font-black uppercase tracking-[0.18em] text-white/60">
@@ -751,7 +753,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
             {user ? (
               <button onClick={onEnterDashboard} className="rounded-2xl bg-[#F2D28B] text-black px-5 py-3 text-xs font-black uppercase tracking-widest">{tGlobal.dashboard}</button>
             ) : (
-              <button onClick={scrollToAuth} className="rounded-2xl bg-[#F2D28B] text-black px-5 py-3 text-xs font-black uppercase tracking-widest">Kostenlos starten</button>
+              <button onClick={scrollToAuth} className="rounded-2xl bg-[#F2D28B] text-black px-5 py-3 text-xs font-black uppercase tracking-widest">{brand.ctaPrimary}</button>
             )}
           </div>
         </div>
@@ -772,7 +774,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
             <div className="grid gap-3 text-sm font-bold text-white/76">
               {[
                 'Video als starker erster Eindruck',
-                'Die echte UREEL läuft exakt wie konfiguriert',
+                'Die echte Präsentation läuft exakt wie konfiguriert',
                 'Desktop-Webseite automatisch dabei'
               ].map((item) => (
                 <div key={item} className="flex items-center gap-3"><span className="w-7 h-7 rounded-full bg-[#F2D28B] text-black flex items-center justify-center"><LucideIcons.Check size={15} /></span>{item}</div>
@@ -789,7 +791,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
             <div className="relative w-[306px] h-[620px] rounded-[46px] border border-white/16 bg-white/[0.035] p-[4px] shadow-[0_28px_80px_rgba(0,0,0,0.42)]">
               <div className="relative h-full rounded-[42px] overflow-hidden bg-black ring-1 ring-white/8">
                 <iframe
-                  title="Nadine Jersey UREEL"
+                  title={`${SHOWCASE_ITEMS.find((entry) => entry.slug === 'dein-angebot-sofort-klickbar')?.title || 'Nadine Jersey'} Präsentation`}
                   src={publicUrl('/u/dein-angebot-sofort-klickbar')}
                   className="absolute inset-0 h-full w-full border-0 bg-black"
                   loading="eager"
@@ -805,7 +807,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
               <button onClick={() => setAuthMode('login')} className={`flex-1 rounded-xl py-3 text-xs font-black uppercase tracking-widest ${authMode === 'login' ? 'bg-[#F6F0E6] text-black' : 'text-white/60'}`}>Einloggen</button>
               <button onClick={() => setAuthMode('register')} className={`flex-1 rounded-xl py-3 text-xs font-black uppercase tracking-widest ${authMode === 'register' ? 'bg-[#F6F0E6] text-black' : 'text-white/60'}`}>Registrieren</button>
             </div>
-            <h2 className="text-2xl font-black mb-1">{authMode === 'login' ? 'Willkommen zurück' : 'Starte deine UREEL'}</h2>
+            <h2 className="text-2xl font-black mb-1">{authMode === 'login' ? 'Willkommen zurück' : 'Starte deine Präsentation'}</h2>
             <p className="text-sm text-white/55 mb-6">{authMode === 'login' ? 'Melde dich an und öffne dein Studio.' : 'Konto erstellen und direkt mit deiner ersten Karte loslegen.'}</p>
             <form onSubmit={handleEmailAction} className="space-y-4">
               {authMode === 'register' && (
@@ -828,7 +830,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
           <div className="mx-auto max-w-4xl text-center mb-12">
             <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">Smartphone + Desktop</div>
             <h2 className="text-3xl md:text-6xl font-black tracking-[-0.055em] leading-[0.95]">Ein Reel. Eine Präsentation.</h2>
-            <p className="mt-5 text-lg text-white/62 font-semibold leading-relaxed">Links läuft die echte UREEL-Karte. Rechts sieht man dieselbe Idee als multifunktionale Desktop-Miniwebseite – klar, hochwertig und sofort verständlich.</p>
+            <p className="mt-5 text-lg text-white/62 font-semibold leading-relaxed">Links läuft die echte Präsentationskarte. Rechts sieht man dieselbe Idee als multifunktionale Desktop-Miniwebseite – klar, hochwertig und sofort verständlich.</p>
           </div>
           <div className="space-y-10">
             {featuredCases.map((item) => (
@@ -863,7 +865,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
             <div>
               <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">Video oder Bild</div>
               <h2 className="text-3xl md:text-5xl font-black tracking-[-0.055em] leading-[0.98]">Dein Inhalt bestimmt den Auftritt.</h2>
-              <p className="mt-5 text-lg text-white/64 font-semibold leading-relaxed">Starte mit einem Reel, einem Bild oder einer Kombination aus beidem. UREEL macht daraus eine teilbare Präsentation mit Aktionen, QR-Code und Desktop-Webseite.</p>
+              <p className="mt-5 text-lg text-white/64 font-semibold leading-relaxed">Starte mit einem Reel, einem Bild oder einer Kombination aus beidem. Die Plattform macht daraus eine teilbare Präsentation mit Aktionen, QR-Code und Desktop-Webseite.</p>
             </div>
             <div className="grid sm:grid-cols-2 gap-4">
               {[['Video','Ein kurzer Spot erzeugt Aufmerksamkeit.','Video'],['Bild','Ein starkes Bild wird zur interaktiven Karte.','Image']].map(([title, text, icon]) => {
@@ -881,7 +883,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
               <h2 className="text-3xl md:text-5xl font-black tracking-tight">Vier echte Karten. Vier Einsatzbereiche.</h2>
               <p className="mt-3 text-white/60 font-bold max-w-2xl">Alle Karten kommen aus den echten Public-View-Links. Änderungen im Studio bleiben dadurch automatisch aktuell.</p>
             </div>
-            <button onClick={scrollToAuth} className="rounded-2xl bg-[#F2D28B] text-black px-6 py-4 text-xs font-black uppercase tracking-widest text-center">Eigene UREEL starten</button>
+            <button onClick={scrollToAuth} className="rounded-2xl bg-[#F2D28B] text-black px-6 py-4 text-xs font-black uppercase tracking-widest text-center">Eigene Präsentation starten</button>
           </div>
           <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5">
             {approvedCases.map((item, i) => (
@@ -906,9 +908,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
         <section className="relative max-w-7xl mx-auto px-5 md:px-8 py-18 border-t border-white/8">
           <div className="mx-auto max-w-4xl text-center mb-12">
             <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">Teilen. Verbinden. Erinnern.</div>
-            <h2 className="text-3xl md:text-6xl font-black tracking-[-0.055em] leading-[0.95]">Eine UREEL passt zu jeder Begegnung.</h2>
+            <h2 className="text-3xl md:text-6xl font-black tracking-[-0.055em] leading-[0.95]">Eine Präsentation passt zu jeder Begegnung.</h2>
             <p className="mt-5 text-lg text-white/62 font-semibold leading-relaxed">
-              Ob Verein, Schule, Messe, Unternehmen, Praxis, Sportclub, Produkt oder persönliche Marke: Eine UREEL zeigt in Sekunden, wer du bist, was du anbietest und wie man mit dir in Kontakt kommt.
+              Ob Verein, Schule, Messe, Unternehmen, Praxis, Sportclub, Produkt oder persönliche Marke: Eine moderne Präsentation zeigt in Sekunden, wer du bist, was du anbietest und wie man mit dir in Kontakt kommt.
             </p>
           </div>
 
@@ -917,7 +919,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
               ['Du glänzt.', 'Nicht nur Kontaktdaten teilen – sondern Persönlichkeit, Leistung und Haltung sichtbar machen.', 'Sparkles'],
               ['Dein Produkt erklärt sich selbst.', 'Video, Bild, Beschreibung, Datei und Anfrage verbinden sich zu einer Präsentation.', 'PackageCheck'],
               ['Deine Zielgruppe versteht sofort.', 'Auf dem Smartphone schnell erleben. Am Desktop vollständig informieren.', 'MonitorSmartphone'],
-              ['Ein Scan genügt.', 'QR-Code, Link oder Teilen-Button öffnen deine UREEL ohne App und ohne Umweg.', 'QrCode']
+              ['Ein Scan genügt.', 'QR-Code, Link oder Teilen-Button öffnen deine Präsentation ohne App und ohne Umweg.', 'QrCode']
             ].map(([title, text, icon]) => {
               const Icon = (LucideIcons as any)[icon] || LucideIcons.Sparkles;
               return (
@@ -962,11 +964,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
         <section id="vorteile" className="max-w-7xl mx-auto px-5 md:px-8 py-16 border-t border-white/8">
           <div className="rounded-[38px] border border-white/10 bg-[#111]/72 p-7 md:p-10 text-center">
             <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">Upgrades</div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-[-0.05em] leading-[0.98]">Werde kostenlos zum UREELER.</h2>
-            <p className="mx-auto mt-5 max-w-3xl text-lg text-white/62 font-semibold leading-relaxed">Starte mit deiner ersten UREEL kostenlos. Wenn deine Ideen wachsen, wächst UREEL mit: mehr Design, mehr Präsentationen und mehr Möglichkeiten.</p>
+            <h2 className="text-3xl md:text-5xl font-black tracking-[-0.05em] leading-[0.98]">Starte kostenlos mit deiner ersten Präsentation.</h2>
+            <p className="mx-auto mt-5 max-w-3xl text-lg text-white/62 font-semibold leading-relaxed">Starte mit deiner ersten Präsentation kostenlos. Wenn deine Ideen wachsen, wächst die Plattform mit: mehr Design, mehr Präsentationen und mehr Möglichkeiten.</p>
             <div className="mt-8 grid md:grid-cols-3 gap-4 text-left">
               {[
-                ['Free','Erste UREEL erstellen und teilen.'],
+                ['Free','Erste Präsentation erstellen und teilen.'],
                 ['Pro','Mehr Design, mehr Showcases, mehr Wirkung.'],
                 ['Business','Für Unternehmen, Teams und professionelle Präsentationen.']
               ].map(([plan, desc]) => (

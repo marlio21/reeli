@@ -1,5 +1,15 @@
 
 
+## v52.6.07 / RC2.14 – Brand Config + Landing Text Neutralization
+
+- Neue zentrale Brand-Konfiguration `src/brand/brandConfig.ts`.
+- Landingpage-Header liest Domain und Claim aus der Brand-Konfiguration.
+- Landingpage-Texte markenneutraler formuliert, damit ein späterer Markenwechsel leichter möglich ist.
+- CTA-Text zentral vorbereitet.
+- Dokument `BRAND_SYSTEM_RC2_14.md` ergänzt.
+- Mobile Studio nicht verändert.
+
+
 ## v52.6.05 / RC2.12 – UREEL Chancen schaffen Landing Refinement
 
 - Neues Marketingbild `ureel-chancen-schaffen.webp` in die Sektion „UREEL tauschen. Chancen schaffen.“ eingebunden.
