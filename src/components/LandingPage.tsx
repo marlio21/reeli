@@ -98,13 +98,90 @@ const toneBackground: Record<ShowcaseTone, string> = {
   portrait: 'from-[#1f1510] via-[#8a642b] to-[#070604]'
 };
 
-const ShowcasePhoneSequence: React.FC = () => {
-  const [index, setIndex] = useState(0);
-  const item = SHOWCASE_ITEMS[index];
+const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; index: number }> = ({ item, index }) => {
+  const Icon = (LucideIcons as any)[item.icon] || LucideIcons.Sparkles;
   const showHeadline = index >= 2;
   const showButtons = index >= 4;
   const showCopy = index >= 6;
   const isComplete = index >= 7;
+  const showReelOnly = index < 2;
+
+  return (
+    <motion.div
+      key={item.slug}
+      initial={{ opacity: 0, scale: 1.015, y: 8, filter: 'blur(8px)' }}
+      animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
+      transition={{ duration: 0.7, ease: 'easeOut' }}
+      className={`absolute inset-0 overflow-hidden bg-gradient-to-br ${toneBackground[item.tone]}`}
+    >
+      <div className="absolute inset-0 opacity-75 bg-[radial-gradient(circle_at_28%_18%,rgba(255,255,255,0.20),transparent_25%),radial-gradient(circle_at_72%_76%,rgba(232,196,106,0.18),transparent_34%),linear-gradient(180deg,rgba(0,0,0,0.02),rgba(0,0,0,0.70))]" />
+      <motion.div
+        initial={{ scale: 1 }}
+        animate={{ scale: 1.06 }}
+        transition={{ duration: 3.15, ease: 'linear' }}
+        className="absolute inset-0 opacity-80"
+      >
+        <div className="absolute left-[-20%] top-[12%] h-44 w-44 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute right-[-20%] bottom-[18%] h-52 w-52 rounded-full bg-[#F2D28B]/12 blur-3xl" />
+        <div className="absolute inset-x-6 top-24 h-72 rounded-[38px] border border-white/8 bg-black/10 backdrop-blur-[1px]" />
+      </motion.div>
+
+      <div className="absolute top-9 left-6 right-6 z-10 flex items-center justify-between">
+        <div className="rounded-full border border-white/14 bg-black/20 px-3 py-1 text-[8px] font-black uppercase tracking-[0.22em] text-[#F2D28B] backdrop-blur-md">{item.title}</div>
+        <div className="rounded-full border border-white/12 bg-black/18 px-2 py-1 text-[8px] font-black text-white/60">0:03</div>
+      </div>
+
+      {showReelOnly && (
+        <div className="absolute inset-x-8 top-[128px] z-10 rounded-[30px] border border-white/10 bg-black/18 px-6 py-10 text-center backdrop-blur-sm">
+          <Icon size={74} className="mx-auto text-white/78" strokeWidth={1.55} />
+          <div className="mt-8 text-[11px] font-black uppercase tracking-[0.22em] text-[#F2D28B]">Reel läuft</div>
+          <div className="mt-2 text-xl font-black leading-tight text-white">{item.title}</div>
+        </div>
+      )}
+
+      {showHeadline && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="absolute top-[98px] left-6 right-6 z-20 text-center">
+          <Icon size={42} className="mx-auto mb-5 text-white/75" strokeWidth={1.5} />
+          <div className="text-[30px] font-black uppercase leading-[0.9] tracking-[-0.05em] text-white drop-shadow-[0_8px_22px_rgba(0,0,0,0.45)]">{item.label}</div>
+          <div className="mx-auto mt-4 h-px w-24 bg-[#F2D28B]/60" />
+        </motion.div>
+      )}
+
+      {showCopy && (
+        <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="absolute left-7 right-7 bottom-[135px] z-20 rounded-[22px] bg-black/28 border border-white/10 px-4 py-4 text-center backdrop-blur-xl">
+          <div className="text-[9px] font-black uppercase tracking-[0.22em] text-[#F2D28B]">Werbetext</div>
+          <div className="mt-2 text-[13px] font-bold leading-snug text-white/86">Ein kurzer Moment wird zur klickbaren Karte – mit Botschaft, Link und direkter Aktion.</div>
+        </motion.div>
+      )}
+
+      {showButtons && (
+        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="absolute bottom-10 left-8 right-8 z-20 grid grid-cols-3 gap-3">
+          {[
+            ['Phone','Anruf'], ['Globe','Web'], ['Mail','Mail'], ['Link','Link'], ['FileText','Info'], ['Share2','Teilen']
+          ].map(([icon,label]) => {
+            const ButtonIcon = (LucideIcons as any)[icon] || LucideIcons.Circle;
+            return (
+              <div key={icon} className="aspect-square rounded-full bg-[#F8F1E5]/95 border border-[#F2D28B]/25 flex flex-col items-center justify-center gap-1 shadow-[0_12px_28px_rgba(0,0,0,0.24)]">
+                <ButtonIcon size={17} className="text-[#111]" strokeWidth={1.8} />
+                {isComplete && <span className="text-[7px] font-black text-[#111]/70 uppercase tracking-wide">{label}</span>}
+              </div>
+            );
+          })}
+        </motion.div>
+      )}
+
+      <div className="absolute bottom-4 left-7 right-7 z-30">
+        <div className="h-[2px] rounded-full bg-white/16 overflow-hidden">
+          <motion.div key={`${item.slug}-${index}`} initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 3.05, ease: 'linear' }} className="h-full bg-[#F2D28B]" />
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+const ShowcasePhoneSequence: React.FC = () => {
+  const [index, setIndex] = useState(0);
+  const item = SHOWCASE_ITEMS[index];
 
   useEffect(() => {
     const timer = window.setInterval(() => setIndex((current) => (current + 1) % SHOWCASE_ITEMS.length), 3200);
@@ -112,78 +189,25 @@ const ShowcasePhoneSequence: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative flex flex-col items-center gap-5">
-      <div className="pointer-events-none absolute -inset-10 rounded-[70px] bg-[#F2D28B]/10 blur-3xl" />
-      <div className="relative w-[292px] h-[578px] rounded-[44px] border border-white/18 bg-white/[0.055] p-[5px] shadow-[0_26px_78px_rgba(0,0,0,0.46)] backdrop-blur-sm">
-        <div className="relative h-full rounded-[38px] overflow-hidden bg-[#070707] text-white ring-1 ring-white/10">
-          <div className="absolute top-0 left-1/2 z-30 -translate-x-1/2 w-28 h-6 rounded-b-2xl bg-[#050505]/95 border-x border-b border-white/10" />
-          <motion.div
-            key={item.slug}
-            initial={{ opacity: 0, scale: 1.025, filter: 'blur(8px)' }}
-            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-            transition={{ duration: 0.65, ease: 'easeOut' }}
-            className="absolute inset-0"
-          >
-            <iframe
-              title={`Live UREEL Vorschau ${item.title}`}
-              src={`/u/${item.slug}`}
-              className="absolute left-1/2 top-1/2 h-[844px] w-[390px] -translate-x-1/2 -translate-y-1/2 border-0 bg-black"
-              style={{ transform: 'translate(-50%, -50%) scale(0.73)', transformOrigin: 'center center' }}
-              loading="eager"
-              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-            />
-            {!isComplete && (
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.06),rgba(0,0,0,0.24))]" />
-            )}
-            {index < 2 && (
-              <div className="absolute inset-x-8 bottom-10 z-20 rounded-2xl border border-white/12 bg-black/50 px-4 py-3 backdrop-blur-md">
-                <div className="text-[10px] font-black uppercase tracking-[0.22em] text-[#F2D28B]">Reel läuft</div>
-                <div className="mt-1 text-sm font-black">{item.title}</div>
-              </div>
-            )}
-          </motion.div>
-
-          <div className="absolute inset-0 z-20 pointer-events-none bg-[radial-gradient(circle_at_35%_15%,rgba(255,255,255,0.11),transparent_26%),linear-gradient(180deg,rgba(255,255,255,0.04),transparent_22%,rgba(0,0,0,0.18))]" />
-
-          {showHeadline && (
-            <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} className="absolute top-[72px] left-6 right-6 z-20 text-center">
-              <div className="inline-flex rounded-full border border-[#F2D28B]/35 bg-black/48 px-4 py-2 text-[9px] font-black uppercase tracking-[0.22em] text-[#F2D28B] backdrop-blur-md">{item.title}</div>
-              <div className="mt-3 text-[27px] font-black uppercase leading-[0.92] tracking-[-0.04em] drop-shadow-[0_5px_18px_rgba(0,0,0,0.5)]">{item.label}</div>
-            </motion.div>
-          )}
-
-          {showCopy && (
-            <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="absolute left-7 right-7 bottom-[124px] z-20 rounded-2xl bg-black/46 border border-white/12 px-4 py-3 text-center backdrop-blur-md">
-              <div className="text-[11px] font-black uppercase tracking-[0.16em] text-[#F2D28B]">Werbetext</div>
-              <div className="mt-1 text-[12px] font-bold leading-snug text-white/88">Aus einem kurzen Reel entsteht eine klickbare UREEL mit Botschaft, Link und direkter Aktion.</div>
-            </motion.div>
-          )}
-
-          {showButtons && (
-            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="absolute bottom-8 left-7 right-7 z-20 grid grid-cols-3 gap-3">
-              {['Phone','Globe','Mail','Link','FileText','Share2'].map((icon) => {
-                const ButtonIcon = (LucideIcons as any)[icon] || LucideIcons.Circle;
-                return <div key={icon} className="aspect-square rounded-full bg-[#F6F0E6]/96 border border-[#F2D28B]/30 flex items-center justify-center shadow-lg"><ButtonIcon size={18} className="text-[#141414]" /></div>;
-              })}
-            </motion.div>
-          )}
-
-          <div className="absolute bottom-4 left-7 right-7 z-30">
-            <div className="h-[3px] rounded-full bg-white/18 overflow-hidden">
-              <motion.div key={index} initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 3.05, ease: 'linear' }} className="h-full bg-[#F2D28B]" />
-            </div>
-          </div>
+    <div className="relative flex flex-col items-center gap-4">
+      <div className="pointer-events-none absolute -inset-8 rounded-[64px] bg-[#F2D28B]/8 blur-3xl" />
+      <div className="relative w-[278px] h-[548px] rounded-[42px] border border-white/14 bg-white/[0.035] p-[4px] shadow-[0_24px_70px_rgba(0,0,0,0.38)] backdrop-blur-sm">
+        <div className="relative h-full rounded-[37px] overflow-hidden bg-[#070707] text-white ring-1 ring-white/8">
+          <div className="absolute top-0 left-1/2 z-40 -translate-x-1/2 w-24 h-5 rounded-b-2xl bg-[#050505]/96 border-x border-b border-white/8" />
+          <LandingMiniUreelPreview item={item} index={index} />
+          <div className="absolute inset-0 z-30 pointer-events-none bg-[linear-gradient(115deg,rgba(255,255,255,0.08),transparent_24%,transparent_72%,rgba(255,255,255,0.04))]" />
         </div>
       </div>
       <div className="flex items-center gap-2">
         {SHOWCASE_ITEMS.map((entry, i) => (
-          <button key={entry.slug} onClick={() => setIndex(i)} className={`h-2 rounded-full transition-all ${i === index ? 'w-8 bg-[#F2D28B]' : 'w-2 bg-white/25'}`} aria-label={`Showcase ${entry.title}`} />
+          <button key={entry.slug} onClick={() => setIndex(i)} className={`h-2 rounded-full transition-all ${i === index ? 'w-8 bg-[#F2D28B]' : 'w-2 bg-white/22 hover:bg-white/40'}`} aria-label={`Showcase ${entry.title}`} />
         ))}
       </div>
-      <a href={`/u/${item.slug}`} className="rounded-full border border-[#F2D28B]/35 bg-[#F2D28B]/10 px-5 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[#F6E2A5] hover:bg-[#F2D28B] hover:text-black transition-colors">Live ansehen: {item.title}</a>
+      <a href={`/u/${item.slug}`} className="rounded-full border border-[#F2D28B]/25 bg-white/[0.035] px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#F6E2A5] hover:bg-[#F2D28B] hover:text-black transition-colors">Live ansehen: {item.title}</a>
     </div>
   );
 };
+
 
 export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnterDashboard, onGoToRoute }) => {
   const { user, loginWithGoogle, loginWithEmail, registerWithEmail, sendPasswordReset } = useFirebase();

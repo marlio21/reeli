@@ -1,3 +1,12 @@
+
+
+## v52.5.95 / RC2.2 Landing Hero MiniPreview Fix
+- Replaced iframe-based hero preview with a dedicated lightweight LandingMiniUreelPreview.
+- Hero sequence now renders clean simulated UREEL states inside the smartphone without cropping.
+- Refined smartphone frame, borders, shadows and progress line for a lighter premium landingpage look.
+- Kept showcase gallery as live links only; no large media assets added.
+- Mobile Studio and public card rendering untouched.
+- Build verified with npm run build.
 ## v52.5.94 / RC2.1 Landing Hero Live UREEL Preview
 
 - Landingpage-Hero nutzt jetzt echte öffentliche UREEL-Seiten im Smartphone-Preview-Iframe.
