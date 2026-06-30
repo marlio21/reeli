@@ -1,5 +1,15 @@
 
 
+## v52.6.05 / RC2.12 – UREEL Chancen schaffen Landing Refinement
+
+- Neues Marketingbild `ureel-chancen-schaffen.webp` in die Sektion „UREEL tauschen. Chancen schaffen.“ eingebunden.
+- Marketingtext erweitert für Vereine, Schulen, Unternehmen, Messen, Produkte, Praxen, Sportclubs und persönliche Profile.
+- Abschnitt „Ein Reel. Eine Präsentation.“ mit klaren Überschriften für Mobile Version und Desktop-Version ergänzt.
+- Public-View-Showcases erhalten Landing-Preview-Parameter und starten weiterhin versetzt mit je 1 Sekunde Abstand.
+- Desktop-Vorschau als hochwertiges Screenshot-Bild eingebunden.
+- Mobile Studio unverändert gelassen.
+
+
 ## v52.6.00 / RC2.7 – Landing Hero Transformation Showcases
 
 - Landingpage verwendet im Hero nur noch freigegebene Showcase-Einträge mit YouTube-Link und Public-View-Link.

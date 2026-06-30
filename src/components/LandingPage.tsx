@@ -263,7 +263,7 @@ const LANDING_TRANSLATION_KEYS = {
   de: {
     shareKicker: 'Teilen. Verbinden. Beeindrucken.',
     shareHeadline: 'UREEL tauschen. Chancen schaffen.',
-    shareText: 'Mit einem Scan oder Klick teilst du mehr als Kontaktdaten. Du teilst eine interaktive Erfahrung, die in Erinnerung bleibt.',
+    shareText: 'Mit einem Scan oder Klick wird aus einem Gespräch eine Präsentation: für Vereine, Schulen, Unternehmen, Messen, Produkte, Praxen, Sportclubs und persönliche Profile.',
     casesKicker: 'UREEL in Aktion',
     casesHeadline: 'Eine Karte. Zwei Erlebnisse.',
     casesText: 'Auf dem Smartphone entsteht Aufmerksamkeit. Auf dem Desktop entsteht die vollständige Miniwebseite – für Persönlichkeit, Produkt, Verein oder Unternehmen.',
@@ -275,7 +275,7 @@ const LANDING_TRANSLATION_KEYS = {
   en: {
     shareKicker: 'Share. Connect. Impress.',
     shareHeadline: 'Exchange UREELs. Create opportunities.',
-    shareText: 'With one scan or click, you share more than contact details. You share an interactive experience people remember.',
+    shareText: 'With one scan or click, a conversation becomes a presentation: for clubs, schools, businesses, trade fairs, products, practices, sport teams and personal profiles.',
     casesKicker: 'UREEL in action',
     casesHeadline: 'One card. Two experiences.',
     casesText: 'On mobile, UREEL creates attention. On desktop, it becomes a complete mini website for your personality, product, club or business.',
@@ -701,6 +701,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
   const featuredCases = SHOWCASE_ITEMS.filter((item) => item.slug === 'dein-angebot-sofort-klickbar-6');
 
   const publicUrl = (path: string) => path.startsWith('http') ? path : path;
+  const publicPreviewUrl = (path: string, idx = 0) => `${publicUrl(path)}${path.includes('?') ? '&' : '?'}mobilePublic=1&landingPreview=1&autoplay=1&muted=1&once=1&delay=${idx * 1000}`;
 
   return (
     <div className="min-h-screen bg-[#080808] text-[#F6F0E6] font-sans overflow-x-hidden">
@@ -801,24 +802,30 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
           <div className="mx-auto max-w-4xl text-center mb-12">
             <div className="text-[11px] font-black uppercase tracking-[0.24em] text-[#F2D28B] mb-3">Smartphone + Desktop</div>
             <h2 className="text-3xl md:text-6xl font-black tracking-[-0.055em] leading-[0.95]">Ein Reel. Eine Präsentation.</h2>
-            <p className="mt-5 text-lg text-white/62 font-semibold leading-relaxed">Links läuft die echte UREEL-Karte. Rechts zeigen wir die Desktop-Webseite als klares, hochwertiges Vorschaubild – am Beispiel des MX9.</p>
+            <p className="mt-5 text-lg text-white/62 font-semibold leading-relaxed">Links läuft die echte UREEL-Karte. Rechts sieht man dieselbe Idee als multifunktionale Desktop-Miniwebseite – klar, hochwertig und sofort verständlich.</p>
           </div>
           <div className="space-y-10">
             {featuredCases.map((item) => (
-              <article key={item.slug} className="grid lg:grid-cols-[360px_1fr] gap-7 items-center rounded-[38px] border border-white/10 bg-white/[0.028] p-5 md:p-7 overflow-hidden">
-                <div className="mx-auto relative w-[260px] h-[520px] rounded-[40px] border border-white/14 bg-white/[0.025] p-[3px] shadow-2xl">
-                  <div className="relative h-full rounded-[36px] overflow-hidden bg-black ring-1 ring-white/8">
-                    <iframe title={`${item.title} mobile`} src={item.publicPath} className="absolute inset-0 h-full w-full border-0 bg-black" loading="lazy" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" />
+              <article key={item.slug} className="grid lg:grid-cols-[360px_1fr] gap-7 items-start rounded-[38px] border border-white/10 bg-white/[0.028] p-5 md:p-7 overflow-hidden">
+                <div>
+                  <div className="mb-4 text-center text-[11px] font-black uppercase tracking-[0.20em] text-[#F2D28B]">Mobile Version – perfekt für unterwegs</div>
+                  <div className="mx-auto relative w-[260px] h-[520px] rounded-[40px] border border-white/14 bg-white/[0.025] p-[3px] shadow-2xl">
+                    <div className="relative h-full rounded-[36px] overflow-hidden bg-black ring-1 ring-white/8">
+                      <iframe title={`${item.title} mobile`} src={publicPreviewUrl(item.publicPath)} className="absolute inset-0 h-full w-full border-0 bg-black" loading="eager" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" />
+                    </div>
                   </div>
                 </div>
-                <div className="relative rounded-[30px] border border-white/10 bg-black/24 overflow-hidden h-[460px] shadow-[0_22px_70px_rgba(0,0,0,0.28)]">
-                  <img
-                    src={item.slug === 'dein-angebot-sofort-klickbar-6' ? '/landing/auto-desktop-showcase.webp' : '/landing/jennifer-desktop-showcase.webp'}
-                    alt={`${item.title} Desktop-Webseite`}
-                    className="absolute inset-0 h-full w-full object-contain object-center p-3 md:p-5"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10 pointer-events-none" />
+                <div>
+                  <div className="mb-4 text-center text-[11px] font-black uppercase tracking-[0.20em] text-[#F2D28B]">Desktop-Version – deine multifunktionale Miniwebseite</div>
+                  <div className="relative rounded-[30px] border border-white/10 bg-black/24 overflow-hidden min-h-[420px] shadow-[0_22px_70px_rgba(0,0,0,0.28)] flex items-center justify-center">
+                    <img
+                      src={item.slug === 'dein-angebot-sofort-klickbar-6' ? '/landing/auto-desktop-showcase.webp' : '/landing/jennifer-desktop-showcase.webp'}
+                      alt={`${item.title} Desktop-Webseite`}
+                      className="w-full h-auto max-h-[560px] object-contain object-center"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/18 via-transparent to-black/8 pointer-events-none" />
+                  </div>
                 </div>
               </article>
             ))}
@@ -855,7 +862,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
               <article key={item.slug} className="rounded-[30px] border border-white/10 bg-white/[0.035] p-4 overflow-hidden">
                 <div className="relative mx-auto w-full max-w-[230px] h-[455px] rounded-[34px] border border-white/13 bg-black p-[3px]">
                   <div className="relative h-full rounded-[30px] overflow-hidden bg-black">
-                    <DelayedPublicIframe title={`${item.title} loop`} src={item.publicPath} delayMs={i * 1000} />
+                    <DelayedPublicIframe title={`${item.title} loop`} src={publicPreviewUrl(item.publicPath, i)} delayMs={i * 1000} eager />
                   </div>
                 </div>
                 <div className="mt-4 flex items-center justify-between gap-3">
@@ -876,24 +883,28 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
             <h2 className="text-3xl md:text-6xl font-black tracking-[-0.055em] leading-[0.95]">{landingCopy.shareHeadline}</h2>
             <p className="mt-5 text-lg text-white/62 font-semibold leading-relaxed">{landingCopy.shareText}</p>
           </div>
-          <div className="grid lg:grid-cols-3 gap-5">
-            {MARKETING_STORIES.map((story) => {
-              const StoryIcon = (LucideIcons as any)[story.icon] || LucideIcons.Sparkles;
-              return (
-                <article key={story.audience} className="group relative overflow-hidden rounded-[34px] border border-white/10 bg-white/[0.035] shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
-                  <div className="relative h-[390px] overflow-hidden">
-                    <img src={story.image} alt={story.audience} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.035]" loading="lazy" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/18 to-black/14" />
-                    <div className="absolute left-5 top-5 rounded-full border border-[#F2D28B]/22 bg-black/36 px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#F6E2A5] backdrop-blur-md">{story.audience}</div>
-                    <div className="absolute left-5 right-5 bottom-5">
-                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#F2D28B]/25 bg-black/36 text-[#F2D28B] backdrop-blur-md"><StoryIcon size={23} /></div>
-                      <h3 className="text-2xl font-black tracking-tight text-white">{story.title}</h3>
-                      <p className="mt-3 text-sm font-semibold leading-relaxed text-white/72">{story.text}</p>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
+          <div className="overflow-hidden rounded-[38px] border border-white/10 bg-white/[0.03] shadow-[0_28px_90px_rgba(0,0,0,0.34)]">
+            <img src="/landing/ureel-chancen-schaffen.webp" alt="UREEL tauschen – Chancen schaffen" className="w-full h-auto object-cover" loading="lazy" />
+          </div>
+          <div className="mt-8 grid lg:grid-cols-[1.05fr_0.95fr] gap-6 items-stretch">
+            <div className="rounded-[34px] border border-white/10 bg-white/[0.04] p-7 md:p-9">
+              <h3 className="text-2xl md:text-4xl font-black tracking-[-0.04em] leading-tight">Eine UREEL passt zu fast jeder Begegnung.</h3>
+              <p className="mt-5 text-white/68 font-semibold leading-relaxed text-lg">Ob Verein, Schule, Messe, Unternehmen, Praxis, Sportclub, Einzelunternehmen, Produkt oder persönliches Profil: Eine UREEL macht sichtbar, was sonst nach einem Gespräch oft verloren geht.</p>
+              <p className="mt-4 text-white/68 font-semibold leading-relaxed text-lg">Ein Scan. Ein Link. Eine Präsentation. Der andere sieht sofort, wer du bist, was du anbietest und wie er handeln kann.</p>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {[
+                ['Vereine & Clubs', 'Mitglieder, Sponsoren und Projekte professionell zeigen.'],
+                ['Schulen & Bildung', 'Profile, Projekte und Angebote modern teilen.'],
+                ['Messen & Events', 'Aus jedem Kontakt wird eine vollständige Präsentation.'],
+                ['Unternehmen & Produkte', 'Angebote, Dateien, Termine und Kontakt direkt öffnen.']
+              ].map(([title, text]) => (
+                <div key={title} className="rounded-[26px] border border-white/10 bg-black/22 p-5">
+                  <div className="text-[#F2D28B] font-black text-sm uppercase tracking-[0.12em]">{title}</div>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-white/62">{text}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
