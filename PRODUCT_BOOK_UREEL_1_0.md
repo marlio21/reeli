@@ -245,3 +245,37 @@ Keine Änderung an Mobile Renderer oder Mobile Studio.
 ```
 
 Die PublicCards-Architektur bleibt für einen separaten, getesteten Migrationssprint vorgesehen.
+
+---
+
+## RC3.3 – Public Performance Polish
+
+Nach RC3.2 bleibt die stabile Produktbasis erhalten. RC3.3 verändert keine Sicherheitsarchitektur und keine Mobile-Studio-Logik, sondern verbessert die wahrgenommene Geschwindigkeit der öffentlichen Darstellung.
+
+### Ziel
+
+```text
+Public View wirkt sofort sichtbar.
+Video lädt danach.
+Landingpage lädt Showcases kontrolliert.
+Kein schwarzer oder leerer Zwischenzustand.
+```
+
+### Technische Linie
+
+- `/u/:slug` und `/share/:slug` behalten den stabilen Ladeweg aus RC3.2 Safe.
+- Public Pages laden Karten einmalig und halten keine dauerhaften Firestore-Realtime-Listener mehr offen.
+- Realtime für Public ist nur noch als Diagnosemodus mit `?live=1` verfügbar.
+- Public Loading zeigt ein hochwertiges Smartphone-Skeleton, damit Nutzer sofort ein visuelles Ergebnis sehen.
+- Landing-Hero zeigt keine vollständige eingebettete Public-App mehr, sondern eine leichte Showcase-Preview mit echtem Link.
+- Showcase-Iframes werden erst nach Sichtbarkeit und mit Verzögerung geladen.
+- Videos laden in Public-/Landing-Kontexten weniger aggressiv; Studio/Editor-Preview bleibt unverändert.
+
+### Schutzregel
+
+```text
+Mobile Studio nicht anfassen.
+Share-System nicht neu bauen.
+Landingpage nicht neu erfinden.
+Nur Ladeverhalten verbessern.
+```

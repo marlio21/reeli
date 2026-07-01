@@ -942,3 +942,15 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - `application/octet-stream` nicht mehr als Video-MIME-Type in Storage Rules erlaubt.
 - Firestore Rules tolerieren Legacy-Pläne wie `fun`/`enterprise` und begrenzen Reports sowie globale Analytics-Events stärker.
 - Bestehende Public-/Landing-/Share-Ladewege bleiben unverändert, damit die stabile RC3.1.2-Funktionalität erhalten bleibt.
+
+## v52.6.10 / RC3.3 – Public Performance Polish
+
+- Public-Route zeigt beim Laden jetzt ein hochwertiges Smartphone-Skeleton statt eines leeren/schwarzen Ladezustands.
+- Public- und Share-Seiten öffnen Karten weiterhin aus dem stabilen RC3.2-Safe-Ladeweg; keine `/publicCards`-Zwangsmigration.
+- Öffentliche Karten halten standardmäßig keinen Firestore-Realtime-Listener mehr offen; Live-Sync ist nur noch diagnostisch mit `?live=1` aktivierbar.
+- Landing-Hero nutzt keine schwere eingebettete `/u/...`-Iframe-Karte mehr, sondern eine leichte Showcase-Preview mit Poster/Thumbnail und echtem Link zur Public View.
+- Landing-Showcase-Iframes werden sichtbarkeitsbasiert und versetzt geladen; keine eager-Ladung mehr für alle Showcase-Karten.
+- Landing-Preview-URLs starten weniger aggressiv und vermeiden unnötigen Autoplay-Druck.
+- Public-Videos verwenden in öffentlichen/landingPreview-Kontexten `metadata`/`none` statt pauschal `auto`, damit Poster und Oberfläche schneller sichtbar sind.
+- YouTube-/Video-Iframes in Public-Rendering-Kontexten werden in Landing-Previews lazy geladen.
+- Mobile Studio und Editor-Preview bleiben geschützt; Editor-Videos behalten ihren bisherigen `auto`-Preload-Pfad.

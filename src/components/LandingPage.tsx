@@ -331,6 +331,7 @@ const LandingMiniUreelPreview: React.FC<{ item: typeof SHOWCASE_ITEMS[number]; i
           muted
           loop
           playsInline
+          preload="metadata"
         />
       )}
       {media.kind === 'image' && (
@@ -729,7 +730,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
   const featuredCases = SHOWCASE_ITEMS.filter((item) => item.slug === 'dein-angebot-sofort-klickbar-6');
 
   const publicUrl = (path: string) => path.startsWith('http') ? path : path;
-  const publicPreviewUrl = (path: string) => `${publicUrl(path)}${path.includes('?') ? '&' : '?'}mobilePublic=1&landingPreview=1&autoplay=1&muted=1&once=1&delay=0`;
+  const publicPreviewUrl = (path: string) => `${publicUrl(path)}${path.includes('?') ? '&' : '?'}mobilePublic=1&landingPreview=1&autoplay=0&muted=1&once=1&delay=800`;
 
   return (
     <div className="min-h-screen bg-[#080808] text-[#F6F0E6] font-sans overflow-x-hidden">
@@ -787,19 +788,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
           </motion.div>
 
           <div className="relative flex items-center justify-center">
-            <div className="absolute -inset-10 rounded-[64px] bg-[#F2D28B]/7 blur-3xl" />
-            <div className="relative w-[306px] h-[620px] rounded-[46px] border border-white/16 bg-white/[0.035] p-[4px] shadow-[0_28px_80px_rgba(0,0,0,0.42)]">
-              <div className="relative h-full rounded-[42px] overflow-hidden bg-black ring-1 ring-white/8">
-                <iframe
-                  title={`${SHOWCASE_ITEMS.find((entry) => entry.slug === 'dein-angebot-sofort-klickbar')?.title || 'Nadine Jersey'} Präsentation`}
-                  src={publicUrl('/u/dein-angebot-sofort-klickbar')}
-                  className="absolute inset-0 h-full w-full border-0 bg-black"
-                  loading="eager"
-                  allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-                />
-              </div>
-            </div>
-            <a href="/u/dein-angebot-sofort-klickbar" className="absolute -bottom-11 rounded-full border border-[#F2D28B]/25 bg-black/55 px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#F6E2A5] hover:bg-[#F2D28B] hover:text-black transition-colors">Live ansehen: Nadine Jersey</a>
+            <ShowcasePhoneSequence />
           </div>
 
           <div id="auth-box" className="rounded-[30px] bg-[#151515]/86 border border-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.42)] p-6 md:p-7 backdrop-blur-xl">
@@ -839,7 +828,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
                   <div className="mb-4 text-center text-[11px] font-black uppercase tracking-[0.20em] text-[#F2D28B]">Mobile Version – perfekt für unterwegs</div>
                   <div className="mx-auto relative w-[260px] h-[520px] rounded-[40px] border border-white/14 bg-white/[0.025] p-[3px] shadow-2xl">
                     <div className="relative h-full rounded-[36px] overflow-hidden bg-black ring-1 ring-white/8">
-                      <iframe title={`${item.title} mobile`} src={publicPreviewUrl(item.publicPath)} className="absolute inset-0 h-full w-full border-0 bg-black" loading="eager" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" />
+                      <DelayedPublicIframe title={`${item.title} mobile`} src={publicPreviewUrl(item.publicPath)} delayMs={650} />
                     </div>
                   </div>
                 </div>
@@ -890,7 +879,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
               <article key={item.slug} className="rounded-[30px] border border-white/10 bg-white/[0.035] p-4 overflow-hidden">
                 <div className="relative mx-auto w-full max-w-[230px] h-[455px] rounded-[34px] border border-white/13 bg-black p-[3px]">
                   <div className="relative h-full rounded-[30px] overflow-hidden bg-black">
-                    <DelayedPublicIframe title={`${item.title} loop`} src={publicPreviewUrl(item.publicPath)} delayMs={i * 1000} eager />
+                    <DelayedPublicIframe title={`${item.title} loop`} src={publicPreviewUrl(item.publicPath)} delayMs={900 + i * 1200} />
                   </div>
                 </div>
                 <div className="mt-4 flex items-center justify-between gap-3">
