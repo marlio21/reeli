@@ -126,10 +126,6 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
   // Local timer to track how long the visitor has been waiting during this mount
   const [elapsedWaitingSeconds, setElapsedWaitingSeconds] = React.useState(0);
   const [loadTimeoutTriggered, setLoadTimeoutTriggered] = React.useState(false);
-  const isLandingPreviewRuntime = typeof window !== 'undefined' && window.location.search.includes('landingPreview=1');
-  const isPublicRuntime = !isPreview && !isMiniPreview;
-  const publicVideoPreload: 'none' | 'metadata' | 'auto' = isLandingPreviewRuntime ? 'none' : (isPublicRuntime ? 'metadata' : 'auto');
-  const publicIframeLoading: 'lazy' | 'eager' = isLandingPreviewRuntime ? 'lazy' : 'eager';
 
   React.useEffect(() => {
     if (videoStatus === 'loading') {
@@ -351,7 +347,6 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             frameBorder="0"
             allow="autoplay; encrypted-media; picture-in-picture"
             title="Endkarten-Video"
-            loading={publicIframeLoading}
             style={{ pointerEvents: 'none' }}
           />
         )}
@@ -362,7 +357,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
             muted
             loop
             playsInline
-            preload={publicVideoPreload}
+            preload="auto"
             className="absolute inset-0 w-full h-full object-cover"
           />
         )}
@@ -846,7 +841,6 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               frameBorder="0"
               allow="autoplay; encrypted-media"
               title="YouTube Hero Video"
-              loading={publicIframeLoading}
               style={{
                 pointerEvents: 'none',
               }}
@@ -859,7 +853,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               autoPlay
               muted
               playsInline
-              preload={publicVideoPreload}
+              preload="auto"
               onLoadStart={() => setVideoStatus('loading')}
               onCanPlay={() => setVideoStatus('ready')}
               onPlay={() => setVideoStatus('ready')}
@@ -1240,7 +1234,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
         frameBorder="0"
         allow="autoplay; encrypted-media"
         title="ureel scene video"
-        loading={publicIframeLoading}
+        loading="eager"
         style={{ pointerEvents: 'none' }}
       />
     );
@@ -1258,7 +1252,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
       return (
         <div className={`${heroCompact ? 'absolute top-3 left-[6%] right-[6%] z-[8]' : 'absolute top-0 left-0 right-0 z-[8]'} aspect-video overflow-hidden ${heroCompact ? 'rounded-2xl border border-[#F5F2EA]/25 shadow-2xl' : 'rounded-none border-0'}`}>
           {isYt && embed && renderLayeredYoutube(embed, heroCompact ? 'heroCompact' : 'heroWide')}
-          {!isYt && src && <video key={`scene-video-${replaySeed}-${src}`} src={src} autoPlay muted playsInline preload={publicVideoPreload} className="absolute inset-0 w-full h-full object-cover" />}
+          {!isYt && src && <video key={`scene-video-${replaySeed}-${src}`} src={src} autoPlay muted playsInline preload="auto" className="absolute inset-0 w-full h-full object-cover" />}
         </div>
       );
     }
@@ -1266,7 +1260,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
     return (
       <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
         {isYt && embed && renderLayeredYoutube(embed, 'cover')}
-        {!isYt && src && <video key={`scene-video-${replaySeed}-${src}`} src={src} autoPlay muted playsInline preload={publicVideoPreload} className="absolute inset-0 w-full h-full object-cover" />}
+        {!isYt && src && <video key={`scene-video-${replaySeed}-${src}`} src={src} autoPlay muted playsInline preload="auto" className="absolute inset-0 w-full h-full object-cover" />}
       </div>
     );
   };
@@ -1650,7 +1644,6 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                 frameBorder="0"
                 allow="autoplay; encrypted-media"
                 title="YouTube Background Video"
-                loading={publicIframeLoading}
                 style={{
                   filter: hasUreelScene ? undefined : `brightness(${(100 - (card.cardBackgroundDarken ?? 25)) / 100}) saturate(${(card.cardBackgroundSaturation ?? 100)}%)`,
                   pointerEvents: 'none',
@@ -1679,7 +1672,7 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
                       muted
                       loop={hasUreelScene ? true : (normalized.loop?.enabled ?? false)}
                       playsInline
-                      preload={publicVideoPreload}
+                      preload="auto"
                       onLoadStart={() => {
                         console.log(`[VIDEO EVENTS BI] onLoadStart triggered for: ${videoSrc}`);
                         setVideoStatus((prev) => prev === 'ready' ? 'ready' : 'loading');
@@ -2243,7 +2236,6 @@ export const KonuCardCore: React.FC<KonuCardCoreProps> = ({
               frameBorder="0"
               allow="autoplay; encrypted-media"
               title="YouTube Background Video"
-              loading={publicIframeLoading}
               style={{
                 filter: hasUreelScene ? undefined : `brightness(${(100 - (card.cardBackgroundDarken ?? 25)) / 100}) saturate(${(card.cardBackgroundSaturation ?? 100)}%)`,
                 pointerEvents: 'none',

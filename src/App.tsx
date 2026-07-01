@@ -244,20 +244,25 @@ const AppContent: React.FC = () => {
     }
   }, [currentPath]);
 
-  // Public pages should feel fast and must not keep a Firestore realtime listener open for every visitor.
-  // Studio/dashboard still use realtime where it is needed. Public/share pages load once; append ?live=1 only for diagnostics.
+  // Real-time synchronization of visitorCard to ensure instantly updated video processing statuses
   useEffect(() => {
     if (!visitorCard || !visitorCard.cardId) return;
-    if (typeof window === 'undefined' || !window.location.search.includes('live=1')) return;
 
+    // Do not listen to static demo profiles
     const cardId = visitorCard.cardId;
     if (['ceo', 'autohaus', 'schwimmverband'].includes(visitorCard.slug)) return;
 
-    console.info(`[Real-time Sync Info] Registering diagnostics live observer for card: ${cardId}`);
+    console.info(`[Real-time Sync Info] Registering live observer for card: ${cardId}`);
     const unsubscribe = onSnapshot(doc(db, 'cards', cardId), (snapshot) => {
       if (snapshot.exists()) {
         const updatedCard = hydrateCardMobileLayout(snapshot.data() as Card) as Card;
-        setVisitorCard((current) => (!current || JSON.stringify(updatedCard) !== JSON.stringify(current)) ? updatedCard : current);
+        setVisitorCard((current) => {
+          if (!current || JSON.stringify(updatedCard) !== JSON.stringify(current)) {
+            console.info("[Real-time Sync Info] Visitor card changed in database, hydrating and updating state.");
+            return updatedCard;
+          }
+          return current;
+        });
       }
     }, (error) => {
       console.warn("[Real-time Sync Info] Listener error:", error);
@@ -291,28 +296,9 @@ const AppContent: React.FC = () => {
   if (currentPath.startsWith('/u/') || currentPath.startsWith('/share/')) {
     if (visitorLoading) {
       return (
-        <div className="min-h-screen bg-[#080808] text-[#F5F2EA] flex items-center justify-center p-5 overflow-hidden">
-          <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_18%,rgba(242,210,139,0.13),transparent_34%),linear-gradient(180deg,#111,#050505)]" />
-          <div className="relative w-full max-w-[330px]">
-            <div className="mx-auto h-[70svh] max-h-[650px] min-h-[510px] rounded-[42px] border border-white/12 bg-white/[0.035] p-[3px] shadow-[0_28px_80px_rgba(0,0,0,0.42)]">
-              <div className="relative h-full rounded-[38px] overflow-hidden bg-[#070707] ring-1 ring-white/8">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_22%,rgba(242,210,139,0.12),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.04),rgba(0,0,0,0.72))]" />
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 rounded-b-2xl bg-[#050505]/96 border-x border-b border-white/8" />
-                <div className="absolute inset-x-8 top-[22%] space-y-4">
-                  <div className="h-4 w-32 rounded-full bg-[#F2D28B]/22 animate-pulse" />
-                  <div className="h-10 w-full rounded-2xl bg-white/12 animate-pulse" />
-                  <div className="h-4 w-2/3 rounded-full bg-white/10 animate-pulse" />
-                </div>
-                <div className="absolute bottom-10 left-8 right-8 grid grid-cols-3 gap-3">
-                  {[0,1,2,3,4,5].map((i) => <div key={i} className="aspect-square rounded-full bg-[#F8F1E5]/14 border border-white/10 animate-pulse" />)}
-                </div>
-              </div>
-            </div>
-            <div className="mt-5 flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-[0.18em] text-[#D7C9A0]">
-              <LucideIcons.Loader className="animate-spin" size={16} />
-              <span>Lade Präsentation...</span>
-            </div>
-          </div>
+        <div className="min-h-screen bg-[#111111] flex flex-col items-center justify-center p-4">
+          <LucideIcons.Loader className="animate-spin text-[#A855F7] mb-2" size={24} />
+          <span className="text-stone-400 text-[11px] font-semibold tracking-wider uppercase">Lade ureel-Seite...</span>
         </div>
       );
     }
