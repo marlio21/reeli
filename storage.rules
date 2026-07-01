@@ -11,6 +11,22 @@ service firebase.storage {
       return signedIn() && request.auth.uid == userId;
     }
 
+    function isAdmin() {
+      return signedIn() && (
+        firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid)) ||
+        (firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
+         firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role in ['admin', 'owner'])
+      );
+    }
+
+    function isPublishedCard(userId, cardId) {
+      return firestore.exists(/databases/(default)/documents/cards/$(cardId))
+        && firestore.get(/databases/(default)/documents/cards/$(cardId)).data.ownerId == userId
+        && firestore.get(/databases/(default)/documents/cards/$(cardId)).data.isPublished == true
+        && firestore.get(/databases/(default)/documents/cards/$(cardId)).data.visibility == 'public'
+        && firestore.get(/databases/(default)/documents/cards/$(cardId)).data.get('isDeleted', false) != true;
+    }
+
     function isImage() {
       return request.resource.contentType.matches('image/.*');
     }
@@ -23,8 +39,7 @@ service firebase.storage {
       return request.resource.contentType == 'video/mp4'
         || request.resource.contentType == 'video/quicktime'
         || request.resource.contentType == 'video/x-m4v'
-        || request.resource.contentType == 'video/webm'
-        || request.resource.contentType == 'application/octet-stream';
+        || request.resource.contentType == 'video/webm';
     }
 
     function maxImageSize() {
@@ -43,31 +58,35 @@ service firebase.storage {
       return request.resource.size < 20 * 1024 * 1024;
     }
 
+    function canReadCardMedia(userId, cardId) {
+      return isUser(userId) || isAdmin() || isPublishedCard(userId, cardId);
+    }
+
     match /users/{userId}/cards/{cardId}/reel/video-original/{fileName} {
-      allow read: if isUser(userId);
+      allow read: if isUser(userId) || isAdmin();
       allow write: if isUser(userId)
         && (request.resource == null || (isVideo() && maxVideoOriginalSize()));
     }
 
     match /users/{userId}/cards/{cardId}/reel/video-optimized/{fileName} {
-      allow read: if true;
+      allow read: if canReadCardMedia(userId, cardId);
       allow write: if isUser(userId)
         && (request.resource == null || (isVideo() && maxOptimizedVideoSize()));
     }
 
     match /users/{userId}/cards/{cardId}/reel/video-thumbnail/{fileName} {
-      allow read: if true;
+      allow read: if canReadCardMedia(userId, cardId);
       allow write: if isUser(userId)
         && (request.resource == null || (isImage() && maxImageSize()));
     }
 
-    match /users/{userId}/{allPaths=**} {
-      allow read: if true;
+    match /users/{userId}/cards/{cardId}/{allPaths=**} {
+      allow read: if canReadCardMedia(userId, cardId);
       allow write: if isUser(userId)
         && (
-          request.resource == null || 
-          (isImage() && maxImageSize())
-          || (isPdf() && maxPdfSize())
+          request.resource == null ||
+          (isImage() && maxImageSize()) ||
+          (isPdf() && maxPdfSize())
         );
     }
 

@@ -25,8 +25,8 @@ ffmpeg.setFfprobePath(ffprobeInstaller.path);
 const app = express();
 const PORT = 3000;
 
-app.use(express.json({ limit: '100mb' }));
-app.use(express.urlencoded({ limit: '100mb', extended: true }));
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ limit: '25mb', extended: true }));
 
 // Load firebase config from local JSON securely
 const firebaseConfigPath = path.join(process.cwd(), 'firebase-applet-config.json');
@@ -53,6 +53,61 @@ const adminApp = admin.initializeApp({
   storageBucket: resolvedConfig.storageBucket,
 });
 const adminDb = dbId ? getFirestore(adminApp, dbId) : getFirestore(adminApp);
+
+
+async function verifyRequestUser(req: express.Request): Promise<any> {
+  const authHeader = req.headers.authorization || '';
+  const bearerToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+  const bodyToken = (req.body?.idToken || '').toString().trim();
+  const idToken = bearerToken || bodyToken;
+  if (!idToken) {
+    throw Object.assign(new Error('Missing authentication token'), { statusCode: 401 });
+  }
+  try {
+    return await getAuth(adminApp).verifyIdToken(idToken);
+  } catch (err) {
+    throw Object.assign(new Error('Invalid authentication token'), { statusCode: 401 });
+  }
+}
+
+async function isAdminUid(uid: string): Promise<boolean> {
+  const adminDoc = await adminDb.collection('admins').doc(uid).get();
+  if (adminDoc.exists) return true;
+  const userDoc = await adminDb.collection('users').doc(uid).get();
+  const role = userDoc.exists ? userDoc.data()?.role : null;
+  return role === 'admin' || role === 'owner';
+}
+
+async function assertCardOwnerOrAdmin(cardId: string, uid: string): Promise<any> {
+  const cardRef = adminDb.collection('cards').doc(cardId);
+  const cardSnap = await cardRef.get();
+  if (!cardSnap.exists) {
+    throw Object.assign(new Error('Card not found'), { statusCode: 404 });
+  }
+  const card = cardSnap.data() || {};
+  if (card.ownerId !== uid && !(await isAdminUid(uid))) {
+    throw Object.assign(new Error('Permission denied: card ownership mismatch'), { statusCode: 403 });
+  }
+  return cardSnap;
+}
+
+function safeFileName(fileName: string): string {
+  const cleaned = (fileName || 'upload').replace(/[^a-zA-Z0-9._-]/g, '').slice(0, 96);
+  return cleaned || `upload_${Date.now()}`;
+}
+
+const FALLBACK_UPLOAD_TYPES: Record<string, { folder: string; maxBytes: number; contentTypes: RegExp[]; fixedName?: string }> = {
+  cover: { folder: 'cover', maxBytes: 10 * 1024 * 1024, contentTypes: [/^image\//], fixedName: 'cover.webp' },
+  profile: { folder: 'profile', maxBytes: 10 * 1024 * 1024, contentTypes: [/^image\//], fixedName: 'profile.webp' },
+  product: { folder: 'product', maxBytes: 10 * 1024 * 1024, contentTypes: [/^image\//], fixedName: 'product.webp' },
+  background: { folder: 'backgrounds', maxBytes: 10 * 1024 * 1024, contentTypes: [/^image\//] },
+  'button-images': { folder: 'buttons', maxBytes: 10 * 1024 * 1024, contentTypes: [/^image\//] },
+  'after-sequence': { folder: 'after-sequence', maxBytes: 10 * 1024 * 1024, contentTypes: [/^image\//] },
+  slideshow: { folder: 'slideshow', maxBytes: 10 * 1024 * 1024, contentTypes: [/^image\//] },
+  branding: { folder: 'branding', maxBytes: 10 * 1024 * 1024, contentTypes: [/^image\//] },
+  seo: { folder: 'seo', maxBytes: 10 * 1024 * 1024, contentTypes: [/^image\//] },
+  documents: { folder: 'documents', maxBytes: 20 * 1024 * 1024, contentTypes: [/^application\/pdf$/] }
+};
 
 // Helper utilities to parse Firestore REST API value formats to plain JavaScript values
 function parseFirestoreValue(value: any): any {
@@ -192,6 +247,49 @@ function stripExistingSocialMeta(html: string): string {
     .replace(/\s*<link\s+rel=["']canonical["'][^>]*>\s*/gi, '\n');
 }
 
+
+function isServerPublicCard(card: any): boolean {
+  return !!card
+    && card.isPublished === true
+    && (card.visibility || 'public') === 'public'
+    && card.isDeleted !== true;
+}
+
+async function loadPublicCardBySlug(cleanSlug: string): Promise<any | null> {
+  const publicSnap = await adminDb.collection('publicCards').doc(cleanSlug).get();
+  if (publicSnap.exists) {
+    const publicCard = publicSnap.data();
+    return isServerPublicCard(publicCard) ? publicCard : null;
+  }
+
+  // Backward-compatible fallback for pre-RC3.2 cards that do not yet have a publicCards copy.
+  const legacySnap = await adminDb.collection('cards').where('slug', '==', cleanSlug).limit(1).get();
+  if (legacySnap.empty) return null;
+  const legacyCard = legacySnap.docs[0].data();
+  return isServerPublicCard(legacyCard) ? legacyCard : null;
+}
+
+
+// Public card API: anonymous clients get only published, public cards.
+// This replaces anonymous Firestore queries against the private /cards collection.
+app.get('/api/public-card/:slug', async (req: express.Request, res: express.Response) => {
+  const cleanSlug = (req.params.slug || '').toLowerCase().trim();
+  if (!cleanSlug || !/^[a-z0-9_-]{1,128}$/.test(cleanSlug)) {
+    return res.status(400).json({ error: 'Invalid slug' });
+  }
+
+  try {
+    const card = await loadPublicCardBySlug(cleanSlug);
+    if (!card) {
+      return res.status(404).json({ error: 'Card not found' });
+    }
+    return res.json({ card });
+  } catch (err: any) {
+    console.error('[PublicCard API] Failed:', err);
+    return res.status(500).json({ error: 'Public card lookup failed' });
+  }
+});
+
 // SEO & Scraping Gate: Inject dynamic Open-Graph meta tags on demand
 app.get(['/u/:slug', '/share/:slug'], async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const { slug } = req.params;
@@ -199,51 +297,8 @@ app.get(['/u/:slug', '/share/:slug'], async (req: express.Request, res: express.
 
   try {
     const cleanSlug = slug.toLowerCase().trim();
-    // Retrieve associated card document securely via Firestore REST API
-    // This avoids cross-project credential and IAM errors in the sandboxed preview environment
-    const dbName = dbId || '(default)';
-    const restUrl = `https://firestore.googleapis.com/v1/projects/${resolvedConfig.projectId}/databases/${dbName}/documents:runQuery?key=${resolvedConfig.apiKey}`;
-    
-    const restResponse = await fetch(restUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        structuredQuery: {
-          from: [{ collectionId: 'cards' }],
-          where: {
-            fieldFilter: {
-              field: { fieldPath: 'slug' },
-              op: 'EQUAL',
-              value: { stringValue: cleanSlug }
-            }
-          },
-          limit: 1
-        }
-      })
-    });
-
-    if (!restResponse.ok) {
-      const errText = await restResponse.text();
-      console.error(`[OpenGraph REST query] Failed with status ${restResponse.status}:`, errText);
-      return next();
-    }
-
-    const runQueryResult = await restResponse.json() as any[];
-    const firstResult = Array.isArray(runQueryResult) ? runQueryResult[0] : null;
-
-    if (!firstResult || !firstResult.document) {
-      return next();
-    }
-
-    const card = parseFirestoreDocument(firstResult.document);
+    const card = await loadPublicCardBySlug(cleanSlug);
     if (!card) return next();
-
-    // Block page generation if card is draft/privatized
-    if (!card.isPublished) {
-      return res.status(403).send("<h1>Diese Seite ist unveröffentlicht / This page is draft/private</h1>");
-    }
 
     const isDev = process.env.NODE_ENV !== 'production';
     const htmlPath = isDev 
@@ -672,6 +727,8 @@ app.post('/api/process-video-job', async (req: express.Request, res: express.Res
   }
 
   try {
+    const decodedToken = await verifyRequestUser(req);
+    await assertCardOwnerOrAdmin(cardId, decodedToken.uid);
     const cardRef = adminDb.collection('cards').doc(cardId);
     
     // Perform transaction/atomic update to check status and set locking state securely
@@ -726,7 +783,7 @@ app.post('/api/process-video-job', async (req: express.Request, res: express.Res
 
   } catch (err: any) {
     console.error('Error starting video processing job:', err);
-    return res.status(500).json({ ok: false, error: err.message });
+    return res.status(err.statusCode || 500).json({ ok: false, error: err.message });
   }
 });
 
@@ -745,39 +802,31 @@ app.post('/api/upload-file-fallback', async (req: express.Request, res: express.
   }
 
   try {
-    // 1. Verify Google Auth ID Token
-    const decodedToken = await getAuth(adminApp).verifyIdToken(idToken);
-    
-    // 2. Enforce strict UID path isolation boundary
+    const decodedToken = await verifyRequestUser(req);
+
     if (decodedToken.uid !== userId) {
       return res.status(403).json({ error: 'Permission denied: User mismatch' });
     }
 
-    // 3. Construct unified path based on type
-    let storagePath = `users/${userId}/cards/${cardId}/${type}/${fileName}`;
-    if (type === 'cover') {
-      storagePath = `users/${userId}/cards/${cardId}/cover/cover.webp`;
-    } else if (type === 'profile') {
-      storagePath = `users/${userId}/cards/${cardId}/profile/profile.webp`;
-    } else if (type === 'product') {
-      storagePath = `users/${userId}/cards/${cardId}/product/product.webp`;
-    } else if (type === 'reel-video') {
-      storagePath = `users/${userId}/cards/${cardId}/reel/video-original/${fileName}`;
-    } else if (type === 'background') {
-      storagePath = `users/${userId}/cards/${cardId}/backgrounds/${fileName}`;
-    } else if (type === 'button-images') {
-      storagePath = `users/${userId}/cards/${cardId}/buttons/${fileName}`;
-    } else if (type === 'after-sequence') {
-      storagePath = `users/${userId}/cards/${cardId}/after-sequence/${fileName}`;
-    } else if (type === 'slideshow') {
-      storagePath = `users/${userId}/cards/${cardId}/slideshow/${fileName}`;
-    } else if (type === 'branding') {
-      storagePath = `users/${userId}/cards/${cardId}/branding/${fileName}`;
-    } else if (type === 'seo') {
-      storagePath = `users/${userId}/cards/${cardId}/seo/${fileName}`;
+    await assertCardOwnerOrAdmin(cardId, decodedToken.uid);
+
+    const uploadSpec = FALLBACK_UPLOAD_TYPES[type];
+    if (!uploadSpec) {
+      return res.status(400).json({ error: 'Unsupported upload type for fallback proxy' });
+    }
+
+    const normalizedContentType = (contentType || '').toLowerCase();
+    if (!normalizedContentType || !uploadSpec.contentTypes.some((rx) => rx.test(normalizedContentType))) {
+      return res.status(400).json({ error: 'Unsupported content type for this upload type' });
     }
 
     const buffer = Buffer.from(base64Data, 'base64');
+    if (buffer.length > uploadSpec.maxBytes) {
+      return res.status(413).json({ error: 'File too large for fallback upload' });
+    }
+
+    const cleanName = uploadSpec.fixedName || safeFileName(fileName);
+    const storagePath = `users/${userId}/cards/${cardId}/${uploadSpec.folder}/${cleanName}`;
     const bucket = getStorage(adminApp).bucket();
     const fileRef = bucket.file(storagePath);
 
@@ -794,14 +843,7 @@ app.post('/api/upload-file-fallback', async (req: express.Request, res: express.
         }
       });
 
-      // 5. Try to make the file public for direct browser fetches
-      try {
-        await fileRef.makePublic();
-      } catch (pubErr: any) {
-        console.log(`[Backup Uploader] Note: makePublic skipped or failed:`, pubErr.message);
-      }
-
-      // Build optimized media URL
+      // Build optimized media URL. Public access is controlled by Storage Rules and published-card state.
       downloadUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(storagePath)}?alt=media`;
       console.log(`[Backup Uploader] Successfully uploaded to Firebase Storage. URL: ${downloadUrl}`);
     } catch (gcsSaveErr: any) {

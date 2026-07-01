@@ -210,3 +210,41 @@ Großer LinkedIn-Beitrag = Bild direkt in LinkedIn hochladen + Link/Text aus Sha
 Das Share Modal enthält dafür eine eigene Aktion „LinkedIn großes Bild“. Diese lädt das optimierte 1200×627-Bild und kopiert den passenden Beitragstext. So bleibt die normale Social Preview erhalten, aber für wichtige Beiträge gibt es eine große, visuelle LinkedIn-Variante.
 
 Mobile Studio bleibt unverändert.
+
+---
+
+## RC3.2 – Phase 1 Security Hardening
+
+### Ziel
+
+Vor Beta darf niemand fremde Karten, private Medien oder Nutzerdaten lesen, ändern oder löschen. RC3.2 trennt deshalb private Studio-Daten stärker von öffentlichen Public-/Share-Daten.
+
+### Datenmodell-Regel
+
+```text
+/cards/{cardId}       = private Studio-/Owner-Daten
+/publicCards/{slug}   = veröffentlichte Public-/Share-Kopie
+```
+
+Die öffentliche UREEL und die Share-Seite dürfen nicht mehr anonym direkt aus der privaten `cards` Collection geladen werden. Alte veröffentlichte Karten werden über eine serverseitig gefilterte Public-API weiterhin kompatibel ausgeliefert.
+
+### Sicherheitsregeln
+
+- Firestore `cards` ist nur noch für Owner/Admin lesbar.
+- Öffentliche Karten werden über `publicCards` ausgeliefert.
+- Analytics sind create-only und payload-validiert.
+- Storage liest Medien öffentlich nur noch bei veröffentlichter, öffentlicher Karte.
+- Video-MIME-Fallback `application/octet-stream` wurde entfernt.
+
+### Server APIs
+
+- Video Processing benötigt Firebase ID Token und Owner/Admin-Prüfung.
+- Upload-Fallback prüft Token, Ownership, Upload-Typ, MIME-Type, Dateigröße und Dateinamen.
+
+### Performance-Nebene
+
+Public und Share Views laden öffentliche Kartendaten einmalig. Realtime Listener bleiben Studio/Admin vorbehalten.
+
+### Schutzregel
+
+Mobile Studio und Mobile Layout Persistence wurden nicht verändert.

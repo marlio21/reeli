@@ -930,3 +930,17 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Öffentliche Share-Links werden außerhalb von localhost konsequent auf `https://www.ureel.me` normalisiert, statt temporäre Vercel-Preview-Domains zu teilen.
 - Social-Titel im Server-Fallback entfernt sichtbare Brand-Präfixe wie `ureel –`, damit der spätere Namenswechsel sauberer bleibt.
 - Mobile Studio unverändert.
+
+## v52.6.09 / RC3.2 – Phase 1 Security Hardening
+
+- Firestore: private `/cards` collection hardened; anonymous public reads now use `/publicCards/{slug}` or the server-side public-card API.
+- Firestore: public `/cards` list access removed; owner/admin access remains for Studio/Admin flows.
+- Firestore: `/publicCards/{slug}` introduced as published public copy for `/u/:slug`, `/share/:slug` and social preview loading.
+- Firestore: analytics writes restricted to create-only validated event payloads; owner/admin read access retained.
+- Storage: broad public read of `/users/{userId}/**` removed; public media reads are now tied to published public card state.
+- Storage: `application/octet-stream` removed from video MIME allowlist.
+- Server: `/api/process-video-job` now requires Firebase ID token and card owner/admin validation.
+- Server: `/api/upload-file-fallback` now validates ID token, card ownership, upload type, content type, file size and safe filenames before writing with Admin SDK.
+- Public View: anonymous routes load public card data once instead of attaching a live listener to private `/cards` documents.
+- Secrets hygiene: `.env.example` marks Test Gate credentials as demo-only/public and removes the old hard-coded password value.
+- Mobile Studio renderer and protected mobile layout code remain unchanged.
