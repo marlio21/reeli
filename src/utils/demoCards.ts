@@ -432,5 +432,153 @@ export const DEMO_CARDS: Record<string, Card> = {
         borderColor: '#A855F7'
       }
     ]
+  },
+  'dein-angebot-sofort-klickbar': {
+    cardId: 'demo-landing-nadine-jersey',
+    ownerId: 'demo-owner',
+    type: 'person',
+    slug: 'dein-angebot-sofort-klickbar',
+    title: 'Nadine Jersey',
+    subtitle: 'Unternehmensberaterin',
+    description: 'Beratung klar präsentieren. Ein professionelles Reel wird zur strukturierten Vorstellung mit Angebot, Kontakt und Termin.',
+    profileImageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400',
+    backgroundType: 'video',
+    backgroundColor: '#15110D',
+    backgroundImageUrl: 'https://img.youtube.com/vi/phgVor0F9Xw/hqdefault.jpg',
+    backgroundImageFit: 'cover',
+    overlay: 'dark',
+    isPublished: true,
+    visibility: 'public',
+    brandingRequired: false,
+    companyName: 'Strategie sichtbar machen',
+    location: 'Beratung. Vertrauen. Kontakt.',
+    category: 'consulting',
+    videoBackgroundConfig: {
+      enabled: true,
+      mode: 'youtube',
+      mediaMode: 'youtube',
+      youtubeUrl: 'https://youtube.com/shorts/phgVor0F9Xw?feature=share',
+      startTimeSeconds: 4,
+      durationSeconds: 12,
+      videoFitMode: 'cover',
+      youtube: { url: 'https://youtube.com/shorts/phgVor0F9Xw?feature=share', startTimeSeconds: 4, mute: true }
+    },
+    buttons: [
+      { id: 'nadine-website', title: 'Website besuchen', actionType: 'url', actionValue: 'https://www.ureel.me', icon: 'Globe', iconEnabled: true, styleVariant: 'filled', radius: 'rounded', position: 1, isActive: true, bgColor: '#171717', textColor: '#FFFFFF', borderColor: '#F2D28B' },
+      { id: 'nadine-phone', title: 'Anrufen', actionType: 'phone', actionValue: '+431234567', icon: 'Phone', iconEnabled: true, styleVariant: 'filled', radius: 'rounded', position: 2, isActive: true, bgColor: '#171717', textColor: '#FFFFFF', borderColor: '#F2D28B' },
+      { id: 'nadine-calendar', title: 'Termin vereinbaren', actionType: 'url', actionValue: 'https://calendly.com', icon: 'Calendar', iconEnabled: true, styleVariant: 'filled', radius: 'rounded', position: 3, isActive: true, bgColor: '#171717', textColor: '#FFFFFF', borderColor: '#F2D28B' },
+      { id: 'nadine-mail', title: 'E-Mail schreiben', actionType: 'email', actionValue: 'office@example.com', icon: 'Mail', iconEnabled: true, styleVariant: 'filled', radius: 'rounded', position: 4, isActive: true, bgColor: '#171717', textColor: '#FFFFFF', borderColor: '#F2D28B' }
+    ]
+  },
+  'dein-angebot-sofort-klickbar-6': {
+    cardId: 'demo-landing-mx9',
+    ownerId: 'demo-owner',
+    type: 'product',
+    slug: 'dein-angebot-sofort-klickbar-6',
+    title: 'MX9',
+    subtitle: 'Automarke',
+    description: 'Der neue MX9. Top Performance, pure Electric und ein direkter Weg zu Anfrage, Probefahrt und Kontakt.',
+    profileImageUrl: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&q=80&w=400',
+    backgroundType: 'video',
+    backgroundColor: '#090909',
+    backgroundImageUrl: 'https://img.youtube.com/vi/UQEDw9BCDPo/hqdefault.jpg',
+    backgroundImageFit: 'cover',
+    overlay: 'dark',
+    isPublished: true,
+    visibility: 'public',
+    brandingRequired: false,
+    companyName: 'Der neue MX9',
+    location: 'Top Performance. Pure Electric.',
+    category: 'auto',
+    videoBackgroundConfig: {
+      enabled: true,
+      mode: 'youtube',
+      mediaMode: 'youtube',
+      youtubeUrl: 'https://youtube.com/shorts/UQEDw9BCDPo?feature=share',
+      startTimeSeconds: 4,
+      durationSeconds: 12,
+      videoFitMode: 'cover',
+      youtube: { url: 'https://youtube.com/shorts/UQEDw9BCDPo?feature=share', startTimeSeconds: 4, mute: true }
+    },
+    buttons: [
+      { id: 'mx9-highlights', title: 'Highlights ansehen', actionType: 'url', actionValue: 'https://www.ureel.me', icon: 'Sparkles', iconEnabled: true, styleVariant: 'filled', radius: 'rounded', position: 1, isActive: true, bgColor: '#171717', textColor: '#FFFFFF', borderColor: '#F2D28B' },
+      { id: 'mx9-probefahrt', title: 'Probefahrt buchen', actionType: 'url', actionValue: 'https://calendly.com', icon: 'Calendar', iconEnabled: true, styleVariant: 'filled', radius: 'rounded', position: 2, isActive: true, bgColor: '#171717', textColor: '#FFFFFF', borderColor: '#F2D28B' },
+      { id: 'mx9-phone', title: 'Anrufen', actionType: 'phone', actionValue: '+431234567', icon: 'Phone', iconEnabled: true, styleVariant: 'filled', radius: 'rounded', position: 3, isActive: true, bgColor: '#171717', textColor: '#FFFFFF', borderColor: '#F2D28B' },
+      { id: 'mx9-mail', title: 'Anfrage senden', actionType: 'email', actionValue: 'sales@example.com', icon: 'Mail', iconEnabled: true, styleVariant: 'filled', radius: 'rounded', position: 4, isActive: true, bgColor: '#171717', textColor: '#FFFFFF', borderColor: '#F2D28B' }
+    ]
+  },
+  'dein-angebot-sofort-klickbar-4': {
+    cardId: 'demo-landing-irene-hager',
+    ownerId: 'demo-owner',
+    type: 'company',
+    slug: 'dein-angebot-sofort-klickbar-4',
+    title: 'Irene Hager',
+    subtitle: 'Tischlerei',
+    description: 'Handwerk sichtbar machen. Eine moderne Präsentation für Maßarbeit, Referenzen, Kurse und direkte Anfrage.',
+    profileImageUrl: 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&q=80&w=400',
+    backgroundType: 'video',
+    backgroundColor: '#130F0A',
+    backgroundImageUrl: 'https://img.youtube.com/vi/nJi-Fl3u57o/hqdefault.jpg',
+    backgroundImageFit: 'cover',
+    overlay: 'dark',
+    isPublished: true,
+    visibility: 'public',
+    brandingRequired: false,
+    companyName: 'Möbelmanufaktur',
+    location: 'Von Hand gefertigt',
+    category: 'craft',
+    videoBackgroundConfig: {
+      enabled: true,
+      mode: 'youtube',
+      mediaMode: 'youtube',
+      youtubeUrl: 'https://youtube.com/shorts/nJi-Fl3u57o?feature=share',
+      startTimeSeconds: 4,
+      durationSeconds: 12,
+      videoFitMode: 'cover',
+      youtube: { url: 'https://youtube.com/shorts/nJi-Fl3u57o?feature=share', startTimeSeconds: 4, mute: true }
+    },
+    buttons: [
+      { id: 'irene-works', title: 'Arbeiten ansehen', actionType: 'url', actionValue: 'https://www.ureel.me', icon: 'Image', iconEnabled: true, styleVariant: 'filled', radius: 'rounded', position: 1, isActive: true, bgColor: '#171717', textColor: '#FFFFFF', borderColor: '#F2D28B' },
+      { id: 'irene-request', title: 'Anfrage senden', actionType: 'email', actionValue: 'werkstatt@example.com', icon: 'Mail', iconEnabled: true, styleVariant: 'filled', radius: 'rounded', position: 2, isActive: true, bgColor: '#171717', textColor: '#FFFFFF', borderColor: '#F2D28B' },
+      { id: 'irene-phone', title: 'Anrufen', actionType: 'phone', actionValue: '+431234567', icon: 'Phone', iconEnabled: true, styleVariant: 'filled', radius: 'rounded', position: 3, isActive: true, bgColor: '#171717', textColor: '#FFFFFF', borderColor: '#F2D28B' },
+      { id: 'irene-course', title: 'Kurs buchen', actionType: 'url', actionValue: 'https://calendly.com', icon: 'Calendar', iconEnabled: true, styleVariant: 'filled', radius: 'rounded', position: 4, isActive: true, bgColor: '#171717', textColor: '#FFFFFF', borderColor: '#F2D28B' }
+    ]
+  },
+  'your-offer-instantly-clickable': {
+    cardId: 'demo-landing-jennifer-lawson',
+    ownerId: 'demo-owner',
+    type: 'person',
+    slug: 'your-offer-instantly-clickable',
+    title: 'Jennifer Lawson',
+    subtitle: 'Studentin',
+    description: 'Portfolio und Kontakt in Sekunden. Eine persönliche Präsentation für Studium, Bewerbung und Netzwerk.',
+    profileImageUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=400',
+    backgroundType: 'video',
+    backgroundColor: '#111111',
+    backgroundImageUrl: 'https://img.youtube.com/vi/VF41Qhgy7ik/hqdefault.jpg',
+    backgroundImageFit: 'cover',
+    overlay: 'dark',
+    isPublished: true,
+    visibility: 'public',
+    brandingRequired: false,
+    companyName: 'Portfolio & Kontakt',
+    location: 'Studentin mit Profil',
+    category: 'student',
+    videoBackgroundConfig: {
+      enabled: true,
+      mode: 'youtube',
+      mediaMode: 'youtube',
+      youtubeUrl: 'https://youtube.com/shorts/VF41Qhgy7ik?feature=share',
+      startTimeSeconds: 4,
+      durationSeconds: 12,
+      videoFitMode: 'cover',
+      youtube: { url: 'https://youtube.com/shorts/VF41Qhgy7ik?feature=share', startTimeSeconds: 4, mute: true }
+    },
+    buttons: [
+      { id: 'jennifer-portfolio', title: 'Portfolio ansehen', actionType: 'url', actionValue: 'https://www.ureel.me', icon: 'BriefcaseBusiness', iconEnabled: true, styleVariant: 'filled', radius: 'rounded', position: 1, isActive: true, bgColor: '#171717', textColor: '#FFFFFF', borderColor: '#F2D28B' },
+      { id: 'jennifer-mail', title: 'Kontakt aufnehmen', actionType: 'email', actionValue: 'hello@example.com', icon: 'Mail', iconEnabled: true, styleVariant: 'filled', radius: 'rounded', position: 2, isActive: true, bgColor: '#171717', textColor: '#FFFFFF', borderColor: '#F2D28B' },
+      { id: 'jennifer-linkedin', title: 'LinkedIn', actionType: 'url', actionValue: 'https://linkedin.com', icon: 'Linkedin', iconEnabled: true, styleVariant: 'filled', radius: 'rounded', position: 3, isActive: true, bgColor: '#171717', textColor: '#FFFFFF', borderColor: '#F2D28B' },
+      { id: 'jennifer-cv', title: 'Lebenslauf', actionType: 'pdf_link', actionValue: 'https://www.ureel.me', icon: 'FileText', iconEnabled: true, styleVariant: 'filled', radius: 'rounded', position: 4, isActive: true, bgColor: '#171717', textColor: '#FFFFFF', borderColor: '#F2D28B' }
+    ]
   }
 };

@@ -45,12 +45,13 @@ service cloud.firestore {
     function isValidUser(data) {
       return data.userId is string
         && data.email is string
-        && data.plan in ['free', 'starter', 'premium', 'pro', 'business', 'family']
-        && data.storageLimitMB is int
+        && data.plan in ['free', 'fun', 'starter', 'premium', 'pro', 'business', 'family', 'enterprise']
+        && data.storageLimitMB is number
         && data.storageUsedMB is number
         && data.role in ['user', 'admin', 'owner']
-        && data.acceptedTermsAt is string
-        && data.acceptedPrivacyAt is string;
+        && (!('acceptedTermsAt' in data) || data.acceptedTermsAt is string)
+        && (!('acceptedPrivacyAt' in data) || data.acceptedPrivacyAt is string)
+        && (!('newsletterConsent' in data) || data.newsletterConsent is bool);
     }
 
     function isValidCard(data) {

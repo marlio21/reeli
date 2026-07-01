@@ -248,6 +248,45 @@ function stripExistingSocialMeta(html: string): string {
 }
 
 
+
+const PUBLIC_CARD_SECRET_KEYS = new Set([
+  'password',
+  'passwordHash',
+  'buttonPassword',
+  'rawPassword',
+  'privateToken',
+  'token',
+  'secret',
+  'secretKey',
+  'apiKey',
+  'adminNotes',
+  'internalNotes'
+]);
+
+function redactPublicSecrets(value: any): any {
+  if (Array.isArray(value)) return value.map((item) => redactPublicSecrets(item));
+  if (value !== null && typeof value === 'object') {
+    const out: any = {};
+    for (const key of Object.keys(value)) {
+      if (PUBLIC_CARD_SECRET_KEYS.has(key)) continue;
+      out[key] = redactPublicSecrets(value[key]);
+    }
+    return out;
+  }
+  return value;
+}
+
+function publicCardPayload(card: any): any {
+  const cleanSlug = String(card?.slug || '').toLowerCase().trim();
+  return {
+    ...redactPublicSecrets(card || {}),
+    slug: cleanSlug,
+    isPublished: true,
+    visibility: 'public',
+    isDeleted: false
+  };
+}
+
 function isServerPublicCard(card: any): boolean {
   return !!card
     && card.isPublished === true
@@ -259,14 +298,14 @@ async function loadPublicCardBySlug(cleanSlug: string): Promise<any | null> {
   const publicSnap = await adminDb.collection('publicCards').doc(cleanSlug).get();
   if (publicSnap.exists) {
     const publicCard = publicSnap.data();
-    return isServerPublicCard(publicCard) ? publicCard : null;
+    return isServerPublicCard(publicCard) ? publicCardPayload(publicCard) : null;
   }
 
   // Backward-compatible fallback for pre-RC3.2 cards that do not yet have a publicCards copy.
   const legacySnap = await adminDb.collection('cards').where('slug', '==', cleanSlug).limit(1).get();
   if (legacySnap.empty) return null;
   const legacyCard = legacySnap.docs[0].data();
-  return isServerPublicCard(legacyCard) ? legacyCard : null;
+  return isServerPublicCard(legacyCard) ? publicCardPayload(legacyCard) : null;
 }
 
 
@@ -616,12 +655,6 @@ async function processVideoBackground(cardId: string) {
         }
       });
 
-      try {
-        await optimizedFileRef.makePublic();
-      } catch (pubErr: any) {
-        console.log(`[VideoProcessor] Note: makePublic failed, proceeding with direct URL. Error: ${pubErr.message}`);
-      }
-
       downloadUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(optimizedStoragePath)}?alt=media`;
       console.log(`[VideoProcessor] Optimized video uploaded to Firebase Storage. URL: ${downloadUrl}`);
     } catch (gcsOptErr: any) {
@@ -643,11 +676,6 @@ async function processVideoBackground(cardId: string) {
             cacheControl: 'public, max-age=31536000'
           }
         });
-        try {
-          await thumbFileRef.makePublic();
-        } catch (pubErr: any) {
-          console.log(`[VideoProcessor] Note: Thumbnail makePublic failed. Error: ${pubErr.message}`);
-        }
         thumbnailUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(thumbnailStoragePath)}?alt=media`;
         console.log(`[VideoProcessor] Thumbnail uploaded to Firebase Storage. URL: ${thumbnailUrl}`);
       } catch (gcsThumbErr: any) {
@@ -847,15 +875,8 @@ app.post('/api/upload-file-fallback', async (req: express.Request, res: express.
       downloadUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(storagePath)}?alt=media`;
       console.log(`[Backup Uploader] Successfully uploaded to Firebase Storage. URL: ${downloadUrl}`);
     } catch (gcsSaveErr: any) {
-      console.warn(`[Backup Uploader] Firebase Storage write failed: ${gcsSaveErr.message}. Failing over to local filesystem...`);
-      
-      const safeFilename = storagePath.replace(/\//g, '_');
-      const localDiskPath = path.join(path.join(process.cwd(), 'uploads'), safeFilename);
-      fs.writeFileSync(localDiskPath, buffer);
-      
-      // Serve via relative server url path to bypass any hardcoded domain routing rules
-      downloadUrl = `/uploads/${encodeURIComponent(safeFilename)}`;
-      console.log(`[Backup Uploader] Successfully saved local file as fallback: ${localDiskPath}. Public serving path: ${downloadUrl}`);
+      console.error(`[Backup Uploader] Firebase Storage write failed: ${gcsSaveErr.message}. Local public filesystem fallback is disabled for beta security.`);
+      return res.status(503).json({ error: 'Secure storage upload failed. Please retry later.' });
     }
 
     return res.json({
@@ -873,12 +894,15 @@ app.post('/api/upload-file-fallback', async (req: express.Request, res: express.
 // Initialize integrated Dev & Production Express/Vite handlers
 let viteServer: any = null;
 async function startServer() {
-  // Serve local filesystem fallback uploads directory
-  const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
-  if (!fs.existsSync(UPLOADS_DIR)) {
-    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+  // Local public upload fallback is disabled by default for beta security.
+  // It can be enabled only in controlled local/dev environments with ENABLE_LOCAL_UPLOADS=true.
+  if (process.env.ENABLE_LOCAL_UPLOADS === 'true') {
+    const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
+    if (!fs.existsSync(UPLOADS_DIR)) {
+      fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+    }
+    app.use('/uploads', express.static(UPLOADS_DIR));
   }
-  app.use('/uploads', express.static(UPLOADS_DIR));
 
   if (process.env.NODE_ENV !== 'production') {
     viteServer = await createViteServer({

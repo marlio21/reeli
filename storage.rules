@@ -23,7 +23,7 @@ service firebase.storage {
       return firestore.exists(/databases/(default)/documents/cards/$(cardId))
         && firestore.get(/databases/(default)/documents/cards/$(cardId)).data.ownerId == userId
         && firestore.get(/databases/(default)/documents/cards/$(cardId)).data.isPublished == true
-        && firestore.get(/databases/(default)/documents/cards/$(cardId)).data.visibility == 'public'
+        && firestore.get(/databases/(default)/documents/cards/$(cardId)).data.get('visibility', 'public') == 'public'
         && firestore.get(/databases/(default)/documents/cards/$(cardId)).data.get('isDeleted', false) != true;
     }
 

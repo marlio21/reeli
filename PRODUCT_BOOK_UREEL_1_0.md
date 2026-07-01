@@ -1,3 +1,11 @@
+
+## v52.6.09 / RC3.2.2 – Landing Showcase Safety Fix
+
+- Landingpage-Showcase-Karten als gebündelte Demo/Public-Karten abgesichert, damit die Startseite nach dem `/publicCards` Security-Hardening nicht von alten Firestore-Dokumenten abhängig ist.
+- `getCardBySlug` erkennt jetzt alle gebündelten Demo-Karten über `DEMO_CARDS[slug]` statt nur drei feste Demo-Slugs.
+- Die bekannten Startseiten-Slugs `dein-angebot-sofort-klickbar`, `dein-angebot-sofort-klickbar-6`, `dein-angebot-sofort-klickbar-4` und `your-offer-instantly-clickable` bleiben dadurch direkt unter `/u/...` und in Landing-Iframes funktionsfähig.
+- Keine Lockerung der Firestore- oder Storage-Sicherheitsregeln; Mobile Studio bleibt unverändert.
+
 # Ureel Product Book 1.0
 
 ## Vision
@@ -248,3 +256,26 @@ Public und Share Views laden öffentliche Kartendaten einmalig. Realtime Listene
 ### Schutzregel
 
 Mobile Studio und Mobile Layout Persistence wurden nicht verändert.
+
+---
+
+## RC3.2.1 – Security Hardening Safety Fix
+
+RC3.2.1 closes the most important safety gaps discovered after the first Phase-1 hardening pass.
+
+The public data model remains:
+
+```text
+/cards/{cardId}       = private Studio data
+/publicCards/{slug}   = public/share data
+```
+
+But the public copy is now safer: sensitive password, token and internal fields are removed before the card is published to `publicCards`. The legacy public API applies the same redaction for older cards that do not yet have a public copy.
+
+For compatibility, old published cards without a `visibility` field should still be able to load their media. Older user profiles with legacy plan values should not be unnecessarily blocked during login or profile updates.
+
+Media access is now more consistent with the new rules: optimized videos and thumbnails are no longer explicitly made public by the server. Public availability should come from the card being published, not from permanent public file flags.
+
+The local `/uploads` fallback is disabled by default for beta safety, because it bypasses Firestore/Storage authorization. It may only be enabled intentionally in controlled local/dev environments.
+
+Mobile Studio and mobile layout persistence remain protected and unchanged.

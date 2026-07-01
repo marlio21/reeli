@@ -1,4 +1,12 @@
 
+## v52.6.09 / RC3.2.2 – Landing Showcase Safety Fix
+
+- Landingpage-Showcase-Karten als gebündelte Demo/Public-Karten abgesichert, damit die Startseite nach dem `/publicCards` Security-Hardening nicht von alten Firestore-Dokumenten abhängig ist.
+- `getCardBySlug` erkennt jetzt alle gebündelten Demo-Karten über `DEMO_CARDS[slug]` statt nur drei feste Demo-Slugs.
+- Die bekannten Startseiten-Slugs `dein-angebot-sofort-klickbar`, `dein-angebot-sofort-klickbar-6`, `dein-angebot-sofort-klickbar-4` und `your-offer-instantly-clickable` bleiben dadurch direkt unter `/u/...` und in Landing-Iframes funktionsfähig.
+- Keine Lockerung der Firestore- oder Storage-Sicherheitsregeln; Mobile Studio bleibt unverändert.
+
+
 
 ## v52.6.08 / RC3.1.2 – LinkedIn Large Preview Polish
 
@@ -944,3 +952,14 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Public View: anonymous routes load public card data once instead of attaching a live listener to private `/cards` documents.
 - Secrets hygiene: `.env.example` marks Test Gate credentials as demo-only/public and removes the old hard-coded password value.
 - Mobile Studio renderer and protected mobile layout code remain unchanged.
+
+## v52.6.09 / RC3.2.1 – Security Hardening Safety Fix
+
+- Public card sync now redacts sensitive fields before writing `/publicCards/{slug}`; password fields, raw button passwords, secret/token-style fields and internal notes are removed recursively.
+- Server-side public card API and dynamic Open-Graph loader also redact legacy card data before returning it or using it for social metadata.
+- Storage public-read checks now treat missing legacy `visibility` as `public` when `isPublished == true`, reducing the risk that old published cards lose their media after the new rules are deployed.
+- Firestore user validation now accepts legacy `fun` and `enterprise` plan values and is more tolerant of older user documents that may not yet include consent/newsletter fields.
+- Test Gate no longer falls back to the old hard-coded password when `VITE_TEST_GATE_PASSWORD` is not set.
+- Video processing no longer calls `makePublic()` for optimized videos or thumbnails; access is controlled through Storage Rules and published-card state.
+- Local `/uploads` fallback serving is disabled by default and can only be enabled explicitly with `ENABLE_LOCAL_UPLOADS=true` for controlled local/dev environments.
+- Production build verified. Mobile Studio renderer and mobile layout persistence remain unchanged.

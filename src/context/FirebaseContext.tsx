@@ -628,13 +628,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return;
     }
 
-    const publicCard = cleanUndefined({
-      ...card,
-      slug: cleanSlug,
-      isPublished: true,
-      visibility: 'public',
-      updatedAt: new Date().toISOString()
-    });
+    const publicCard = buildPublicCardPayload(card, cleanSlug);
 
     await setDoc(doc(db, 'publicCards', cleanSlug), publicCard, { merge: false });
   };
@@ -871,7 +865,9 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const getCardBySlug = async (slug: string, onlyPublished?: boolean): Promise<Card | null> => {
     const cleanSlug = slug.toLowerCase().trim();
-    if (cleanSlug === 'ceo' || cleanSlug === 'autohaus' || cleanSlug === 'schwimmverband') {
+    // Bundled demo/showcase cards must keep working even after publicCards hardening.
+    // This protects the landing page examples and demo routes from depending on Firestore data.
+    if (DEMO_CARDS[cleanSlug]) {
       return hydrateCardMobileLayout(DEMO_CARDS[cleanSlug] || null) as Card | null;
     }
     try {
@@ -1333,6 +1329,50 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     </FirebaseContext.Provider>
   );
 };
+
+
+const PUBLIC_CARD_SECRET_KEYS = new Set([
+  'password',
+  'passwordHash',
+  'buttonPassword',
+  'rawPassword',
+  'privateToken',
+  'token',
+  'secret',
+  'secretKey',
+  'apiKey',
+  'adminNotes',
+  'internalNotes'
+]);
+
+function redactPublicSecrets(value: any): any {
+  if (Array.isArray(value)) {
+    return value.map((item) => redactPublicSecrets(item));
+  }
+  if (value !== null && typeof value === 'object') {
+    const out: any = {};
+    for (const key of Object.keys(value)) {
+      if (PUBLIC_CARD_SECRET_KEYS.has(key)) continue;
+      out[key] = redactPublicSecrets(value[key]);
+    }
+    return out;
+  }
+  return value;
+}
+
+function buildPublicCardPayload(card: Card, cleanSlug: string): any {
+  const redacted = redactPublicSecrets(card);
+  return cleanUndefined({
+    ...redacted,
+    cardId: card.cardId,
+    ownerId: card.ownerId,
+    slug: cleanSlug,
+    isPublished: true,
+    visibility: 'public',
+    isDeleted: false,
+    updatedAt: new Date().toISOString()
+  });
+}
 
 function cleanUndefined(obj: any): any {
   if (Array.isArray(obj)) {
