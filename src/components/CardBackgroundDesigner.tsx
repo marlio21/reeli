@@ -1233,14 +1233,9 @@ export const CardBackgroundDesigner: React.FC<CardBackgroundDesignerProps> = ({
       await onSave(updates);
       if (hasNewVideoUpload && activeCard?.cardId) {
         try {
-          const idToken = await user?.getIdToken();
-          if (!idToken) throw new Error('Missing authentication token for video processing');
           const res = await fetch('/api/process-video-job', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${idToken}`
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ cardId: activeCard.cardId })
           });
           if (!res.ok) {

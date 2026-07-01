@@ -595,50 +595,6 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-
-
-  const shouldExposePublicCard = (card: Partial<Card> | null | undefined) => {
-    return !!card
-      && card.isPublished === true
-      && (card.visibility || 'public') === 'public'
-      && (card as any).isDeleted !== true
-      && typeof card.slug === 'string'
-      && card.slug.trim().length > 0;
-  };
-
-  const syncPublicCard = async (card: Card | null | undefined, previousSlug?: string | null) => {
-    if (!card?.slug) return;
-    const cleanSlug = card.slug.toLowerCase().trim();
-    const oldSlug = previousSlug?.toLowerCase().trim();
-
-    if (oldSlug && oldSlug !== cleanSlug) {
-      try {
-        await deleteDoc(doc(db, 'publicCards', oldSlug));
-      } catch (err) {
-        console.warn('Could not delete old public card slug copy:', err);
-      }
-    }
-
-    if (!shouldExposePublicCard(card)) {
-      try {
-        await deleteDoc(doc(db, 'publicCards', cleanSlug));
-      } catch (err) {
-        console.warn('Could not remove unpublished public card copy:', err);
-      }
-      return;
-    }
-
-    const publicCard = buildPublicCardPayload(card, cleanSlug);
-
-    await setDoc(doc(db, 'publicCards', cleanSlug), publicCard, { merge: false });
-  };
-
-  const isSlugTaken = async (slug: string) => {
-    const cleanSlug = slug.toLowerCase().trim();
-    const publicSnap = await getDoc(doc(db, 'publicCards', cleanSlug));
-    return publicSnap.exists();
-  };
-
   const createStarterCardIfNeeded = async (forceCreate: boolean = false): Promise<Card | null> => {
     if (!user) return null;
     if (isCreatingCardRef.current) return null;
@@ -694,7 +650,9 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       let uniqueSlug = baseSlug;
       let suffix = 2;
       while (true) {
-        if (!(await isSlugTaken(uniqueSlug))) {
+        const qCheck = query(collection(db, 'cards'), where('slug', '==', uniqueSlug));
+        const queryCheckSnap = await getDocs(qCheck);
+        if (queryCheckSnap.empty) {
           break;
         }
         uniqueSlug = `${baseSlug}-${suffix}`;
@@ -715,7 +673,6 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       };
 
       await setDoc(doc(db, 'cards', cardId), newCard);
-      await syncPublicCard(newCard);
       setCards((prev) => {
         if (prev.some((c) => c.cardId === cardId)) return prev;
         return [...prev, newCard];
@@ -822,7 +779,9 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const baseSlug = uniqueSlug;
     let slugSuffix = 2;
     while (true) {
-      if (!(await isSlugTaken(uniqueSlug))) break;
+      const qCheck = query(collection(db, 'cards'), where('slug', '==', uniqueSlug));
+      const queryCheckSnap = await getDocs(qCheck);
+      if (queryCheckSnap.empty) break;
       uniqueSlug = `${baseSlug}-${slugSuffix}`;
       slugSuffix++;
     }
@@ -843,7 +802,6 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     try {
       const persistedCard = persistMobileLayoutFields(cleanCard, cleanCard) as Card;
       await setDoc(doc(db, 'cards', cardId), persistedCard);
-      await syncPublicCard(persistedCard);
       setCards((prev) => {
         if (prev.some((c) => c.cardId === cardId)) return prev;
         return [...prev, persistedCard];
@@ -865,28 +823,23 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const getCardBySlug = async (slug: string, onlyPublished?: boolean): Promise<Card | null> => {
     const cleanSlug = slug.toLowerCase().trim();
-    // Bundled demo/showcase cards must keep working even after publicCards hardening.
-    // This protects the landing page examples and demo routes from depending on Firestore data.
-    if (DEMO_CARDS[cleanSlug]) {
+    if (cleanSlug === 'ceo' || cleanSlug === 'autohaus' || cleanSlug === 'schwimmverband') {
       return hydrateCardMobileLayout(DEMO_CARDS[cleanSlug] || null) as Card | null;
     }
     try {
-      const publicSnap = await getDoc(doc(db, 'publicCards', cleanSlug));
-      if (publicSnap.exists()) {
-        const publicCard = publicSnap.data() as Card;
-        if (onlyPublished && (publicCard.isPublished !== true || (publicCard.visibility || 'public') !== 'public')) {
-          return null;
-        }
-        return hydrateCardMobileLayout(publicCard) as Card;
-      }
+      const q = query(
+        collection(db, 'cards'),
+        where('slug', '==', cleanSlug),
+        limit(1)
+      );
 
-      // Backward-compatible public API fallback for cards created before /publicCards was introduced.
-      // The server returns only cards that are published and public.
-      const apiRes = await fetch(`/api/public-card/${encodeURIComponent(cleanSlug)}`);
-      if (apiRes.status === 404) return null;
-      if (!apiRes.ok) throw new Error(`Public card API failed: ${apiRes.status}`);
-      const apiData = await apiRes.json();
-      return apiData?.card ? hydrateCardMobileLayout(apiData.card as Card) as Card : null;
+      const querySnap = await getDocs(q);
+      if (querySnap.empty) return null;
+      let targetCard: Card | null = null;
+      querySnap.forEach((doc) => {
+        targetCard = hydrateCardMobileLayout(doc.data() as Card) as Card;
+      });
+      return targetCard;
     } catch (error: any) {
       const errMsg = error?.message || String(error);
       const isPermissionDenied = errMsg.includes('permission-denied') || errMsg.includes('insufficient permissions');
@@ -934,14 +887,11 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const existingCard = cards.find((c) => c.cardId === cardId) || null;
       const persistedUpdates = persistMobileLayoutFields(updates, existingCard);
       const cleanUpdates = cleanUndefined(persistedUpdates);
-      const updatedAt = new Date().toISOString();
       await updateDoc(cardRef, {
         ...cleanUpdates,
-        updatedAt
+        updatedAt: new Date().toISOString()
       });
-      const mergedCard = hydrateCardMobileLayout({ ...(existingCard || {}), ...persistedUpdates, cardId, ownerId: existingCard?.ownerId || user.uid, updatedAt } as Card) as Card;
-      await syncPublicCard(mergedCard, existingCard?.slug || null);
-      setCards((prev) => prev.map((c) => c.cardId === cardId ? mergedCard : c));
+      setCards((prev) => prev.map((c) => c.cardId === cardId ? hydrateCardMobileLayout({ ...c, ...persistedUpdates, updatedAt: new Date().toISOString() } as Card) as Card : c));
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, `cards/${cardId}`);
     }
@@ -950,11 +900,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const deleteCard = async (cardId: string) => {
     if (!user) return;
     try {
-      const existingCard = cards.find((c) => c.cardId === cardId) || null;
       await deleteDoc(doc(db, 'cards', cardId));
-      if (existingCard?.slug) {
-        await deleteDoc(doc(db, 'publicCards', existingCard.slug.toLowerCase().trim()));
-      }
       setCards((prev) => prev.filter((c) => c.cardId !== cardId));
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, `cards/${cardId}`);
@@ -1261,10 +1207,6 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     try {
       const cardRef = doc(db, 'cards', cardId);
       await updateDoc(cardRef, { isPublished });
-      const targetCard = allCards.find((c) => c.cardId === cardId) || null;
-      if (targetCard) {
-        await syncPublicCard({ ...targetCard, isPublished } as Card, targetCard.slug || null);
-      }
       setAllCards((prev) => prev.map((c) => c.cardId === cardId ? { ...c, isPublished } : c));
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, `cards/${cardId}`);
@@ -1329,50 +1271,6 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     </FirebaseContext.Provider>
   );
 };
-
-
-const PUBLIC_CARD_SECRET_KEYS = new Set([
-  'password',
-  'passwordHash',
-  'buttonPassword',
-  'rawPassword',
-  'privateToken',
-  'token',
-  'secret',
-  'secretKey',
-  'apiKey',
-  'adminNotes',
-  'internalNotes'
-]);
-
-function redactPublicSecrets(value: any): any {
-  if (Array.isArray(value)) {
-    return value.map((item) => redactPublicSecrets(item));
-  }
-  if (value !== null && typeof value === 'object') {
-    const out: any = {};
-    for (const key of Object.keys(value)) {
-      if (PUBLIC_CARD_SECRET_KEYS.has(key)) continue;
-      out[key] = redactPublicSecrets(value[key]);
-    }
-    return out;
-  }
-  return value;
-}
-
-function buildPublicCardPayload(card: Card, cleanSlug: string): any {
-  const redacted = redactPublicSecrets(card);
-  return cleanUndefined({
-    ...redacted,
-    cardId: card.cardId,
-    ownerId: card.ownerId,
-    slug: cleanSlug,
-    isPublished: true,
-    visibility: 'public',
-    isDeleted: false,
-    updatedAt: new Date().toISOString()
-  });
-}
 
 function cleanUndefined(obj: any): any {
   if (Array.isArray(obj)) {

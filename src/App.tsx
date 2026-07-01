@@ -16,7 +16,8 @@ import { TestGate } from './components/TestGate';
 import { Card } from './types';
 import * as LucideIcons from 'lucide-react';
 import { getSafeLocalStorage, setSafeLocalStorage, getSafeSessionStorage } from './utils/safeStorage';
-import { resolvedConfig } from './firebase';
+import { resolvedConfig, db } from './firebase';
+import { onSnapshot, doc } from 'firebase/firestore';
 import { hydrateCardMobileLayout } from './utils/mobileLayoutPersistence';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
@@ -137,7 +138,7 @@ const AppContent: React.FC = () => {
             databaseId: resolvedConfig.databaseId,
             route: currentPath.startsWith('/share/') ? `/share/${slug}` : `/u/${slug}`,
             slug: slug,
-            queryCollection: 'publicCards',
+            queryCollection: 'cards',
             queryResultCount: 0,
             errorCode: 'NOT_FOUND',
             errorMessage: 'Card slug not found inside Firestore database.',
@@ -169,7 +170,7 @@ const AppContent: React.FC = () => {
             databaseId: resolvedConfig.databaseId,
             route: currentPath.startsWith('/share/') ? `/share/${slug}` : `/u/${slug}`,
             slug: slug,
-            queryCollection: 'publicCards',
+            queryCollection: 'cards',
             queryResultCount: 1,
             errorCode: isDeleted ? 'DELETED' : (!isPublished ? 'NOT_PUBLISHED' : (isPrivate ? 'PRIVATE' : 'SUCCESS')),
             errorMessage: isDeleted ? 'The card is marked deleted.' : (!isPublished ? 'The card is not published yet.' : (isPrivate ? 'The card is not set as public.' : 'Card loaded successfully.')),
@@ -215,7 +216,7 @@ const AppContent: React.FC = () => {
           databaseId: resolvedConfig.databaseId,
           route: currentPath.startsWith('/share/') ? `/share/${slug}` : `/u/${slug}`,
           slug: slug,
-          queryCollection: 'publicCards',
+          queryCollection: 'cards',
           queryResultCount: -1,
           errorCode: err?.code || (isDbBlock ? 'PERMISSION_DENIED' : 'FETCH_ERROR'),
           errorMessage: errMsg,
@@ -243,9 +244,32 @@ const AppContent: React.FC = () => {
     }
   }, [currentPath]);
 
-  // Public and Share views intentionally load publicCards once.
-  // Realtime listeners stay inside authenticated Studio/Admin areas to reduce public Firestore reads
-  // and to avoid exposing private /cards documents to anonymous clients.
+  // Real-time synchronization of visitorCard to ensure instantly updated video processing statuses
+  useEffect(() => {
+    if (!visitorCard || !visitorCard.cardId) return;
+
+    // Do not listen to static demo profiles
+    const cardId = visitorCard.cardId;
+    if (['ceo', 'autohaus', 'schwimmverband'].includes(visitorCard.slug)) return;
+
+    console.info(`[Real-time Sync Info] Registering live observer for card: ${cardId}`);
+    const unsubscribe = onSnapshot(doc(db, 'cards', cardId), (snapshot) => {
+      if (snapshot.exists()) {
+        const updatedCard = hydrateCardMobileLayout(snapshot.data() as Card) as Card;
+        setVisitorCard((current) => {
+          if (!current || JSON.stringify(updatedCard) !== JSON.stringify(current)) {
+            console.info("[Real-time Sync Info] Visitor card changed in database, hydrating and updating state.");
+            return updatedCard;
+          }
+          return current;
+        });
+      }
+    }, (error) => {
+      console.warn("[Real-time Sync Info] Listener error:", error);
+    });
+
+    return () => unsubscribe();
+  }, [visitorCard?.cardId]);
 
   // Global Auth Loading spinner
   if (loading) {
