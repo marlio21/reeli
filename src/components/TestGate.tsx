@@ -25,10 +25,10 @@ export function TestGate({ onSuccess, lang = 'de' }: TestGateProps) {
     setErrorMsg('');
 
     // Load expected gate password from environment (VITE_TEST_GATE_PASSWORD)
-    const expectedPassword = (import.meta as any).env.VITE_TEST_GATE_PASSWORD || 'konu2026';
+    const expectedPassword = (import.meta as any).env.VITE_TEST_GATE_PASSWORD || '';
 
     setTimeout(() => {
-      if (password === expectedPassword) {
+      if (expectedPassword && password === expectedPassword) {
         setSafeSessionStorage('konu_test_gate_auth', 'true');
         onSuccess();
       } else {

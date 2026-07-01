@@ -210,3 +210,38 @@ Großer LinkedIn-Beitrag = Bild direkt in LinkedIn hochladen + Link/Text aus Sha
 Das Share Modal enthält dafür eine eigene Aktion „LinkedIn großes Bild“. Diese lädt das optimierte 1200×627-Bild und kopiert den passenden Beitragstext. So bleibt die normale Social Preview erhalten, aber für wichtige Beiträge gibt es eine große, visuelle LinkedIn-Variante.
 
 Mobile Studio bleibt unverändert.
+
+---
+
+## RC3.2 – Security Audit Safe
+
+RC3.2 wird nach dem RC3.1.2-Stabilitätsstand bewusst nicht als großer Architekturumbau umgesetzt. Die harte Umstellung von öffentlichen Karten auf eine neue `/publicCards`-Quelle wird nicht erneut aktiviert, solange keine getestete Migration existiert.
+
+### Grundsatz
+
+```text
+Stabilität zuerst.
+Security schrittweise härten.
+Keine Landingpage- oder Mobile-Studio-Regression.
+```
+
+### Umgesetzter Safe-Scope
+
+- Authentifizierung für Video-Processing-Start.
+- Owner/Admin-Prüfung für serverseitige Upload- und Processing-Endpunkte.
+- Entfernen des alten TestGate-Fallback-Passworts.
+- kleinere Server-Body-Limits mit Environment-Konfiguration.
+- strengere Upload-Fallback-Prüfung für Typ, MIME, Größe und Dateiname.
+- lokaler Upload-Fallback standardmäßig aus.
+- keine Änderung an `/u/:slug`, `/share/:slug`, Landing-Showcases oder Mobile Studio.
+
+### Nicht umgesetzt in RC3.2
+
+```text
+Keine harte /publicCards-Migration.
+Keine Änderung des Public-View-Ladewegs.
+Keine Neustrukturierung der Landingpage.
+Keine Änderung an Mobile Renderer oder Mobile Studio.
+```
+
+Die PublicCards-Architektur bleibt für einen separaten, getesteten Migrationssprint vorgesehen.

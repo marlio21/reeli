@@ -25,8 +25,8 @@ ffmpeg.setFfprobePath(ffprobeInstaller.path);
 const app = express();
 const PORT = 3000;
 
-app.use(express.json({ limit: '100mb' }));
-app.use(express.urlencoded({ limit: '100mb', extended: true }));
+app.use(express.json({ limit: process.env.SERVER_JSON_LIMIT || '25mb' }));
+app.use(express.urlencoded({ limit: process.env.SERVER_URLENCODED_LIMIT || '5mb', extended: true }));
 
 // Load firebase config from local JSON securely
 const firebaseConfigPath = path.join(process.cwd(), 'firebase-applet-config.json');
@@ -85,6 +85,58 @@ function parseFirestoreDocument(doc: any): any {
     data[key] = parseFirestoreValue(doc.fields[key]);
   }
   return data;
+}
+
+
+async function verifyRequestAuth(req: express.Request, explicitToken?: string): Promise<admin.auth.DecodedIdToken> {
+  const authHeader = req.headers.authorization || '';
+  const bearerToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+  const token = explicitToken || bearerToken;
+  if (!token) {
+    throw new Error('Missing authentication token');
+  }
+  return getAuth(adminApp).verifyIdToken(token);
+}
+
+async function isAdminUid(uid: string): Promise<boolean> {
+  const adminDoc = await adminDb.collection('admins').doc(uid).get();
+  if (adminDoc.exists) return true;
+  const userDoc = await adminDb.collection('users').doc(uid).get();
+  const role = userDoc.exists ? userDoc.data()?.role : null;
+  return role === 'admin' || role === 'owner';
+}
+
+async function assertCardOwnerOrAdmin(cardId: string, uid: string): Promise<any> {
+  const cardRef = adminDb.collection('cards').doc(cardId);
+  const cardSnap = await cardRef.get();
+  if (!cardSnap.exists) {
+    throw new Error('Card not found');
+  }
+  const card = cardSnap.data() || {};
+  const adminUser = await isAdminUid(uid);
+  if (card.ownerId !== uid && !adminUser) {
+    const err = new Error('Permission denied: card ownership mismatch');
+    (err as any).statusCode = 403;
+    throw err;
+  }
+  return cardSnap;
+}
+
+function sanitizeFileName(fileName: string): string {
+  const base = path.basename(String(fileName || 'upload'));
+  const safe = base.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 120);
+  return safe || `upload_${Date.now()}`;
+}
+
+function isAllowedFallbackUploadType(type: string): boolean {
+  return [
+    'cover', 'profile', 'product', 'background', 'button-images',
+    'after-sequence', 'slideshow', 'branding', 'seo', 'pdf', 'file'
+  ].includes(type);
+}
+
+function isAllowedFallbackContent(contentType: string): boolean {
+  return contentType.startsWith('image/') || contentType === 'application/pdf';
 }
 
 // Core API Gate: Secure server-side validation of password-protected buttons
@@ -666,13 +718,15 @@ async function processVideoBackground(cardId: string) {
  * REST Endpoint for kicking off video compression asynchronously
  */
 app.post('/api/process-video-job', async (req: express.Request, res: express.Response) => {
-  const { cardId } = req.body;
+  const { cardId, idToken } = req.body;
   if (!cardId) {
     return res.status(400).json({ error: 'Missing cardId' });
   }
 
   try {
+    const decodedToken = await verifyRequestAuth(req, idToken);
     const cardRef = adminDb.collection('cards').doc(cardId);
+    await assertCardOwnerOrAdmin(cardId, decodedToken.uid);
     
     // Perform transaction/atomic update to check status and set locking state securely
     const result = await adminDb.runTransaction(async (transaction) => {
@@ -682,6 +736,9 @@ app.post('/api/process-video-job', async (req: express.Request, res: express.Res
       }
 
       const card = docSnap.data();
+      if (card?.ownerId !== decodedToken.uid && !(await isAdminUid(decodedToken.uid))) {
+        throw new Error('Permission denied: card ownership mismatch');
+      }
       const vBgConfig = card?.videoBackgroundConfig;
       const job = vBgConfig?.videoProcessingJob;
 
@@ -748,36 +805,51 @@ app.post('/api/upload-file-fallback', async (req: express.Request, res: express.
     // 1. Verify Google Auth ID Token
     const decodedToken = await getAuth(adminApp).verifyIdToken(idToken);
     
-    // 2. Enforce strict UID path isolation boundary
+    // 2. Enforce strict UID path isolation boundary and card ownership.
     if (decodedToken.uid !== userId) {
       return res.status(403).json({ error: 'Permission denied: User mismatch' });
     }
+    await assertCardOwnerOrAdmin(cardId, decodedToken.uid);
+
+    const normalizedType = String(type || '').trim();
+    const normalizedContentType = String(contentType || '').toLowerCase();
+    if (!isAllowedFallbackUploadType(normalizedType)) {
+      return res.status(400).json({ error: 'Upload type is not allowed for fallback upload.' });
+    }
+    if (!isAllowedFallbackContent(normalizedContentType)) {
+      return res.status(400).json({ error: 'Fallback upload accepts only images and PDFs.' });
+    }
+    const safeFileName = sanitizeFileName(fileName);
 
     // 3. Construct unified path based on type
-    let storagePath = `users/${userId}/cards/${cardId}/${type}/${fileName}`;
-    if (type === 'cover') {
+    let storagePath = `users/${userId}/cards/${cardId}/${normalizedType}/${safeFileName}`;
+    if (normalizedType === 'cover') {
       storagePath = `users/${userId}/cards/${cardId}/cover/cover.webp`;
-    } else if (type === 'profile') {
+    } else if (normalizedType === 'profile') {
       storagePath = `users/${userId}/cards/${cardId}/profile/profile.webp`;
-    } else if (type === 'product') {
+    } else if (normalizedType === 'product') {
       storagePath = `users/${userId}/cards/${cardId}/product/product.webp`;
-    } else if (type === 'reel-video') {
-      storagePath = `users/${userId}/cards/${cardId}/reel/video-original/${fileName}`;
-    } else if (type === 'background') {
-      storagePath = `users/${userId}/cards/${cardId}/backgrounds/${fileName}`;
-    } else if (type === 'button-images') {
-      storagePath = `users/${userId}/cards/${cardId}/buttons/${fileName}`;
-    } else if (type === 'after-sequence') {
-      storagePath = `users/${userId}/cards/${cardId}/after-sequence/${fileName}`;
-    } else if (type === 'slideshow') {
-      storagePath = `users/${userId}/cards/${cardId}/slideshow/${fileName}`;
-    } else if (type === 'branding') {
-      storagePath = `users/${userId}/cards/${cardId}/branding/${fileName}`;
-    } else if (type === 'seo') {
-      storagePath = `users/${userId}/cards/${cardId}/seo/${fileName}`;
+    } else if (normalizedType === 'reel-video') {
+      storagePath = `users/${userId}/cards/${cardId}/reel/video-original/${safeFileName}`;
+    } else if (normalizedType === 'background') {
+      storagePath = `users/${userId}/cards/${cardId}/backgrounds/${safeFileName}`;
+    } else if (normalizedType === 'button-images') {
+      storagePath = `users/${userId}/cards/${cardId}/buttons/${safeFileName}`;
+    } else if (normalizedType === 'after-sequence') {
+      storagePath = `users/${userId}/cards/${cardId}/after-sequence/${safeFileName}`;
+    } else if (normalizedType === 'slideshow') {
+      storagePath = `users/${userId}/cards/${cardId}/slideshow/${safeFileName}`;
+    } else if (normalizedType === 'branding') {
+      storagePath = `users/${userId}/cards/${cardId}/branding/${safeFileName}`;
+    } else if (normalizedType === 'seo') {
+      storagePath = `users/${userId}/cards/${cardId}/seo/${safeFileName}`;
     }
 
     const buffer = Buffer.from(base64Data, 'base64');
+    const maxBytes = normalizedContentType === 'application/pdf' ? 20 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (buffer.length > maxBytes) {
+      return res.status(400).json({ error: 'Fallback upload file is too large.' });
+    }
     const bucket = getStorage(adminApp).bucket();
     const fileRef = bucket.file(storagePath);
 
@@ -794,25 +866,23 @@ app.post('/api/upload-file-fallback', async (req: express.Request, res: express.
         }
       });
 
-      // 5. Try to make the file public for direct browser fetches
-      try {
-        await fileRef.makePublic();
-      } catch (pubErr: any) {
-        console.log(`[Backup Uploader] Note: makePublic skipped or failed:`, pubErr.message);
-      }
+      // 5. Do not make files globally public here. Access remains governed by Firebase Storage rules.
 
       // Build optimized media URL
       downloadUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(storagePath)}?alt=media`;
       console.log(`[Backup Uploader] Successfully uploaded to Firebase Storage. URL: ${downloadUrl}`);
     } catch (gcsSaveErr: any) {
-      console.warn(`[Backup Uploader] Firebase Storage write failed: ${gcsSaveErr.message}. Failing over to local filesystem...`);
+      if (process.env.ENABLE_LOCAL_UPLOADS !== 'true') {
+        throw new Error(`Firebase Storage write failed and local upload fallback is disabled. Details: ${gcsSaveErr.message}`);
+      }
+      console.warn(`[Backup Uploader] Firebase Storage write failed: ${gcsSaveErr.message}. Failing over to local filesystem because ENABLE_LOCAL_UPLOADS=true...`);
       
-      const safeFilename = storagePath.replace(/\//g, '_');
-      const localDiskPath = path.join(path.join(process.cwd(), 'uploads'), safeFilename);
+      const safeLocalFilename = storagePath.replace(/\//g, '_');
+      const localDiskPath = path.join(path.join(process.cwd(), 'uploads'), safeLocalFilename);
       fs.writeFileSync(localDiskPath, buffer);
       
       // Serve via relative server url path to bypass any hardcoded domain routing rules
-      downloadUrl = `/uploads/${encodeURIComponent(safeFilename)}`;
+      downloadUrl = `/uploads/${encodeURIComponent(safeLocalFilename)}`;
       console.log(`[Backup Uploader] Successfully saved local file as fallback: ${localDiskPath}. Public serving path: ${downloadUrl}`);
     }
 
@@ -831,12 +901,15 @@ app.post('/api/upload-file-fallback', async (req: express.Request, res: express.
 // Initialize integrated Dev & Production Express/Vite handlers
 let viteServer: any = null;
 async function startServer() {
-  // Serve local filesystem fallback uploads directory
-  const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
-  if (!fs.existsSync(UPLOADS_DIR)) {
-    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+  // Local filesystem fallback uploads are disabled by default for production safety.
+  // Enable only in controlled local/dev environments with ENABLE_LOCAL_UPLOADS=true.
+  if (process.env.ENABLE_LOCAL_UPLOADS === 'true') {
+    const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
+    if (!fs.existsSync(UPLOADS_DIR)) {
+      fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+    }
+    app.use('/uploads', express.static(UPLOADS_DIR));
   }
-  app.use('/uploads', express.static(UPLOADS_DIR));
 
   if (process.env.NODE_ENV !== 'production') {
     viteServer = await createViteServer({

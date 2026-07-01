@@ -1233,10 +1233,14 @@ export const CardBackgroundDesigner: React.FC<CardBackgroundDesignerProps> = ({
       await onSave(updates);
       if (hasNewVideoUpload && activeCard?.cardId) {
         try {
+          const idToken = await user?.getIdToken();
           const res = await fetch('/api/process-video-job', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cardId: activeCard.cardId })
+            headers: {
+              'Content-Type': 'application/json',
+              ...(idToken ? { Authorization: `Bearer ${idToken}` } : {})
+            },
+            body: JSON.stringify({ cardId: activeCard.cardId, idToken })
           });
           if (!res.ok) {
             console.error('[process-video-job endpoint error]:', res.status, res.statusText);

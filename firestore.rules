@@ -40,12 +40,10 @@ service cloud.firestore {
     function isValidUser(data) {
       return data.userId is string 
         && data.email is string 
-        && data.plan in ['free', 'starter', 'premium', 'pro', 'business', 'family']
+        && data.plan in ['free', 'starter', 'premium', 'pro', 'business', 'family', 'fun', 'enterprise']
         && data.storageLimitMB is int
         && data.storageUsedMB is number
-        && data.role in ['user', 'admin', 'owner']
-        && data.acceptedTermsAt is string
-        && data.acceptedPrivacyAt is string;
+        && data.role in ['user', 'admin', 'owner'];
     }
 
     function isPublicCard(data) {
@@ -105,7 +103,11 @@ service cloud.firestore {
         && existing().ownerId == request.auth.uid;
 
       match /analytics/{docId} {
-        allow read, write: if true;
+        // Public viewer analytics remain write-capable to avoid breaking current tracking,
+        // but reads are limited to the owner/admin and deletes are disabled.
+        allow read: if isSignedIn() && (get(/databases/$(database)/documents/cards/$(cardId)).data.ownerId == request.auth.uid || isAdmin());
+        allow create, update: if docId == 'summary';
+        allow delete: if false;
       }
     }
 
@@ -132,14 +134,24 @@ service cloud.firestore {
 
     match /reports/{reportId} {
       allow read: if isAdmin();
-      allow create: if isValidId(reportId) && incoming().status == 'pending';
+      allow create: if isValidId(reportId)
+        && incoming().status == 'pending'
+        && incoming().cardId is string
+        && incoming().reason is string
+        && incoming().reason.size() <= 120
+        && incoming().message is string
+        && incoming().message.size() <= 2000;
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }
 
     match /analytics/{eventId} {
       allow read: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
-      allow create: if isValidId(eventId);
+      allow create: if isValidId(eventId)
+        && incoming().cardId is string
+        && incoming().eventType in ['view', 'click']
+        && incoming().createdAt is string
+        && (!('buttonId' in incoming()) || incoming().buttonId == null || incoming().buttonId is string);
       allow update: if false;
       allow delete: if isAdmin();
     }

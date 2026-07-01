@@ -930,3 +930,15 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Öffentliche Share-Links werden außerhalb von localhost konsequent auf `https://www.ureel.me` normalisiert, statt temporäre Vercel-Preview-Domains zu teilen.
 - Social-Titel im Server-Fallback entfernt sichtbare Brand-Präfixe wie `ureel –`, damit der spätere Namenswechsel sauberer bleibt.
 - Mobile Studio unverändert.
+
+## v52.6.09 / RC3.2 – Security Audit Safe
+
+- Security-Sprint bewusst klein gehalten: keine harte `/publicCards`-Migration, keine Landingpage-Änderung und kein Mobile-Studio-Eingriff.
+- TestGate-Fallback-Passwort entfernt; TestGate ist nur noch aktiv, wenn explizit `VITE_TEST_GATE_PASSWORD` gesetzt wird.
+- Server-Body-Limits von pauschal 100 MB auf konfigurierbare, kleinere Defaults reduziert.
+- `/api/process-video-job` erfordert jetzt Firebase ID Token und Owner/Admin-Prüfung der Karte.
+- `/api/upload-file-fallback` prüft jetzt User-ID, Karten-Owner/Admin, erlaubte Upload-Typen, MIME-Type, Dateigröße und sichere Dateinamen.
+- Lokaler `/uploads`-Fallback ist standardmäßig deaktiviert und nur mit `ENABLE_LOCAL_UPLOADS=true` verfügbar.
+- `application/octet-stream` nicht mehr als Video-MIME-Type in Storage Rules erlaubt.
+- Firestore Rules tolerieren Legacy-Pläne wie `fun`/`enterprise` und begrenzen Reports sowie globale Analytics-Events stärker.
+- Bestehende Public-/Landing-/Share-Ladewege bleiben unverändert, damit die stabile RC3.1.2-Funktionalität erhalten bleibt.

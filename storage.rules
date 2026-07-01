@@ -23,8 +23,7 @@ service firebase.storage {
       return request.resource.contentType == 'video/mp4'
         || request.resource.contentType == 'video/quicktime'
         || request.resource.contentType == 'video/x-m4v'
-        || request.resource.contentType == 'video/webm'
-        || request.resource.contentType == 'application/octet-stream';
+        || request.resource.contentType == 'video/webm';
     }
 
     function maxImageSize() {
