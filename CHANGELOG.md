@@ -1,3 +1,10 @@
+## v52.6.09 / RC3.2.3 – Landing Showcase Open Fix
+
+- Landingpage-Showcase-Karten sind jetzt als ganze Kartenflächen klickbar.
+- Public-Preview-Iframes fangen Klicks nicht mehr ab, damit die Landing-Karten zuverlässig zur echten `/u/...` Public View öffnen.
+- Die gelben Pfeil-Buttons nutzen die interne SPA-Navigation statt einen unsicheren Browser-Reload.
+- Security Hardening aus RC3.2.1/RC3.2.2 bleibt unverändert; Mobile Studio bleibt unverändert.
+
 
 ## v52.6.09 / RC3.2.2 – Landing Showcase Safety Fix
 

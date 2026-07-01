@@ -279,3 +279,11 @@ Media access is now more consistent with the new rules: optimized videos and thu
 The local `/uploads` fallback is disabled by default for beta safety, because it bypasses Firestore/Storage authorization. It may only be enabled intentionally in controlled local/dev environments.
 
 Mobile Studio and mobile layout persistence remain protected and unchanged.
+
+
+## v52.6.09 / RC3.2.3 – Landing Showcase Open Fix
+
+- Landingpage-Showcase-Karten sind jetzt als ganze Kartenflächen klickbar.
+- Public-Preview-Iframes fangen Klicks nicht mehr ab, damit die Landing-Karten zuverlässig zur echten `/u/...` Public View öffnen.
+- Die gelben Pfeil-Buttons nutzen die interne SPA-Navigation statt einen unsicheren Browser-Reload.
+- Security Hardening aus RC3.2.1/RC3.2.2 bleibt unverändert; Mobile Studio bleibt unverändert.

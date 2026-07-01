@@ -634,7 +634,7 @@ const DelayedPublicIframe: React.FC<{ title: string; src: string; delayMs?: numb
         <iframe
           title={title}
           src={src}
-          className="absolute inset-0 h-full w-full border-0 bg-black"
+          className="absolute inset-0 h-full w-full border-0 bg-black pointer-events-none"
           loading={eager ? 'eager' : 'lazy'}
           allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
         />
@@ -730,6 +730,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
 
   const publicUrl = (path: string) => path.startsWith('http') ? path : path;
   const publicPreviewUrl = (path: string) => `${publicUrl(path)}${path.includes('?') ? '&' : '?'}mobilePublic=1&landingPreview=1&autoplay=1&muted=1&once=1&delay=0`;
+  const openPublicPath = (path: string) => {
+    const target = path || '/';
+    if (target.startsWith('http')) {
+      window.location.href = target;
+      return;
+    }
+    onGoToRoute(target);
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  };
 
   return (
     <div className="min-h-screen bg-[#080808] text-[#F6F0E6] font-sans overflow-x-hidden">
@@ -887,10 +896,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
           </div>
           <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5">
             {approvedCases.map((item, i) => (
-              <article key={item.slug} className="rounded-[30px] border border-white/10 bg-white/[0.035] p-4 overflow-hidden">
+              <article
+                key={item.slug}
+                role="button"
+                tabIndex={0}
+                onClick={() => openPublicPath(item.publicPath)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openPublicPath(item.publicPath);
+                  }
+                }}
+                className="group cursor-pointer rounded-[30px] border border-white/10 bg-white/[0.035] p-4 overflow-hidden transition hover:border-[#F2D28B]/35 hover:bg-white/[0.055]"
+              >
                 <div className="relative mx-auto w-full max-w-[230px] h-[455px] rounded-[34px] border border-white/13 bg-black p-[3px]">
                   <div className="relative h-full rounded-[30px] overflow-hidden bg-black">
                     <DelayedPublicIframe title={`${item.title} loop`} src={publicPreviewUrl(item.publicPath)} delayMs={i * 1000} eager />
+                    <div className="pointer-events-none absolute inset-0 z-20 rounded-[30px] ring-0 ring-[#F2D28B]/0 transition group-hover:ring-2 group-hover:ring-[#F2D28B]/35" />
                   </div>
                 </div>
                 <div className="mt-4 flex items-center justify-between gap-3">
@@ -898,7 +920,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
                     <div className="text-lg font-black">{item.title}</div>
                     <div className="text-xs font-bold text-white/52">{item.label}</div>
                   </div>
-                  <a href={item.publicPath} className="h-10 w-10 rounded-full bg-[#F2D28B] text-black flex items-center justify-center"><LucideIcons.ArrowRight size={18}/></a>
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      openPublicPath(item.publicPath);
+                    }}
+                    className="h-10 w-10 rounded-full bg-[#F2D28B] text-black flex items-center justify-center transition group-hover:scale-105"
+                    aria-label={`${item.title} öffnen`}
+                  >
+                    <LucideIcons.ArrowRight size={18}/>
+                  </button>
                 </div>
               </article>
             ))}
