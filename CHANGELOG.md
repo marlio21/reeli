@@ -970,3 +970,12 @@ Ab v52.4.6 soll dieses CHANGELOG fortgeführt werden, statt für jede Version ne
 - Video processing no longer calls `makePublic()` for optimized videos or thumbnails; access is controlled through Storage Rules and published-card state.
 - Local `/uploads` fallback serving is disabled by default and can only be enabled explicitly with `ENABLE_LOCAL_UPLOADS=true` for controlled local/dev environments.
 - Production build verified. Mobile Studio renderer and mobile layout persistence remain unchanged.
+
+## v52.6.10 / RC3.3 – Landing Stable & Release Candidate
+
+- Stabilisiert die Landingpage nach RC3.2 Security-Hardening.
+- Live-Showcase-Karten öffnen jetzt wieder als echte `<a href="/u/...">` Public-Links.
+- Entfernt fehleranfällige iframe-/onClick-Navigation aus den Showcase-Karten.
+- Public-View-Routen bleiben rückwärtskompatibel; `/publicCards` wird nicht hart für die Landingpage erzwungen.
+- Keine Änderungen am Mobile Studio.
+- Share-System aus RC3.1.x bleibt erhalten; Share 2.0 wird als separater Sprint fortgeführt.

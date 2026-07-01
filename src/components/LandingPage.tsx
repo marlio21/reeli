@@ -732,12 +732,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
   const publicPreviewUrl = (path: string) => `${publicUrl(path)}${path.includes('?') ? '&' : '?'}mobilePublic=1&landingPreview=1&autoplay=1&muted=1&once=1&delay=0`;
   const openPublicPath = (path: string) => {
     const target = path || '/';
-    if (target.startsWith('http')) {
-      window.location.href = target;
-      return;
-    }
-    onGoToRoute(target);
-    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+    // RC3.3: Public showcase links are hard navigations.
+    // This avoids iframe/pointer-event issues and keeps landing cards as simple, reliable links.
+    window.location.href = target;
   };
 
   return (
@@ -896,18 +893,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
           </div>
           <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5">
             {approvedCases.map((item, i) => (
-              <article
+              <a
                 key={item.slug}
-                role="button"
-                tabIndex={0}
-                onClick={() => openPublicPath(item.publicPath)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault();
-                    openPublicPath(item.publicPath);
-                  }
-                }}
-                className="group cursor-pointer rounded-[30px] border border-white/10 bg-white/[0.035] p-4 overflow-hidden transition hover:border-[#F2D28B]/35 hover:bg-white/[0.055]"
+                href={item.publicPath}
+                className="group block cursor-pointer rounded-[30px] border border-white/10 bg-white/[0.035] p-4 overflow-hidden transition hover:border-[#F2D28B]/35 hover:bg-white/[0.055] focus:outline-none focus:ring-2 focus:ring-[#F2D28B]/45"
+                aria-label={`${item.title} Public View öffnen`}
               >
                 <div className="relative mx-auto w-full max-w-[230px] h-[455px] rounded-[34px] border border-white/13 bg-black p-[3px]">
                   <div className="relative h-full rounded-[30px] overflow-hidden bg-black">
@@ -920,19 +910,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ lang, setLang, onEnter
                     <div className="text-lg font-black">{item.title}</div>
                     <div className="text-xs font-bold text-white/52">{item.label}</div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      openPublicPath(item.publicPath);
-                    }}
-                    className="h-10 w-10 rounded-full bg-[#F2D28B] text-black flex items-center justify-center transition group-hover:scale-105"
-                    aria-label={`${item.title} öffnen`}
-                  >
+                  <span className="h-10 w-10 rounded-full bg-[#F2D28B] text-black flex items-center justify-center transition group-hover:scale-105" aria-hidden="true">
                     <LucideIcons.ArrowRight size={18}/>
-                  </button>
+                  </span>
                 </div>
-              </article>
+              </a>
             ))}
           </div>
         </section>
